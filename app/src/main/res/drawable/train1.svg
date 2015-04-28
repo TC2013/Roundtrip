@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg2"
+   sodipodi:docname="Train1.svg"
+   viewBox="0 0 611.05 200.7"
+   version="1.1"
+   inkscape:version="0.91 r"
+   inkscape:export-filename="/home/geoff/images/Train1.png"
+   inkscape:export-xdpi="639.95239"
+   inkscape:export-ydpi="639.95239">
+  <defs
+     id="defs4">
+    <pattern
+       id="pattern5429"
+       xlink:href="#Strips1_1"
+       patternTransform="matrix(13.056,0,0,12.657923,-156.91,-303.63202)"
+       inkscape:collect="always" />
+    <pattern
+       id="Strips1_1"
+       height="1"
+       width="2"
+       patternUnits="userSpaceOnUse"
+       patternTransform="translate(0) scale(10)"
+       inkscape:stockid="Stripes 1:1"
+       inkscape:collect="always">
+      <rect
+         id="rect4599"
+         style="fill:black"
+         height="2"
+         width="1"
+         y="-.5"
+         x="0" />
+    </pattern>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     bordercolor="#666666"
+     inkscape:pageshadow="2"
+     inkscape:window-y="0"
+     fit-margin-left="0"
+     pagecolor="#ffffff"
+     inkscape:window-height="972"
+     inkscape:window-maximized="1"
+     inkscape:zoom="1.2527477"
+     inkscape:window-x="0"
+     showgrid="false"
+     borderopacity="1.0"
+     inkscape:current-layer="layer1"
+     inkscape:cx="79.903014"
+     inkscape:cy="-5.9618871"
+     fit-margin-top="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:window-width="1280"
+     inkscape:pageopacity="0.0"
+     inkscape:document-units="px" />
+  <g
+     id="layer1"
+     inkscape:label="Livello 1"
+     inkscape:groupmode="layer"
+     transform="translate(-57.832 -407.67)">
+    <g
+       id="g3475">
+      <rect
+         id="rect2996"
+         style="fill:#a05a2c"
+         rx="0"
+         ry="0.53576601"
+         height="9.6436844"
+         width="48.489983"
+         y="567.2149"
+         x="105.98562" />
+      <path
+         id="path3045"
+         d="m 167.40104,479.90946 -61.45459,88.07708 62.45729,-0.64762 z"
+         style="fill:url(#pattern5429)"
+         inkscape:connector-curvature="0" />
+      <path
+         id="rect3034"
+         style="fill:#ff0000"
+         inkscape:connector-curvature="0"
+         d="m 257.33077,436.44603 c -0.16004,0.0667 -0.2448,0.22501 -0.2448,0.408 l 0,42.30928 -57.81328,0 0,-18.9312 c 0,-0.24094 -0.205,-0.408 -0.4488,-0.408 l -33.25232,0 c -0.0608,0 -0.15132,-0.0219 -0.204,0 -0.0197,0.008 -0.0232,0.0298 -0.0407,0.0407 l -0.5304,0 0,19.62447 0.0407,0 c -0.0158,0.0441 -0.0407,0.0708 -0.0407,0.12234 l 0,79.27473 c 0,0.20645 0.13304,0.35983 0.3264,0.408 l 0,0.612 c 0,0.24093 0.20501,0.4488 0.4488,0.4488 l 33.25233,0 c 0.24379,0 0.4488,-0.20787 0.4488,-0.4488 l 0,-0.5712 135.74323,0 c 0.24689,0 0.4488,-0.20481 0.4488,-0.4488 l 0,-37.0464 0,-42.22833 0,-42.7584 c 0,-0.24399 -0.20191,-0.408 -0.4488,-0.408 l -77.52,0 c -0.0618,0 -0.1098,-0.0222 -0.1632,0 z" />
+      <rect
+         id="rect3032"
+         style="fill:#a05a2c"
+         ry="0.54400432"
+         height="15.6672"
+         width="162.9911"
+         y="552.50079"
+         x="179.03394" />
+      <ellipse
+         id="path3022"
+         style="fill:#000000"
+         cx="227.65678"
+         cy="564.90503"
+         rx="26.111588"
+         ry="26.111485" />
+      <ellipse
+         id="path3000"
+         style="fill:#999999"
+         cx="227.65094"
+         cy="564.91943"
+         rx="19.58322"
+         ry="19.58391" />
+      <ellipse
+         id="path3024"
+         style="fill:#000000"
+         cx="172.82158"
+         cy="564.90503"
+         rx="26.111588"
+         ry="26.111485" />
+      <ellipse
+         id="path3026"
+         style="fill:#999999"
+         cx="172.81535"
+         cy="564.91943"
+         rx="19.58322"
+         ry="19.58391" />
+      <ellipse
+         id="path3028"
+         style="fill:#000000"
+         cx="295.33203"
+         cy="557.26184"
+         rx="35.250927"
+         ry="35.250401" />
+      <ellipse
+         id="path3030"
+         style="fill:#999999"
+         cx="295.33896"
+         cy="557.2951"
+         rx="26.438194"
+         ry="26.438301" />
+      <rect
+         id="rect3042"
+         style="fill:#ffffff"
+         ry="0.36266956"
+         height="52.223999"
+         width="44.3904"
+         y="446.51221"
+         x="275.28278" />
+      <rect
+         id="rect3047"
+         style="fill:#000000"
+         ry="4.3706264"
+         height="10.687772"
+         width="44.3904"
+         y="449.1756"
+         x="159.77634" />
+      <rect
+         id="rect3817"
+         style="fill:#a05a2c"
+         ry="0"
+         height="13.025841"
+         width="96.614403"
+         y="423.46841"
+         x="247.2907" />
+    </g>
+  </g>
+  <metadata
+     id="metadata3446">
+    <rdf:RDF>
+      <cc:Work>
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <cc:license
+           rdf:resource="http://creativecommons.org/publicdomain/zero/1.0/" />
+        <dc:publisher>
+          <cc:Agent
+             rdf:about="http://openclipart.org/">
+            <dc:title>Openclipart</dc:title>
+          </cc:Agent>
+        </dc:publisher>
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/publicdomain/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+</svg>

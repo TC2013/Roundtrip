@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">RTDemo</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="local_service_started">local_service_started</string>
+    <string name="local_service_stopped">local_service_stopped</string>
+    <string name="invalid_rest_uri">Invalid rest url %s, please double check formatting.</string>
+    <string name="rest_uri_missing_token">Missing token for rest uri %s.</string>
+    <string name="illegal_mongo_uri">Mongo uri has invalid syntax. Please double check.</string>
+    <string name="default_pwd_name">Camping</string>
+
+</resources>
