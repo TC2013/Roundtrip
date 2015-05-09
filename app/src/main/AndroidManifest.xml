@@ -32,6 +32,15 @@
             android:name=".Services.RTDemoService"
             android:enabled="true" >
         </service>
+
+        <activity
+            android:name=".PumpSettingsActivity"
+            android:label="@string/title_activity_pump_settings"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.gxwtech.rtdemo.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

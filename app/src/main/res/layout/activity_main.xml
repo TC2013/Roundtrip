@@ -25,7 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Accessing CGM Data Source"
+            android:text="Roundtrip ready."
             android:id="@+id/textView_StatusNote"
             android:layout_gravity="left|bottom" />
 
@@ -39,33 +39,40 @@
     </FrameLayout>
 
     <Button
-        style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Start"
-        android:id="@+id/button_start"
-        android:onClick="startRTService"
-        android:layout_below="@+id/frameLayout"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="78dp" />
+        android:text="Test Link"
+        android:id="@+id/button_testlink"
+        style="?android:attr/buttonStyleSmall"
+        android:onClick="wakeCarelink"
+        android:layout_below="@+id/frameLayout" />
 
     <Button
-        style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="stop"
-        android:id="@+id/button_stop"
-        android:onClick="stopRTService"
+        android:text="Check Pump"
+        android:id="@+id/button_verifyPumpCommunications"
+        android:onClick="verifyPumpCommunications"
+        android:layout_alignTop="@+id/button_testlink"
+        android:layout_toEndOf="@+id/button_testlink" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pump Settings"
+        android:id="@+id/button_pumpSettings"
         android:layout_below="@+id/frameLayout"
-        android:layout_toEndOf="@+id/button_start"
-        android:layout_marginStart="76dp" />
+        android:layout_toEndOf="@+id/button_verifyPumpCommunications"
+        android:layout_alignParentEnd="false"
+        android:onClick="launchPumpSettingsActivity" />
 
     <ListView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/listView_Log"
-        android:layout_alignParentRight="true"
+        android:nestedScrollingEnabled="false"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/button_start" />
+        android:layout_below="@+id/button_testlink" />
 
 </RelativeLayout>

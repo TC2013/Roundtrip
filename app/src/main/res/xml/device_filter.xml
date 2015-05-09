@@ -15,6 +15,6 @@
      <usb-device vendor-id="1027" product-id="24577"/>
 -->
 <resources>
+    <!-- These numbers must be in decimal :( -->
     <usb-device vendor-id="2593" product-id="32769"/>
-    <usb-device vendor-id="0x0a21" product-id="0x8001"/>
 </resources>

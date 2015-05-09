@@ -9,5 +9,6 @@
     <string name="rest_uri_missing_token">Missing token for rest uri %s.</string>
     <string name="illegal_mongo_uri">Mongo uri has invalid syntax. Please double check.</string>
     <string name="default_pwd_name">Camping</string>
+    <string name="title_activity_pump_settings">Pump Settings</string>
 
 </resources>
