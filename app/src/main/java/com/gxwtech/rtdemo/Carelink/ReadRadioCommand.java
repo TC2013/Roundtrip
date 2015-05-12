@@ -120,6 +120,8 @@ public class ReadRadioCommand extends CarelinkCommand {
         if (mAck != CarelinkCommandStatusEnum.ACK) {
             Log.w(TAG,"Invalid ACK -- failed twice. Quitting.");
         } else {
+            // sometimes we get a valid ACK, but the radio buffer has nothing (yet?)
+            // handle this situation in MedtronicCommand.downloadIdeal.
 
             if (calcRecordsNeeded() > 1) {
                 /*

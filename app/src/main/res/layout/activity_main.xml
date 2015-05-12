@@ -13,66 +13,126 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Roundtrip Status: OK"
-            android:id="@+id/textView_StatusTitle"
-            android:layout_gravity="left|top" />
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Roundtrip ready."
-            android:id="@+id/textView_StatusNote"
-            android:layout_gravity="left|bottom" />
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
 
-        <ProgressBar
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/progressBar"
-            android:layout_gravity="right|bottom"
-            android:indeterminate="false"
-            android:visibility="invisible" />
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:text="Roundtrip Status: OK"
+                        android:id="@+id/textView_StatusTitle"
+                        android:layout_gravity="left|top" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:text="Roundtrip ready."
+                        android:id="@+id/textView_StatusNote"
+                        android:layout_gravity="left|bottom" />
+
+                </LinearLayout>
+
+                <ProgressBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/progressBar"
+                    android:layout_gravity="right|bottom"
+                    android:indeterminate="false"
+                    android:visibility="invisible"
+                    android:longClickable="false"
+                    android:layout_alignParentRight="true" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_marginTop="5dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="Pump Serial Number"
+                    android:id="@+id/textView_pumpSerialNumber" />
+
+                <EditText
+                    android:layout_width="81dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/editText_pumpSerialNumber"
+                    android:hint="000000"
+                    android:layout_marginLeft="12dp"
+                    android:maxLength="6"
+                    android:maxLines="1"
+                    android:inputType="number"
+                    android:numeric="integer" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Set"
+                    android:id="@+id/button_setSerialNumber"
+                    android:onClick="editSerialNumberChanged" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Test Link"
+                    android:id="@+id/button_testlink"
+                    style="?android:attr/buttonStyleSmall"
+                    android:onClick="wakeCarelink"
+                    android:layout_below="@+id/frameLayout" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Check Pump"
+                    android:id="@+id/button_verifyPumpCommunications"
+                    android:onClick="verifyPumpCommunications"
+                    android:layout_alignTop="@+id/button_testlink"
+                    android:layout_toEndOf="@+id/button_testlink" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pump Settings"
+                    android:id="@+id/button_pumpSettings"
+                    android:layout_below="@+id/frameLayout"
+                    android:layout_toEndOf="@+id/button_verifyPumpCommunications"
+                    android:layout_alignParentEnd="false"
+                    android:onClick="launchPumpSettingsActivity" />
+            </LinearLayout>
+
+            <ListView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/listView_Log"
+                android:nestedScrollingEnabled="false"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentStart="true" />
+
+        </LinearLayout>
+
     </FrameLayout>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Test Link"
-        android:id="@+id/button_testlink"
-        style="?android:attr/buttonStyleSmall"
-        android:onClick="wakeCarelink"
-        android:layout_below="@+id/frameLayout" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Check Pump"
-        android:id="@+id/button_verifyPumpCommunications"
-        android:onClick="verifyPumpCommunications"
-        android:layout_alignTop="@+id/button_testlink"
-        android:layout_toEndOf="@+id/button_testlink" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Pump Settings"
-        android:id="@+id/button_pumpSettings"
-        android:layout_below="@+id/frameLayout"
-        android:layout_toEndOf="@+id/button_verifyPumpCommunications"
-        android:layout_alignParentEnd="false"
-        android:onClick="launchPumpSettingsActivity" />
-
-    <ListView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/listView_Log"
-        android:nestedScrollingEnabled="false"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/button_testlink" />
 
 </RelativeLayout>

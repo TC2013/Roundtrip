@@ -17,6 +17,7 @@ import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.gxwtech.rtdemo.Services.PumpManager.PumpSettingsParcel;
@@ -37,10 +38,11 @@ public class PumpSettingsActivity extends ActionBarActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction() == Intents.ROUNDTRIP_TASK_RESPONSE) {
+                    Log.d(TAG,"Received task response");
                     if (intent.hasExtra("name")) {
                         String name = intent.getStringExtra("name");
                         if (intent.hasExtra(name)) {
-                            if (intent.getAction() == Constants.ParcelName.PumpSettingsParcelName) {
+                            if (name == Constants.ParcelName.PumpSettingsParcelName) {
                                 Bundle data = intent.getExtras();
                                 PumpSettingsParcel p = data.getParcelable(name);
                                 // do something with it.
@@ -69,16 +71,16 @@ public class PumpSettingsActivity extends ActionBarActivity {
         audioBolusEnable.setChecked(p.mAudioBolusEnable);
 
         EditText audioBolusSize = (EditText)findViewById(R.id.editText_audioBolusSize);
-        audioBolusSize.setText(String.format("%0.2f", p.mAudioBolusSize));
+        audioBolusSize.setText(String.format("%.2f", p.mAudioBolusSize));
 
         ToggleButton variableBolusEnable = (ToggleButton)findViewById(R.id.toggleButton_variableBolusEnable);
         variableBolusEnable.setChecked(p.mVariableBolusEnable);
 
         EditText maxBolus = (EditText)findViewById(R.id.editText_maxBolus);
-        maxBolus.setText(String.format("%0.2f",p.mMaxBolus));
+        maxBolus.setText(String.format("%.2f",p.mMaxBolus));
 
         EditText maxBasal = (EditText)findViewById(R.id.editText_maxBasal);
-        maxBasal.setText(String.format("%d",p.mMaxBasal));
+        maxBasal.setText(String.format("%.2f",p.mMaxBasal));
 
         EditText timeFormat = (EditText)findViewById(R.id.editText_timeFormat);
         timeFormat.setText(String.format("%d",p.mTimeFormat));
@@ -97,10 +99,10 @@ public class PumpSettingsActivity extends ActionBarActivity {
         selectedPattern.setText(String.format("%d", p.mSelectedPattern));
 
         EditText rfEnable = (EditText)findViewById(R.id.editText_RFEnable);
-        rfEnable.setText(String.format("%d", p.mRFEnable));
+        rfEnable.setText(p.mRFEnable ? "true":"false");
 
         EditText blockEnable = (EditText)findViewById(R.id.editText_blockEnable);
-        blockEnable.setText(String.format("%d", p.mBlockEnable));
+        blockEnable.setText(p.mBlockEnable ? "true":"false");
 
         EditText tempBasalType = (EditText)findViewById(R.id.editText_tempBasalType);
         tempBasalType.setText(String.format("%d", p.mTempBasalType));
@@ -132,6 +134,8 @@ public class PumpSettingsActivity extends ActionBarActivity {
         startService(intent);
         ProgressBar waiting = (ProgressBar) findViewById(R.id.progressBar_getPumpSettingsWaiting);
         waiting.setVisibility(View.VISIBLE);
+        TextView waitingMsg = (TextView) findViewById(R.id.textView_getPumpSettingsProgressMessage);
+        waitingMsg.setVisibility(View.VISIBLE);
     }
 
     public void receivePumpSettingsParcel(PumpSettingsParcel p) {
@@ -139,6 +143,8 @@ public class PumpSettingsActivity extends ActionBarActivity {
         updateViewFromPumpSettingsParcel(p);
         ProgressBar waiting = (ProgressBar) findViewById(R.id.progressBar_getPumpSettingsWaiting);
         waiting.setVisibility(View.INVISIBLE);
+        TextView waitingMsg = (TextView) findViewById(R.id.textView_getPumpSettingsProgressMessage);
+        waitingMsg.setVisibility(View.INVISIBLE);
     }
 
     @Override

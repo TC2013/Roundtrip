@@ -6,10 +6,16 @@ import android.util.Log;
 import com.gxwtech.rtdemo.Carelink.Carelink;
 import com.gxwtech.rtdemo.Carelink.ProductInfoCommand;
 import com.gxwtech.rtdemo.Carelink.SignalStrengthCommand;
+import com.gxwtech.rtdemo.Medtronic.MedtronicCommand;
+import com.gxwtech.rtdemo.Medtronic.MedtronicCommandStatusEnum;
+import com.gxwtech.rtdemo.Medtronic.PowerControlCommand;
 import com.gxwtech.rtdemo.Medtronic.PumpData.PumpSettings;
 import com.gxwtech.rtdemo.Medtronic.ReadPumpSettingsCommand;
 import com.gxwtech.rtdemo.USB.CareLinkUsb;
 import com.gxwtech.rtdemo.USB.UsbException;
+
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 /**
  * Created by geoff on 5/8/15.
@@ -25,6 +31,10 @@ public class PumpManager {
     Context mContext;
     byte[] mSerialNumber; // need a setter for this
 
+    // we need to keep track of the last time the PowerControl command was run,
+    // so that if we're getting close to the end of the RF Transmitter 'on' time, we can rerun it.
+    protected Calendar mLastPowerControlRunTime;
+
     // need access to context to get at UsbManager
     public PumpManager(Context context) {
         mContext = context;
@@ -34,16 +44,13 @@ public class PumpManager {
     public boolean setSerialNumber(byte[] serialNumber) {
         if (serialNumber == null) { return false; }
         if (serialNumber.length != 3) { return false; }
-        System.arraycopy(mSerialNumber,0,serialNumber,0,3);
+        System.arraycopy(serialNumber,0,mSerialNumber,0,3);
+        Log.w(TAG, String.format("New serial number: %02X%02X%02X", mSerialNumber[0], mSerialNumber[1], mSerialNumber[2]));
         return true;
     }
 
     protected void init() {
-        mSerialNumber = new byte[3];
-        // todo: fix this default
-        // can simply delete it and require RTDemoService to set it.
-        byte[] sn = {0x46,0x73,0x24};
-        setSerialNumber(sn);
+        mSerialNumber = new byte[] {0,0,0};
     }
 
     // Called when we have received permission to use USB device
@@ -124,7 +131,37 @@ public class PumpManager {
         return canHearPump;
     }
 
+    public void checkPowerControl() {
+        byte minutesOfRFPower = (byte)10; // can set this to 3, or 10, or ?
+        boolean runPowerControlCommand = false;
+        if (mLastPowerControlRunTime == null) {
+            // haven't run it yet.  Do so.
+            runPowerControlCommand = true;
+        } else {
+            long timeDifference = Calendar.getInstance().getTimeInMillis()
+                    - mLastPowerControlRunTime.getTimeInMillis();
+            long secondsRemaining = (minutesOfRFPower * 60 /* seconds per minute*/)
+                    - (timeDifference / 1000 /* millis per second*/);
+            Log.w(TAG,String.format("Seconds remaining on RF power: %d",secondsRemaining));
+            if (secondsRemaining < 60 /* seconds */) {
+                runPowerControlCommand = true;
+            }
+        }
+        // now run it if we have to.
+        if (runPowerControlCommand) {
+            PowerControlCommand powerControlCommand = new PowerControlCommand((byte)1,minutesOfRFPower);
+            // the power control command can take a long time (>17 seconds) to run.
+            // so get the new run time before running the command
+            Calendar newRunTime = Calendar.getInstance();
+            MedtronicCommandStatusEnum en = powerControlCommand.run(mCarelink,mSerialNumber);
+            Log.w(TAG,"PowerControlCommand returned status: " + en.name());
+            // Only set the new run time if the command succeeded?
+            mLastPowerControlRunTime = newRunTime;
+        }
+    }
+
     public PumpSettings getPumpSettings() {
+        checkPowerControl();
         ReadPumpSettingsCommand cmd = new ReadPumpSettingsCommand();
         cmd.run(mCarelink,mSerialNumber);
         return cmd.getPumpSettings();

@@ -11,6 +11,8 @@ import com.gxwtech.rtdemo.Carelink.util.ByteUtil;
 import com.gxwtech.rtdemo.HexDump;
 import com.gxwtech.rtdemo.USB.UsbException;
 
+import java.util.Calendar;
+
 /**
  * Created by geoff on 4/27/15.
  */
@@ -79,8 +81,8 @@ public class MedtronicCommand {
     }
 
     public MedtronicCommandStatusEnum run(Carelink carelink, byte[] serialNumber) {
-        //todo: add proper error handling
-        Log.i("MEDTRONIC COMMAND", getName());
+
+        Log.i("MEDTRONIC COMMAND", getName() + ": serial number " + ByteUtil.shortHexString(serialNumber));
 
         // Send a packet to the Medtronic
         TransmitPacketCommand sender = new TransmitPacketCommand(
@@ -91,34 +93,60 @@ public class MedtronicCommand {
                 mNRetries,
                 calcRecordsRequired());
         CarelinkCommandStatusEnum senderStatus = CarelinkCommandStatusEnum.NONE;
-        try {
-            senderStatus = sender.run(carelink);
-            // translate between a carelink status and a pump status
-            if (senderStatus == CarelinkCommandStatusEnum.NONE) {
-                mStatus = MedtronicCommandStatusEnum.NONE;
-            }
-            if (senderStatus == CarelinkCommandStatusEnum.ACK) {
-                mStatus = MedtronicCommandStatusEnum.ACK;
-            }
-            if (senderStatus == CarelinkCommandStatusEnum.NACK) {
-                mStatus = MedtronicCommandStatusEnum.NACK;
-            }
-        } catch (UsbException e) {
-            mStatus = MedtronicCommandStatusEnum.ERROR_USB;
-        }
-
-        Log.i("MEDTRONIC COMMAND","Sender status is " + senderStatus.toString());
-        // we've only just sent the packet, and expected the carelink to say "ok, I sent it."
-
-        if (mSleepForPumpResponse > 0) {
-            Log.e("MEDTRONIC COMMAND", String.format("Sleeping %d milliseconds before checking pump response.",mSleepForPumpResponse));
-            sleep(mSleepForPumpResponse);
-        }
+        boolean resendDownloadRequest = true;
+        int resendDownloadRetries = 0;
+        int resendDownloadRetriesMax = 5;
         byte[] receivedData = new byte[0];
-        try {
-            receivedData = downloadIdeal(carelink, serialNumber);
-        } catch (UsbException e) {
-            mStatus = MedtronicCommandStatusEnum.ERROR_USB;
+        while (resendDownloadRequest) {
+            try {
+                senderStatus = sender.run(carelink);
+                // translate between a carelink status and a pump status
+                if (senderStatus == CarelinkCommandStatusEnum.NONE) {
+                    mStatus = MedtronicCommandStatusEnum.NONE;
+                }
+                if (senderStatus == CarelinkCommandStatusEnum.ACK) {
+                    mStatus = MedtronicCommandStatusEnum.ACK;
+                }
+                if (senderStatus == CarelinkCommandStatusEnum.NACK) {
+                    mStatus = MedtronicCommandStatusEnum.NACK;
+                }
+            } catch (UsbException e) {
+                mStatus = MedtronicCommandStatusEnum.ERROR_USB;
+            }
+
+            Log.i("MEDTRONIC COMMAND", "Sender status is " + senderStatus.toString());
+            // we've only just sent the packet, and expected the carelink to say "ok, I sent it."
+
+            if (mSleepForPumpResponse > 0) {
+                Log.e("MEDTRONIC COMMAND", String.format("Sleeping %d milliseconds before checking pump response.", mSleepForPumpResponse));
+                sleep(mSleepForPumpResponse);
+            }
+            try {
+                receivedData = downloadIdeal(carelink, serialNumber);
+                if (receivedData == null) {
+                    Log.e(TAG, "downloadIdeal returned null buffer");
+                } else {
+                    Log.e(TAG, String.format("downloadIdeal reported %d bytes received", receivedData.length));
+                    if (receivedData.length > 0) {
+                        // got something, call it quits
+                        resendDownloadRequest = false;
+                        Log.e(TAG,String.format("Got %d bytes from radio buffer, ending run.",receivedData.length));
+                    } else {
+                        // got a zero length buffer from radio.  Try to read radio buffer again?
+                        resendDownloadRetries++;
+                        if (resendDownloadRetries > resendDownloadRetriesMax) {
+                            // failed too many times.  Give up.
+                            Log.e(TAG,String.format("Too many retries in reading radio buffer, giving up."));
+                            resendDownloadRequest = false;
+                        } else {
+                            Log.e(TAG, String.format("Radio buffer gave us zero bytes.  Trying again %d/%d",
+                                    resendDownloadRetries,resendDownloadRetriesMax));
+                        }
+                    }
+                }
+            } catch (UsbException e) {
+                mStatus = MedtronicCommandStatusEnum.ERROR_USB;
+            }
         }
         mRawReceivedData = receivedData;
         // this is a hook to allow derived classes to get their data.
@@ -182,7 +210,9 @@ public class MedtronicCommand {
                     Log.e(TAG, "ReadRadio command failed");
                     moreDataToGet = false;
                 } else if (rrcmd.getResponse().getPumpData().length == 0) {
-                    Log.e(TAG,"ReadRadio: zero bytes from radio");
+                    // sometimes we get an ACK from the stick, but the radio buffer
+                    // has nothing (yet?).
+                    Log.e(TAG,String.format("ReadRadio: zero bytes from radio"));
                     moreDataToGet = false;
                 } else {
                     // Add new data to our collection:

@@ -42,7 +42,7 @@ public class ByteUtil {
         for (int i=0; i< ra.length; i++) {
             rval = rval + HEX_DIGITS[(ra[i] & 0xF0) >> 4];
             rval = rval + HEX_DIGITS[(ra[i] & 0x0F)];
-            if (i< ra.length-2) {
+            if (i< ra.length-1) {
                 rval = rval + " ";
             }
         }

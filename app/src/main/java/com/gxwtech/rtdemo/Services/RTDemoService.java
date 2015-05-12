@@ -24,6 +24,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.gxwtech.rtdemo.Carelink.util.ByteUtil;
 import com.gxwtech.rtdemo.Constants;
 import com.gxwtech.rtdemo.Intents;
 import com.gxwtech.rtdemo.MainActivity;
@@ -177,12 +178,13 @@ public class RTDemoService extends Service {
             } else if (msg.arg2 == Constants.SRQ.SET_SERIAL_NUMBER) {
                 // ewww....
                 byte[] serialNumber = (byte[])msg.obj;
+                Log.w(TAG,"Service received set serial number, serialNumber=" + ByteUtil.shortHexString(serialNumber));
                 mPumpManager.setSerialNumber(serialNumber);
             } else if (msg.arg2 == Constants.SRQ.REPORT_PUMP_SETTINGS) {
                 PumpSettingsParcel parcel = new PumpSettingsParcel();
                 parcel.initFromPumpSettings(mPumpManager.getPumpSettings());
-                sendTaskResponseParcel(parcel,"PumpSettingsParcel");
-            } else if (msg.what == Constants.SRQ.VERIFY_DB_ACCESS) {
+                sendTaskResponseParcel(parcel, "PumpSettingsParcel");
+            } else if (msg.arg2 == Constants.SRQ.VERIFY_DB_ACCESS) {
                 // get latest BG reading from Mongo
                 llog("Accessing MongoDB for latest BG");
                 MongoWrapper mongoWrapper = new MongoWrapper();
@@ -210,6 +212,7 @@ public class RTDemoService extends Service {
         Intent intent = new Intent(Intents.ROUNDTRIP_TASK_RESPONSE);
         intent.putExtra("name",typename);
         intent.putExtra(typename,p);
+        Log.d(TAG,"Sending task response parcel, name = " + typename);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
@@ -326,6 +329,7 @@ public class RTDemoService extends Service {
             // todo: fix hack
             if (msg.arg2 == Constants.SRQ.SET_SERIAL_NUMBER) {
                 msg.obj = intent.getByteArrayExtra("serialNumber");
+                Log.w(TAG,"gui thread wrote intent arg2=what=SRQ.SET_SERIAL_NUMBER, obj=serialNumber=" + ByteUtil.shortHexString((byte[])msg.obj));
             }
             mServiceHandler.sendMessage(msg);
         }

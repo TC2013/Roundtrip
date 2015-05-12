@@ -16,12 +16,20 @@
             android:onClick="getPumpSettingsClicked" />
 
         <ProgressBar
-            style="?android:attr/progressBarStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/progressBar_getPumpSettingsWaiting"
             android:indeterminate="true"
             android:visibility="invisible" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Getting Settings..."
+            android:id="@+id/textView_getPumpSettingsProgressMessage"
+            android:visibility="invisible" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -108,7 +116,7 @@
         <Switch
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Audio Bolus Enable"
+            android:text=""
             android:id="@+id/switch1_audioBolusEnable"
             android:checked="true" />
 

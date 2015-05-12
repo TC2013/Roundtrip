@@ -13,8 +13,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 
+import com.gxwtech.rtdemo.Carelink.util.ByteUtil;
 import com.gxwtech.rtdemo.Services.PumpManager.PumpSettingsParcel;
 import com.gxwtech.rtdemo.Services.RTDemoService;
 
@@ -102,11 +104,23 @@ public class MainActivity extends ActionBarActivity {
         startActivity(intent);
     }
 
+    public void editSerialNumberChanged(View view) {
+        EditText esn = (EditText) findViewById(R.id.editText_pumpSerialNumber);
+        String sn = esn.getText().toString();
+        Log.w(TAG,"editSerialNumberChanged:" + sn);
+        // now convert to a 3 byte string
+        byte[] sn_bytes = HexDump.hexStringToByteArray(sn);
+        Log.w(TAG,"editSerialNumberChanged bytes:" + HexDump.toHexString(sn_bytes));
+        setSerialNumber(sn_bytes);
+    }
+
     // set the 3 byte serial number for the pump
     public void setSerialNumber(byte[] serialNumber) {
         Intent intent = new Intent(this,RTDemoService.class);
         intent.putExtra("what", Constants.SRQ.SET_SERIAL_NUMBER);
         intent.putExtra("serialNumber", serialNumber);
+        Log.w(TAG,"setSerialNumber: running intent with what=SRQ.SET_SERIAL_NUMBER, serialNumber="
+                + ByteUtil.shortHexString(serialNumber));
         startService(intent);
     }
 
