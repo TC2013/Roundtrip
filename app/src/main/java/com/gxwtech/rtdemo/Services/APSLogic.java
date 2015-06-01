@@ -31,7 +31,8 @@ public class APSLogic {
     // +++ fixme: read this value from the pump
     private double pump_high_temp_max = 6.2;
 
-    // target is our target BG - should be in profile! -- read this from the pump! +++
+    // target is our target BG - should be in profile!  +++
+    //Geoff, the pump may only specify a target range.  May be best to add these values to UI profile (bg_target/min/max and max_IOB). -Toby
     double bg_target = 115;
     // bg minimum target
     double bg_min = bg_target - 20; // i.e. 135
@@ -46,7 +47,7 @@ public class APSLogic {
 
     double low_glucose_suspend_at = 85; //mg/dl
 
-    // choices here are: dia_1_hour, dia_2_hour, dia_2pt5_hour, dia_3_hour, dia_4_hour, dia_4pt5_hour, dia_5_hour
+    // choices here are: dia_0pt5_hour, dia_1pt5_hour, dia_1_hour, dia_2_hour, dia_2pt5_hour, dia_3_hour, dia_3pt5_hour,dia_4_hour, dia_4pt5_hour, dia_5_hour, dia_5pt5_hour
     // Which Duration of Insulin Action table to use?
     // TODO: change this to an enum
     String meal_bolus_dia_table = "dia_4pt5_hour";
@@ -68,6 +69,7 @@ public class APSLogic {
     }
 
     // get profile from MongoDB
+    //Geoff, rather than storing the profile in Mongo, it would be ideal to put it into the UI
     public Profile getProfile() {
         return new Profile();
     }
@@ -98,6 +100,7 @@ public class APSLogic {
     // to calculate COB:
     // Easier than IOB, as we assume it is a linear relationship rate=profile.carbs_hr,
     // 20 minutes delayed from consumption
+    // Geoff, if possible make the minutes delayed from consumption and editable option in the profile UI. -Toby
     public double cobValueAtAbsTime(int startTime,
                                     double carbGrams,
                                     int valueTime,
