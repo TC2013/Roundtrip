@@ -29,6 +29,9 @@ public interface Constants {
         // SET_TEMP_BASAL needs a double insulinUnits and an int durationMinutes
         // Pass as a parcel, using TempBasalPairParcel
         public static int SET_TEMP_BASAL = 308;
+        // APSLOGIC_STARTUP requests the APSLogic module to do the
+        // initial data collection, which can take a long time (MongoDB access, pump access)
+        public static int APSLOGIC_STARTUP = 309;
     }
 
     public class ParcelName {

@@ -64,10 +64,10 @@ public class MonitorActivity extends ActionBarActivity {
         view.setText(String.format("%d min ago", elapsedMinutes));
     }
 
-    public void testDBButtonClicked(View view) {
-        Log.d(TAG, "testDBButtonClicked");
+    public void startupButtonClicked(View view) {
+        Log.d(TAG, "startupButtonClicked");
         Intent intent = new Intent(this,RTDemoService.class);
-        intent.putExtra("what", Constants.SRQ.VERIFY_DB_ACCESS);
+        intent.putExtra("what", Constants.SRQ.APSLOGIC_STARTUP);
         startService(intent);
     }
 

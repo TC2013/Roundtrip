@@ -27,6 +27,10 @@ import java.util.Calendar;
  * Another layer of separation!
  * This serves to separate the background thread from the
  * pump management operations.
+ *
+ * The pump-manager is re-instantiated when the Carelink is plugged/unplugged.
+ * Be careful if you're trying to cache data in the pump manager, or
+ * if you're caching a reference to the pump manager anywhere (esp. APSLogic)
  */
 public class PumpManager {
     private static final String TAG = "PumpManager";

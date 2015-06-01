@@ -64,6 +64,10 @@ import java.util.concurrent.LinkedBlockingDeque;
 public class RTDemoService extends Service {
     private static final String TAG = "RTDemoService";
 
+    // GGW: I think APSLogic should be its own service, but for now, it's a member of RTDemoService.
+    // It has significant connections with PumpManager which will have to be ironed out.
+    APSLogic mAPSLogic;
+
     protected static RTDemoService mInstance = null;
     NotificationManager mNM;
     Looper mServiceLooper;
@@ -83,6 +87,7 @@ public class RTDemoService extends Service {
     public static RTDemoService getInstance() {
         return mInstance;
     }
+    public PumpManager getPumpManager() { return mPumpManager; }
 
     boolean deviceIsCarelink(UsbDevice device) {
         if (device == null) return false;
@@ -152,7 +157,7 @@ public class RTDemoService extends Service {
     };
 
     /* Private class ServiceHandler that receives messages from the thread */
-    // TODO: This interface between GUI and RTDemoService should be rewritten!
+    // TODO: This interface between GUI and should be rewritten!
     private final class ServiceHandler extends Handler {
         public ServiceHandler(Looper looper) {
             super(looper);
@@ -217,12 +222,15 @@ public class RTDemoService extends Service {
                 // For now, the testdb button gets a reading.
                 // broadcast the reading to the world.
                 Intent intent = new Intent(Intents.ROUNDTRIP_BG_READING);
-                intent.putExtra("name",Constants.ParcelName.BGReadingParcelName);
+                intent.putExtra("name", Constants.ParcelName.BGReadingParcelName);
                 intent.putExtra(Constants.ParcelName.BGReadingParcelName, new BGReadingParcel(reading));
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-                Log.i(TAG,"Sending latest BG reading");
+                Log.i(TAG, "Sending latest BG reading");
                 // fixme: just a test:
                 testGetProfile();
+            } else if (msg.arg2 == Constants.SRQ.APSLOGIC_STARTUP) {
+                // APSLOGIC_STARTUP requests the APSLogic module to do the
+                // initial data collection, which can take a long time (MongoDB access, pump access)
             } else {
                 // just wait half second
                 long endTime = System.currentTimeMillis() + 500;
@@ -381,6 +389,7 @@ public class RTDemoService extends Service {
         // still can't figure out where to do the creation/open properly:
         mPumpManager = new PumpManager(getApplicationContext());
         mPumpManager.open();
+        mAPSLogic = new APSLogic();
 
         //llog("End of onCreate()");
         llog("Roundtrip ready.");

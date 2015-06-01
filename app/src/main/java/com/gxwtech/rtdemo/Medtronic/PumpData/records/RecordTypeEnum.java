@@ -1,10 +1,5 @@
 package com.gxwtech.rtdemo.Medtronic.PumpData.records;
 
-import android.util.Log;
-
-import com.gxwtech.rtdemo.HexDump;
-import com.gxwtech.rtdemo.Services.APSLogic;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
