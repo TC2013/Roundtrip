@@ -20,4 +20,4 @@ Roundtrip is a limited port of OpenAPS (author Ben West) into an Android applica
 <b>To Do:</b><br />
 1. Complete the app's ability to retreive and parse necessary pump history required for automated corrections. Ideally, the setting specificied in the pump itself will be used for insulin sensitivy, BG limits, correction factor, max basal rate, and basal rate profile.<br />
 2. Finish the OpenAPS logic.<br />
-3. Add a UI.  Include the ability to turn program on/off, suspend APS for x minutes and resume, set target BG, specify DIA (if different setting than one in pump is needed), and specify any other settings required but not retreived from pump.<br />
+3. Add a UI.  Include the ability to turn program on/off, suspend APS for x minutes and resume, set target BG, specify DIA for temp basals and "negative" temp basals, and specify any other settings required but not retreived from pump.<br />
