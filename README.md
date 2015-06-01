@@ -2,7 +2,7 @@
 
 Roundtrip is a limited port of OpenAPS (author Ben West) into an Android application.  
 
-Goals:<br />
+<b>Goals:</b><br />
 1. Receive/transmit data from Medtronic Pumps.<br />
 2. Receive Dexcom CGM date via bluetooth.<br />
 3. Implement the "reference design" artificial pancraes software as designed by Dana Lewis and Scott Leibrand (openaps.org).<br />
