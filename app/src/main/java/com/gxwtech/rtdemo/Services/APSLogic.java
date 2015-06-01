@@ -2,6 +2,8 @@ package com.gxwtech.rtdemo.Services;
 
 import android.util.Log;
 
+import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfile;
+
 import java.util.Calendar;
 
 /**
@@ -68,11 +70,14 @@ public class APSLogic {
     public void setTempBasal(double rateUnitsPerHour, int periodMinutes, double currBasal) {
     }
 
-    // get profile from MongoDB
     //Geoff, rather than storing the profile in Mongo, it would be ideal to put it into the UI
     public Profile getProfile() {
         return new Profile();
     }
+
+    // Get currently used Basals Profile from the pump.
+    // We want to fetch these once on startup, then used cached copies.
+    public BasalProfile getCurrentBasalProfile() { return new BasalProfile(); }
 
     //startTime and valueTime should be Calendars, I think
     public double iobValueAtAbsTime(int startTime, double insulinUnits,

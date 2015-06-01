@@ -30,6 +30,9 @@ import com.gxwtech.rtdemo.Carelink.util.ByteUtil;
 import com.gxwtech.rtdemo.Constants;
 import com.gxwtech.rtdemo.Intents;
 import com.gxwtech.rtdemo.MainActivity;
+import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfile;
+import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfileEntry;
+import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfileTypeEnum;
 import com.gxwtech.rtdemo.MongoWrapper;
 import com.gxwtech.rtdemo.R;
 import com.gxwtech.rtdemo.Services.PumpManager.PumpManager;
@@ -218,6 +221,8 @@ public class RTDemoService extends Service {
                 intent.putExtra(Constants.ParcelName.BGReadingParcelName, new BGReadingParcel(reading));
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
                 Log.i(TAG,"Sending latest BG reading");
+                // fixme: just a test:
+                testGetProfile();
             } else {
                 // just wait half second
                 long endTime = System.currentTimeMillis() + 500;
@@ -233,6 +238,46 @@ public class RTDemoService extends Service {
                 }
             }
         }
+    }
+
+    private void testGetProfile() {
+        BasalProfile b;
+        int i;
+
+        b = mPumpManager.getProfile(BasalProfileTypeEnum.STD);
+        if (b.getEntries().isEmpty()) {
+            Log.e(TAG,"testGetProfile: STD profile is empty");
+        } else {
+            Log.e(TAG,"testGetProfile: STD profile:");
+            for (i=0; i<b.getEntries().size(); i++) {
+                BasalProfileEntry entry = b.getEntries().get(i);
+                Log.d(TAG,String.format("rate: %.2f, start: %02d:%02d",
+                        entry.rate, entry.startTime.getHourOfDay(),entry.startTime.getMinuteOfHour()));
+            }
+        }
+        b = mPumpManager.getProfile(BasalProfileTypeEnum.A);
+        if (b.getEntries().isEmpty()) {
+            Log.e(TAG,"testGetProfile: A profile is empty");
+        } else {
+            Log.e(TAG,"testGetProfile: A profile:");
+            for (i=0; i<b.getEntries().size(); i++) {
+                BasalProfileEntry entry = b.getEntries().get(i);
+                Log.d(TAG,String.format("rate: %.2f, start: %02d:%02d",
+                        entry.rate, entry.startTime.getHourOfDay(),entry.startTime.getMinuteOfHour()));
+            }
+        }
+        b = mPumpManager.getProfile(BasalProfileTypeEnum.B);
+        if (b.getEntries().isEmpty()) {
+            Log.e(TAG,"testGetProfile: B profile is empty");
+        } else {
+            Log.e(TAG,"testGetProfile: B profile:");
+            for (i=0; i<b.getEntries().size(); i++) {
+                BasalProfileEntry entry = b.getEntries().get(i);
+                Log.d(TAG,String.format("rate: %.2f, start: %02d:%02d",
+                        entry.rate, entry.startTime.getHourOfDay(),entry.startTime.getMinuteOfHour()));
+            }
+        }
+
     }
 
     // send back to the UI thread an arbitrary response parcel

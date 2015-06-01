@@ -6,19 +6,20 @@ import android.util.Log;
 import com.gxwtech.rtdemo.Carelink.Carelink;
 import com.gxwtech.rtdemo.Carelink.ProductInfoCommand;
 import com.gxwtech.rtdemo.Carelink.SignalStrengthCommand;
-import com.gxwtech.rtdemo.Medtronic.MedtronicCommand;
 import com.gxwtech.rtdemo.Medtronic.MedtronicCommandStatusEnum;
 import com.gxwtech.rtdemo.Medtronic.PowerControlCommand;
+import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfile;
+import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfileTypeEnum;
 import com.gxwtech.rtdemo.Medtronic.PumpData.PumpSettings;
 import com.gxwtech.rtdemo.Medtronic.PumpData.TempBasalPair;
 import com.gxwtech.rtdemo.Medtronic.ReadHistoryCommand;
+import com.gxwtech.rtdemo.Medtronic.ReadProfileCommand;
 import com.gxwtech.rtdemo.Medtronic.ReadPumpSettingsCommand;
 import com.gxwtech.rtdemo.Medtronic.SetTempBasalCommand;
 import com.gxwtech.rtdemo.USB.CareLinkUsb;
 import com.gxwtech.rtdemo.USB.UsbException;
 
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 
 /**
  * Created by geoff on 5/8/15.
@@ -188,7 +189,16 @@ public class PumpManager {
     }
 
     public void setTempBasal(TempBasalPair pair) {
-        setTempBasal(pair.mInsulinRate,pair.mDurationMinutes);
+        setTempBasal(pair.mInsulinRate, pair.mDurationMinutes);
+    }
+
+    public BasalProfile getProfile(BasalProfileTypeEnum which) {
+        checkPowerControl();
+        ReadProfileCommand rpcmd = new ReadProfileCommand();
+        rpcmd.setProfileType(which);
+        rpcmd.run(mCarelink, mSerialNumber);
+        BasalProfile profile = rpcmd.getProfile();
+        return profile;
     }
 
     // TODO: UGLY can we please find a way to do this asynchronously? i.e. no sleep!

@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.gxwtech.rtdemo.Medtronic.PumpModel;
 
+// todo: rewrite with new knowledge of basal profiles (see BasalProfile.java)
 public class BasalProfileStart extends TimeStampedRecord {
     private static final String TAG = "BasalProfileStart";
     private int offset;
