@@ -12,7 +12,7 @@ import java.util.ArrayList;
  */
 public class CheckStatusCommand extends CarelinkCommand {
     byte mStatusByte;
-    short mReadSize;
+    int mReadSize;
 
     public CheckStatusCommand() {
         init(CarelinkCommandEnum.CMD_C_LINK_STATUS);
@@ -21,7 +21,7 @@ public class CheckStatusCommand extends CarelinkCommand {
     }
 
     public byte getStatusByte() { return mStatusByte; }
-    public short getReadSize() { return mReadSize; }
+    public int getReadSize() { return mReadSize; }
 
     protected void parse() {
         byte[] response = getRawResponse();
@@ -29,7 +29,7 @@ public class CheckStatusCommand extends CarelinkCommand {
             if (response.length > 7) {
                 if (mAck == CarelinkCommandStatusEnum.ACK) {
                     mStatusByte = response[5];
-                    mReadSize = (short)(response[6] * 256 + response[7]);
+                    mReadSize = ((0x7F & response[6]) << 8) | (0xFF & response[7]);
                 } else {
                     // NACK'd command?
                 }
@@ -53,7 +53,7 @@ public class CheckStatusCommand extends CarelinkCommand {
         ra.add(String.format("readSize:%d", mReadSize));
         if ((mStatusByte & 0x01) > 0) {
             // Status: OK
-            ra.add("OK");
+            ra.add("Data Available");
         }
         if ((mStatusByte & 0x02) > 0) {
             // Status: Receive in progress

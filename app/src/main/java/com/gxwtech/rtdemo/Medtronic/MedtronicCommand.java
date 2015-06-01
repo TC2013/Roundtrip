@@ -2,6 +2,7 @@ package com.gxwtech.rtdemo.Medtronic;
 
 import android.util.Log;
 
+import com.gxwtech.rtdemo.CRC;
 import com.gxwtech.rtdemo.Carelink.Carelink;
 import com.gxwtech.rtdemo.Carelink.CarelinkCommandStatusEnum;
 import com.gxwtech.rtdemo.Carelink.CheckStatusCommand;
@@ -158,9 +159,9 @@ public class MedtronicCommand {
         return mStatus;
     }
 
-    protected short checkForData(Carelink carelink) throws UsbException {
+    protected int checkForData(Carelink carelink) throws UsbException {
         CarelinkCommandStatusEnum carelinkAck;
-        short size = -1;
+        int size = -1;
         CheckStatusCommand ck = new CheckStatusCommand();
         carelinkAck = ck.run(carelink);
         if (carelinkAck == CarelinkCommandStatusEnum.ACK) {
@@ -179,7 +180,7 @@ public class MedtronicCommand {
         byte[] mDataReceived = new byte[] {};
         byte[] rval = new byte[] {};
         while (moreDataToGet) {
-            short bytesAvailable = 0;
+            int bytesAvailable = 0;
             boolean keepTrying = true;
             while ((bytesAvailable == 0) && keepTrying) {
                 bytesAvailable = checkForData(carelink);
@@ -189,14 +190,26 @@ public class MedtronicCommand {
                     keepTrying = false;
                     moreDataToGet = false;
                     Log.e(TAG,"Error in checkForData");
-                } else if (bytesAvailable == 0) {
+                } else if ((bytesAvailable == 0)||(bytesAvailable == 14)) {
                     if (tries > mNRetries) {
                         moreDataToGet = false;
                         keepTrying = false;
-                        Log.e(TAG,"DOWNLOAD ATTEMPT EXCEEDED RETRIES: " + mNRetries);
+                        Log.e(TAG, "DOWNLOAD ATTEMPT EXCEEDED RETRIES: " + mNRetries);
                     } else {
-                        Log.w(TAG,String.format("Download attempt %d/%d failed, sleeping %d millis to try again.",tries,mNRetries+1,mSleepForPumpRetry));
-                        sleep(mSleepForPumpRetry);
+                        Log.w(TAG, String.format("Download attempt %d/%d failed, sleeping %d millis to try again.", tries, mNRetries + 1, mSleepForPumpRetry));
+                        if (bytesAvailable == 14) {
+                            // This is the situation where the radio reports data available, but there's zero bytes.
+                            /* This can happen if we take too long between asking the pump for data
+                             * and trying to read the data back!
+                             */
+                            bytesAvailable = 0; // didn't really get anything from pump
+                            // todo: fix hack?
+                            mSleepForPumpResponse /= 2;
+                            mSleepForPumpRetry /=2;
+                        } else {
+                            sleep(mSleepForPumpRetry);
+                        }
+
                     }
                 } else {
                     // continue
@@ -216,14 +229,28 @@ public class MedtronicCommand {
                     moreDataToGet = false;
                 } else {
                     // Add new data to our collection:
+                    // Must prepend data?
                     mDataReceived = ByteUtil.concat(mDataReceived, rrcmd.getResponse().getPumpData());
+                    //mDataReceived = ByteUtil.concat(rrcmd.getResponse().getPumpData(),mDataReceived);
                     recordsReceived++;
                     Log.d(TAG,"Adding newly downloaded data. Now we have:\n"
                             + HexDump.dumpHexString(mDataReceived));
-
+                    // If we've started to receive something, reset the tries
+                    tries = 1;
                     boolean endOfData = rrcmd.getResponse().isEOD();
                     if (endOfData) {
                         Log.i(TAG,String.format("Found EOD, received %d bytes.",mDataReceived.length));
+                        /* doesn't belong here, but for checking....*/
+                        if (mDataReceived.length >= 1022) {
+                            byte[] first1022 = new byte[1022];
+                            System.arraycopy(mDataReceived, 0, first1022, 0, 1022);
+                            Log.i(TAG, String.format("Checksum of 1022 bytes: %s",
+                                    HexDump.toHexString(CRC.calculate16CCITT(first1022))));
+                        }
+                        if (mDataReceived.length >= 1024) {
+                            Log.i(TAG, String.format("Checksum of 1024 bytes: %s",
+                                    HexDump.toHexString(CRC.calculate16CCITT(mDataReceived))));
+                        }
                         rval = mDataReceived;
                         moreDataToGet = false;
                     }

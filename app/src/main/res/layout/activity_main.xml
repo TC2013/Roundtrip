@@ -123,6 +123,33 @@
                     android:onClick="launchPumpSettingsActivity" />
             </LinearLayout>
 
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Get History"
+                    android:id="@+id/button_getHistory"
+                    android:onClick="getHistoryButtonClicked" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Temp Basals"
+                    android:id="@+id/button_TempBasals"
+                    android:onClick="launchTempBasalsActivity" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Monitor"
+                    android:id="@+id/button_Monitor"
+                    android:onClick="launchMonitorActivity" />
+            </LinearLayout>
+
             <ListView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

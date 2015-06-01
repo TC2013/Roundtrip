@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Parcelable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
@@ -104,24 +105,58 @@ public class MainActivity extends ActionBarActivity {
         startActivity(intent);
     }
 
+    public void getHistoryButtonClicked(View view) {
+        Log.d(TAG,"GetHistoryButtonClicked");
+        Intent intent = new Intent(this,RTDemoService.class);
+        intent.putExtra("what", Constants.SRQ.REPORT_PUMP_HISTORY);
+        startService(intent);
+    }
+
+    public void launchTempBasalsActivity(View view) {
+        Intent intent = new Intent(this,TempBasalActivity.class);
+        startActivity(intent);
+    }
+
+    public void launchMonitorActivity(View view) {
+        Intent intent = new Intent(this,MonitorActivity.class);
+        startActivity(intent);
+    }
+
+    // this is run when the SET button is clicked.
     public void editSerialNumberChanged(View view) {
         EditText esn = (EditText) findViewById(R.id.editText_pumpSerialNumber);
         String sn = esn.getText().toString();
         Log.w(TAG,"editSerialNumberChanged:" + sn);
-        // now convert to a 3 byte string
-        byte[] sn_bytes = HexDump.hexStringToByteArray(sn);
-        Log.w(TAG,"editSerialNumberChanged bytes:" + HexDump.toHexString(sn_bytes));
-        setSerialNumber(sn_bytes);
+        // save serial number in SharedPreferences
+        SharedPreferences preferences = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, MODE_PRIVATE);
+        SharedPreferences.Editor edit= preferences.edit();
+        edit.putString(Constants.PrefName.SerialNumberPrefName,sn);
+        edit.commit();
+        setSerialNumber(sn);
     }
 
     // set the 3 byte serial number for the pump
-    public void setSerialNumber(byte[] serialNumber) {
+    public void setSerialNumber(String sn) {
+        // now convert to a 3 byte string
+        byte[] sn_bytes = HexDump.hexStringToByteArray(sn);
+        //Log.w(TAG,"setSerialNumber bytes:" + HexDump.toHexString(sn_bytes));
         Intent intent = new Intent(this,RTDemoService.class);
         intent.putExtra("what", Constants.SRQ.SET_SERIAL_NUMBER);
-        intent.putExtra("serialNumber", serialNumber);
+        intent.putExtra("serialNumber", sn_bytes);
+        /*
         Log.w(TAG,"setSerialNumber: running intent with what=SRQ.SET_SERIAL_NUMBER, serialNumber="
                 + ByteUtil.shortHexString(serialNumber));
+        */
         startService(intent);
+    }
+
+    // get serial number from preferences, load it into proper field
+    public String updateSerialNumberFromPreferences() {
+        SharedPreferences settings = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
+        String serialNumber = settings.getString(Constants.PrefName.SerialNumberPrefName, "000000");
+        EditText editText = (EditText)findViewById(R.id.editText_pumpSerialNumber);
+        editText.setText(serialNumber);
+        return serialNumber;
     }
 
     public void receivePumpSettingsParcel(PumpSettingsParcel p) {
@@ -144,11 +179,14 @@ public class MainActivity extends ActionBarActivity {
                 .registerReceiver(broadcastReceiver, intentFilter);
         // update our log view from the current list of log messages in the service
         updateText();
-
-        // launch the usb prober (for now)
         Intent intent = new Intent(this,RTDemoService.class);
         intent.putExtra("what",Constants.SRQ.START_SERVICE);
         startService(intent);
+
+        // get serial number from preferences
+        String sn = updateSerialNumberFromPreferences();
+        // set serial number in service thread (in PumpManager)
+        setSerialNumber(sn);
     }
 
     protected void onPause() {

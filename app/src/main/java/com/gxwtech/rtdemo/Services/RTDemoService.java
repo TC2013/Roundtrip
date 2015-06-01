@@ -24,6 +24,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.gxwtech.rtdemo.BGReading;
+import com.gxwtech.rtdemo.BGReadingParcel;
 import com.gxwtech.rtdemo.Carelink.util.ByteUtil;
 import com.gxwtech.rtdemo.Constants;
 import com.gxwtech.rtdemo.Intents;
@@ -32,6 +34,7 @@ import com.gxwtech.rtdemo.MongoWrapper;
 import com.gxwtech.rtdemo.R;
 import com.gxwtech.rtdemo.Services.PumpManager.PumpManager;
 import com.gxwtech.rtdemo.Services.PumpManager.PumpSettingsParcel;
+import com.gxwtech.rtdemo.Services.PumpManager.TempBasalPairParcel;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -46,6 +49,12 @@ import java.util.concurrent.LinkedBlockingDeque;
  *
  * This service handles all communication with the carelink stick
  * and the medtronic pump.  MainActivity shouldn't access those directly.
+ *
+ * This class is mainly for handling the Android GUI/Background issues, like intents & messages.
+ * Put the code for the pump into the PumpManager whenever possible.
+ *
+ * Unfortunately, it still has to handle USB issues, AFAICT, as these are OS issues.
+ *
  */
 
 
@@ -107,9 +116,12 @@ public class RTDemoService extends Service {
                     if (deviceIsCarelink(device)) {
                         llog("Carelink device lost");
                         // todo: need to detach cleanly
+                        // this crashes MainActivity:
+                        /*
                         mPumpManager.close();
                         mCarelinkDevice = null; // whack it, to force reloading
                         mUsbManager = null;  // whack it, to force reloading
+                        */
                     } else {
                         //llog("USB device disconnected (not carelink):" + device.toString());
                     }
@@ -137,6 +149,7 @@ public class RTDemoService extends Service {
     };
 
     /* Private class ServiceHandler that receives messages from the thread */
+    // TODO: This interface between GUI and RTDemoService should be rewritten!
     private final class ServiceHandler extends Handler {
         public ServiceHandler(Looper looper) {
             super(looper);
@@ -184,15 +197,30 @@ public class RTDemoService extends Service {
                 PumpSettingsParcel parcel = new PumpSettingsParcel();
                 parcel.initFromPumpSettings(mPumpManager.getPumpSettings());
                 sendTaskResponseParcel(parcel, "PumpSettingsParcel");
+            } else if (msg.arg2 == Constants.SRQ.REPORT_PUMP_HISTORY) {
+                Log.d(TAG, "Received request for pump history");
+                mPumpManager.getPumpHistory();
+            } else if (msg.arg2 == Constants.SRQ.SET_TEMP_BASAL) {
+                TempBasalPairParcel pair = (TempBasalPairParcel)(msg.obj);
+                Log.d(TAG,String.format("Request to Set Temp Basal(Rate %.2fU, duration %d minutes",
+                        pair.mInsulinRate, pair.mDurationMinutes));
+                mPumpManager.setTempBasal(pair);
             } else if (msg.arg2 == Constants.SRQ.VERIFY_DB_ACCESS) {
                 // get latest BG reading from Mongo
                 llog("Accessing MongoDB for latest BG");
                 MongoWrapper mongoWrapper = new MongoWrapper();
-                llog(mongoWrapper.doit());
-
+                BGReading reading = mongoWrapper.getBGReading();
+                // TODO: Need to make RTDemoService regularly hit the mongodb (every 5 min)
+                // For now, the testdb button gets a reading.
+                // broadcast the reading to the world.
+                Intent intent = new Intent(Intents.ROUNDTRIP_BG_READING);
+                intent.putExtra("name",Constants.ParcelName.BGReadingParcelName);
+                intent.putExtra(Constants.ParcelName.BGReadingParcelName, new BGReadingParcel(reading));
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+                Log.i(TAG,"Sending latest BG reading");
             } else {
-                // just wait 5 seconds
-                long endTime = System.currentTimeMillis() + 5*1000;
+                // just wait half second
+                long endTime = System.currentTimeMillis() + 500;
                 while (System.currentTimeMillis() < endTime) {
                     synchronized (this) {
                         try {
@@ -207,15 +235,16 @@ public class RTDemoService extends Service {
         }
     }
 
+    // send back to the UI thread an arbitrary response parcel
     protected void sendTaskResponseParcel(Parcelable p, String typename) {
-        // send back to the UI thread an arbitrary response parcel
         Intent intent = new Intent(Intents.ROUNDTRIP_TASK_RESPONSE);
         intent.putExtra("name",typename);
-        intent.putExtra(typename,p);
+        intent.putExtra(typename, p);
         Log.d(TAG,"Sending task response parcel, name = " + typename);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
+    // local log function that also posts to the front page status gui
     protected void llog(String msg){
 
         // send the message to the Android logging service
@@ -229,7 +258,7 @@ public class RTDemoService extends Service {
 
         // send the log message to anyone who cares to listen (e.g. a UI component!)
         Intent intent = new Intent(Intents.ROUNDTRIP_STATUS_MESSAGE)
-                .putExtra(Intents.ROUNDTRIP_STATUS_MESSAGE_STRING,msg);
+                .putExtra(Intents.ROUNDTRIP_STATUS_MESSAGE_STRING, msg);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
@@ -329,7 +358,22 @@ public class RTDemoService extends Service {
             // todo: fix hack
             if (msg.arg2 == Constants.SRQ.SET_SERIAL_NUMBER) {
                 msg.obj = intent.getByteArrayExtra("serialNumber");
-                Log.w(TAG,"gui thread wrote intent arg2=what=SRQ.SET_SERIAL_NUMBER, obj=serialNumber=" + ByteUtil.shortHexString((byte[])msg.obj));
+                //Log.w(TAG,"gui thread wrote intent arg2=what=SRQ.SET_SERIAL_NUMBER, obj=serialNumber=" + ByteUtil.shortHexString((byte[])msg.obj));
+            } else if (msg.arg2 == Constants.SRQ.SET_TEMP_BASAL) {
+                msg.obj = intent.getParcelableExtra(Constants.ParcelName.TempBasalPairParcelName);
+                /*  The long way? :
+                if (intent.hasExtra("name")) {
+                    String name = intent.getStringExtra("name");
+                    if (intent.hasExtra(name)) {
+                        if (name == Constants.ParcelName.PumpSettingsParcelName) {
+                            Bundle data = intent.getExtras();
+                            PumpSettingsParcel p = data.getParcelable(name);
+                            // do something with it.
+                            receivePumpSettingsParcel(p);
+                        }
+                    }
+                }
+                */
             }
             mServiceHandler.sendMessage(msg);
         }

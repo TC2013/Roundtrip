@@ -1,7 +1,7 @@
 package com.gxwtech.rtdemo.Medtronic;
 
+import com.gxwtech.rtdemo.CRC;
 import com.gxwtech.rtdemo.Carelink.util.ByteUtil;
-import com.gxwtech.rtdemo.Carelink.util.CRC8;
 
 /**
  * Created by geoff on 5/5/15.
@@ -18,7 +18,7 @@ public class MedtronicResponse {
     protected byte mUnknown2; // 1 byte, offset 3
     protected byte mUnknown3; // 1 byte, offset 4
     protected boolean mEOD; // 1 bit, MSB of offset 5
-    protected short mResponseSize; // 15 bits, LS7B of offset 5 * 256 + offset 6
+    protected int mResponseSize; // 15 bits, LS7B of offset 5 * 256 + offset 6
     protected byte mUnknown4; // 1 byte, offset 7 // I think U4&5 are showing this is
     protected byte mUnknown5; // 1 byte, offset 8 // a response to a query sent to pump
     protected byte[] mSerialNumber; // 3 bytes, offset 9
@@ -34,7 +34,7 @@ public class MedtronicResponse {
         mIsRadioResponse = false;
         mRadioResponseStatus = (byte)0xFF;
         mEOD = true;
-        mResponseSize = (short)-1;
+        mResponseSize = -1;
         mSerialNumber = new byte[] {(byte)0xFF, (byte)0xFF, (byte)0xFF};
         mReceivedChecksum = (byte)0xFF;
         mPumpData = new byte[] {};
@@ -45,11 +45,11 @@ public class MedtronicResponse {
 //    public boolean radioResponseOK() { return (mRadioResponseStatus == 0x01); }
     public boolean radioResponseOK() { return true; } // TODO: error check
     public boolean isEOD() { return mEOD; }
-    public short getResponseSize() { return mResponseSize; } //how much the pump said it sent
+    public int getResponseSize() { return mResponseSize; } //how much the pump said it sent
     public byte[] getSerialNumber() { return mSerialNumber; }
     public byte getFrameChecksum() { return mReceivedChecksum; }
     public boolean frameChecksumOK() {
-        return (mReceivedChecksum == CRC8.crc8(raw,12));
+        return (mReceivedChecksum == CRC.crc8(raw, 12));
     }
     public byte[] getPumpData() { return mPumpData; }
     public byte getPumpDataChecksum() { return mPumpDataChecksum; }
@@ -57,7 +57,7 @@ public class MedtronicResponse {
         if (mPumpData.length == 0) {
             return true;
         }
-        return (mPumpDataChecksum == CRC8.crc8(mPumpData));
+        return (mPumpDataChecksum == CRC.crc8(mPumpData));
     }
 
     public void parseFrom(byte[] rawRadioBuffer) {
@@ -82,7 +82,7 @@ public class MedtronicResponse {
             mUnknown2 = rawRadioBuffer[3];
             mUnknown3 = rawRadioBuffer[4];
             mEOD = ((rawRadioBuffer[5] & 0x80) != 0);
-            mResponseSize = (short)((rawRadioBuffer[5] & 0x7F) * 256 + rawRadioBuffer[6]);
+            mResponseSize = ((0x7F & rawRadioBuffer[5]) << 8) | (0xFF & rawRadioBuffer[6]);
         }
         if (rawRadioBuffer.length > 11) {
             mUnknown4 = rawRadioBuffer[7]; // should be 0xA7?
@@ -117,7 +117,7 @@ public class MedtronicResponse {
             mPumpDataChecksum = rawRadioBuffer[13 + pumpDataLength];
         }
         // now do sanity checks on what we've got.
-        byte calculatedChecksum = CRC8.crc8(mPumpData);
+        byte calculatedChecksum = CRC.crc8(mPumpData);
         if (calculatedChecksum!=mPumpDataChecksum) {
             //Log.e(TAG,String.format("Pump Data Checksum mismatch (0x%02X/0x%02X",calculatedChecksum,mPumpDataChecksum));
         }

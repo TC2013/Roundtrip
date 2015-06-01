@@ -24,10 +24,25 @@ public interface Constants {
         public static int REPORT_PUMP_SETTINGS = 305;
         // SET_SERIAL_NUMBER takes arg2 as a byte[3] array;
         public static int SET_SERIAL_NUMBER = 306;
+        // REPORT_PUMP_HISTORY should take a "minutes" argument, but doesn't yet.
+        public static int REPORT_PUMP_HISTORY = 307;
+        // SET_TEMP_BASAL needs a double insulinUnits and an int durationMinutes
+        // Pass as a parcel, using TempBasalPairParcel
+        public static int SET_TEMP_BASAL = 308;
     }
 
     public class ParcelName {
         public static String PumpSettingsParcelName = "PumpSettingsParcel";
+        public static String TempBasalPairParcelName = "TempBasalPairParcel";
+        public static String BGReadingParcelName = "BGReadingParcel";
+    }
+    public class PreferenceID {
+        // Name of a SharedPreference collection
+        public static String MainActivityPrefName = "MainActivityPreferences";
+    }
+    public class PrefName {
+        // Name of an entry in a SharedPreference collection
+        public static String SerialNumberPrefName = "PumpSerialNumber";
     }
 
 }

@@ -11,8 +11,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -28,6 +30,7 @@ public class PumpSettingsActivity extends ActionBarActivity {
     private final static String TAG = "PumpSettingsActivity";
     BroadcastReceiver mBroadcastReceiver;
     PumpSettingsParcel mPumpSettings;
+    ArrayAdapter<String> mAdapter = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +59,19 @@ public class PumpSettingsActivity extends ActionBarActivity {
 
     }
 
+    public void updatePumpSettingsView() {
+        String[] msgList = mPumpSettings.getContentsAsStringArray();
+        mAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, msgList);
+        ListView lv = (ListView) findViewById(R.id.listView_pumpSettings);
+        lv.setAdapter(mAdapter);
+    }
+
+    public void updateViewFromPumpSettingsParcel(PumpSettingsParcel p) {
+        // should use mAdapter.notifyDataSetChanged()?
+        // for now, just re-create the view
+        updatePumpSettingsView();
+    }
+/*
     public void updateViewFromPumpSettingsParcel(PumpSettingsParcel p) {
         Log.d(TAG,"updateViewFromPumpSettingsParcel");
         EditText autoOffDuration = (EditText)findViewById(R.id.editText_autoOffDuration);
@@ -124,8 +140,8 @@ public class PumpSettingsActivity extends ActionBarActivity {
 
         EditText keypadLockStatus = (EditText)findViewById(R.id.editText_keypadLockStatus);
         keypadLockStatus.setText(String.format("%d", p.mKeypadLockStatus));
-
     }
+*/
 
     public void getPumpSettingsClicked(View view) {
         Log.w(TAG, "getPumpSettingsClicked");
@@ -139,6 +155,7 @@ public class PumpSettingsActivity extends ActionBarActivity {
     }
 
     public void receivePumpSettingsParcel(PumpSettingsParcel p) {
+        mPumpSettings = new PumpSettingsParcel(p);
         Log.w(TAG,"receivePumpSettingsParcel");
         updateViewFromPumpSettingsParcel(p);
         ProgressBar waiting = (ProgressBar) findViewById(R.id.progressBar_getPumpSettingsWaiting);

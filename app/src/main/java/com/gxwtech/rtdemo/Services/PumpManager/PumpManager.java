@@ -10,7 +10,10 @@ import com.gxwtech.rtdemo.Medtronic.MedtronicCommand;
 import com.gxwtech.rtdemo.Medtronic.MedtronicCommandStatusEnum;
 import com.gxwtech.rtdemo.Medtronic.PowerControlCommand;
 import com.gxwtech.rtdemo.Medtronic.PumpData.PumpSettings;
+import com.gxwtech.rtdemo.Medtronic.PumpData.TempBasalPair;
+import com.gxwtech.rtdemo.Medtronic.ReadHistoryCommand;
 import com.gxwtech.rtdemo.Medtronic.ReadPumpSettingsCommand;
+import com.gxwtech.rtdemo.Medtronic.SetTempBasalCommand;
 import com.gxwtech.rtdemo.USB.CareLinkUsb;
 import com.gxwtech.rtdemo.USB.UsbException;
 
@@ -165,6 +168,27 @@ public class PumpManager {
         ReadPumpSettingsCommand cmd = new ReadPumpSettingsCommand();
         cmd.run(mCarelink,mSerialNumber);
         return cmd.getPumpSettings();
+    }
+
+    public void getPumpHistory() {
+        checkPowerControl();
+        ReadHistoryCommand rhcmd = new ReadHistoryCommand();
+        //rhcmd.testParser();
+        rhcmd.run(mCarelink,mSerialNumber);
+    }
+
+    // insulinRate is in Units, granularity 0.025U
+    // durationMinutes is in minutes, granularity 30min
+    // both values will be checked and floor'd.
+    public void setTempBasal(double insulinRate, int durationMinutes) {
+        checkPowerControl();
+        SetTempBasalCommand cmd = new SetTempBasalCommand(insulinRate,durationMinutes);
+        cmd.run(mCarelink,mSerialNumber);
+        // todo: check for success?
+    }
+
+    public void setTempBasal(TempBasalPair pair) {
+        setTempBasal(pair.mInsulinRate,pair.mDurationMinutes);
     }
 
     // TODO: UGLY can we please find a way to do this asynchronously? i.e. no sleep!

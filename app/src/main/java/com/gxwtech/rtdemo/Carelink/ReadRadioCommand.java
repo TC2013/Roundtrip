@@ -2,8 +2,8 @@ package com.gxwtech.rtdemo.Carelink;
 
 import android.util.Log;
 
+import com.gxwtech.rtdemo.CRC;
 import com.gxwtech.rtdemo.Carelink.util.ByteUtil;
-import com.gxwtech.rtdemo.Carelink.util.CRC8;
 import com.gxwtech.rtdemo.Medtronic.MedtronicResponse;
 import com.gxwtech.rtdemo.USB.UsbException;
 
@@ -22,8 +22,8 @@ import com.gxwtech.rtdemo.USB.UsbException;
 public class ReadRadioCommand extends CarelinkCommand {
     private static String TAG = "ReadRadioCommand";
     byte[] mSerialNumber;
-    short mFullSize;
-    short mCurrentSize;
+    int mFullSize;
+    int mCurrentSize;
     MedtronicResponse mResponse;
 
     /* size may be larger than 64 bytes, meaning we will have
@@ -33,7 +33,7 @@ public class ReadRadioCommand extends CarelinkCommand {
      * from the pump, the first 14 bytes are overhead from carelink,
      * and 14 bytes from the pump remain in the buffer.
      */
-    public ReadRadioCommand(byte[] serialNumber, short size) {
+    public ReadRadioCommand(byte[] serialNumber, int size) {
         init(CarelinkCommandEnum.CMD_C_READ_RADIO);
         mSerialNumber = serialNumber;
         mFullSize = size;
@@ -76,11 +76,11 @@ public class ReadRadioCommand extends CarelinkCommand {
             for (int i = 0; i< data.length - wl; i++) {
                 byte[] word = new byte[wl];
                 System.arraycopy(data,i,word,0,wl);
-                byte crc = CRC8.crc8(word);
+                byte crc = CRC.crc8(word);
                 if (crc != 0) {
                     int j = i + wl;
                     if (crc == data[i + wl]) {
-                        Log.i("CRC", String.format("CRC8(0x%02x) of data[%d-%d] found at offset %d", crc, i, i + wl - 1, j));
+                        Log.i("CRC", String.format("CRC(0x%02x) of data[%d-%d] found at offset %d", crc, i, i + wl - 1, j));
                     }
                 }
             }
@@ -99,8 +99,9 @@ public class ReadRadioCommand extends CarelinkCommand {
         // 14, for a 0 byte response from pump or
         // 78, for a 64 byte response from pump
 
-        packet = new byte[] {0x0c, 0, ByteUtil.highByte(mFullSize), ByteUtil.lowByte(mFullSize)};
-        packet = ByteUtil.concat(packet, CRC8.crc8(packet));
+        //packet = new byte[] {0x0c, 0, ByteUtil.highByte(mFullSize), ByteUtil.lowByte(mFullSize)};
+        packet = new byte[] {0x0c, 0, (byte)((mFullSize & 0xFF00) >> 8), (byte)(mFullSize & 0xFF)};
+        packet = ByteUtil.concat(packet, CRC.crc8(packet));
 
         mRawPacket = packet;
         Log.i("CARELINK COMMAND", getName());

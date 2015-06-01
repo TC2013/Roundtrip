@@ -1,7 +1,7 @@
 package com.gxwtech.rtdemo.Carelink;
 
+import com.gxwtech.rtdemo.CRC;
 import com.gxwtech.rtdemo.Carelink.util.ByteUtil;
-import com.gxwtech.rtdemo.Carelink.util.CRC8;
 
 /**
  * Created by geoff on 4/28/15.
@@ -74,14 +74,14 @@ public class TransmitPacketCommand extends CarelinkCommand {
         // add the payload to the packet
         rval = ByteUtil.concat(rval,payload);
         // compute CRC for what we've got so far
-        byte payloadCRC = CRC8.crc8(rval);
+        byte payloadCRC = CRC.crc8(rval);
         // add it to the packet
         rval = ByteUtil.concat(rval,payloadCRC);
         if (nParams > 0) {
             // add the parameters
             rval = ByteUtil.concat(rval, mParams);
             // compute CRC for parameters
-            byte paramsCRC = CRC8.crc8(mParams);
+            byte paramsCRC = CRC.crc8(mParams);
             // add the CRC for the parameters
             rval = ByteUtil.concat(rval, paramsCRC);
         }

@@ -6,6 +6,8 @@ package com.gxwtech.rtdemo.Medtronic;
 public enum MedtronicCommandEnum {
     CMD_M_INVALID_CMD ((byte)255),  // ggw: I just made this one up...
     CMD_M_READ_PUMP_STATUS((byte)206), // ?
+    CMD_M_BOLUS ((byte)66),
+    //
     CMD_M_READ_INSULIN_REMAINING((byte)115),
     CMD_M_READ_HISTORY ((byte)128),
     CMD_M_POWER_CTRL ((byte)93),

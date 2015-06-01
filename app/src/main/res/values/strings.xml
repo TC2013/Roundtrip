@@ -10,5 +10,7 @@
     <string name="illegal_mongo_uri">Mongo uri has invalid syntax. Please double check.</string>
     <string name="default_pwd_name">Camping</string>
     <string name="title_activity_pump_settings">Pump Settings</string>
+    <string name="title_activity_temp_basal">Temp Basals</string>
+    <string name="title_activity_monitor">Roundtrip Monitor</string>
 
 </resources>

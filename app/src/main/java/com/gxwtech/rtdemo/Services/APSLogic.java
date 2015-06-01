@@ -6,6 +6,19 @@ import java.util.Calendar;
 
 /**
  * Created by geoff on 5/8/15.
+ *
+ * Needed from pump:
+ * pump_high_temp_max
+ * bg_target (with bg_min, bg_max) from profile
+ * insulin_sensitivity_factor(on time of day)
+ * DIA profiles to use.
+ * temp_basal data
+ * clock data
+ * basal data
+ *
+ * Needed to control pump:
+ * setTempBasal()
+ *
  */
 public class APSLogic {
     private static final String TAG = "APSLogic";
