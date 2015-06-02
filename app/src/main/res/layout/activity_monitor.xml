@@ -151,7 +151,7 @@
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Start APS"
+                android:text="Test APS"
                 android:id="@+id/button_StartAPS"
                 android:onClick="startupButtonClicked" />
 

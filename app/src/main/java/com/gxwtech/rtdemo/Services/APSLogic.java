@@ -12,6 +12,8 @@ import com.gxwtech.rtdemo.Services.PumpManager.PumpManager;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.LocalTime;
+import org.joda.time.Minutes;
+import org.joda.time.Seconds;
 
 
 /**
@@ -104,12 +106,12 @@ public class APSLogic {
             log("dia_table: " + dia_table);
         }
         //int elapsed_minutes = (valueTime - startTime).total_seconds() / 60;
-        Duration elapsed_minutes = new Duration(startTime,valueTime); // todo: check this.
+        Minutes minutes = Minutes.minutesBetween(startTime,valueTime); // todo: check this
+        int elapsed_minutes = minutes.getMinutes();
         if (debug_iobValueAtAbsTime) {
             log("elapsed minutes since insulin event began: " + elapsed_minutes);
         }
-        double rval = insulinUnits * DIATables.insulinPercentRemaining(
-                Math.round(elapsed_minutes.getStandardMinutes()), dia_table) / 100;
+        double rval = insulinUnits * DIATables.insulinPercentRemaining(elapsed_minutes, dia_table) / 100;
         if (debug_iobValueAtAbsTime) {
             log("IOB remaining from event: " + rval);
         }
@@ -128,15 +130,16 @@ public class APSLogic {
         double CAR = carbs_absorbed_per_hour / 60.0;
         double rval = 0;
         //int elapsed_minutes = (valueTime - startTime).total_seconds() / 60;
-        Duration elapsed_minutes = new Duration(startTime,valueTime);
-        if (elapsed_minutes.getStandardMinutes() < 0) {
+        Minutes minutes = Minutes.minutesBetween(startTime,valueTime); // todo: check this
+        int elapsed_minutes = minutes.getMinutes();
+        if (elapsed_minutes < 0) {
             //none ingested
             rval = 0;
-        } else if (elapsed_minutes.getStandardMinutes() < 20) {
+        } else if (elapsed_minutes < 20) {
             //ingested, but none yet absorbed
             rval = carbGrams;
         } else {
-            double carbs_absorbed = (CAR * (elapsed_minutes.getStandardMinutes() - 20));
+            double carbs_absorbed = (CAR * (elapsed_minutes - 20));
             rval = carbGrams - carbs_absorbed;
             // negative values do not make sense
             if (rval < 0) {
@@ -178,8 +181,8 @@ public class APSLogic {
     // This function is to be run after CollectData()
     // Here we make a decision about TempBasals, based on all factors
     private void MakeADecision() {
-        log("Log Service Test Message");
         DateTime now = DateTime.now(); // cache current time, as understood by this device
+        log("NOW is " + now.toLocalDateTime().toString());
 
         // get a recent blood-glucose (BG) reading from CGM or from Mongo (to start with)
         // make sure we have all the pump info we need, such as Basal Profiles,
@@ -194,27 +197,38 @@ public class APSLogic {
 
         // In Python we did this:
         //TODO: print('Reading temp basal data from ' + TBSO_FILE)
+        log("TODO: get status of temp basal");
         //TODO: #print('Reading clock data from ' + CLOCK_FILE)
+        log("TODO: get clock data from pump");
 
         if (!gotBasalProfiles) {
+            log("Getting basal profiles from pump");
             getBasalProfiles();
         }
 
-        if (mCachedLatestBGReading.isOlderThan(5/*minutes*/)) {
-            // If we haven't got a recent BG reading, we can't do anything.  Complain.
-            log("Latest BG reading is too old.");
+        // if most recent reading is more than ten minutes old, do nothing.
+        // If a temp basal is running, fine.  It will expire.
+        Minutes cgm_elapsed = Minutes.minutesBetween(mCachedLatestBGReading.mTimestamp,now);
+        if (cgm_elapsed.getMinutes() > 10) {
+            log(String.format("Most recent CGM reading is %d minutes old. Quitting.",
+                    cgm_elapsed.getMinutes()));
             return;
         }
+
+        log(String.format("Using CGM reading %.2f, which is %d minutes old",
+                mCachedLatestBGReading.mBg,cgm_elapsed.getMinutes()));
 
         // todo: get these values from pump history, MongoDB, CGM, etc.
         double bg = mCachedLatestBGReading.mBg;
         /*
-        todo: sanity-check latest BG reading (is it less than 39? is it greater than 500? is it recent?
+        todo: sanity-check latest BG reading (is it less than 39? is it greater than 500?
          */
         double iobTotal = -10E6; // insulin-on-board total, amount of unabsorbed insulin (in Units) in body
         double cobTotal = -10E6; // carbohydrates-on-board total, amount of undigested carbohydrates in body (grams)
         double remainingBGImpact_IOBtotal = -10E6; // BG impact (in mg/dL) of remaining insulin
         double remainingBGImpact_COBtotal = -10E6; // BG impact (in mg/dL) of remaining carbs
+
+        log("TODO: get patient profile (from pump?)");
         Profile profile = new Profile(); // todo: get a real profile
 
         log(String.format("IOB (total): %.3f",iobTotal));
@@ -229,7 +243,7 @@ public class APSLogic {
 
         double icRatio = profile.carbRatio;
         double eventualBG = bg - remainingBGImpact_IOBtotal + remainingBGImpact_COBtotal;
-        log(String.format("eventualBG = Current BG (%d) - bg change from IOB (%d)  + bg change from COB (%d) = %d",
+        log(String.format("eventualBG = Current BG (%.1f) - bg change from IOB (%.1f)  + bg change from COB (%.1f) = %.1f",
                 bg,remainingBGImpact_IOBtotal, remainingBGImpact_COBtotal,eventualBG));
 
         double predictedBG;
@@ -244,15 +258,6 @@ public class APSLogic {
 
         // the strangeness in using the average of BG and eventual BG is (I think) due to the logarithmic nature of BG values
         // Remove this once we put AR in place?
-
-        // if most recent reading is more than ten minutes old, do nothing.
-        // If a temp basal is running, fine.  It will expire.
-        int cgm_elapsed = 0;
-        if (cgm_elapsed/*.total_seconds()*/ / 60 > 10) {
-            log(String.format("Most recent CGM reading is %d minutes old. Quitting.",
-                    cgm_elapsed/*.total_seconds() / 60)*/));
-            //exit(-2);
-        }
 
         double currentBasalRate = basal_rate_at_abs_time(now.toLocalTime());
         TempBasalPair currentTempBasal = getCurrentTempBasalFromPump();
@@ -393,7 +398,7 @@ public class APSLogic {
     }
 
     public void testModule() {
-        log("testModule: testing logging function");
+        MakeADecision();
     }
 
     public void updateCachedLatestBGReading(BGReading bgr) {
@@ -422,7 +427,8 @@ public class APSLogic {
 
     // When this method succeeds, it also contacts the database to add the new treatment.
     // Need curr_basal to calculate if this is a negative insulin event
-    public void setTempBasal(double rateUnitsPerHour, int periodMinutes, double currBasal) {
+    public void setTempBasal(double rateUnitsPerHour, int periodMinutes, double currBasalRate) {
+        log(String.format("<Set Temp Basal: rate=%.3f, minutes=%d>",rateUnitsPerHour,periodMinutes));
     }
 
     //Geoff, rather than storing the profile in Mongo, it would be ideal to put it into the UI

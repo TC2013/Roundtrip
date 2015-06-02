@@ -62,7 +62,7 @@ public class MonitorActivity extends ActionBarActivity {
     private int MaxLogSize = 50;
     public void receiveLogMessage(String msg) {
         // keep 50 messages?  make configurable?
-        mMessageLog.add(msg);
+        mMessageLog.add(0,msg);
         if (mMessageLog.size() > MaxLogSize) {
             mMessageLog.remove(mMessageLog.size()-1);
         }
@@ -84,7 +84,7 @@ public class MonitorActivity extends ActionBarActivity {
     }
 
     public void updateBGTimer() {
-        Seconds seconds = Seconds.secondsBetween(DateTime.now(),mLastBGUpdateTime);
+        Seconds seconds = Seconds.secondsBetween(mLastBGUpdateTime,DateTime.now());
         int elapsedMinutes = seconds.getSeconds() / 60;
         TextView view = (TextView)findViewById(R.id.textView_LastBGReadTime);
         view.setText(String.format("%d min ago", elapsedMinutes));

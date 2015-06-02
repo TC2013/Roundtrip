@@ -224,8 +224,8 @@ public class RTDemoService extends Service {
                 // APSLOGIC_STARTUP requests the APSLogic module to do the
                 // initial data collection, which can take a long time (MongoDB access, pump access)
                 // get latest BG reading from Mongo
-                llog("Accessing MongoDB for latest BG");
 
+                broadcastAPSLogicStatusMessage("Accessing MongoDB for latest BG reading");
                 BGReading reading = mMongoWrapper.getBGReading();
                 // TODO: Need to make RTDemoService regularly hit the mongodb (every 5 min)
                 // For now, the testdb button gets a reading.
@@ -235,8 +235,12 @@ public class RTDemoService extends Service {
                 intent.putExtra(Constants.ParcelName.BGReadingParcelName, new BGReadingParcel(reading));
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
                 Log.i(TAG, "Sending latest BG reading");
+                broadcastAPSLogicStatusMessage(String.format("Latest BG reading reports %.2f at %s",
+                        reading.mBg,reading.mTimestamp.toLocalDateTime().toString()));
 
-                // the above should be moved.
+                mAPSLogic.updateCachedLatestBGReading(reading);
+
+                // the above should be (re)moved.
                 mAPSLogic.testModule();
 
             } else {
