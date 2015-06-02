@@ -17,7 +17,7 @@ public interface Constants {
     // to background (RTDemoService)
     public class SRQ {
         public static int START_SERVICE = 301;
-        public static int WAKE_CARELINK = 302;
+        public static int SRQ_UNUSED = 302;
         public static int VERIFY_PUMP_COMMUNICATIONS = 303;
         public static int VERIFY_DB_ACCESS = 304;
         // report_pump_settings sends back a PumpSettingsParcel
@@ -32,6 +32,8 @@ public interface Constants {
         // APSLOGIC_STARTUP requests the APSLogic module to do the
         // initial data collection, which can take a long time (MongoDB access, pump access)
         public static int APSLOGIC_STARTUP = 309;
+        // MongoDBSettingsActivity fires this off to announce new settings for the DB URI
+        public static int MONGO_SETTINGS_CHANGED = 310;
     }
 
     public class ParcelName {
@@ -46,6 +48,12 @@ public interface Constants {
     public class PrefName {
         // Name of an entry in a SharedPreference collection
         public static String SerialNumberPrefName = "PumpSerialNumber";
+        public static String MongoDBServerPrefName = "MongoDBServerAddress";
+        public static String MongoDBServerPortPrefName = "MongoDBServerPort";
+        public static String MongoDBDatabasePrefName = "MongoDBDatabase";
+        public static String MongoDBUsernamePrefName = "MongoDBUsername";
+        public static String MongoDBPasswordPrefName = "MongoDBPassword";
+        public static String MongoDBCollectionPrefName = "MongoDBCollection";
     }
 
 }

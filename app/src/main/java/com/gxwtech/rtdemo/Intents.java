@@ -11,4 +11,5 @@ public class Intents {
     public static final String ROUNDTRIP_STATUS_MESSAGE_STRING = basename + ".rtstatusmsg_string";
     public static final String ROUNDTRIP_TASK_RESPONSE = basename + ".rttaskresponse";
     public static final String ROUNDTRIP_BG_READING = basename + ".bgreading";
+    public static final String APSLOGIC_LOG_MESSAGE = basename + ".apslogic_log_msg";
 }

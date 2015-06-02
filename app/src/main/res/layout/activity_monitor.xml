@@ -151,9 +151,9 @@
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Test DB"
-                android:id="@+id/button_TestDB"
-                android:onClick="testDBButtonClicked" />
+                android:text="Start APS"
+                android:id="@+id/button_StartAPS"
+                android:onClick="startupButtonClicked" />
 
             <Button
                 android:layout_width="wrap_content"

@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Binder;
@@ -67,6 +68,7 @@ public class RTDemoService extends Service {
     // GGW: I think APSLogic should be its own service, but for now, it's a member of RTDemoService.
     // It has significant connections with PumpManager which will have to be ironed out.
     APSLogic mAPSLogic;
+    MongoWrapper mMongoWrapper;
 
     protected static RTDemoService mInstance = null;
     NotificationManager mNM;
@@ -181,7 +183,7 @@ public class RTDemoService extends Service {
                 // this BLOCKS until we get permission!
                 // since it blocks, we can't do it in Create()
 
-            } else if (msg.arg2 == Constants.SRQ.WAKE_CARELINK) {
+            } else if (msg.arg2 == Constants.SRQ.VERIFY_PUMP_COMMUNICATIONS) {
                 // this command should be the first place
                 // we actually try to talk over USB to the carelink.
                 if (!mPumpManager.wakeUpCarelink()) {
@@ -190,7 +192,6 @@ public class RTDemoService extends Service {
                 } else {
                     llog("Carelink ready.");
                 }
-            } else if (msg.arg2 == Constants.SRQ.VERIFY_PUMP_COMMUNICATIONS) {
                 if (!mPumpManager.verifyPumpCommunications()) {
                     llog("Error accessing pump.");
                 } else {
@@ -209,28 +210,35 @@ public class RTDemoService extends Service {
                 Log.d(TAG, "Received request for pump history");
                 mPumpManager.getPumpHistory();
             } else if (msg.arg2 == Constants.SRQ.SET_TEMP_BASAL) {
-                TempBasalPairParcel pair = (TempBasalPairParcel)(msg.obj);
-                Log.d(TAG,String.format("Request to Set Temp Basal(Rate %.2fU, duration %d minutes",
+                TempBasalPairParcel pair = (TempBasalPairParcel) (msg.obj);
+                Log.d(TAG, String.format("Request to Set Temp Basal(Rate %.2fU, duration %d minutes",
                         pair.mInsulinRate, pair.mDurationMinutes));
                 mPumpManager.setTempBasal(pair);
+            } else if (msg.arg2 == Constants.SRQ.MONGO_SETTINGS_CHANGED){
+                // there are new settings in the preferences.
+                // Get them and give them to MongoWrapper
+                updateMongoWrapperFromPrefs();
             } else if (msg.arg2 == Constants.SRQ.VERIFY_DB_ACCESS) {
+                // code removed.  todo: remove VERIFY_DB_ACCESS enum, too.
+            } else if (msg.arg2 == Constants.SRQ.APSLOGIC_STARTUP) {
+                // APSLOGIC_STARTUP requests the APSLogic module to do the
+                // initial data collection, which can take a long time (MongoDB access, pump access)
                 // get latest BG reading from Mongo
                 llog("Accessing MongoDB for latest BG");
-                MongoWrapper mongoWrapper = new MongoWrapper();
-                BGReading reading = mongoWrapper.getBGReading();
+
+                BGReading reading = mMongoWrapper.getBGReading();
                 // TODO: Need to make RTDemoService regularly hit the mongodb (every 5 min)
                 // For now, the testdb button gets a reading.
-                // broadcast the reading to the world.
+                // broadcast the reading to the world. (esp. to MonitorActivity)
                 Intent intent = new Intent(Intents.ROUNDTRIP_BG_READING);
                 intent.putExtra("name", Constants.ParcelName.BGReadingParcelName);
                 intent.putExtra(Constants.ParcelName.BGReadingParcelName, new BGReadingParcel(reading));
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
                 Log.i(TAG, "Sending latest BG reading");
-                // fixme: just a test:
-                testGetProfile();
-            } else if (msg.arg2 == Constants.SRQ.APSLOGIC_STARTUP) {
-                // APSLOGIC_STARTUP requests the APSLogic module to do the
-                // initial data collection, which can take a long time (MongoDB access, pump access)
+
+                // the above should be moved.
+                mAPSLogic.testModule();
+
             } else {
                 // just wait half second
                 long endTime = System.currentTimeMillis() + 500;
@@ -295,6 +303,14 @@ public class RTDemoService extends Service {
         mAPSLogic.receiveXDripBGReading(bgr);
     }
 
+    // This function is used by APSLogic to send a message to the MonitorActivity log window
+    // This function exists to keep Android stuff out of APSLogic
+    public void broadcastAPSLogicStatusMessage(String message) {
+        Intent intent = new Intent(Intents.APSLOGIC_LOG_MESSAGE);
+        intent.putExtra("message",message);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
     // send back to the UI thread an arbitrary response parcel
     protected void sendTaskResponseParcel(Parcelable p, String typename) {
         Intent intent = new Intent(Intents.ROUNDTRIP_TASK_RESPONSE);
@@ -338,6 +354,20 @@ public class RTDemoService extends Service {
         return rval;
     }
 
+    // this is done here, because I'm trying to keep the MongoWrapper from getting too much android stuff in it.
+    private void updateMongoWrapperFromPrefs() {
+        // open prefs
+        SharedPreferences settings = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
+        // get strings from prefs
+        String server = settings.getString(Constants.PrefName.MongoDBServerPrefName, "localhost");
+        String serverPort = settings.getString(Constants.PrefName.MongoDBServerPortPrefName,"12345");
+        String dbname = settings.getString(Constants.PrefName.MongoDBDatabasePrefName,"db");
+        String mongoUsername = settings.getString(Constants.PrefName.MongoDBUsernamePrefName,"username");
+        String mongoPassword = settings.getString(Constants.PrefName.MongoDBPasswordPrefName,"password");
+        String mongoCollection = settings.getString(Constants.PrefName.MongoDBCollectionPrefName,"entries");
+
+        mMongoWrapper.updateURI(server,serverPort,dbname,mongoUsername,mongoPassword,mongoCollection);
+    }
 
     @Override
     public void onCreate() {
@@ -397,6 +427,8 @@ public class RTDemoService extends Service {
         mPumpManager = new PumpManager(getApplicationContext());
         mPumpManager.open();
         mAPSLogic = new APSLogic();
+        mMongoWrapper = new MongoWrapper();
+        updateMongoWrapperFromPrefs();
 
         //llog("End of onCreate()");
         llog("Roundtrip ready.");

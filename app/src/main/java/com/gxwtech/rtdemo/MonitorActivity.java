@@ -11,6 +11,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.gxwtech.rtdemo.Services.RTDemoService;
@@ -18,11 +20,15 @@ import com.gxwtech.rtdemo.Services.RTDemoService;
 import org.joda.time.DateTime;
 import org.joda.time.Seconds;
 
+import java.util.ArrayList;
+
 
 public class MonitorActivity extends ActionBarActivity {
     private static final String TAG = "MonitorActivity";
     BroadcastReceiver mBroadcastReceiver;
     DateTime mLastBGUpdateTime = null;
+    ArrayList<String> mMessageLog = new ArrayList<>();
+    ArrayAdapter<String> adapter = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,8 +51,19 @@ public class MonitorActivity extends ActionBarActivity {
                         }
                     }
                 }
+                if (intent.getAction() == Intents.APSLOGIC_LOG_MESSAGE) {
+                    String msg = intent.getStringExtra("message");
+                    mMessageLog.add(msg);
+                    rebuildArrayAdapter(); // do we need to do this?
+                }
             }
         };
+    }
+
+    public void rebuildArrayAdapter() {
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, mMessageLog);
+        ListView lv = (ListView) findViewById(R.id.listView_MonitorMsgs);
+            lv.setAdapter(adapter);
     }
 
     public void UpdateBGReading(BGReading bgr) {
@@ -95,18 +112,22 @@ public class MonitorActivity extends ActionBarActivity {
 
     protected void onResume() {
         super.onResume();
+        // fixme: do we need to rebuild our display from a bundle?
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intents.ROUNDTRIP_STATUS_MESSAGE);
         intentFilter.addAction(Intents.ROUNDTRIP_TASK_RESPONSE);
         intentFilter.addAction(Intents.ROUNDTRIP_BG_READING);
+        intentFilter.addAction(Intents.APSLOGIC_LOG_MESSAGE);
 
         // register our desire to receive broadcasts from RTDemoService
         LocalBroadcastManager.getInstance(getApplicationContext())
                 .registerReceiver(mBroadcastReceiver, intentFilter);
+        rebuildArrayAdapter();
     }
 
     protected void onPause() {
         super.onPause();
+        // fixme: Do we need to save our display messages to a bundle?
         LocalBroadcastManager.getInstance(getApplicationContext())
                 .unregisterReceiver(mBroadcastReceiver);
     }

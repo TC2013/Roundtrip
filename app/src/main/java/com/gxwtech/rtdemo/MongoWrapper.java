@@ -1,5 +1,6 @@
 package com.gxwtech.rtdemo;
 
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.mongodb.BasicDBObject;
@@ -26,7 +27,17 @@ import java.util.Arrays;
  */
 public class MongoWrapper {
     private static final String TAG = "MongoWrapper";
+    protected String mURI = "<MongoDB URI string - uninitialized>";
+    protected String mDBName = "<MongoDB database name - uninitialized>";
+    protected String mCollection = "entries";
     public MongoWrapper() {
+    }
+
+    public void updateURI(String serverAddress, String serverPort, String dbname, String username,
+                          String password, String collection) {
+        mURI = "mongodb://"+username+":"+password+"@"+serverAddress+":"+serverPort+"/"+dbname;
+        mDBName = dbname;
+        mCollection = collection;
     }
 
     public BGReading getBGReading() {
@@ -34,21 +45,20 @@ public class MongoWrapper {
         The format of the URI is:
         mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]
         */
-        //String userName = "tobycanning";
-        String userName = "roundtrip";
-        String database = "db";
-        //String password = "kardia01";
-        String password = "makertgo";
-        MongoClientURI uri = new MongoClientURI("mongodb://roundtrip:makertgo@ds031952.mongolab.com:31952/db");
+        Log.i(TAG,"Mongo Client URI is:" + mURI);
+        MongoClientURI uri = new MongoClientURI(mURI);
         MongoClient mongoClient = null;
         try {
             mongoClient = new MongoClient(uri);
         } catch (java.net.UnknownHostException e) {
             e.printStackTrace();
             return null;
+        } catch (com.mongodb.MongoException e) {
+            e.printStackTrace();
+
         }
-        DB db = mongoClient.getDB("db");
-        DBCollection coll = db.getCollection("entries");
+        DB db = mongoClient.getDB(mDBName);
+        DBCollection coll = db.getCollection(mCollection);
         // remember to use mongoClient.close()...
 
         int i = 0;

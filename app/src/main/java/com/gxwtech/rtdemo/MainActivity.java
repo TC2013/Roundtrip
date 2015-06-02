@@ -88,10 +88,9 @@ public class MainActivity extends ActionBarActivity {
         startService(intent);
     }
 
-    public void wakeCarelink(View view) {
-        Intent intent = new Intent(this,RTDemoService.class);
-        intent.putExtra("what", Constants.SRQ.WAKE_CARELINK);
-        startService(intent);
+    public void launchMongoDBSettingsActivity(View view) {
+        Intent intent = new Intent(this,MongoDBSettingsActivity.class);
+        startActivity(intent);
     }
 
     public void verifyPumpCommunications(View view) {

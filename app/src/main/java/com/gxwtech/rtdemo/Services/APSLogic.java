@@ -199,19 +199,14 @@ public class APSLogic {
             getBasalProfiles();
         }
 
-        if (latestBGReading.isOlderThan(5/*minutes*/)) {
-            // Get a new BG reading from CGM (or mongo)
-            // In the future, we can put the collection of the latest reading on another thread
-            // and catch new BG readings as they come in, through Intents.
-            latestBGReading = mMongoWrapper.getBGReading();
+        if (mCachedLatestBGReading.isOlderThan(5/*minutes*/)) {
+            // If we haven't got a recent BG reading, we can't do anything.  Complain.
+            Log.e(TAG,"Latest BG reading is too old.");
+            return;
         }
 
-
-
-
-
         // todo: get these values from pump history, MongoDB, CGM, etc.
-        double bg = latestBGReading.mBg;
+        double bg = mCachedLatestBGReading.mBg;
         /*
         todo: sanity-check latest BG reading (is it less than 39? is it greater than 500? is it recent?
          */
@@ -396,13 +391,17 @@ public class APSLogic {
         // initialize member vars to sane settings.
     }
 
-    // for now, make MongoWrapper be managed here.  That makes APSLogic the curator of the
-    // latestBGReadings, but I'm not sure that's where it should be, long-term.
-    MongoWrapper mMongoWrapper = new MongoWrapper();
+    public void testModule() {
+
+    }
+
+    public void updateCachedLatestBGReading(BGReading bgr) {
+        mCachedLatestBGReading = bgr;
+    }
 
     BasalProfile basalProfileSTD, basalProfileA, basalProfileB;
     boolean gotBasalProfiles = false;
-    BGReading latestBGReading = new BGReading();
+    BGReading mCachedLatestBGReading = new BGReading();
     TempBasalPair mCurrentTempBasal = new TempBasalPair();
 
     private boolean getBasalProfiles() {
@@ -437,6 +436,13 @@ public class APSLogic {
     // This function is run when we receive a reading from xDrip, broadcast as an Intent
     public void receiveXDripBGReading(BGReading bgr) {
         // sanity check and cache the latest reading, used only if xDrip samples are enabled.
+    }
+
+    // This is used to send messages to the MonitorActivity about APSLogic's actions and decisions
+    // Those messages are displayed in the lower part of the MonitorActivity's window
+    // This is a call to RTDemoService so that I can keep Android stuff out of this class.
+    private void log(String message) {
+        RTDemoService.getInstance().broadcastAPSLogicStatusMessage(message);
     }
 
 }
