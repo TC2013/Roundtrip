@@ -98,20 +98,20 @@ public class APSLogic {
                                     DIATables.DIATableEnum dia_table) {
         boolean debug_iobValueAtAbsTime = false;
         if (debug_iobValueAtAbsTime) {
-            Log.d(TAG, "startTime: " + startTime);
-            Log.d(TAG, "valueTime: " + valueTime);
-            Log.d(TAG, "insulinUnits: " + insulinUnits);
-            Log.d(TAG, "dia_table: " + dia_table);
+            log("startTime: " + startTime);
+            log("valueTime: " + valueTime);
+            log("insulinUnits: " + insulinUnits);
+            log("dia_table: " + dia_table);
         }
         //int elapsed_minutes = (valueTime - startTime).total_seconds() / 60;
         Duration elapsed_minutes = new Duration(startTime,valueTime); // todo: check this.
         if (debug_iobValueAtAbsTime) {
-            Log.d(TAG, "elapsed minutes since insulin event began: " + elapsed_minutes);
+            log("elapsed minutes since insulin event began: " + elapsed_minutes);
         }
         double rval = insulinUnits * DIATables.insulinPercentRemaining(
                 Math.round(elapsed_minutes.getStandardMinutes()), dia_table) / 100;
         if (debug_iobValueAtAbsTime) {
-            Log.d(TAG, "IOB remaining from event: " + rval);
+            log("IOB remaining from event: " + rval);
         }
         return rval;
     }
@@ -143,7 +143,7 @@ public class APSLogic {
                 rval = 0;
             }
         }
-        //Log.d(TAG,"COB remaining from event: " + rval);
+        dlog("COB remaining from event: " + rval);
         return rval;
     }
 
@@ -178,6 +178,7 @@ public class APSLogic {
     // This function is to be run after CollectData()
     // Here we make a decision about TempBasals, based on all factors
     private void MakeADecision() {
+        log("Log Service Test Message");
         DateTime now = DateTime.now(); // cache current time, as understood by this device
 
         // get a recent blood-glucose (BG) reading from CGM or from Mongo (to start with)
@@ -201,7 +202,7 @@ public class APSLogic {
 
         if (mCachedLatestBGReading.isOlderThan(5/*minutes*/)) {
             // If we haven't got a recent BG reading, we can't do anything.  Complain.
-            Log.e(TAG,"Latest BG reading is too old.");
+            log("Latest BG reading is too old.");
             return;
         }
 
@@ -216,10 +217,10 @@ public class APSLogic {
         double remainingBGImpact_COBtotal = -10E6; // BG impact (in mg/dL) of remaining carbs
         Profile profile = new Profile(); // todo: get a real profile
 
-        Log.d(TAG,String.format("IOB (total): %.3f",iobTotal));
-        Log.d(TAG,String.format("COB (total): %.3f",cobTotal));
-        Log.d(TAG,String.format("remaining BG impact due to insulin events: %.2f", remainingBGImpact_IOBtotal));
-        Log.d(TAG,String.format("remaining BG impact due to carbs events: %.2f", remainingBGImpact_COBtotal));
+        log(String.format("IOB (total): %.3f",iobTotal));
+        log(String.format("COB (total): %.3f",cobTotal));
+        log(String.format("remaining BG impact due to insulin events: %.2f", remainingBGImpact_IOBtotal));
+        log(String.format("remaining BG impact due to carbs events: %.2f", remainingBGImpact_COBtotal));
 
         //calc desired BG adjustment
         // We then predict a value for the BG for "sometime in the future, when all IOB and COB are used up".
@@ -228,7 +229,7 @@ public class APSLogic {
 
         double icRatio = profile.carbRatio;
         double eventualBG = bg - remainingBGImpact_IOBtotal + remainingBGImpact_COBtotal;
-        Log.d(TAG,String.format("eventualBG = Current BG (%d) - bg change from IOB (%d)  + bg change from COB (%d) = %d",
+        log(String.format("eventualBG = Current BG (%d) - bg change from IOB (%d)  + bg change from COB (%d) = %d",
                 bg,remainingBGImpact_IOBtotal, remainingBGImpact_COBtotal,eventualBG));
 
         double predictedBG;
@@ -248,7 +249,7 @@ public class APSLogic {
         // If a temp basal is running, fine.  It will expire.
         int cgm_elapsed = 0;
         if (cgm_elapsed/*.total_seconds()*/ / 60 > 10) {
-            Log.d(TAG, String.format("Most recent CGM reading is %d minutes old. Quitting.",
+            log(String.format("Most recent CGM reading is %d minutes old. Quitting.",
                     cgm_elapsed/*.total_seconds() / 60)*/));
             //exit(-2);
         }
@@ -261,32 +262,32 @@ public class APSLogic {
          */
 
         if (predictedBG < bg_min) {
-            Log.d(TAG, String.format("Predicting that BG will fall to %.1f which is less than %.1f. Can we do something about it?",
+            log(String.format("Predicting that BG will fall to %.1f which is less than %.1f. Can we do something about it?",
                     predictedBG,bg_min));
             // we predict that the BG will go too low,
             // so lower the current basal rate with a temp-basal
             double newTempBasalRate; // our desired temp basal rate (Units/Hr)
             newTempBasalRate = Math.max(0, currentBasalRate - 2 * (bg_min - predictedBG) / isf(now.toLocalTime()));
-            Log.d(TAG, String.format("We would like to set temporary rate to %.3f U/h",newTempBasalRate));
+            log(String.format("We would like to set temporary rate to %.3f U/h",newTempBasalRate));
             newTempBasalRate = mm_round_rate(newTempBasalRate);
-            Log.d(TAG, String.format("New temporary rate rounded to %.3f U/h", newTempBasalRate));
+            log(String.format("New temporary rate rounded to %.3f U/h", newTempBasalRate));
             // abide by pump's max. (it will enforce this anyway...)
             newTempBasalRate = Math.min(newTempBasalRate, pump_high_temp_max);
-            Log.d(TAG, String.format("Pump will limit temporary rate to %.3f U/h",newTempBasalRate));
+            log(String.format("Pump will limit temporary rate to %.3f U/h",newTempBasalRate));
 
             if (currentTempBasal.mDurationMinutes > 0) {
-                Log.d(TAG, String.format("Pump is currently administering a temp basal of %.3f U/h for %d more minutes.",
+                log(String.format("Pump is currently administering a temp basal of %.3f U/h for %d more minutes.",
                         currentTempBasal.mInsulinRate,currentTempBasal.mDurationMinutes));
                 if (newTempBasalRate >= currentTempBasal.mInsulinRate) {
-                    Log.d(TAG, "Pump is already doing its best here, so leave it alone.");
+                    log("Pump is already doing its best here, so leave it alone.");
                 } else {
-                    Log.d(TAG, "Pump is already administering a temp basal, but we want a lower one.");
+                    log("Pump is already administering a temp basal, but we want a lower one.");
                     // set duration of temp basal to the minimum allowed rate.
                     setTempBasal(newTempBasalRate, 30, currentBasalRate);
                     // 30 minutes is minimum for minimed
                 }
             } else {
-                Log.d(TAG, String.format("Pump is not currently administering a temp basal.  Current basal rate is %.3f U/h",currentBasalRate));
+                log(String.format("Pump is not currently administering a temp basal.  Current basal rate is %.3f U/h",currentBasalRate));
                 if (newTempBasalRate < currentBasalRate) {
                     // set duration of temp basal to the minimum allowed rate.
                     setTempBasal(newTempBasalRate, 30, currentBasalRate);
@@ -294,84 +295,84 @@ public class APSLogic {
                 }
             }
         } else if (predictedBG < bg_target) {
-            Log.d(TAG, String.format("Predicting that BG will fall below %.1f, but will stay above %.1f",bg_target,bg_min));
+            log(String.format("Predicting that BG will fall below %.1f, but will stay above %.1f",bg_target,bg_min));
             // we predict that bg will be lower than target, but within "normal" range
             // cancel any high-temp, let any low-temp run
             if (currentTempBasal.mDurationMinutes > 0) {
-                Log.d(TAG, String.format("Pump is currently administering a temp basal of %.03f U/h for %d more minutes.",
+                log(String.format("Pump is currently administering a temp basal of %.03f U/h for %d more minutes.",
                         currentTempBasal.mInsulinRate,currentTempBasal.mDurationMinutes));
                 // a temp basal rate adjustment is running.
                 if (currentTempBasal.mInsulinRate > currentBasalRate) {
-                    Log.d(TAG, "Because temp basal rate adjustment is higher than regular basal rate, cancelling temp basal.");
+                    log("Because temp basal rate adjustment is higher than regular basal rate, cancelling temp basal.");
                     // cancel any existing temp basal
                     setTempBasal(0, 0, currentBasalRate);
                 } else {
-                    Log.d(TAG, "Current temp basal rate adjustment is lower than regular basal rate, so no action is necessary.");
+                    log("Current temp basal rate adjustment is lower than regular basal rate, so no action is necessary.");
                 }
             }
         } else if (predictedBG > bg_max) {
-            Log.d(TAG, String.format("Predicting that BG will rise to %.1f which is above %.1f. Can we do something about it?",
+            log(String.format("Predicting that BG will rise to %.1f which is above %.1f. Can we do something about it?",
                     predictedBG,bg_max));
             // high-temp as required, to get predicted BG down to bg_max
             double fastInsulin;
             fastInsulin = 2 * (predictedBG - bg_max) / isf(now.toLocalTime());
             if (fastInsulin > high_temp_max) {
-                Log.d(TAG, String.format("Insulin delivery limited (by roundtrip) from %.3f U/h to %.3f U/h.",
+                log(String.format("Insulin delivery limited (by roundtrip) from %.3f U/h to %.3f U/h.",
                         fastInsulin,high_temp_max));
             }
             TempBasalPair newTempBasal = new TempBasalPair();
             newTempBasal.mInsulinRate = currentBasalRate + Math.min(high_temp_max, fastInsulin);
-            Log.d(TAG, String.format("We would like to set temporary rate to %.3f U/h",newTempBasal.mInsulinRate));
+            log(String.format("We would like to set temporary rate to %.3f U/h",newTempBasal.mInsulinRate));
             newTempBasal.mInsulinRate = mm_round_rate(newTempBasal.mInsulinRate);
-            Log.d(TAG, String.format("New temporary rate rounded to %.3f U/h",newTempBasal.mInsulinRate));
+            log(String.format("New temporary rate rounded to %.3f U/h",newTempBasal.mInsulinRate));
             // abide by pump"s max. (it will enforce this anyway...)
             newTempBasal.mInsulinRate = Math.min(newTempBasal.mInsulinRate, pump_high_temp_max);
-            Log.d(TAG, String.format("Pump will limit temporary rate to %.3f U/h",newTempBasal.mInsulinRate));
+            log(String.format("Pump will limit temporary rate to %.3f U/h",newTempBasal.mInsulinRate));
             if (iobTotal >= max_IOB) {
-                Log.d(TAG, String.format("IOB (%.1f U) already exceeds maximum allowed (%.1f U), so no course of action available.",iobTotal,max_IOB));
+                log(String.format("IOB (%.1f U) already exceeds maximum allowed (%.1f U), so no course of action available.",iobTotal,max_IOB));
             } else {
                 // IOB total is ok, check for currently-administered temp-basal
                 if (currentTempBasal.mDurationMinutes > 0) {
-                    Log.d(TAG, String.format("Pump is currently administering a temp basal of %.3f U/h for %d more minutes.",
+                    log(String.format("Pump is currently administering a temp basal of %.3f U/h for %d more minutes.",
                             currentTempBasal.mInsulinRate,currentTempBasal.mDurationMinutes));
                     // add 0.1 to compensate for rounding at pump -- if pump is delivering 2.7 and we want to deliver 2.8, we do nothing.
                     if (newTempBasal.mInsulinRate <= (currentTempBasal.mInsulinRate + 0.1)) {
-                        Log.d(TAG, "recommended rate is less than current rate (or close), therefore we do nothing.");
+                        log("recommended rate is less than current rate (or close), therefore we do nothing.");
                     } else {
-                        Log.d(TAG, "Recommended rate is more than current temp basal rate, so over-write old temp basal with new");
+                        log("Recommended rate is more than current temp basal rate, so over-write old temp basal with new");
                         setTempBasal(newTempBasal.mInsulinRate, 30, currentBasalRate);
                     }
                 } else {
                     // Pump is not administering a temp basal currently.
                     if (newTempBasal.mInsulinRate > (currentBasalRate + 0.1)) {
-                        Log.d(TAG, String.format("If no action is taken, predicting BG will rise above %.1f, so recommending %.3f U/h for 30 min.",
+                        log(String.format("If no action is taken, predicting BG will rise above %.1f, so recommending %.3f U/h for 30 min.",
                                 bg_max,newTempBasal.mInsulinRate));
                         setTempBasal(newTempBasal.mInsulinRate, 30, currentBasalRate);
                     } else {
-                        Log.d(TAG, "Recommended setting for temporary basal rate adjustment is less than (or close) current basal rate. Doing nothing.");
+                        log("Recommended setting for temporary basal rate adjustment is less than (or close) current basal rate. Doing nothing.");
                     }
                 }
             }
         } else if ((predictedBG > bg_target) || ((iobTotal > max_IOB) && (predictedBG > bg_max))) {
             // cancel any low temp, let any high-temp run
-            Log.d(TAG, String.format("Predicting BG will rise to %.1f which is above %1.f but is below %.1f.",
+            log(String.format("Predicting BG will rise to %.1f which is above %1.f but is below %.1f.",
                     predictedBG,bg_target,bg_max));
             if (currentTempBasal.mDurationMinutes > 0) {
-                Log.d(TAG, String.format("Pump is currently administering a temp basal of %.3f U/h for %d more minutes.",
+                log(String.format("Pump is currently administering a temp basal of %.3f U/h for %d more minutes.",
                         currentTempBasal.mInsulinRate,currentTempBasal.mDurationMinutes));
                 // a temp basal rate adjustment is running
                 if (currentTempBasal.mInsulinRate > currentBasalRate) {
                     // it is a high-temp, so let it run
-                    Log.d(TAG, "Predicted BG is in the higher-range, current temp-basal is slightly higher, so let it run");
+                    log("Predicted BG is in the higher-range, current temp-basal is slightly higher, so let it run");
                 } else {
-                    Log.d(TAG, "Predicted BG is in the higher range, so cancel lower temp-basal");
+                    log("Predicted BG is in the higher range, so cancel lower temp-basal");
                     setTempBasal(0, 0, currentBasalRate);
                 }
             } else {
-                Log.d(TAG, "No temp-basal is currently running. Good.");
+                log("No temp-basal is currently running. Good.");
             }
         } else {
-            Log.d(TAG, "how did we get here?");
+            log("how did we get here?");
         }
     }
 
@@ -392,7 +393,7 @@ public class APSLogic {
     }
 
     public void testModule() {
-
+        log("testModule: testing logging function");
     }
 
     public void updateCachedLatestBGReading(BGReading bgr) {
@@ -442,7 +443,14 @@ public class APSLogic {
     // Those messages are displayed in the lower part of the MonitorActivity's window
     // This is a call to RTDemoService so that I can keep Android stuff out of this class.
     private void log(String message) {
+        dlog(message);
         RTDemoService.getInstance().broadcastAPSLogicStatusMessage(message);
+    }
+
+    // This is same as above, but doesn't log to the window
+    // That makes it easy to change what appears on the window and what goes to the Android log.
+    private void dlog(String message) {
+        Log.d(TAG,message);
     }
 
 }

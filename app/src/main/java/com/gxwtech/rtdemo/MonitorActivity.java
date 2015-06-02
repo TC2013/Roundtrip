@@ -53,11 +53,20 @@ public class MonitorActivity extends ActionBarActivity {
                 }
                 if (intent.getAction() == Intents.APSLOGIC_LOG_MESSAGE) {
                     String msg = intent.getStringExtra("message");
-                    mMessageLog.add(msg);
-                    rebuildArrayAdapter(); // do we need to do this?
+                    receiveLogMessage(msg);
                 }
             }
         };
+    }
+
+    private int MaxLogSize = 50;
+    public void receiveLogMessage(String msg) {
+        // keep 50 messages?  make configurable?
+        mMessageLog.add(msg);
+        if (mMessageLog.size() > MaxLogSize) {
+            mMessageLog.remove(mMessageLog.size()-1);
+        }
+        rebuildArrayAdapter(); // do we need to do this?
     }
 
     public void rebuildArrayAdapter() {
