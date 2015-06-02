@@ -288,6 +288,13 @@ public class RTDemoService extends Service {
 
     }
 
+    // receive an xDrip BGReading and send it to the APSLogic module.
+    // (this exists to make RTDemoService the public interface to the rest of the world,
+    // keeping APSLogic in internal module)
+    public void receiveXDripBGEstimate(BGReading bgr) {
+        mAPSLogic.receiveXDripBGReading(bgr);
+    }
+
     // send back to the UI thread an arbitrary response parcel
     protected void sendTaskResponseParcel(Parcelable p, String typename) {
         Intent intent = new Intent(Intents.ROUNDTRIP_TASK_RESPONSE);

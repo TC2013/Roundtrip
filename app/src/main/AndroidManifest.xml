@@ -8,7 +8,6 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -33,7 +32,11 @@
 
         <service
             android:name=".Services.RTDemoService"
-            android:enabled="true" >
+            android:enabled="true"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="com.eveningoutpost.dexdrip.BgEstimate" />
+            </intent-filter>
         </service>
 
         <activity
@@ -55,6 +58,14 @@
         <activity
             android:name=".MonitorActivity"
             android:label="@string/title_activity_monitor"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.gxwtech.rtdemo.MainActivity" />
+        </activity>
+        <activity
+            android:name=".MongoDBSettingsActivity"
+            android:label="@string/title_activity_mongo_dbsettings"
             android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

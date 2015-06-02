@@ -175,17 +175,11 @@ public class APSLogic {
         return new TempBasalPair();
     }
 
-    // This function does the complete APSLogic loop once.
-    // It will be called once every 5 minutes, when we get there.
-    public void RunOnce() {
-        CollectData();
-        MakeADecision();
-    }
+    // This function is to be run after CollectData()
+    // Here we make a decision about TempBasals, based on all factors
+    private void MakeADecision() {
+        DateTime now = DateTime.now(); // cache current time, as understood by this device
 
-    // This function is to be run before MakeADecision()
-    // It collects all the data we will need
-    // It is separated out so that we can more easily verify the collecting of data.
-    private void CollectData() {
         // get a recent blood-glucose (BG) reading from CGM or from Mongo (to start with)
         // make sure we have all the pump info we need, such as Basal Profiles,
         // current BasalProfile in use,
@@ -212,13 +206,10 @@ public class APSLogic {
             latestBGReading = mMongoWrapper.getBGReading();
         }
 
-    }
 
 
-    // This function is to be run after CollectData()
-    // Here we make a decision about TempBasals, based on all factors
-    private void MakeADecision() {
-        DateTime now = DateTime.now(); // cache current time
+
+
         // todo: get these values from pump history, MongoDB, CGM, etc.
         double bg = latestBGReading.mBg;
         /*
@@ -442,5 +433,10 @@ public class APSLogic {
     // Get currently used Basals Profile from the pump.
     // We want to fetch these once on startup, then used cached copies.
     public BasalProfile getCurrentBasalProfile() { return new BasalProfile(); }
+
+    // This function is run when we receive a reading from xDrip, broadcast as an Intent
+    public void receiveXDripBGReading(BGReading bgr) {
+        // sanity check and cache the latest reading, used only if xDrip samples are enabled.
+    }
 
 }

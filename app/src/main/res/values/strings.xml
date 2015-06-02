@@ -12,5 +12,6 @@
     <string name="title_activity_pump_settings">Pump Settings</string>
     <string name="title_activity_temp_basal">Temp Basals</string>
     <string name="title_activity_monitor">Roundtrip Monitor</string>
+    <string name="title_activity_mongo_dbsettings">MongoDBSettingsActivity</string>
 
 </resources>
