@@ -192,13 +192,13 @@ public class APSLogic {
         // enable_low_glucose_suspend, AR Regression
 
         // In Python we did this:
-        //TODO: print('Reading temp basal data from ' + TBSO_FILE)
         log("Getting status of temp basal from pump.");
         TempBasalPair currentTempBasal = getCurrentTempBasalFromPump();
         log(String.format("Temp Basal status: %.02f U, %d minutes remaining.",
                 currentTempBasal.mInsulinRate, currentTempBasal.mDurationMinutes));
-        //TODO: #print('Reading clock data from ' + CLOCK_FILE)
-        log("TODO: get clock data from pump");
+        log("Getting RTC clock data from pump");
+        DateTime rtcDateTime = getRTCTimestampFromPump();
+        log("Pump RTC: " + rtcDateTime.toDateTimeISO().toString());
 
         if (!gotBasalProfiles) {
             log("Getting basal profiles from pump");
@@ -358,7 +358,7 @@ public class APSLogic {
             }
         } else if ((predictedBG > bg_target) || ((iobTotal > max_IOB) && (predictedBG > bg_max))) {
             // cancel any low temp, let any high-temp run
-            log(String.format("Predicting BG will rise to %.1f which is above %1.f but is below %.1f.",
+            log(String.format("Predicting BG will rise to %.1f which is above %.1f but is below %.1f.",
                     predictedBG,bg_target,bg_max));
             if (currentTempBasal.mDurationMinutes > 0) {
                 log(String.format("Pump is currently administering a temp basal of %.3f U/h for %d more minutes.",
@@ -449,6 +449,11 @@ public class APSLogic {
         TempBasalPair rval;
         rval = getPumpManager().getCurrentTempBasal();
         return rval;
+    }
+
+    public DateTime getRTCTimestampFromPump() {
+        DateTime dt = getPumpManager().getRTCTimestamp();
+        return dt;
     }
 
     // This is used to send messages to the MonitorActivity about APSLogic's actions and decisions
