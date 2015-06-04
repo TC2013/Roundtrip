@@ -12,6 +12,7 @@ import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfile;
 import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfileTypeEnum;
 import com.gxwtech.rtdemo.Medtronic.PumpData.PumpSettings;
 import com.gxwtech.rtdemo.Medtronic.PumpData.TempBasalPair;
+import com.gxwtech.rtdemo.Medtronic.ReadBasalTempCommand;
 import com.gxwtech.rtdemo.Medtronic.ReadHistoryCommand;
 import com.gxwtech.rtdemo.Medtronic.ReadProfileCommand;
 import com.gxwtech.rtdemo.Medtronic.ReadPumpSettingsCommand;
@@ -180,6 +181,14 @@ public class PumpManager {
         ReadHistoryCommand rhcmd = new ReadHistoryCommand();
         //rhcmd.testParser();
         rhcmd.run(mCarelink,mSerialNumber);
+    }
+
+    public TempBasalPair getCurrentTempBasal() {
+        checkPowerControl();
+        ReadBasalTempCommand cmd = new ReadBasalTempCommand();
+        cmd.run(mCarelink,mSerialNumber);
+        // todo: check for success
+        return cmd.getTempBasalPair();
     }
 
     // insulinRate is in Units, granularity 0.025U

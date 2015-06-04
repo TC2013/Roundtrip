@@ -6,6 +6,7 @@ import com.gxwtech.rtdemo.BGReading;
 import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfile;
 import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfileTypeEnum;
 import com.gxwtech.rtdemo.Medtronic.PumpData.TempBasalPair;
+import com.gxwtech.rtdemo.Medtronic.ReadBasalTempCommand;
 import com.gxwtech.rtdemo.MongoWrapper;
 import com.gxwtech.rtdemo.Services.PumpManager.PumpManager;
 
@@ -173,11 +174,6 @@ public class APSLogic {
         public double carbRatio = -10E6; // conversion from XX to XX (insulin to carbs ratio)
     }
 
-    public TempBasalPair getCurrentTempBasalFromPump() {
-        // todo: fix me
-        return new TempBasalPair();
-    }
-
     // This function is to be run after CollectData()
     // Here we make a decision about TempBasals, based on all factors
     private void MakeADecision() {
@@ -197,7 +193,10 @@ public class APSLogic {
 
         // In Python we did this:
         //TODO: print('Reading temp basal data from ' + TBSO_FILE)
-        log("TODO: get status of temp basal");
+        log("Getting status of temp basal from pump.");
+        TempBasalPair currentTempBasal = getCurrentTempBasalFromPump();
+        log(String.format("Temp Basal status: %.02f U, %d minutes remaining.",
+                currentTempBasal.mInsulinRate, currentTempBasal.mDurationMinutes));
         //TODO: #print('Reading clock data from ' + CLOCK_FILE)
         log("TODO: get clock data from pump");
 
@@ -260,7 +259,6 @@ public class APSLogic {
         // Remove this once we put AR in place?
 
         double currentBasalRate = basal_rate_at_abs_time(now.toLocalTime());
-        TempBasalPair currentTempBasal = getCurrentTempBasalFromPump();
 
         /*
         todo: many places below talk about "for %d more minutes" but reference a total, not remaining duration. fix.
@@ -443,6 +441,14 @@ public class APSLogic {
     // This function is run when we receive a reading from xDrip, broadcast as an Intent
     public void receiveXDripBGReading(BGReading bgr) {
         // sanity check and cache the latest reading, used only if xDrip samples are enabled.
+    }
+
+    // This command retrieves the CURRENTLY ACTIVE temp basal from the pump
+    // This command can "sleep" for up to 20 seconds while running.
+    public TempBasalPair getCurrentTempBasalFromPump() {
+        TempBasalPair rval;
+        rval = getPumpManager().getCurrentTempBasal();
+        return rval;
     }
 
     // This is used to send messages to the MonitorActivity about APSLogic's actions and decisions
