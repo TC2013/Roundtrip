@@ -55,14 +55,18 @@ public class CareLinkUsb {
             throw new UsbException("Device not found");
         }
 
-        Log.d(TAG, "Device found");
-
         // Assigning interface
         mInterface = mUsbDevice.getInterface(0);
 
+        // Lovely...  We "get a device" when the carelink is unplugged...
         // Assigning endpoint in and out
-        epOUT = mInterface.getEndpoint(0);
-        epIN = mInterface.getEndpoint(1);
+        try {
+            epOUT = mInterface.getEndpoint(0);
+            epIN = mInterface.getEndpoint(1);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // This means there's no Carelink attached :(
+            throw new UsbException("Device not attached");
+        }
 
         // Open connection
         mUsbDeviceConnection = mUsbManager.openDevice(mUsbDevice);

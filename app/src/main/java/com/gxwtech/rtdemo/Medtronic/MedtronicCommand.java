@@ -10,6 +10,7 @@ import com.gxwtech.rtdemo.Carelink.ReadRadioCommand;
 import com.gxwtech.rtdemo.Carelink.TransmitPacketCommand;
 import com.gxwtech.rtdemo.Carelink.util.ByteUtil;
 import com.gxwtech.rtdemo.HexDump;
+import com.gxwtech.rtdemo.Services.RTDemoService;
 import com.gxwtech.rtdemo.USB.UsbException;
 
 import java.util.Calendar;
@@ -33,7 +34,7 @@ public class MedtronicCommand {
 
     // +++ what's all this talk of a new way?
     protected byte[] mRawReceivedData;
-    protected int mSleepForPumpResponse = 100; //millis
+    protected int mSleepForPumpResponse = 80; //millis // was 100
     protected int mSleepForPumpRetry = 500; //millis
 
     public MedtronicCommand() {
@@ -68,12 +69,8 @@ public class MedtronicCommand {
         return rval;
     }
 
-    private void sleep(int millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            Log.d("MedtronicCommand","Sleep interrupted: " + e.getMessage());
-        }
+    private static void sleep(int millis) {
+        RTDemoService.sleep(millis);
     }
 
     // subclasses should override parse() and get data from mMResponse

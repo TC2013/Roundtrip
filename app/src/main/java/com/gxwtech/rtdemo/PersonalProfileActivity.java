@@ -80,7 +80,7 @@ public class PersonalProfileActivity extends ActionBarActivity {
     public String updateCARFromPreferences() {
         SharedPreferences settings = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
         double car = (double)settings.getFloat(Constants.PrefName.CARPrefName, (float) 30.0);
-        EditText editText = (EditText)findViewById(R.id.editText_ISF);
+        EditText editText = (EditText)findViewById(R.id.editText_CAR);
         String carString = String.format("%.1f",car);
         editText.setText(carString);
         return carString;

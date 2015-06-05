@@ -6,8 +6,10 @@ import com.gxwtech.rtdemo.BGReading;
 import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfile;
 import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfileEntry;
 import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfileTypeEnum;
+import com.gxwtech.rtdemo.Medtronic.PumpData.HistoryReport;
 import com.gxwtech.rtdemo.Medtronic.PumpData.PumpSettings;
 import com.gxwtech.rtdemo.Medtronic.PumpData.TempBasalPair;
+import com.gxwtech.rtdemo.Medtronic.PumpData.records.BolusWizard;
 import com.gxwtech.rtdemo.Medtronic.ReadBasalTempCommand;
 import com.gxwtech.rtdemo.MongoWrapper;
 import com.gxwtech.rtdemo.Services.PumpManager.PumpManager;
@@ -61,6 +63,11 @@ import java.util.ArrayList;
     thread.  One downside is that we will get duplicate calls: the GUI will ask the pump for data,
     and APSLogic will ask the pump for data which will be duplicate data, which will take even longer.
     Perhaps some smart pump-response caching is in order.
+
+    Note: 2015-06-05 suddendly started having problems talking to pump again.  Is the small delay
+    added by trying to inform the UI when we're going to sleep for a bit pushing us over the edge
+    of the Pump's "time-window" for reading back responses? FIXME
+
      */
 
 
@@ -135,7 +142,7 @@ public class APSLogic {
         double CAR = carbs_absorbed_per_hour / 60.0;
         double rval = 0;
         //int elapsed_minutes = (valueTime - startTime).total_seconds() / 60;
-        Minutes minutes = Minutes.minutesBetween(startTime,valueTime); // todo: check this
+        Minutes minutes = Minutes.minutesBetween(startTime, valueTime); // todo: check this
         int elapsed_minutes = minutes.getMinutes();
         if (elapsed_minutes < 0) {
             //none ingested
@@ -234,26 +241,53 @@ public class APSLogic {
                 mCachedLatestBGReading.mBg,cgm_elapsed.getMinutes()));
 
         // todo: get these values from pump history, MongoDB, CGM, etc.
-        double bg = mCachedLatestBGReading.mBg;
+        double bg = mCachedLatestBGReading.mBg; // for simplified reading of the algorithm below
         /*
         todo: sanity-check latest BG reading (is it less than 39? is it greater than 500?
          */
-        double iobTotal = -10E6; // insulin-on-board total, amount of unabsorbed insulin (in Units) in body
-        double cobTotal = -10E6; // carbohydrates-on-board total, amount of undigested carbohydrates in body (grams)
-        double remainingBGImpact_IOBtotal = -10E6; // BG impact (in mg/dL) of remaining insulin
-        double remainingBGImpact_COBtotal = -10E6; // BG impact (in mg/dL) of remaining carbs
 
-        log(String.format("IOB (total): %.3f",iobTotal));
-        log(String.format("COB (total): %.3f",cobTotal));
-        log(String.format("remaining BG impact due to insulin events: %.2f", remainingBGImpact_IOBtotal));
-        log(String.format("remaining BG impact due to carbs events: %.2f", remainingBGImpact_COBtotal));
+        // Get total IOB and COB from pump bolus wizard events
+        double iobTotal = 0; // insulin-on-board total, amount of unabsorbed insulin (in Units) in body
+        double cobTotal = 0; // carbohydrates-on-board total, amount of undigested carbohydrates in body (grams)
+        double remainingBGImpact_IOBtotal = 0;
+        double remainingBGImpact_COBtotal = 0;
+        HistoryReport historyReport = getPumpManager().getPumpHistory();
+        for (BolusWizard bw : historyReport.mBolusWizardEvents) {
+            DateTime timestamp = bw.getTimeStamp();
+            double bolusAmount = bw.getBolusEstimate();
+            double carbInput = bw.getCarbInput();
+            log(String.format("Found Bolus Wizard Event(%s,Carbs %.1f gm, Insulin %.3f U)",
+                    timestamp.toLocalDateTime().toString(),
+                    carbInput,
+                    bolusAmount));
+
+            //TODO: Use correct table, (from profile?)
+            double iob = iobValueAtAbsTime(timestamp, bolusAmount, now, DIATables.DIATableEnum.DIA_3_hour);
+            log(String.format("Insulin remaining (IOB) from bolus wizard event: %.1f U", iob));
+            log(String.format("Using a sensitivity factor of %.1f",mPersonalProfile.isf));
+            double remainingBGImpact_IOBpartial = iob * mPersonalProfile.isf;
+            log(String.format("Remaining BG impact of insulin event (Bolus) is %.1f",remainingBGImpact_IOBpartial));
+            remainingBGImpact_IOBtotal = remainingBGImpact_IOBtotal + remainingBGImpact_IOBpartial;
+            iobTotal = iobTotal + iob;
+
+            double cob = cobValueAtAbsTime(timestamp,carbInput,now,mPersonalProfile.carbRatio);
+            double remainingBGImpact_COBpartial = cob * mPersonalProfile.isf / mPersonalProfile.carbRatio;
+            log(String.format("Remaining BG impact of this carbs event is %.2f mg/dL",
+                    remainingBGImpact_COBpartial));
+            remainingBGImpact_COBtotal = remainingBGImpact_COBtotal + remainingBGImpact_COBpartial;
+            cobTotal = cobTotal + cob;
+        }
+
+        log(String.format("IOB (total): %.1f",iobTotal));
+        log(String.format("COB (total): %.1f",cobTotal));
+        log(String.format("remaining BG impact due to insulin events: %.1f", remainingBGImpact_IOBtotal));
+        log(String.format("remaining BG impact due to carbs events: %.1f", remainingBGImpact_COBtotal));
 
         //calc desired BG adjustment
         // We then predict a value for the BG for "sometime in the future, when all IOB and COB are used up".
         // We don't know when that will be (though that would be an interesting algorithm to write).
         // If we see that the eventual BG will be too much or too little, we decide if we can take action.
 
-        double icRatio = mPersonalProfile.carbRatio;
         double eventualBG = bg - remainingBGImpact_IOBtotal + remainingBGImpact_COBtotal;
         log(String.format("eventualBG = Current BG (%.1f) - bg change from IOB (%.1f)  + bg change from COB (%.1f) = %.1f",
                 bg,remainingBGImpact_IOBtotal, remainingBGImpact_COBtotal,eventualBG));
@@ -309,6 +343,8 @@ public class APSLogic {
                     // set duration of temp basal to the minimum allowed rate.
                     setTempBasal(newTempBasalRate, 30, currentBasalRate);
                     // 30 minutes is minimum for Mini-Med
+                } else {
+                    log(String.format("Current basal rate is already at %.3f U/hr.  Nothing to do.",currentBasalRate));
                 }
             }
         } else if (predictedBG < bg_target) {
@@ -457,7 +493,7 @@ public class APSLogic {
     // When this method succeeds, it also contacts the database to add the new treatment.
     // Need curr_basal to calculate if this is a negative insulin event
     public void setTempBasal(double rateUnitsPerHour, int periodMinutes, double currBasalRate) {
-        log(String.format("<Set Temp Basal: rate=%.3f, minutes=%d>",rateUnitsPerHour,periodMinutes));
+        log(String.format("Set Temp Basal: rate=%.3f, minutes=%d",rateUnitsPerHour,periodMinutes));
     }
 
     // Get currently used Basals Profile from the pump.

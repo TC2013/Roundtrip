@@ -1534,7 +1534,6 @@ containing a value of this type.
         public static final int always=0x7f0b0016;
         public static final int beginning=0x7f0b0013;
         public static final int button2=0x7f0b0074;
-        public static final int button3=0x7f0b0075;
         public static final int buttonPanel=0x7f0b0036;
         public static final int button_GetPumpHistory=0x7f0b008d;
         public static final int button_MongoDBSettings=0x7f0b0085;
@@ -1647,6 +1646,7 @@ containing a value of this type.
         public static final int textView_SaveStatusMsg=0x7f0b0066;
         public static final int textView_Server=0x7f0b0059;
         public static final int textView_ServerPort=0x7f0b005b;
+        public static final int textView_SleepNotification=0x7f0b0075;
         public static final int textView_StatusNote=0x7f0b0052;
         public static final int textView_StatusTitle=0x7f0b0051;
         public static final int textView_getPumpSettingsProgressMessage=0x7f0b0082;

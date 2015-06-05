@@ -3,7 +3,9 @@ package com.gxwtech.rtdemo.Medtronic;
 import android.util.Log;
 
 import com.gxwtech.rtdemo.HexDump;
+import com.gxwtech.rtdemo.Medtronic.PumpData.HistoryReport;
 import com.gxwtech.rtdemo.Medtronic.PumpData.Page;
+import com.gxwtech.rtdemo.Medtronic.PumpData.records.BolusWizard;
 import com.gxwtech.rtdemo.Medtronic.PumpData.records.Record;
 import com.gxwtech.rtdemo.Medtronic.PumpData.records.RecordTypeEnum;
 
@@ -15,9 +17,12 @@ import java.util.ArrayList;
 public class ReadHistoryCommand extends MedtronicCommand {
     private static final String TAG = "ReadHistoryCommand";
     public boolean mParsedOK;
+    // HistoryReport to collect the valuable things from the history (as we cannot yet parse all)
+    public HistoryReport mHistoryReport;
     public ReadHistoryCommand() {
         init(MedtronicCommandEnum.CMD_M_READ_HISTORY);
-        mNRetries = 6;
+        mHistoryReport = new HistoryReport();
+        mNRetries = 2;
         mMaxRecords = 2;
         mSleepForPumpResponse = 100; // must adjust these numbers to get data from carelink?
         mSleepForPumpRetry = 350;
@@ -25,6 +30,84 @@ public class ReadHistoryCommand extends MedtronicCommand {
         mParsedOK = false;
 
     }
+    private static void checkForRecordSequence(byte[] data, int index) {
+        Record r;
+        int seq = 0;
+        r = checkForRecord(data,index);
+        while (r!=null) {
+            seq++;
+            if (seq > 1) {
+                // note sequential discoveries
+                Log.w(TAG,String.format("SEQ: %d",seq));
+            }
+            index = index + r.getSize();
+            r = checkForRecord(data,index);
+        }
+    }
+
+    private static Record checkForRecord(byte[] data, int index) {
+        Page page = new Page();
+        Record record = page.attemptParseRecord(data,index); // CalBgForPh
+        if (record!=null) {
+            Log.d(TAG, String.format("Maybe found record %s at index %d, size %d",
+                    record.getClass().getSimpleName(), index, record.getSize()));
+            int sublength = data.length - index;
+            byte[] subset = new byte[sublength];
+            System.arraycopy(data,index,subset,0,sublength);
+            boolean correct = record.collectRawData(subset,PumpModel.MM522);
+            if (correct) {
+                Log.e(TAG, String.format("FOUND RECORD %s at index %d, size %d",
+                        record.getClass().getSimpleName(), index, record.getSize()));
+            } else {
+                Log.e(TAG, String.format("Failed to load record %s at index %d, size %d",
+                        record.getClass().getSimpleName(), index, record.getSize()));
+            }
+        } else {
+            Log.d(TAG, String.format("NO RECORD FOUND at index %d, code 0x%02X",
+                    index, data[index]));
+        }
+        return record;
+    }
+
+    public void parse(byte[] receivedData) {
+        if (receivedData != null) {
+            Log.w(TAG, "parse: " + HexDump.dumpHexString(receivedData));
+            int d = receivedData.length;
+            if (d == 1024) {
+                Log.e(TAG, "******* Begin record discovery ******");
+                discoverRecords(receivedData);
+                Log.e(TAG,"******* END record discovery ********");
+                Page page = new Page();
+                mParsedOK = page.parseFrom(receivedData, PumpModel.MM522); // todo: fix hardcoded pump model
+                // Here we select the records of the page which will go into the report
+                for (Record r : page.mRecordList) {
+                    if (r.getRecordOp() == RecordTypeEnum.RECORD_TYPE_BOLUSWIZARD.opcode()) {
+                        mHistoryReport.addBolusWizardEvent((BolusWizard) r);
+                        Log.d(TAG,"Adding BolusWizard event to HistoryReport");
+                    }
+                }
+            } else {
+                Log.e(TAG,String.format("Cannot decode page of invalid size %d (should be 1024)",d));
+            }
+        }
+    }
+
+
+    public static void discoverRecords(byte[] data) {
+        int i = 0;
+        boolean done = false;
+
+        while (!done) {
+            RecordTypeEnum en = RecordTypeEnum.fromByte(data[i]);
+            if (en != RecordTypeEnum.RECORD_TYPE_NULL) {
+                Log.w(TAG,String.format("Possible record of type %s found at index %d", en, i));
+                checkForRecordSequence(data,i);
+            }
+            i = i + 1;
+            done = (i >= data.length-2);
+        }
+    }
+
 
     public void testParser() {
         byte[] sampleHistory = new byte[] {
@@ -185,77 +268,6 @@ public class ReadHistoryCommand extends MedtronicCommand {
         checkForRecordSequence(sampleHistory,502); // CalBgForPh
         checkForRecordSequence(sampleHistory,509); // BolusWizard
         checkForRecordSequence(sampleHistory,529); // Bolus
-    }
-
-    private static void checkForRecordSequence(byte[] data, int index) {
-        Record r;
-        int seq = 0;
-        r = checkForRecord(data,index);
-        while (r!=null) {
-            seq++;
-            if (seq > 1) {
-                // note sequential discoveries
-                Log.w(TAG,String.format("SEQ: %d",seq));
-            }
-            index = index + r.getSize();
-            r = checkForRecord(data,index);
-        }
-    }
-
-    private static Record checkForRecord(byte[] data, int index) {
-        Page page = new Page();
-        Record record = page.attemptParseRecord(data,index); // CalBgForPh
-        if (record!=null) {
-            Log.d(TAG, String.format("Maybe found record %s at index %d, size %d",
-                    record.getClass().getSimpleName(), index, record.getSize()));
-            int sublength = data.length - index;
-            byte[] subset = new byte[sublength];
-            System.arraycopy(data,index,subset,0,sublength);
-            boolean correct = record.collectRawData(subset,PumpModel.MM522);
-            if (correct) {
-                Log.e(TAG, String.format("FOUND RECORD %s at index %d, size %d",
-                        record.getClass().getSimpleName(), index, record.getSize()));
-            } else {
-                Log.e(TAG, String.format("Failed to load record %s at index %d, size %d",
-                        record.getClass().getSimpleName(), index, record.getSize()));
-            }
-        } else {
-            Log.d(TAG, String.format("NO RECORD FOUND at index %d, code 0x%02X",
-                    index, data[index]));
-        }
-        return record;
-    }
-
-    public void parse(byte[] receivedData) {
-        if (receivedData != null) {
-            Log.w(TAG, "parse: " + HexDump.dumpHexString(receivedData));
-            int d = receivedData.length;
-            if (d == 1024) {
-                Log.e(TAG,"******* Begin record discovery ******");
-                discoverRecords(receivedData);
-                Log.e(TAG,"******* END record discovery ********");
-                Page page = new Page();
-                mParsedOK = page.parseFrom(receivedData, PumpModel.MM522); // todo: fix hardcoded pump model
-            } else {
-                Log.e(TAG,String.format("Cannot decode page of invalid size %d (should be 1024)",d));
-            }
-        }
-    }
-
-
-    public static void discoverRecords(byte[] data) {
-        int i = 0;
-        boolean done = false;
-
-        while (!done) {
-            RecordTypeEnum en = RecordTypeEnum.fromByte(data[i]);
-            if (en != RecordTypeEnum.RECORD_TYPE_NULL) {
-                Log.w(TAG,String.format("Possible record of type %s found at index %d", en, i));
-                checkForRecordSequence(data,i);
-            }
-            i = i + 1;
-            done = (i >= data.length-2);
-        }
     }
 
 

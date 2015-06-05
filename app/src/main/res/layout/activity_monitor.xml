@@ -159,18 +159,25 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="New Button"
-                android:id="@+id/button2" />
+                android:id="@+id/button2"
+                android:visibility="invisible" />
 
-            <Button
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="New Button"
-                android:id="@+id/button3" />
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Sleep"
+                android:id="@+id/textView_SleepNotification"
+                android:visibility="invisible"
+                android:layout_marginLeft="30dp" />
+
         </LinearLayout>
 
         <ListView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:footerDividersEnabled="false"
+            android:headerDividersEnabled="false"
             android:id="@+id/listView_MonitorMsgs" />
 
     </LinearLayout>

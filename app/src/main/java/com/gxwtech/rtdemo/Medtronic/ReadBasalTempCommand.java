@@ -25,6 +25,14 @@ public class ReadBasalTempCommand extends MedtronicCommand {
         // 30 minutes, 0.25 U: 00 00 00 0A 00 1E
         // 1 hour, 0.35 U:     00 00 00 0E 00 3C
         // 24 hours, 0.40 U:   00 00 00 10 05 A0
+        if (receivedData == null) {
+            Log.e(TAG,"parse: null data");
+            return;
+        }
+        if (receivedData.length < 6) {
+            Log.e(TAG,"parse: receivedData buffer too small");
+            return;
+        }
 
         int rateByte = receivedData[3];
         int durationHighByte = receivedData[4];

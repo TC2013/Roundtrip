@@ -63,7 +63,7 @@ public class BasalProfile {
                 done = true;
             }
             i++;
-            if (i > entries.size()) {
+            if (i >= entries.size()) {
                 return rval;
             }
         }

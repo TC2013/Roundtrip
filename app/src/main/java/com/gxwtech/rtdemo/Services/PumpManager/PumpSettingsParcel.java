@@ -3,6 +3,7 @@ package com.gxwtech.rtdemo.Services.PumpManager;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfileTypeEnum;
 import com.gxwtech.rtdemo.Medtronic.PumpData.PumpSettings;
 
 import java.util.ArrayList;
@@ -57,7 +58,17 @@ public class PumpSettingsParcel extends PumpSettings implements Parcelable {
         ra.add(String.format("Time Format: %d", mTimeFormat));
         ra.add(String.format("Insulin Concentration(%%): %s", (mInsulinConcentration == 0) ? "50" : "100"));
         ra.add(String.format("Patterns Enabled: %s",mPatternsEnabled ? "true":"false"));
-        ra.add(String.format("Selected Pattern: %d", mSelectedPattern));
+        String id;
+        switch (mSelectedPattern) {
+            case STD: id = "STD";
+            break;
+            case A: id = "A";
+            break;
+            case B: id = "B";
+            break;
+            default: id = "???";
+        }
+        ra.add(String.format("Selected Pattern: %s", id));
         ra.add(String.format("RF Enable: %s", mRFEnable ? "true" : "false"));
         ra.add(String.format("Block Enable: %s", mBlockEnable ? "true" : "false"));
         ra.add(String.format("Temp Basal Type: %d", mTempBasalType));

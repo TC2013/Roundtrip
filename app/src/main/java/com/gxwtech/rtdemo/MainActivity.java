@@ -44,6 +44,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction() == Intents.ROUNDTRIP_STATUS_MESSAGE) {
+                    Log.d(TAG,"Received Roundtrip_Status_message");
                     updateText();
                 } else if (intent.getAction() == Intents.ROUNDTRIP_TASK_RESPONSE) {
                     // pump settings viewer used to be here.
@@ -115,6 +116,14 @@ public class MainActivity extends ActionBarActivity {
 
     protected void onResume() {
         super.onResume();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Intents.ROUNDTRIP_STATUS_MESSAGE);
+        intentFilter.addAction(Intents.ROUNDTRIP_TASK_RESPONSE);
+
+        // register our desire to receive broadcasts from RTDemoService
+        LocalBroadcastManager.getInstance(getApplicationContext())
+                .registerReceiver(broadcastReceiver, intentFilter);
+        updateText();
     }
 
     protected void onPause() {

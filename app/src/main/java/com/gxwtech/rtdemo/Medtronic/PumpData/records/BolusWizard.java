@@ -9,19 +9,39 @@ import com.gxwtech.rtdemo.Medtronic.PumpModel;
 public class BolusWizard extends TimeStampedRecord {
     private final static String TAG = "BolusWizard";
 
-    private float correction;
+    private double correction;
     private long bg;
     private int carbInput;
-    private float carbRatio;
+    private double carbRatio;
     private int sensitivity;
     private int bgTargetLow;
     private int bgTargetHigh;
-    private float bolusEstimate;
-    private float foodEstimate;
-    private float unabsorbedInsulinTotal;
+    private double bolusEstimate;
+    private double foodEstimate;
+    private double unabsorbedInsulinTotal;
 
     public BolusWizard() {
+        correction = (double)0.0;
+        bg = 0;
+        carbInput = 0;
+        carbRatio = 0.0;
+        sensitivity = 0;
+        bgTargetLow = 0;
+        bgTargetHigh = 0;
+        bolusEstimate = 0.0;
+        foodEstimate = 0.0;
+        unabsorbedInsulinTotal = 0.0;
     }
+
+    public double getCorrection() { return correction; }
+    public long getBG() { return bg; }
+    public int getCarbInput() { return carbInput; }
+    public double getCarbRatio() { return carbRatio; }
+    public int getSensitivity() { return sensitivity; }
+    public int getBgTargetLow() { return bgTargetLow; }
+    public double getBolusEstimate() { return bolusEstimate; }
+    public double getFoodEstimate() { return foodEstimate; }
+    public double getUnabsorbedInsulinTotal() { return unabsorbedInsulinTotal; }
 
     public boolean collectRawData(byte[] data, PumpModel model) {
         super.collectRawData(data, model);

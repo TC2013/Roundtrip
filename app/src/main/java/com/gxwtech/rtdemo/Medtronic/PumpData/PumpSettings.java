@@ -27,31 +27,31 @@ public class PumpSettings {
     protected static final int MAXIMUM_DATA_LENGTH = 64; // bytes
     protected byte[] mRawData;
 
-    public byte mAutoOffDuration_hours;
-    public byte mAlarmMode;
-    public byte mAlarmVolume;
-    public boolean mAudioBolusEnable;
-    public double mAudioBolusSize;
-    public boolean mVariableBolusEnable;
-    public double mMaxBolus; // MM23 is different (?)
+    public byte mAutoOffDuration_hours = 0;
+    public byte mAlarmMode = 0;
+    public byte mAlarmVolume = 0;
+    public boolean mAudioBolusEnable = false;
+    public double mAudioBolusSize = 0.0;
+    public boolean mVariableBolusEnable = false;
+    public double mMaxBolus = 0.0; // MM23 is different (?)
     // MM512 and up (?)
-    public double mMaxBasal;
-    public byte mTimeFormat;
-    public int mInsulinConcentration; // 100 or 50
-    public boolean mPatternsEnabled;
-    public BasalProfileTypeEnum mSelectedPattern;
-    public boolean mRFEnable;
-    public boolean mBlockEnable;
-    public byte mTempBasalType; // 1 means Percent, 0 means UnitsPerHour
-    public byte mTempBasalRate; // TODO: scaling?
-    public byte mParadigmEnable;
+    public double mMaxBasal = 0.0;
+    public byte mTimeFormat = 0;
+    public int mInsulinConcentration = 100; // 100 or 50
+    public boolean mPatternsEnabled = false;
+    public BasalProfileTypeEnum mSelectedPattern = BasalProfileTypeEnum.STD;
+    public boolean mRFEnable = false;
+    public boolean mBlockEnable = false;
+    public byte mTempBasalType = 0; // 1 means Percent, 0 means UnitsPerHour
+    public byte mTempBasalRate = 0; // TODO: scaling?
+    public byte mParadigmEnable = 0;
     // MM12
     // boolean mInsulinActionType (0='Fast' or 1='Regular')
     // MM15
-    public byte mInsulinActionType;
-    public byte mLowReservoirWarnType;
-    public byte mLowReservoirWarnPoint;
-    public byte mKeypadLockStatus;
+    public byte mInsulinActionType = 0;
+    public byte mLowReservoirWarnType = 0;
+    public byte mLowReservoirWarnPoint = 0;
+    public byte mKeypadLockStatus = 0;
 
     public PumpSettings() {
         init();

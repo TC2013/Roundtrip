@@ -59,6 +59,12 @@ public class CarelinkCommand {
         byte[] response;
 
         cmd = preparePacket();
+
+        if (stick == null) {
+            // Carelink is not attached, most likely.
+            return CarelinkCommandStatusEnum.NONE;
+        }
+
         // TODO: check for null cmd return from preparePacket()
         mRawPacket = cmd;
         Log.i(TAG,getName());

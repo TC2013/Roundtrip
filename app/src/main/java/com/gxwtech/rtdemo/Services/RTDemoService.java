@@ -40,6 +40,8 @@ import com.gxwtech.rtdemo.Services.PumpManager.PumpManager;
 import com.gxwtech.rtdemo.Services.PumpManager.PumpSettingsParcel;
 import com.gxwtech.rtdemo.Services.PumpManager.TempBasalPairParcel;
 
+import org.joda.time.DateTime;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -58,6 +60,19 @@ import java.util.concurrent.LinkedBlockingDeque;
  * Put the code for the pump into the PumpManager whenever possible.
  *
  * Unfortunately, it still has to handle USB issues, AFAICT, as these are OS issues.
+ *
+ * 2015-06-05 GGW: This class started out just being the background thread for pump communications,
+ * but it has grown into being ALL background services.  There are really three very important
+ * classes where the work is done: APSLogic, PumpManager and RTDemoService.  It is not a clean
+ * heirarchy: they all call each other at various times.  The goal was to keep related code together
+ * but it needs to be refactored.
+ *
+ * PumpManager: Handles pump data types and pump communcations.
+ *
+ * APSLogic: does the insulin/TempBasal decision making.  It has to collect a lot of data to do this.
+ *
+ * RTDemoService: Handles anything Android related (except the android Log facility, which
+ * I ended up using everywhere).
  *
  */
 
@@ -301,6 +316,29 @@ public class RTDemoService extends Service {
             }
         }
 
+    }
+
+    // TODO: UGLY can we please find a way to do this asynchronously? i.e. no sleep!
+    // For now, make all sleeps use this sleep, so that we can notify the UI.
+    public static void sleep(int millis) {
+        if (millis > 1000) {
+            // If we sleep for more than 1 second, notify the UI
+            RTDemoService.getInstance().sendSleepNotification(DateTime.now(), millis / 1000);
+        }
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            Log.e(TAG,"Sleep interrupted: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    // Let the UI know that we're sleeping (for pump communication delays)
+    public void sendSleepNotification(DateTime starttime, int durationSeconds) {
+        // send the log message to anyone who cares to listen (e.g. a UI component!)
+        Intent intent = new Intent(Intents.ROUNDTRIP_SLEEP_MESSAGE)
+                .putExtra(Intents.ROUNDTRIP_SLEEP_MESSAGE_DURATION,durationSeconds);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     // receive an xDrip BGReading and send it to the APSLogic module.

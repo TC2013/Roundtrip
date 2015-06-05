@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -41,10 +42,12 @@ public class PumpSettingsActivity extends ActionBarActivity {
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                Log.d(TAG,"Received broadcast: intent action is " + intent.getAction().toString());
                 if (intent.getAction() == Intents.ROUNDTRIP_TASK_RESPONSE) {
                     Log.d(TAG,"Received task response");
                     if (intent.hasExtra("name")) {
                         String name = intent.getStringExtra("name");
+                        Log.d(TAG,"Field 'name' is " + name);
                         if (intent.hasExtra(name)) {
                             if (name == Constants.ParcelName.PumpSettingsParcelName) {
                                 Bundle data = intent.getExtras();
@@ -57,7 +60,11 @@ public class PumpSettingsActivity extends ActionBarActivity {
                 }
             }
         };
-
+        // If the pumpSerialNumber EditText is the first focused item,
+        // it brings up the number entry keyboard.  So focus somewhere else.
+        Button myBtn = (Button)findViewById(R.id.button_getPumpSettings);
+        myBtn.setFocusableInTouchMode(true);
+        myBtn.requestFocus();
     }
 
     // this is run when the SET button is clicked.
@@ -99,11 +106,16 @@ public class PumpSettingsActivity extends ActionBarActivity {
 
     public void receivePumpSettingsParcel(PumpSettingsParcel p) {
         updateViewFromPumpSettingsParcel(p);
+        ProgressBar waiting = (ProgressBar) findViewById(R.id.progressBar_getPumpSettingsWaiting);
+        waiting.setVisibility(View.INVISIBLE);
+        TextView waitingMsg = (TextView) findViewById(R.id.textView_getPumpSettingsProgressMessage);
+        waitingMsg.setVisibility(View.INVISIBLE);
     }
 
 
 
     public void updatePumpSettingsView() {
+        Log.d(TAG,"Updating pumpSettingsView from parcel");
         String[] msgList = mPumpSettings.getContentsAsStringArray();
         mAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, msgList);
         ListView lv = (ListView) findViewById(R.id.listView_pumpSettings);
@@ -112,6 +124,7 @@ public class PumpSettingsActivity extends ActionBarActivity {
 
     public void updateViewFromPumpSettingsParcel(PumpSettingsParcel p) {
         // should use mAdapter.notifyDataSetChanged()?
+        mPumpSettings = p;
         // for now, just re-create the view
         updatePumpSettingsView();
     }

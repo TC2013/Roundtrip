@@ -36,6 +36,7 @@
                 android:id="@+id/button_GetPumpHistory"
                 android:onClick="getHistoryButtonClicked" />
         </LinearLayout>
+
     </LinearLayout>
 
 </RelativeLayout>

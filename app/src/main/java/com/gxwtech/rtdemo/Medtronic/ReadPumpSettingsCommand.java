@@ -10,7 +10,7 @@ public class ReadPumpSettingsCommand extends MedtronicCommand {
     public ReadPumpSettingsCommand() {
         init(MedtronicCommandEnum.CMD_M_READ_PUMP_SETTINGS);
         // settings for running the command
-        mNRetries = 5;
+        mNRetries = 2;
         mMaxRecords = 1;
         mSleepForPumpResponse = 5000;
         mSleepForPumpRetry = 2000;

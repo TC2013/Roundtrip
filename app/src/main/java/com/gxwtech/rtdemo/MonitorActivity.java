@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -27,12 +28,18 @@ public class MonitorActivity extends ActionBarActivity {
     private static final String TAG = "MonitorActivity";
     BroadcastReceiver mBroadcastReceiver;
     DateTime mLastBGUpdateTime = null;
+    DateTime mSleepNotificationStartTime = null;
+    int mSleepNotificationDuration = 0;
     ArrayList<String> mMessageLog = new ArrayList<>();
     ArrayAdapter<String> adapter = null;
+
+    // for periodically updating gui
+    Handler timerHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        timerHandler = new Handler();
         setContentView(R.layout.activity_monitor);
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -50,11 +57,15 @@ public class MonitorActivity extends ActionBarActivity {
                             }
                         }
                     }
-                }
-                if (intent.getAction() == Intents.APSLOGIC_LOG_MESSAGE) {
+                } else if (intent.getAction() == Intents.APSLOGIC_LOG_MESSAGE) {
                     String msg = intent.getStringExtra("message");
                     receiveLogMessage(msg);
+                } else if (intent.getAction() == Intents.ROUNDTRIP_SLEEP_MESSAGE) {
+                    int durationSeconds = intent.getIntExtra(Intents.ROUNDTRIP_SLEEP_MESSAGE_DURATION,0);
+                    Log.d(TAG,String.format("Received Sleep Notification: %d seconds",durationSeconds));
+                    setSleepNotification(durationSeconds);
                 }
+
             }
         };
     }
@@ -72,7 +83,7 @@ public class MonitorActivity extends ActionBarActivity {
     public void rebuildArrayAdapter() {
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, mMessageLog);
         ListView lv = (ListView) findViewById(R.id.listView_MonitorMsgs);
-            lv.setAdapter(adapter);
+        lv.setAdapter(adapter);
     }
 
     public void UpdateBGReading(BGReading bgr) {
@@ -84,10 +95,37 @@ public class MonitorActivity extends ActionBarActivity {
     }
 
     public void updateBGTimer() {
-        Seconds seconds = Seconds.secondsBetween(mLastBGUpdateTime,DateTime.now());
-        int elapsedMinutes = seconds.getSeconds() / 60;
-        TextView view = (TextView)findViewById(R.id.textView_LastBGReadTime);
-        view.setText(String.format("%d min ago", elapsedMinutes));
+        if (mLastBGUpdateTime != null) {
+            Seconds seconds = Seconds.secondsBetween(mLastBGUpdateTime, DateTime.now());
+            int elapsedMinutes = seconds.getSeconds() / 60;
+            TextView view = (TextView) findViewById(R.id.textView_LastBGReadTime);
+            view.setText(String.format("%d min ago", elapsedMinutes));
+        }
+    }
+
+    protected void setSleepNotification(int durationSeconds) {
+        mSleepNotificationStartTime = DateTime.now();
+        mSleepNotificationDuration = durationSeconds;
+        TextView tv = (TextView)findViewById(R.id.textView_SleepNotification);
+        String note = String.format("zzZ %d",durationSeconds);
+        tv.setText(note);
+        tv.setVisibility(View.VISIBLE);
+    }
+
+    protected void updateSleepNotification() {
+        if (mSleepNotificationStartTime != null) {
+            Seconds s = Seconds.secondsBetween(mSleepNotificationStartTime, DateTime.now());
+            int secondsRemaining = mSleepNotificationDuration - s.getSeconds();
+            TextView tv = (TextView) findViewById(R.id.textView_SleepNotification);
+            if (secondsRemaining < 0) {
+                tv.setVisibility(View.INVISIBLE);
+                // cancel updates
+                mSleepNotificationStartTime = null;
+            } else {
+                String note = String.format("zzZ %d", secondsRemaining);
+                tv.setText(note);
+            }
+        }
     }
 
     public void startupButtonClicked(View view) {
@@ -124,9 +162,10 @@ public class MonitorActivity extends ActionBarActivity {
         // fixme: do we need to rebuild our display from a bundle?
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intents.ROUNDTRIP_STATUS_MESSAGE);
-        intentFilter.addAction(Intents.ROUNDTRIP_TASK_RESPONSE);
+        //intentFilter.addAction(Intents.ROUNDTRIP_TASK_RESPONSE);
         intentFilter.addAction(Intents.ROUNDTRIP_BG_READING);
         intentFilter.addAction(Intents.APSLOGIC_LOG_MESSAGE);
+        intentFilter.addAction(Intents.ROUNDTRIP_SLEEP_MESSAGE);
 
         // register our desire to receive broadcasts from RTDemoService
         LocalBroadcastManager.getInstance(getApplicationContext())
@@ -141,5 +180,27 @@ public class MonitorActivity extends ActionBarActivity {
                 .unregisterReceiver(mBroadcastReceiver);
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        // run this one second from now
+        timerHandler.postDelayed(new TimerRunnable(), 1000);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        timerHandler.removeCallbacksAndMessages(null);
+    }
+
+    private class TimerRunnable implements Runnable {
+        @Override
+        public void run() {
+            updateBGTimer();
+            updateSleepNotification();
+            // We post this once per second
+            timerHandler.postDelayed(this, 1000);
+        }
+    }
 
 }

@@ -63,12 +63,15 @@ public class Page {
     private byte[] crc;
     private byte[] data;
     protected PumpModel model;
+    public List<Record> mRecordList;
 
     public Page() {
         this.model = PumpModel.UNSET;
+        mRecordList = new ArrayList<>();
     }
 
     public boolean parseFrom(byte[] rawPage, PumpModel model) {
+        mRecordList = new ArrayList<>(); // wipe old contents each time when parsing.
         if (rawPage.length != 1024) {
             Log.e(TAG,"Unexpected page size. Expected: 1024 Was: " + rawPage.length);
             return false;
@@ -88,13 +91,12 @@ public class Page {
         // Go through page, parsing what we can
         // add records to recordList
         // Records can be of variable size, so ask the record how large it is.
-        List<Record> recordList = new ArrayList<>();
         int dataIndex = 0;
         boolean done = false;
         while(!done) {
             Record record = attemptParseRecord(data, dataIndex);
             if (record != null) {
-                recordList.add(record);
+                mRecordList.add(record);
                 Log.d(TAG,String.format("Found record %s at index %d",
                         record.getClass().getSimpleName(),dataIndex));
                 // old code stopped when it encountered a 0x00 where it expected a record to start.
@@ -113,9 +115,9 @@ public class Page {
                 done = true;
             }
         }
-        Log.i(TAG, String.format("Number of records: %d", recordList.size()));
+        Log.i(TAG, String.format("Number of records: %d", mRecordList.size()));
         int index = 1;
-        for (Record r : recordList) {
+        for (Record r : mRecordList) {
             Log.i(TAG, String.format("Record #%d", index));
             r.logRecord();
             index += 1;

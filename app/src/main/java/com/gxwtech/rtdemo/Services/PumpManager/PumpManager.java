@@ -10,6 +10,7 @@ import com.gxwtech.rtdemo.Medtronic.MedtronicCommandStatusEnum;
 import com.gxwtech.rtdemo.Medtronic.PowerControlCommand;
 import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfile;
 import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfileTypeEnum;
+import com.gxwtech.rtdemo.Medtronic.PumpData.HistoryReport;
 import com.gxwtech.rtdemo.Medtronic.PumpData.PumpSettings;
 import com.gxwtech.rtdemo.Medtronic.PumpData.TempBasalPair;
 import com.gxwtech.rtdemo.Medtronic.ReadBasalTempCommand;
@@ -18,6 +19,8 @@ import com.gxwtech.rtdemo.Medtronic.ReadProfileCommand;
 import com.gxwtech.rtdemo.Medtronic.ReadPumpRTCCommand;
 import com.gxwtech.rtdemo.Medtronic.ReadPumpSettingsCommand;
 import com.gxwtech.rtdemo.Medtronic.SetTempBasalCommand;
+import com.gxwtech.rtdemo.RTDemoSettingsActivity;
+import com.gxwtech.rtdemo.Services.RTDemoService;
 import com.gxwtech.rtdemo.USB.CareLinkUsb;
 import com.gxwtech.rtdemo.USB.UsbException;
 
@@ -54,15 +57,19 @@ public class PumpManager {
     }
 
     public boolean setSerialNumber(byte[] serialNumber) {
-        if (serialNumber == null) { return false; }
-        if (serialNumber.length != 3) { return false; }
-        System.arraycopy(serialNumber,0,mSerialNumber,0,3);
+        if (serialNumber == null) {
+            return false;
+        }
+        if (serialNumber.length != 3) {
+            return false;
+        }
+        System.arraycopy(serialNumber, 0, mSerialNumber, 0, 3);
         Log.w(TAG, String.format("New serial number: %02X%02X%02X", mSerialNumber[0], mSerialNumber[1], mSerialNumber[2]));
         return true;
     }
 
     protected void init() {
-        mSerialNumber = new byte[] {0,0,0};
+        mSerialNumber = new byte[]{0, 0, 0};
     }
 
     // Called when we have received permission to use USB device
@@ -88,12 +95,12 @@ public class PumpManager {
         boolean awake = false;
         // Phase 1: see if the stick will respond with product info
         while ((!awake) && (wakeupRetries < maxWakeupRetries)) {
-            Log.i(TAG,"ProductInfo");
+            Log.i(TAG, "ProductInfo");
             ProductInfoCommand picmd = new ProductInfoCommand();
             try {
                 picmd.run(mCarelink);
             } catch (UsbException e) {
-                Log.e(TAG,"USB exception(?):" + e.getMessage());
+                Log.e(TAG, "USB exception(?):" + e.getMessage());
             }
             if (!picmd.isOK()) {
                 wakeupRetries++;
@@ -102,7 +109,7 @@ public class PumpManager {
                 } else {
                     int sleep_millis = 200;
                     Log.w(TAG, String.format(
-                            "Stick failed sanity check, sleep %d millis and try again %d/%d",sleep_millis, wakeupRetries, maxWakeupRetries));
+                            "Stick failed sanity check, sleep %d millis and try again %d/%d", sleep_millis, wakeupRetries, maxWakeupRetries));
                     sleep(sleep_millis);
                 }
             } else {
@@ -112,10 +119,11 @@ public class PumpManager {
         }
         return awake;
     }
+
     public boolean verifyPumpCommunications() {
         boolean canHearPump = false;
         // phase 2: see if it can see the pump with decent signal strength
-        int findPumpRetries=0;
+        int findPumpRetries = 0;
         int maxFindPumpRetries = 5;
         int minimumSignalStrength = 100; // totally arbitrary.
         while ((!canHearPump) && (findPumpRetries < maxFindPumpRetries)) {
@@ -123,28 +131,28 @@ public class PumpManager {
             try {
                 sscmd.run(mCarelink);
             } catch (UsbException e) {
-                Log.e(TAG,"UsbException when running SignalStrengthCommand:" + e.getMessage());
+                Log.e(TAG, "UsbException when running SignalStrengthCommand:" + e.getMessage());
             }
             int signalStrength = sscmd.getSignalStrength();
-            Log.i(TAG,String.format("SignalStrength reports %d", signalStrength));
+            Log.i(TAG, String.format("SignalStrength reports %d", signalStrength));
             if (signalStrength < minimumSignalStrength) {
                 findPumpRetries++;
                 if (findPumpRetries < maxFindPumpRetries) {
-                    Log.w(TAG, String.format("SignalStrength too low, try again (%d/%d)", findPumpRetries,maxFindPumpRetries));
+                    Log.w(TAG, String.format("SignalStrength too low, try again (%d/%d)", findPumpRetries, maxFindPumpRetries));
                     sleep(500);
                 } else {
                     Log.e(TAG, String.format("SignalStrength too low, retries exceeded."));
                 }
             } else {
                 canHearPump = true;
-                Log.w(TAG,"Stick can hear pump.");
+                Log.w(TAG, "Stick can hear pump.");
             }
         }
         return canHearPump;
     }
 
     public void checkPowerControl() {
-        byte minutesOfRFPower = (byte)10; // can set this to 3, or 10, or ?
+        byte minutesOfRFPower = (byte) 10; // can set this to 3, or 10, or ?
         boolean runPowerControlCommand = false;
         if (mLastPowerControlRunTime == null) {
             // haven't run it yet.  Do so.
@@ -154,19 +162,19 @@ public class PumpManager {
                     - mLastPowerControlRunTime.getTimeInMillis();
             long secondsRemaining = (minutesOfRFPower * 60 /* seconds per minute*/)
                     - (timeDifference / 1000 /* millis per second*/);
-            Log.w(TAG,String.format("Seconds remaining on RF power: %d",secondsRemaining));
+            Log.w(TAG, String.format("Seconds remaining on RF power: %d", secondsRemaining));
             if (secondsRemaining < 60 /* seconds */) {
                 runPowerControlCommand = true;
             }
         }
         // now run it if we have to.
         if (runPowerControlCommand) {
-            PowerControlCommand powerControlCommand = new PowerControlCommand((byte)1,minutesOfRFPower);
+            PowerControlCommand powerControlCommand = new PowerControlCommand((byte) 1, minutesOfRFPower);
             // the power control command can take a long time (>17 seconds) to run.
             // so get the new run time before running the command
             Calendar newRunTime = Calendar.getInstance();
-            MedtronicCommandStatusEnum en = powerControlCommand.run(mCarelink,mSerialNumber);
-            Log.w(TAG,"PowerControlCommand returned status: " + en.name());
+            MedtronicCommandStatusEnum en = powerControlCommand.run(mCarelink, mSerialNumber);
+            Log.w(TAG, "PowerControlCommand returned status: " + en.name());
             // Only set the new run time if the command succeeded?
             mLastPowerControlRunTime = newRunTime;
         }
@@ -175,21 +183,22 @@ public class PumpManager {
     public PumpSettings getPumpSettings() {
         checkPowerControl();
         ReadPumpSettingsCommand cmd = new ReadPumpSettingsCommand();
-        cmd.run(mCarelink,mSerialNumber);
+        cmd.run(mCarelink, mSerialNumber);
         return cmd.getPumpSettings();
     }
 
-    public void getPumpHistory() {
+    public HistoryReport getPumpHistory() {
         checkPowerControl();
         ReadHistoryCommand rhcmd = new ReadHistoryCommand();
         //rhcmd.testParser();
-        rhcmd.run(mCarelink,mSerialNumber);
+        rhcmd.run(mCarelink, mSerialNumber);
+        return rhcmd.mHistoryReport;
     }
 
     public TempBasalPair getCurrentTempBasal() {
         checkPowerControl();
         ReadBasalTempCommand cmd = new ReadBasalTempCommand();
-        cmd.run(mCarelink,mSerialNumber);
+        cmd.run(mCarelink, mSerialNumber);
         // todo: check for success
         return cmd.getTempBasalPair();
     }
@@ -197,7 +206,7 @@ public class PumpManager {
     public DateTime getRTCTimestamp() {
         checkPowerControl();
         ReadPumpRTCCommand cmd = new ReadPumpRTCCommand();
-        cmd.run(mCarelink,mSerialNumber);
+        cmd.run(mCarelink, mSerialNumber);
         // todo: check for success
         return cmd.getRTCTimestamp();
     }
@@ -207,8 +216,8 @@ public class PumpManager {
     // both values will be checked and floor'd.
     public void setTempBasal(double insulinRate, int durationMinutes) {
         checkPowerControl();
-        SetTempBasalCommand cmd = new SetTempBasalCommand(insulinRate,durationMinutes);
-        cmd.run(mCarelink,mSerialNumber);
+        SetTempBasalCommand cmd = new SetTempBasalCommand(insulinRate, durationMinutes);
+        cmd.run(mCarelink, mSerialNumber);
         // todo: check for success?
     }
 
@@ -225,14 +234,9 @@ public class PumpManager {
         return profile;
     }
 
-    // TODO: UGLY can we please find a way to do this asynchronously? i.e. no sleep!
-    private void sleep(int millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            Log.e(TAG,"Sleep interrupted: " + e.getMessage());
-        }
+    // Use RTDemoService's sleep, so we can notify UI.
+    public static void sleep(int millis) {
+        RTDemoService.sleep(millis);
     }
-
 
 }
