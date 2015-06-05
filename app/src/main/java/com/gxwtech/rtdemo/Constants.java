@@ -34,6 +34,10 @@ public interface Constants {
         public static int APSLOGIC_STARTUP = 309;
         // MongoDBSettingsActivity fires this off to announce new settings for the DB URI
         public static int MONGO_SETTINGS_CHANGED = 310;
+        // PersonalProfileActivity fires this off when the ISF number has been set.
+        public static int SET_ISF = 311;
+        // PersonalProfileActivity fires this off when the CAR number has been set.
+        public static int SET_CAR = 312;
     }
 
     public class ParcelName {
@@ -48,6 +52,8 @@ public interface Constants {
     public class PrefName {
         // Name of an entry in a SharedPreference collection
         public static String SerialNumberPrefName = "PumpSerialNumber";
+        public static String ISFPrefName = "InsulinSensitivityFactor";
+        public static String CARPrefName = "CarbAbsorptionRatio";
         public static String MongoDBServerPrefName = "MongoDBServerAddress";
         public static String MongoDBServerPortPrefName = "MongoDBServerPort";
         public static String MongoDBDatabasePrefName = "MongoDBDatabase";

@@ -214,10 +214,13 @@ public class RTDemoService extends Service {
                 Log.d(TAG, String.format("Request to Set Temp Basal(Rate %.2fU, duration %d minutes",
                         pair.mInsulinRate, pair.mDurationMinutes));
                 mPumpManager.setTempBasal(pair);
-            } else if (msg.arg2 == Constants.SRQ.MONGO_SETTINGS_CHANGED){
+            } else if (msg.arg2 == Constants.SRQ.MONGO_SETTINGS_CHANGED) {
                 // there are new settings in the preferences.
                 // Get them and give them to MongoWrapper
                 updateMongoWrapperFromPrefs();
+            } else if (msg.arg2 == Constants.SRQ.SET_CAR) {
+                updateCARFromPrefs();
+            } else if (msg.arg2 == Constants.SRQ.SET_ISF) {
             } else if (msg.arg2 == Constants.SRQ.VERIFY_DB_ACCESS) {
                 // code removed.  todo: remove VERIFY_DB_ACCESS enum, too.
             } else if (msg.arg2 == Constants.SRQ.APSLOGIC_STARTUP) {
@@ -320,7 +323,7 @@ public class RTDemoService extends Service {
         Intent intent = new Intent(Intents.ROUNDTRIP_TASK_RESPONSE);
         intent.putExtra("name",typename);
         intent.putExtra(typename, p);
-        Log.d(TAG,"Sending task response parcel, name = " + typename);
+        Log.d(TAG, "Sending task response parcel, name = " + typename);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
@@ -368,9 +371,31 @@ public class RTDemoService extends Service {
         String dbname = settings.getString(Constants.PrefName.MongoDBDatabasePrefName,"db");
         String mongoUsername = settings.getString(Constants.PrefName.MongoDBUsernamePrefName,"username");
         String mongoPassword = settings.getString(Constants.PrefName.MongoDBPasswordPrefName,"password");
-        String mongoCollection = settings.getString(Constants.PrefName.MongoDBCollectionPrefName,"entries");
+        String mongoCollection = settings.getString(Constants.PrefName.MongoDBCollectionPrefName, "entries");
 
         mMongoWrapper.updateURI(server,serverPort,dbname,mongoUsername,mongoPassword,mongoCollection);
+    }
+
+    // Note this is called from our local (background) message handler,
+    // and also from APSLogic whenever it wants to update its own value.
+    // This is intended to keep Android stuff out of APSLogic
+    public void updateCARFromPrefs() {
+        // get CAR value from prefs
+        SharedPreferences settings = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
+        double car = (double)settings.getFloat(Constants.PrefName.CARPrefName, (float) 30.0);
+        // Notify APSLogic of new value
+        mAPSLogic.setCAR(car);
+    }
+
+    // Note this is called from our local (background) message handler,
+    // and also from APSLogic whenever it wants to update its own value.
+    // This is intended to keep Android stuff out of APSLogic
+    public void updateISFFromPrefs() {
+        // get ISF value from prefs
+        SharedPreferences settings = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
+        double isf = (double)settings.getFloat(Constants.PrefName.ISFPrefName, (float) 30.0);
+        // Notify APSLogic of new value
+        mAPSLogic.setISF(isf);
     }
 
     @Override

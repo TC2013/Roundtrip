@@ -46,6 +46,9 @@ public class MainActivity extends ActionBarActivity {
                 if (intent.getAction() == Intents.ROUNDTRIP_STATUS_MESSAGE) {
                     updateText();
                 } else if (intent.getAction() == Intents.ROUNDTRIP_TASK_RESPONSE) {
+                    // pump settings viewer used to be here.
+                    // I'm leaving it as an example of how to receive task_response
+                    /*
                     if (intent.hasExtra("name")) {
                         String name = intent.getStringExtra("name");
                         if (intent.hasExtra(name)) {
@@ -57,6 +60,7 @@ public class MainActivity extends ActionBarActivity {
                             }
                         }
                     }
+                    */
                 }
             }
         };
@@ -88,78 +92,20 @@ public class MainActivity extends ActionBarActivity {
         startService(intent);
     }
 
-    public void launchMongoDBSettingsActivity(View view) {
-        Intent intent = new Intent(this,MongoDBSettingsActivity.class);
-        startActivity(intent);
-    }
-
     public void verifyPumpCommunications(View view) {
         Intent intent = new Intent(this,RTDemoService.class);
         intent.putExtra("what", Constants.SRQ.VERIFY_PUMP_COMMUNICATIONS);
         startService(intent);
     }
 
-    public void launchPumpSettingsActivity(View view) {
-        Intent intent = new Intent(this,PumpSettingsActivity.class);
-        startActivity(intent);
-    }
-
-    public void getHistoryButtonClicked(View view) {
-        Log.d(TAG,"GetHistoryButtonClicked");
-        Intent intent = new Intent(this,RTDemoService.class);
-        intent.putExtra("what", Constants.SRQ.REPORT_PUMP_HISTORY);
-        startService(intent);
-    }
-
-    public void launchTempBasalsActivity(View view) {
-        Intent intent = new Intent(this,TempBasalActivity.class);
+    public void launchRTDemoSettingsActivity(View view) {
+        Intent intent = new Intent(this,RTDemoSettingsActivity.class);
         startActivity(intent);
     }
 
     public void launchMonitorActivity(View view) {
         Intent intent = new Intent(this,MonitorActivity.class);
         startActivity(intent);
-    }
-
-    // this is run when the SET button is clicked.
-    public void editSerialNumberChanged(View view) {
-        EditText esn = (EditText) findViewById(R.id.editText_pumpSerialNumber);
-        String sn = esn.getText().toString();
-        Log.w(TAG,"editSerialNumberChanged:" + sn);
-        // save serial number in SharedPreferences
-        SharedPreferences preferences = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, MODE_PRIVATE);
-        SharedPreferences.Editor edit= preferences.edit();
-        edit.putString(Constants.PrefName.SerialNumberPrefName,sn);
-        edit.commit();
-        setSerialNumber(sn);
-    }
-
-    // set the 3 byte serial number for the pump
-    public void setSerialNumber(String sn) {
-        // now convert to a 3 byte string
-        byte[] sn_bytes = HexDump.hexStringToByteArray(sn);
-        //Log.w(TAG,"setSerialNumber bytes:" + HexDump.toHexString(sn_bytes));
-        Intent intent = new Intent(this,RTDemoService.class);
-        intent.putExtra("what", Constants.SRQ.SET_SERIAL_NUMBER);
-        intent.putExtra("serialNumber", sn_bytes);
-        /*
-        Log.w(TAG,"setSerialNumber: running intent with what=SRQ.SET_SERIAL_NUMBER, serialNumber="
-                + ByteUtil.shortHexString(serialNumber));
-        */
-        startService(intent);
-    }
-
-    // get serial number from preferences, load it into proper field
-    public String updateSerialNumberFromPreferences() {
-        SharedPreferences settings = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
-        String serialNumber = settings.getString(Constants.PrefName.SerialNumberPrefName, "000000");
-        EditText editText = (EditText)findViewById(R.id.editText_pumpSerialNumber);
-        editText.setText(serialNumber);
-        return serialNumber;
-    }
-
-    public void receivePumpSettingsParcel(PumpSettingsParcel p) {
-        Log.w(TAG,"Main activity received pump update");
     }
 
     // No need to call stopRTService, as we don't care to ever stop the service.
@@ -169,23 +115,6 @@ public class MainActivity extends ActionBarActivity {
 
     protected void onResume() {
         super.onResume();
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(Intents.ROUNDTRIP_STATUS_MESSAGE);
-        intentFilter.addAction(Intents.ROUNDTRIP_TASK_RESPONSE);
-
-        // register our desire to receive broadcasts from RTDemoService
-        LocalBroadcastManager.getInstance(getApplicationContext())
-                .registerReceiver(broadcastReceiver, intentFilter);
-        // update our log view from the current list of log messages in the service
-        updateText();
-        Intent intent = new Intent(this,RTDemoService.class);
-        intent.putExtra("what",Constants.SRQ.START_SERVICE);
-        startService(intent);
-
-        // get serial number from preferences
-        String sn = updateSerialNumberFromPreferences();
-        // set serial number in service thread (in PumpManager)
-        setSerialNumber(sn);
     }
 
     protected void onPause() {

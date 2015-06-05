@@ -60,67 +60,21 @@
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:layout_marginTop="5dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="Pump Serial Number"
-                    android:id="@+id/textView_pumpSerialNumber" />
-
-                <EditText
-                    android:layout_width="81dp"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/editText_pumpSerialNumber"
-                    android:hint="000000"
-                    android:layout_marginLeft="12dp"
-                    android:maxLength="6"
-                    android:maxLines="1"
-                    android:inputType="number"
-                    android:numeric="integer" />
-
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Set"
-                    android:id="@+id/button_setSerialNumber"
-                    android:onClick="editSerialNumberChanged" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="fill_parent"
                 android:layout_height="fill_parent">
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="MongoPrefs"
-                    android:id="@+id/button_MongoPrefs"
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_below="@+id/frameLayout"
-                    android:onClick="launchMongoDBSettingsActivity" />
-
+                    android:text="APS Monitor"
+                    android:id="@+id/button_Monitor"
+                    android:onClick="launchMonitorActivity" />
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="TestPump"
-                    android:id="@+id/button_verifyPumpCommunications"
-                    android:onClick="verifyPumpCommunications"
-                    android:layout_alignTop="@+id/button_testlink"
-                    android:layout_toEndOf="@+id/button_testlink" />
+                    android:text="RT Settings"
+                    android:id="@+id/button_RTSettings"
+                    android:onClick="launchRTDemoSettingsActivity" />
 
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Pump Settings"
-                    android:id="@+id/button_pumpSettings"
-                    android:layout_below="@+id/frameLayout"
-                    android:layout_toEndOf="@+id/button_verifyPumpCommunications"
-                    android:layout_alignParentEnd="false"
-                    android:onClick="launchPumpSettingsActivity" />
             </LinearLayout>
 
             <LinearLayout
@@ -131,23 +85,12 @@
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Get History"
-                    android:id="@+id/button_getHistory"
-                    android:onClick="getHistoryButtonClicked" />
+                    android:text="TestPump"
+                    android:id="@+id/button_verifyPumpCommunications"
+                    android:onClick="verifyPumpCommunications"
+                    android:layout_alignTop="@+id/button_testlink"
+                    android:layout_toEndOf="@+id/button_testlink" />
 
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Temp Basals"
-                    android:id="@+id/button_TempBasals"
-                    android:onClick="launchTempBasalsActivity" />
-
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Monitor"
-                    android:id="@+id/button_Monitor"
-                    android:onClick="launchMonitorActivity" />
             </LinearLayout>
 
             <ListView

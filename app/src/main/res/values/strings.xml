@@ -13,5 +13,8 @@
     <string name="title_activity_temp_basal">Temp Basals</string>
     <string name="title_activity_monitor">Roundtrip Monitor</string>
     <string name="title_activity_mongo_dbsettings">MongoDB Settings</string>
+    <string name="title_activity_rtdemo_settings">RTDemoSettingsActivity</string>
+    <string name="title_activity_personal_profile">PersonalProfileActivity</string>
+    <string name="title_activity_utility">UtilityActivity</string>
 
 </resources>

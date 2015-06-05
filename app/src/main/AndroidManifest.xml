@@ -5,9 +5,11 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+
+    <!--
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-
+    -->
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -42,10 +44,10 @@
         <activity
             android:name=".PumpSettingsActivity"
             android:label="@string/title_activity_pump_settings"
-            android:parentActivityName=".MainActivity" >
+            android:parentActivityName=".RTDemoSettingsActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.gxwtech.rtdemo.MainActivity" />
+                android:value="com.gxwtech.rtdemo.RTDemoSettingsActivity" />
         </activity>
         <activity
             android:name=".TempBasalActivity"
@@ -66,10 +68,34 @@
         <activity
             android:name=".MongoDBSettingsActivity"
             android:label="@string/title_activity_mongo_dbsettings"
+            android:parentActivityName=".RTDemoSettingsActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.gxwtech.rtdemo.RTDemoSettingsActivity" />
+        </activity>
+        <activity
+            android:name=".RTDemoSettingsActivity"
+            android:label="@string/title_activity_rtdemo_settings"
             android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.gxwtech.rtdemo.MainActivity" />
+        </activity>
+        <activity
+            android:name=".PersonalProfileActivity"
+            android:label="@string/title_activity_personal_profile"
+            android:parentActivityName=".RTDemoSettingsActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.gxwtech.rtdemo.RTDemoSettingsActivity" />
+        </activity>
+        <activity
+            android:name=".UtilityActivity"
+            android:label="@string/title_activity_utility"
+            android:parentActivityName=".RTDemoSettingsActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.gxwtech.rtdemo.RTDemoSettingsActivity" />
         </activity>
     </application>
 

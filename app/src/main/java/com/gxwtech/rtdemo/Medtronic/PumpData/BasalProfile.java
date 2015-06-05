@@ -2,6 +2,8 @@ package com.gxwtech.rtdemo.Medtronic.PumpData;
 
 import android.util.Log;
 
+import org.joda.time.LocalTime;
+
 import java.util.ArrayList;
 
 /**
@@ -44,6 +46,30 @@ public class BasalProfile {
         System.arraycopy(data, 0, mRawData, 0, len);
         return true;
     }
+
+    public BasalProfileEntry getEntryForTime(LocalTime lt) {
+        BasalProfileEntry rval = new BasalProfileEntry();
+        ArrayList<BasalProfileEntry> entries = getEntries();
+        if (entries.size() == 0) {
+            return rval;
+        }
+        int localMillis = lt.getMillisOfDay();
+        boolean done = false;
+        int i=0;
+        while (!done) {
+            BasalProfileEntry entry = entries.get(i);
+            if (localMillis < entry.startTime.getMillisOfDay()) {
+                rval = entry;
+                done = true;
+            }
+            i++;
+            if (i > entries.size()) {
+                return rval;
+            }
+        }
+        return rval;
+    }
+
     public ArrayList<BasalProfileEntry> getEntries() {
         ArrayList<BasalProfileEntry> entries = new ArrayList<>();
         if (mRawData[2] == 0x3f) {

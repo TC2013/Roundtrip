@@ -39,7 +39,7 @@ public class PumpSettings {
     public byte mTimeFormat;
     public int mInsulinConcentration; // 100 or 50
     public boolean mPatternsEnabled;
-    public byte mSelectedPattern;
+    public BasalProfileTypeEnum mSelectedPattern;
     public boolean mRFEnable;
     public boolean mBlockEnable;
     public byte mTempBasalType; // 1 means Percent, 0 means UnitsPerHour
@@ -100,7 +100,15 @@ public class PumpSettings {
         // MM512 and up
         // TODO: check mMaxBasal calculation
         // did I get the bytes in the right order?
-        mMaxBasal = (mRawData[6] * 256 + mRawData[7])/40.0;
+        int maxBasalHighByte = mRawData[6];
+        if (maxBasalHighByte < 0) {
+            maxBasalHighByte += 256;
+        }
+        int maxBasalLowByte = mRawData[7];
+        if (maxBasalLowByte < 0) {
+            maxBasalLowByte += 256;
+        }
+        mMaxBasal = ((maxBasalHighByte * 256) + maxBasalLowByte)/40.0;
         mTimeFormat = mRawData[8];
         // mInsulinConcentration: 0 is 100%, 1 is 50%
         mInsulinConcentration = 100;
@@ -108,7 +116,12 @@ public class PumpSettings {
             mInsulinConcentration = 50;
         }
         mPatternsEnabled = (mRawData[10] == 1);
-        mSelectedPattern = mRawData[11];
+        mSelectedPattern = BasalProfileTypeEnum.STD;
+        if (mRawData[11] == 0x01) {
+            mSelectedPattern = BasalProfileTypeEnum.A;
+        } else if (mRawData[11] == 0x02) {
+            mSelectedPattern = BasalProfileTypeEnum.B;
+        }
         mRFEnable = (mRawData[12] == 1);
         mBlockEnable = (mRawData[13] == 1);
         mTempBasalType = mRawData[14]; // todo: put into proper class of its own

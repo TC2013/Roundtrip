@@ -6,6 +6,38 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Pump Serial Number"
+            android:id="@+id/textView_pumpSerialNumber" />
+
+        <EditText
+            android:layout_width="81dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/editText_pumpSerialNumber"
+            android:hint="000000"
+            android:layout_marginLeft="12dp"
+            android:maxLength="6"
+            android:maxLines="1"
+            android:inputType="number"
+            android:numeric="integer" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Set"
+            android:id="@+id/button_setSerialNumber"
+            android:onClick="editSerialNumberChanged" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content">
 
         <Button

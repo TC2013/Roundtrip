@@ -4,7 +4,9 @@ import android.util.Log;
 
 import com.gxwtech.rtdemo.BGReading;
 import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfile;
+import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfileEntry;
 import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfileTypeEnum;
+import com.gxwtech.rtdemo.Medtronic.PumpData.PumpSettings;
 import com.gxwtech.rtdemo.Medtronic.PumpData.TempBasalPair;
 import com.gxwtech.rtdemo.Medtronic.ReadBasalTempCommand;
 import com.gxwtech.rtdemo.MongoWrapper;
@@ -15,6 +17,8 @@ import org.joda.time.Duration;
 import org.joda.time.LocalTime;
 import org.joda.time.Minutes;
 import org.joda.time.Seconds;
+
+import java.util.ArrayList;
 
 
 /**
@@ -152,17 +156,23 @@ public class APSLogic {
     }
 
     //Now we define a function to calculate the basal rate at a give time:
-    // this depends on having a working basal period/rate table
-    public double basal_rate_at_abs_time(LocalTime time_of_day) {
-        // TODO: given a time of day, return the basal rate (units per hour)
-        return 0.0;
+    public double basal_rate_at_abs_time(LocalTime time_of_day, BasalProfile basalProfile) {
+        // From the pump's basal profiles, and the pump's idea of the time-of-day,
+        // figure out which basal period is active and determine the rate.
+        BasalProfileEntry entry = basalProfile.getEntryForTime(time_of_day);
+        if (entry != null) {
+            return entry.rate;
+        }
+        log("<Error: Null Basal Rate Object?>");
+        return -9.9999E6; // clearly bad value
     }
 
     // isf is the change in blood glucose due to a unit of insulin.
     // varies with time of day (among many other things!)
     public double isf(LocalTime time_of_day) {
         // TODO: given a time of day, return the insulin sensitivity factor
-        return 0.0;
+        // In the RPi version, we retrieved this number (a single number) from MongoDB profile
+        return mPersonalProfile.isf;
     }
 
     // use this to round to nearest 0.025 (fixme!! should round-down!)
@@ -170,16 +180,9 @@ public class APSLogic {
         return Math.round(x * 40)/40;
     }
 
-    public class Profile {
-        public double carbRatio = -10E6; // conversion from XX to XX (insulin to carbs ratio)
-    }
-
     // This function is to be run after CollectData()
     // Here we make a decision about TempBasals, based on all factors
     private void MakeADecision() {
-        DateTime now = DateTime.now(); // cache current time, as understood by this device
-        log("NOW is " + now.toLocalDateTime().toString());
-
         // get a recent blood-glucose (BG) reading from CGM or from Mongo (to start with)
         // make sure we have all the pump info we need, such as Basal Profiles,
         // current BasalProfile in use,
@@ -191,16 +194,29 @@ public class APSLogic {
         // and user preferences such as algorithm options like
         // enable_low_glucose_suspend, AR Regression
 
-        // In Python we did this:
         log("Getting status of temp basal from pump.");
-        TempBasalPair currentTempBasal = getCurrentTempBasalFromPump();
-        log(String.format("Temp Basal status: %.02f U, %d minutes remaining.",
-                currentTempBasal.mInsulinRate, currentTempBasal.mDurationMinutes));
+                getCurrentTempBasalFromPump();
+                log(String.format("Temp Basal status: %.02f U, %d minutes remaining.",
+                        mCurrentTempBasal.mInsulinRate, mCurrentTempBasal.mDurationMinutes));
         log("Getting RTC clock data from pump");
         DateTime rtcDateTime = getRTCTimestampFromPump();
         log("Pump RTC: " + rtcDateTime.toDateTimeISO().toString());
+        DateTime now = DateTime.now(); // cache local system time
+        log("Local System Time is " + now.toLocalDateTime().toString());
+        Minutes pumpTimeOffsetMinutes = Minutes.minutesBetween(now,rtcDateTime);
+        log(String.format("Pump Time is %d minutes %s system time.",
+                Math.abs(pumpTimeOffsetMinutes.getMinutes()),
+                (pumpTimeOffsetMinutes.getMinutes() < 0) ? "behind" : "ahead of"));
 
+        log("Getting pump settings");
+        // NOTE: get pump settings before getting basal profiles.
+        getPumpSettingsFromPump();
+        log(String.format("PumpSettings reports Max Basal Rate: %.2f",mPumpSettings.mMaxBasal));
+
+        // how often should we check for changes in pump settings?
+        // Make a button on UI to reset/reload settings from pump.
         if (!gotBasalProfiles) {
+            // NOTE: get pump settings before getting basal profiles
             log("Getting basal profiles from pump");
             getBasalProfiles();
         }
@@ -227,9 +243,6 @@ public class APSLogic {
         double remainingBGImpact_IOBtotal = -10E6; // BG impact (in mg/dL) of remaining insulin
         double remainingBGImpact_COBtotal = -10E6; // BG impact (in mg/dL) of remaining carbs
 
-        log("TODO: get patient profile (from pump?)");
-        Profile profile = new Profile(); // todo: get a real profile
-
         log(String.format("IOB (total): %.3f",iobTotal));
         log(String.format("COB (total): %.3f",cobTotal));
         log(String.format("remaining BG impact due to insulin events: %.2f", remainingBGImpact_IOBtotal));
@@ -240,7 +253,7 @@ public class APSLogic {
         // We don't know when that will be (though that would be an interesting algorithm to write).
         // If we see that the eventual BG will be too much or too little, we decide if we can take action.
 
-        double icRatio = profile.carbRatio;
+        double icRatio = mPersonalProfile.carbRatio;
         double eventualBG = bg - remainingBGImpact_IOBtotal + remainingBGImpact_COBtotal;
         log(String.format("eventualBG = Current BG (%.1f) - bg change from IOB (%.1f)  + bg change from COB (%.1f) = %.1f",
                 bg,remainingBGImpact_IOBtotal, remainingBGImpact_COBtotal,eventualBG));
@@ -258,7 +271,8 @@ public class APSLogic {
         // the strangeness in using the average of BG and eventual BG is (I think) due to the logarithmic nature of BG values
         // Remove this once we put AR in place?
 
-        double currentBasalRate = basal_rate_at_abs_time(now.toLocalTime());
+        double currentBasalRate = basal_rate_at_abs_time(now.toLocalTime(),
+                getCurrentBasalProfile());
 
         /*
         todo: many places below talk about "for %d more minutes" but reference a total, not remaining duration. fix.
@@ -278,10 +292,10 @@ public class APSLogic {
             newTempBasalRate = Math.min(newTempBasalRate, pump_high_temp_max);
             log(String.format("Pump will limit temporary rate to %.3f U/h",newTempBasalRate));
 
-            if (currentTempBasal.mDurationMinutes > 0) {
+            if (mCurrentTempBasal.mDurationMinutes > 0) {
                 log(String.format("Pump is currently administering a temp basal of %.3f U/h for %d more minutes.",
-                        currentTempBasal.mInsulinRate,currentTempBasal.mDurationMinutes));
-                if (newTempBasalRate >= currentTempBasal.mInsulinRate) {
+                        mCurrentTempBasal.mInsulinRate,mCurrentTempBasal.mDurationMinutes));
+                if (newTempBasalRate >= mCurrentTempBasal.mInsulinRate) {
                     log("Pump is already doing its best here, so leave it alone.");
                 } else {
                     log("Pump is already administering a temp basal, but we want a lower one.");
@@ -301,11 +315,11 @@ public class APSLogic {
             log(String.format("Predicting that BG will fall below %.1f, but will stay above %.1f",bg_target,bg_min));
             // we predict that bg will be lower than target, but within "normal" range
             // cancel any high-temp, let any low-temp run
-            if (currentTempBasal.mDurationMinutes > 0) {
+            if (mCurrentTempBasal.mDurationMinutes > 0) {
                 log(String.format("Pump is currently administering a temp basal of %.03f U/h for %d more minutes.",
-                        currentTempBasal.mInsulinRate,currentTempBasal.mDurationMinutes));
+                        mCurrentTempBasal.mInsulinRate,mCurrentTempBasal.mDurationMinutes));
                 // a temp basal rate adjustment is running.
-                if (currentTempBasal.mInsulinRate > currentBasalRate) {
+                if (mCurrentTempBasal.mInsulinRate > currentBasalRate) {
                     log("Because temp basal rate adjustment is higher than regular basal rate, cancelling temp basal.");
                     // cancel any existing temp basal
                     setTempBasal(0, 0, currentBasalRate);
@@ -335,11 +349,11 @@ public class APSLogic {
                 log(String.format("IOB (%.1f U) already exceeds maximum allowed (%.1f U), so no course of action available.",iobTotal,max_IOB));
             } else {
                 // IOB total is ok, check for currently-administered temp-basal
-                if (currentTempBasal.mDurationMinutes > 0) {
+                if (mCurrentTempBasal.mDurationMinutes > 0) {
                     log(String.format("Pump is currently administering a temp basal of %.3f U/h for %d more minutes.",
-                            currentTempBasal.mInsulinRate,currentTempBasal.mDurationMinutes));
+                            mCurrentTempBasal.mInsulinRate,mCurrentTempBasal.mDurationMinutes));
                     // add 0.1 to compensate for rounding at pump -- if pump is delivering 2.7 and we want to deliver 2.8, we do nothing.
-                    if (newTempBasal.mInsulinRate <= (currentTempBasal.mInsulinRate + 0.1)) {
+                    if (newTempBasal.mInsulinRate <= (mCurrentTempBasal.mInsulinRate + 0.1)) {
                         log("recommended rate is less than current rate (or close), therefore we do nothing.");
                     } else {
                         log("Recommended rate is more than current temp basal rate, so over-write old temp basal with new");
@@ -360,11 +374,11 @@ public class APSLogic {
             // cancel any low temp, let any high-temp run
             log(String.format("Predicting BG will rise to %.1f which is above %.1f but is below %.1f.",
                     predictedBG,bg_target,bg_max));
-            if (currentTempBasal.mDurationMinutes > 0) {
+            if (mCurrentTempBasal.mDurationMinutes > 0) {
                 log(String.format("Pump is currently administering a temp basal of %.3f U/h for %d more minutes.",
-                        currentTempBasal.mInsulinRate,currentTempBasal.mDurationMinutes));
+                        mCurrentTempBasal.mInsulinRate,mCurrentTempBasal.mDurationMinutes));
                 // a temp basal rate adjustment is running
-                if (currentTempBasal.mInsulinRate > currentBasalRate) {
+                if (mCurrentTempBasal.mInsulinRate > currentBasalRate) {
                     // it is a high-temp, so let it run
                     log("Predicted BG is in the higher-range, current temp-basal is slightly higher, so let it run");
                 } else {
@@ -395,6 +409,12 @@ public class APSLogic {
         // initialize member vars to sane settings.
     }
 
+    // private class (for now) to hold profile. this is temporary.
+    public class PersonalProfile {
+        public double carbRatio = -10E6; // conversion from XX to XX (insulin to carbs ratio)
+        public double isf = 0.0;
+    }
+
     public void testModule() {
         MakeADecision();
     }
@@ -403,16 +423,27 @@ public class APSLogic {
         mCachedLatestBGReading = bgr;
     }
 
-    BasalProfile basalProfileSTD, basalProfileA, basalProfileB;
+    BasalProfile basalProfileSTD, basalProfileA, basalProfileB, mCurrentBasalProfile;
+
     boolean gotBasalProfiles = false;
     BGReading mCachedLatestBGReading = new BGReading();
     TempBasalPair mCurrentTempBasal = new TempBasalPair();
+    PumpSettings mPumpSettings = new PumpSettings();
+    PersonalProfile mPersonalProfile = new PersonalProfile();
 
     private boolean getBasalProfiles() {
         basalProfileSTD = getPumpManager().getProfile(BasalProfileTypeEnum.STD);
         basalProfileA = getPumpManager().getProfile(BasalProfileTypeEnum.A);
         basalProfileB = getPumpManager().getProfile(BasalProfileTypeEnum.B);
         gotBasalProfiles = (basalProfileSTD != null) && (basalProfileA != null) && (basalProfileB != null);
+        mCurrentBasalProfile = basalProfileSTD;
+        // fixme: need to get pump settings before basal profiles.  Should ensure this happens.
+        if (mPumpSettings.mSelectedPattern == BasalProfileTypeEnum.A) {
+            mCurrentBasalProfile = basalProfileA;
+        } else if (mPumpSettings.mSelectedPattern == BasalProfileTypeEnum.B) {
+                mCurrentBasalProfile = basalProfileB;
+        }
+
         return gotBasalProfiles;
     }
 
@@ -429,31 +460,47 @@ public class APSLogic {
         log(String.format("<Set Temp Basal: rate=%.3f, minutes=%d>",rateUnitsPerHour,periodMinutes));
     }
 
-    //Geoff, rather than storing the profile in Mongo, it would be ideal to put it into the UI
-    public Profile getProfile() {
-        return new Profile();
-    }
-
     // Get currently used Basals Profile from the pump.
     // We want to fetch these once on startup, then used cached copies.
-    public BasalProfile getCurrentBasalProfile() { return new BasalProfile(); }
+    public BasalProfile getCurrentBasalProfile() {
+        return mCurrentBasalProfile;
+    }
 
     // This function is run when we receive a reading from xDrip, broadcast as an Intent
     public void receiveXDripBGReading(BGReading bgr) {
         // sanity check and cache the latest reading, used only if xDrip samples are enabled.
     }
 
+    // This function is called from outside (from RTDemoService)
+    // to set our internal value for CarbAbsorptionRatio
+    // This is done to keep Android stuff out of APSLogic
+    public void setCAR(double car) {
+        mPersonalProfile.carbRatio = car;
+    }
+
+    // This function is called from outside (from RTDemoService)
+    // to set our internal value for InsulinSensitivityFactor
+    // This is done to keep Android stuff out of APSLogic
+    public void setISF(double isf) {
+        mPersonalProfile.isf = isf;
+    }
+
     // This command retrieves the CURRENTLY ACTIVE temp basal from the pump
     // This command can "sleep" for up to 20 seconds while running.
-    public TempBasalPair getCurrentTempBasalFromPump() {
+    public void getCurrentTempBasalFromPump() {
         TempBasalPair rval;
         rval = getPumpManager().getCurrentTempBasal();
-        return rval;
+        mCurrentTempBasal = rval;
     }
 
     public DateTime getRTCTimestampFromPump() {
         DateTime dt = getPumpManager().getRTCTimestamp();
         return dt;
+    }
+
+    public void getPumpSettingsFromPump() {
+        PumpSettings settings = getPumpManager().getPumpSettings();
+        mPumpSettings = settings;
     }
 
     // This is used to send messages to the MonitorActivity about APSLogic's actions and decisions
