@@ -30,6 +30,21 @@ public class MongoWrapper {
     protected String mURI = "<MongoDB URI string - uninitialized>";
     protected String mDBName = "<MongoDB database name - uninitialized>";
     protected String mCollection = "entries";
+    // todo: I don't like inner classes.  Move to a new class
+    public class BGReadingResponse {
+        public BGReading reading = new BGReading();
+        public boolean error = false;
+        public String errorMessage = "";
+        public BGReadingResponse() {
+            reading = new BGReading();
+            error = false;
+            errorMessage = "";
+        }
+        public void setError(String message) {
+            error = true;
+            errorMessage = message;
+        }
+    }
     public MongoWrapper() {
     }
 
@@ -40,7 +55,9 @@ public class MongoWrapper {
         mCollection = collection;
     }
 
-    public BGReading getBGReading() {
+    public BGReadingResponse getBGReading() throws com.mongodb.MongoTimeoutException
+    {
+        BGReadingResponse response = new BGReadingResponse();
         /*
         The format of the URI is:
         mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]
@@ -51,10 +68,13 @@ public class MongoWrapper {
         try {
             mongoClient = new MongoClient(uri);
         } catch (java.net.UnknownHostException e) {
+            response.setError("MongoDB: Unknown host");
             e.printStackTrace();
-            return null;
+            return response;
         } catch (com.mongodb.MongoException e) {
             e.printStackTrace();
+            response.setError(e.toString());
+            return response;
 
         }
         DB db = mongoClient.getDB(mDBName);
@@ -91,13 +111,15 @@ public class MongoWrapper {
                             bgTimestamp = formatter.parseDateTime(dateString);
                         } catch (IllegalArgumentException e2) {
                             bgTimestamp = null; // ran out of ideas.
-                            Log.e(TAG,"Unable to parse date string format: " + dateString);
+                            response.setError("Unable to parse date string format: " + dateString);
+                            Log.e(TAG, "Unable to parse date string format: " + dateString);
                         }
                     }
                     // sometimes, sgv comes in as an Integer, sometimes as a Long... yay...
                     if (bgTimestamp != null) {
                         int bg = Integer.parseInt(obj.get("sgv").toString());
-                        BGReading reading = new BGReading(bgTimestamp,(double)bg);
+                        BGReading reading;
+                        reading = new BGReading(bgTimestamp,(double)bg);
                         /*
                         Log.i(TAG, String.format("Found record: Timestamp %s, bg: %.2f",
                                 reading.mTimestamp.toString(), reading.mBg));
@@ -118,9 +140,14 @@ public class MongoWrapper {
                 }
                 i = i + 1;
             }
+            response.reading = latestBGReading;
             // android says commandFailureException is deprecated, but it's what's thrown...
         } catch (com.mongodb.CommandFailureException e) {
+            response.setError(e.toString());
             e.printStackTrace();
+        } catch (com.mongodb.MongoTimeoutException e) {
+            response.setError("MongoDB connection timeout");
+            Log.e(TAG, "MongoDB connection timeout");
         } finally {
             cursor.close();
         }
@@ -130,7 +157,7 @@ public class MongoWrapper {
             Log.i(TAG, String.format("BG Reading from MongoDB: Timestamp %s, bg: %.2f",
                     latestBGReading.mTimestamp.toString(), latestBGReading.mBg));
         }
-        return latestBGReading;
-    }
 
+        return response;
+    }
 }

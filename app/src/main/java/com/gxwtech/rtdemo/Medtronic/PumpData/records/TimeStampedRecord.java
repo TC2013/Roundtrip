@@ -34,8 +34,7 @@ abstract public class TimeStampedRecord extends Record {
      * Short date used when?
      */
 
-    private boolean parseShortDate(byte[] data, int offset) {
-        //offset = 1; // fixme: this is a hack.
+    protected boolean parseShortDate(byte[] data, int offset) {
         int seconds = 0;
         int minutes = 0;
         int hour = 0;
@@ -55,22 +54,23 @@ abstract public class TimeStampedRecord extends Record {
             timeStamp = new DateTime(year + 2000, month, dayOfMonth, hour, minutes, seconds);
         } catch (org.joda.time.IllegalFieldValueException e) {
             Log.e(TAG,"Illegal DateTime field");
-            e.printStackTrace();
+            //e.printStackTrace();
             return false;
         }
         return true;
     }
 
     // for relation to old code, replace offset with headerSize
-    private boolean parseDate(byte[] data, int offset){
+    protected boolean parseDate(byte[] data, int offset){
         //offset = headerSize;
         Log.w(TAG,String.format("bytes to parse: 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X",
                 data[offset], data[offset+1], data[offset+2], data[offset+3], data[offset+4]));
         int seconds = data[offset] & 0x3F;
-        int month = ((data[offset] & 0xC0) >> 6) | ((data[offset + 1] & 0xC0) >> 4);
         int minutes = data[offset + 1] & 0x3F;
         int hour = data[offset + 2] & 0x1F;
         int dayOfMonth = data[offset + 3] & 0x1F;
+        // Yes, the month bits are stored in the high bits above seconds and minutes!!
+        int month = ((data[offset] & 0xC0) >> 4) | ((data[offset + 1] & 0xC0) >> 6);
         int year = data[offset + 4] & 0x3F; // Assuming this is correct, need to verify. Otherwise this will be a problem in 2016.
         Log.w(TAG,String.format("Attempting to create DateTime from: %04d-%02d-%02d %02d:%02d:%02d",
                 year+2000,month,dayOfMonth,hour,minutes,seconds));

@@ -91,6 +91,9 @@ public class Page {
         // Go through page, parsing what we can
         // add records to recordList
         // Records can be of variable size, so ask the record how large it is.
+        // GGW: because (I think) our record-sizes are incorrect, this parser can't find anything.
+        // See below for alternate parser
+        /*
         int dataIndex = 0;
         boolean done = false;
         while(!done) {
@@ -115,6 +118,67 @@ public class Page {
                 done = true;
             }
         }
+        */
+        // GGW: The above parser fails, so we're going to hack it:
+        // Find possible matches for TempBasalRate, TempBasalDuration and BolusWizard events
+        // (as those are the only ones we care about at the moment. and try to parse them.
+        int dataIndex = 0;
+        // cheating, for debug:
+        dataIndex = 44; // fixme
+        boolean done = false;
+        while (!done) {
+            Record record = null;
+            if (data[dataIndex] != 0) {
+                // just don't bother, if the data byte is zero.
+                Log.d(TAG,String.format("Attempting to parse record at offset %d, OpCode is 0x%02X",
+                        dataIndex,data[dataIndex]));
+                record = attemptParseRecord(data,dataIndex);
+            }
+            if (record != null) {
+                // found something.  Is it something we trust or care about?
+                if (record.getRecordOp() == RecordTypeEnum.RECORD_TYPE_BOLUSWIZARD.opcode()) {
+                    BolusWizard bw = (BolusWizard)record;
+                    mRecordList.add(record);
+                    Log.d(TAG,String.format("Found BolusWizard record (time:%s) at offset %d",
+                            bw.getTimeStamp().toString(),dataIndex));
+                    if (record.getSize() > 0) {
+                        dataIndex += record.getSize();
+                    } else {
+                        dataIndex +=1;
+                    }
+                } else if (record.getRecordOp() == RecordTypeEnum.RECORD_TYPE_TEMPBASALDURATION.opcode()) {
+                    TempBasalDuration tbd = (TempBasalDuration) record;
+                    mRecordList.add(record);
+                    Log.d(TAG,String.format("Found TempBasalDuration record (time:%s) offset %d, duration %d",
+                            tbd.getTimeStamp(),dataIndex,tbd.durationMinutes));
+                    if (record.getSize() > 0) {
+                        dataIndex += record.getSize();
+                    } else {
+                        dataIndex +=1;
+                    }
+                } else if (record.getRecordOp() == RecordTypeEnum.RECORD_TYPE_TEMPBASALRATE.opcode()) {
+                    TempBasalRate tbr = (TempBasalRate) record;
+                    mRecordList.add(record);
+                    Log.d(TAG,String.format("Found TempBasalRate record (time:%s) offset %d, rate %.3f",
+                            tbr.getTimeStamp(),dataIndex,tbr.basalRate));
+                    if (record.getSize() > 0) {
+                        dataIndex += record.getSize();
+                    } else {
+                        dataIndex +=1;
+                    }
+                } else {
+                    // else, it's a record we don't trust the size of, or aren't interested in,
+                    // so only increment by one, hoping to run into another record we can use
+                    dataIndex +=1;
+                }
+            } else {
+                dataIndex +=1;
+            }
+            if (dataIndex >= data.length - 2) {
+                done = true;
+            }
+        }
+
         Log.i(TAG, String.format("Number of records: %d", mRecordList.size()));
         int index = 1;
         for (Record r : mRecordList) {
@@ -141,6 +205,13 @@ public class Page {
         //Log.d(TAG,String.format("checking for handler for record type 0x%02X at index %d",data[offsetStart],offsetStart));
         RecordTypeEnum en = RecordTypeEnum.fromByte(data[offsetStart]);
         T record = en.getRecordClass();
+        if (record != null) {
+            // sigh... trying to avoid array copying...
+            // have to do this to set the record's opCode
+            byte[] tmpData = new byte[data.length];
+            System.arraycopy(data, offsetStart, tmpData, 0, data.length - offsetStart);
+            record.collectRawData(tmpData, PumpModel.MM522);
+        }
         return record;
     }
 

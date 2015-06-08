@@ -11,6 +11,8 @@ abstract public class Record {
     protected byte timestampSize = 0; // not all records have time stamps
     protected int bodySize = 0; // should be overridden in derived.
     protected byte headerSize = 2; // minimum?
+    // first byte is record type, second byte (of header) is often the only parameter
+    // sometimes followed by a date (see TimeStampedRecord), which is sometimes followed by more data
     protected PumpModel model = PumpModel.UNSET;
     protected String recordTypeName = this.getClass().getSimpleName();
 

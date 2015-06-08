@@ -1528,7 +1528,7 @@ containing a value of this type.
         public static final int action_mode_bar=0x7f0b003d;
         public static final int action_mode_bar_stub=0x7f0b003c;
         public static final int action_mode_close_button=0x7f0b0025;
-        public static final int action_settings=0x7f0b008e;
+        public static final int action_settings=0x7f0b008f;
         public static final int activity_chooser_view_content=0x7f0b0026;
         public static final int alertTitle=0x7f0b0030;
         public static final int always=0x7f0b0016;
@@ -1587,6 +1587,7 @@ containing a value of this type.
         public static final int listView_Log=0x7f0b0058;
         public static final int listView_MonitorMsgs=0x7f0b0076;
         public static final int listView_TempBasalResults=0x7f0b008b;
+        public static final int listView_logWindow=0x7f0b008e;
         public static final int listView_pumpSettings=0x7f0b0083;
         public static final int list_item=0x7f0b002a;
         public static final int middle=0x7f0b0015;

@@ -144,6 +144,8 @@ public class MedtronicCommand {
                 }
             } catch (UsbException e) {
                 mStatus = MedtronicCommandStatusEnum.ERROR_USB;
+                resendDownloadRequest = false;
+                Log.e(TAG,"USB Exception: " + e.toString());
             }
         }
         mRawReceivedData = receivedData;

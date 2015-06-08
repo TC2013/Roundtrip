@@ -11,6 +11,7 @@ import com.gxwtech.rtdemo.Medtronic.PumpData.PumpSettings;
 import com.gxwtech.rtdemo.Medtronic.PumpData.TempBasalPair;
 import com.gxwtech.rtdemo.Medtronic.PumpData.records.BolusWizard;
 import com.gxwtech.rtdemo.Medtronic.ReadBasalTempCommand;
+import com.gxwtech.rtdemo.Medtronic.TempBasalEvent;
 import com.gxwtech.rtdemo.MongoWrapper;
 import com.gxwtech.rtdemo.Services.PumpManager.PumpManager;
 
@@ -222,11 +223,64 @@ public class APSLogic {
 
         // how often should we check for changes in pump settings?
         // Make a button on UI to reset/reload settings from pump.
-        if (!gotBasalProfiles) {
+        //if (!gotBasalProfiles) {
             // NOTE: get pump settings before getting basal profiles
             log("Getting basal profiles from pump");
             getBasalProfiles();
+        //}
+
+        // Get total IOB and COB from pump bolus wizard events
+        double iobTotal = 0; // insulin-on-board total, amount of unabsorbed insulin (in Units) in body
+        double cobTotal = 0; // carbohydrates-on-board total, amount of undigested carbohydrates in body (grams)
+        double remainingBGImpact_IOBtotal = 0;
+        double remainingBGImpact_COBtotal = 0;
+        // Go get the history report from the pump
+        // NOTE! this command may take many seconds to return (around 6 seconds, 23 seconds if we have
+        // to renew the pump's wireless power control
+        HistoryReport historyReport = getPumpManager().getPumpHistory();
+        if (historyReport.mBolusWizardEvents.size() == 0) {
+            log("No Bolus Wizard events found in history");
+        } else {
+            for (BolusWizard bw : historyReport.mBolusWizardEvents) {
+                DateTime timestamp = bw.getTimeStamp();
+                double bolusAmount = bw.getBolusEstimate();
+                double carbInput = bw.getCarbInput();
+                log(String.format("Found Bolus Wizard Event(%s,Carbs %.1f gm, Insulin %.3f U)",
+                        timestamp.toLocalDateTime().toString(),
+                        carbInput,
+                        bolusAmount));
+
+                //TODO: Use correct table, (from profile?)
+                double iob = iobValueAtAbsTime(timestamp, bolusAmount, now, DIATables.DIATableEnum.DIA_3_hour);
+                log(String.format("Insulin remaining (IOB) from bolus wizard event: %.1f U", iob));
+                log(String.format("Using a sensitivity factor of %.1f", mPersonalProfile.isf));
+                double remainingBGImpact_IOBpartial = iob * mPersonalProfile.isf;
+                log(String.format("Remaining BG impact of insulin event (Bolus) is %.1f", remainingBGImpact_IOBpartial));
+                remainingBGImpact_IOBtotal = remainingBGImpact_IOBtotal + remainingBGImpact_IOBpartial;
+                iobTotal = iobTotal + iob;
+
+                double cob = cobValueAtAbsTime(timestamp, carbInput, now, mPersonalProfile.carbRatio);
+                double remainingBGImpact_COBpartial = cob * mPersonalProfile.isf / mPersonalProfile.carbRatio;
+                log(String.format("Remaining BG impact of this carbs event is %.2f mg/dL",
+                        remainingBGImpact_COBpartial));
+                remainingBGImpact_COBtotal = remainingBGImpact_COBtotal + remainingBGImpact_COBpartial;
+                cobTotal = cobTotal + cob;
+            }
         }
+        if (historyReport.mBasalEvents.size() == 0) {
+            log("No Temp Basal events found in history.");
+        } else {
+            for (TempBasalEvent tb : historyReport.mBasalEvents) {
+                log(String.format("Found Temp Basal Event(%s,rate:%.3f U/hr,duration: %d minutes",
+                        tb.mTimestamp, tb.mBasalPair.mInsulinRate, tb.mBasalPair.mDurationMinutes));
+                // TODO: figure out the IOB from the temp basal events.
+            }
+        }
+
+        log(String.format("IOB (total): %.1f",iobTotal));
+        log(String.format("COB (total): %.1f",cobTotal));
+        log(String.format("remaining BG impact due to insulin events: %.1f", remainingBGImpact_IOBtotal));
+        log(String.format("remaining BG impact due to carbs events: %.1f", remainingBGImpact_COBtotal));
 
         // if most recent reading is more than ten minutes old, do nothing.
         // If a temp basal is running, fine.  It will expire.
@@ -245,43 +299,6 @@ public class APSLogic {
         /*
         todo: sanity-check latest BG reading (is it less than 39? is it greater than 500?
          */
-
-        // Get total IOB and COB from pump bolus wizard events
-        double iobTotal = 0; // insulin-on-board total, amount of unabsorbed insulin (in Units) in body
-        double cobTotal = 0; // carbohydrates-on-board total, amount of undigested carbohydrates in body (grams)
-        double remainingBGImpact_IOBtotal = 0;
-        double remainingBGImpact_COBtotal = 0;
-        HistoryReport historyReport = getPumpManager().getPumpHistory();
-        for (BolusWizard bw : historyReport.mBolusWizardEvents) {
-            DateTime timestamp = bw.getTimeStamp();
-            double bolusAmount = bw.getBolusEstimate();
-            double carbInput = bw.getCarbInput();
-            log(String.format("Found Bolus Wizard Event(%s,Carbs %.1f gm, Insulin %.3f U)",
-                    timestamp.toLocalDateTime().toString(),
-                    carbInput,
-                    bolusAmount));
-
-            //TODO: Use correct table, (from profile?)
-            double iob = iobValueAtAbsTime(timestamp, bolusAmount, now, DIATables.DIATableEnum.DIA_3_hour);
-            log(String.format("Insulin remaining (IOB) from bolus wizard event: %.1f U", iob));
-            log(String.format("Using a sensitivity factor of %.1f",mPersonalProfile.isf));
-            double remainingBGImpact_IOBpartial = iob * mPersonalProfile.isf;
-            log(String.format("Remaining BG impact of insulin event (Bolus) is %.1f",remainingBGImpact_IOBpartial));
-            remainingBGImpact_IOBtotal = remainingBGImpact_IOBtotal + remainingBGImpact_IOBpartial;
-            iobTotal = iobTotal + iob;
-
-            double cob = cobValueAtAbsTime(timestamp,carbInput,now,mPersonalProfile.carbRatio);
-            double remainingBGImpact_COBpartial = cob * mPersonalProfile.isf / mPersonalProfile.carbRatio;
-            log(String.format("Remaining BG impact of this carbs event is %.2f mg/dL",
-                    remainingBGImpact_COBpartial));
-            remainingBGImpact_COBtotal = remainingBGImpact_COBtotal + remainingBGImpact_COBpartial;
-            cobTotal = cobTotal + cob;
-        }
-
-        log(String.format("IOB (total): %.1f",iobTotal));
-        log(String.format("COB (total): %.1f",cobTotal));
-        log(String.format("remaining BG impact due to insulin events: %.1f", remainingBGImpact_IOBtotal));
-        log(String.format("remaining BG impact due to carbs events: %.1f", remainingBGImpact_COBtotal));
 
         //calc desired BG adjustment
         // We then predict a value for the BG for "sometime in the future, when all IOB and COB are used up".

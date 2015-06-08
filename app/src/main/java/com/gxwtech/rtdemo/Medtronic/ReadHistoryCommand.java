@@ -5,9 +5,12 @@ import android.util.Log;
 import com.gxwtech.rtdemo.HexDump;
 import com.gxwtech.rtdemo.Medtronic.PumpData.HistoryReport;
 import com.gxwtech.rtdemo.Medtronic.PumpData.Page;
+import com.gxwtech.rtdemo.Medtronic.PumpData.TempBasalPair;
 import com.gxwtech.rtdemo.Medtronic.PumpData.records.BolusWizard;
 import com.gxwtech.rtdemo.Medtronic.PumpData.records.Record;
 import com.gxwtech.rtdemo.Medtronic.PumpData.records.RecordTypeEnum;
+import com.gxwtech.rtdemo.Medtronic.PumpData.records.TempBasalDuration;
+import com.gxwtech.rtdemo.Medtronic.PumpData.records.TempBasalRate;
 
 import java.util.ArrayList;
 
@@ -74,20 +77,66 @@ public class ReadHistoryCommand extends MedtronicCommand {
             Log.w(TAG, "parse: " + HexDump.dumpHexString(receivedData));
             int d = receivedData.length;
             if (d == 1024) {
-                Log.e(TAG, "******* Begin record discovery ******");
-                discoverRecords(receivedData);
-                Log.e(TAG,"******* END record discovery ********");
+                //Log.e(TAG, "******* Begin record discovery ******");
+                //discoverRecords(receivedData);
+                //Log.e(TAG,"******* END record discovery ********");
                 Page page = new Page();
                 mParsedOK = page.parseFrom(receivedData, PumpModel.MM522); // todo: fix hardcoded pump model
                 // Here we select the records of the page which will go into the report
+                TempBasalEvent partialTempBasalEvent = null;
                 for (Record r : page.mRecordList) {
                     if (r.getRecordOp() == RecordTypeEnum.RECORD_TYPE_BOLUSWIZARD.opcode()) {
                         mHistoryReport.addBolusWizardEvent((BolusWizard) r);
                         Log.d(TAG,"Adding BolusWizard event to HistoryReport");
                     }
+                    /* temp basal events are divided into two sub-events, which we have to re-compose.
+                     * One half is a TempBasalRate, and the other half is TempBasalDuration
+                     * We re-compose them into a TempBasalEvent here.
+                     */
+                    else if (r.getRecordOp() == RecordTypeEnum.RECORD_TYPE_TEMPBASALRATE.opcode()) {
+                        // need to find corresponding duration event
+                        TempBasalRate rateEvent = (TempBasalRate) r;
+                        if (partialTempBasalEvent == null) {
+                            partialTempBasalEvent = new TempBasalEvent(rateEvent.getTimeStamp(),
+                                    new TempBasalPair(rateEvent.basalRate,0));
+                        } else {
+                            if (partialTempBasalEvent.mTimestamp.equals(rateEvent.getTimeStamp())) {
+                                // found matching rate/duration
+                                partialTempBasalEvent.mBasalPair.mInsulinRate = rateEvent.basalRate;
+                                // and record the full event
+                                mHistoryReport.addTempBasalEvent(partialTempBasalEvent);
+                                partialTempBasalEvent = null;
+                            } else {
+                                Log.e(TAG,"TempBasalDuration/TempBasalRate timestamp mismatch!");
+                                // try to recover
+                                partialTempBasalEvent = new TempBasalEvent(rateEvent.getTimeStamp(),
+                                        new TempBasalPair(rateEvent.basalRate,0));
+                            }
+                        }
+                    } else if (r.getRecordOp() == RecordTypeEnum.RECORD_TYPE_TEMPBASALDURATION.opcode()) {
+                        // need to find corresponding rate event
+                        TempBasalDuration durationEvent = (TempBasalDuration) r;
+                        if (partialTempBasalEvent == null) {
+                            partialTempBasalEvent = new TempBasalEvent(durationEvent.getTimeStamp(),
+                                    new TempBasalPair(0,durationEvent.durationMinutes));
+                        } else {
+                            if (partialTempBasalEvent.mTimestamp.equals(durationEvent.getTimeStamp())) {
+                                // found matching event, update partial
+                                partialTempBasalEvent.mBasalPair.mDurationMinutes = durationEvent.durationMinutes;
+                                // record finished event
+                                mHistoryReport.addTempBasalEvent(partialTempBasalEvent);
+                                partialTempBasalEvent = null;
+                            } else {
+                                Log.e(TAG,"TempBasalRate/TempBasalDuration timestamp mismatch!");
+                                // try to recover
+                                partialTempBasalEvent = new TempBasalEvent(durationEvent.getTimeStamp(),
+                                        new TempBasalPair(0,durationEvent.durationMinutes));
+                            }
+                        }
+                    }
                 }
             } else {
-                Log.e(TAG,String.format("Cannot decode page of invalid size %d (should be 1024)",d));
+                Log.e(TAG, String.format("Cannot decode page of invalid size %d (should be 1024)",d));
             }
         }
     }

@@ -34,6 +34,7 @@ import com.gxwtech.rtdemo.MainActivity;
 import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfile;
 import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfileEntry;
 import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfileTypeEnum;
+import com.gxwtech.rtdemo.Medtronic.PumpData.HistoryReport;
 import com.gxwtech.rtdemo.MongoWrapper;
 import com.gxwtech.rtdemo.R;
 import com.gxwtech.rtdemo.Services.PumpManager.PumpManager;
@@ -223,7 +224,8 @@ public class RTDemoService extends Service {
                 sendTaskResponseParcel(parcel, "PumpSettingsParcel");
             } else if (msg.arg2 == Constants.SRQ.REPORT_PUMP_HISTORY) {
                 Log.d(TAG, "Received request for pump history");
-                mPumpManager.getPumpHistory();
+                HistoryReport report = mPumpManager.getPumpHistory();
+
             } else if (msg.arg2 == Constants.SRQ.SET_TEMP_BASAL) {
                 TempBasalPairParcel pair = (TempBasalPairParcel) (msg.obj);
                 Log.d(TAG, String.format("Request to Set Temp Basal(Rate %.2fU, duration %d minutes",
@@ -244,7 +246,19 @@ public class RTDemoService extends Service {
                 // get latest BG reading from Mongo
 
                 broadcastAPSLogicStatusMessage("Accessing MongoDB for latest BG reading");
-                BGReading reading = mMongoWrapper.getBGReading();
+
+                MongoWrapper.BGReadingResponse bgResponse = mMongoWrapper.getBGReading();
+                BGReading reading = bgResponse.reading;
+                if (bgResponse.error) {
+                    broadcastAPSLogicStatusMessage("Error reading BG from mongo:" + bgResponse.errorMessage);
+                    Log.e(TAG,
+                    String.format("Error reading BG from Mongo: %s, and BG reading reports %.2f at %s",
+                            bgResponse.errorMessage,
+                            reading.mBg,reading.mTimestamp.toLocalDateTime().toString()));
+                }
+                // Are the contents of BGReading reading "ok to use", even with an error?
+                // how else to handle?
+
                 // TODO: Need to make RTDemoService regularly hit the mongodb (every 5 min)
                 // For now, the testdb button gets a reading.
                 // broadcast the reading to the world. (esp. to MonitorActivity)
