@@ -90,6 +90,12 @@ public class MonitorActivity extends ActionBarActivity {
     private int MaxLogSize = 50;
     public void receiveLogMessage(String msg) {
         // keep 50 messages?  make configurable?
+        if (msg == null) {
+            msg = "(null message)";
+        }
+        if (msg.equals("")) {
+            msg = "(empty message)";
+        }
         mMessageLog.add(0,msg);
         if (mMessageLog.size() > MaxLogSize) {
             mMessageLog.remove(mMessageLog.size()-1);

@@ -42,7 +42,7 @@ public class Prime extends TimeStampedRecord {
 
     @Override
     public void logRecord() {
-        Log.i(TAG, String.format("%s %s Amount: %02f Fixed: %02f Type: %s",
+        Log.i(TAG, String.format("%s %s Amount: %.2f Fixed: %.2f Type: %s",
                 timeStamp, recordTypeName, amount, fixed, primeType.name()));
     }
 }

@@ -212,7 +212,7 @@ public class APSLogic {
 
         log("Getting status of temp basal from pump.");
                 getCurrentTempBasalFromPump();
-                log(String.format("Temp Basal status: %.02f U, %d minutes remaining.",
+                log(String.format("Temp Basal status: %.2f U, %d minutes remaining.",
                         mCurrentTempBasal.mInsulinRate, mCurrentTempBasal.mDurationMinutes));
         log("Getting RTC clock data from pump");
         DateTime rtcDateTime = getRTCTimestampFromPump();
@@ -503,7 +503,7 @@ public class APSLogic {
             // we predict that bg will be lower than target, but within "normal" range
             // cancel any high-temp, let any low-temp run
             if (mCurrentTempBasal.mDurationMinutes > 0) {
-                log(String.format("Pump is currently administering a temp basal of %.03f U/h for %d more minutes.",
+                log(String.format("Pump is currently administering a temp basal of %.3f U/h for %d more minutes.",
                         mCurrentTempBasal.mInsulinRate,mCurrentTempBasal.mDurationMinutes));
                 // a temp basal rate adjustment is running.
                 if (mCurrentTempBasal.mInsulinRate > currentBasalRate) {

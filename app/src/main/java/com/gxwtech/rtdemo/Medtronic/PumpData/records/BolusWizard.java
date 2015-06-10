@@ -92,7 +92,7 @@ public class BolusWizard extends TimeStampedRecord {
 
     @Override
     public void logRecord() {
-        Log.i(TAG,String.format("Time: %s RecordType: %s Bg: %d Carb Input: %d Correction: %02f Carb Ratio: %02f Sensitivity: %d BG Target High: %d BG Target Low: %d Bolus Estimate: %02f Food Estimate: %02f Unabsorbed Insulin Total: %02f",
+        Log.i(TAG,String.format("Time: %s RecordType: %s Bg: %d Carb Input: %d Correction: %.2f Carb Ratio: %.2f Sensitivity: %d BG Target High: %d BG Target Low: %d Bolus Estimate: %.2f Food Estimate: %.2f Unabsorbed Insulin Total: %.2f",
                 timeStamp.toString(), recordTypeName, bg, carbInput, correction, carbRatio, sensitivity, bgTargetHigh, bgTargetLow, bolusEstimate, foodEstimate, unabsorbedInsulinTotal));
     }
 }

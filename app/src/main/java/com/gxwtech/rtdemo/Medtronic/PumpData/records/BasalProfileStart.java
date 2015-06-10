@@ -38,7 +38,7 @@ public class BasalProfileStart extends TimeStampedRecord {
 
     @Override
     public void logRecord() {
-        Log.i(TAG, String.format("%s %s Offset: %02f Rate: %02f",
+        Log.i(TAG, String.format("%s %s Offset: %d Rate: %.2f",
                 timeStamp.toString(), recordTypeName, offset, rate));
     }
 }

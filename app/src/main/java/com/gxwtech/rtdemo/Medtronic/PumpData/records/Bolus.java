@@ -59,7 +59,7 @@ public class Bolus extends TimeStampedRecord {
 
     @Override
     public void logRecord() {
-        Log.i(TAG, String.format("%s %s Programmed amount: %02f Delivered: %02f Duration: %02f Type: %s Unabsorbed: %2f",
+        Log.i(TAG, String.format("%s %s Programmed amount: %.2f Delivered: %.2f Duration: %.2f Type: %s Unabsorbed: %.2f",
                 timeStamp, recordTypeName, programmedAmount, deliveredAmount, duration, bolusType.name(), unabsorbed));
     }
 }
