@@ -16,6 +16,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.gxwtech.rtdemo.Medtronic.PumpData.TempBasalPair;
+import com.gxwtech.rtdemo.Services.PumpManager.TempBasalPairParcel;
 import com.gxwtech.rtdemo.Services.RTDemoService;
 
 import org.joda.time.DateTime;
@@ -64,8 +66,23 @@ public class MonitorActivity extends ActionBarActivity {
                     int durationSeconds = intent.getIntExtra(Intents.ROUNDTRIP_SLEEP_MESSAGE_DURATION,0);
                     Log.d(TAG,String.format("Received Sleep Notification: %d seconds",durationSeconds));
                     setSleepNotification(durationSeconds);
+                } else if (intent.getAction() == Intents.APSLOGIC_IOB_UPDATE) {
+                    double iob = intent.getDoubleExtra("value",0.0);
+                    updateCurrentIOB_TextView(iob);
+                } else if (intent.getAction() == Intents.APSLOGIC_COB_UPDATE) {
+                    double cob = intent.getDoubleExtra("value",0.0);
+                    updateCurrentCOB_TextView(cob);
+                } else if (intent.getAction() == Intents.APSLOGIC_CURRBASAL_UPDATE) {
+                    double cb = intent.getDoubleExtra("value",0.0);
+                    updateCurrentBasal_TextView(cb);
+                } else if (intent.getAction() == Intents.APSLOGIC_PREDBG_UPDATE) {
+                    double pbg = intent.getDoubleExtra("value",0.0);
+                    updatePredictedBG_TextView(pbg);
+                } else if (intent.getAction() == Intents.APSLOGIC_TEMPBASAL_UPDATE) {
+                    Bundle data = intent.getExtras();
+                    TempBasalPairParcel pair = data.getParcelable(Constants.ParcelName.TempBasalPairParcelName);
+                    updateTempBasal_TextView(pair);
                 }
-
             }
         };
     }
@@ -101,6 +118,39 @@ public class MonitorActivity extends ActionBarActivity {
             TextView view = (TextView) findViewById(R.id.textView_LastBGReadTime);
             view.setText(String.format("%d min ago", elapsedMinutes));
         }
+    }
+
+    public void updateCurrentIOB_TextView(double iob) {
+        TextView textView = (TextView) findViewById(R.id.textView_IOB);
+        String str = String.format("%.1f U",iob);
+        textView.setText(str);
+    }
+
+    public void updateCurrentCOB_TextView(double cob) {
+        TextView textView = (TextView) findViewById(R.id.textView_COB);
+        String str = String.format("%.1f gm",cob);
+        textView.setText(str);
+    }
+
+    public void updateCurrentBasal_TextView(double cb) {
+        TextView textView = (TextView) findViewById(R.id.textView_CurrentBasal);
+        String str = String.format("%.3f U/hr",cb);
+        textView.setText(str);
+    }
+
+    public void updatePredictedBG_TextView(double pbg) {
+        TextView textView = (TextView) findViewById(R.id.textView_PredBG);
+        String str = String.format("%.1f mg/dL",pbg);
+        textView.setText(str);
+    }
+    public void updateTempBasal_TextView(TempBasalPair pair) {
+        TextView textView_rate = (TextView) findViewById(R.id.textView_TempBasalRate);
+        String rateString = String.format("%.3f U/hr",pair.mInsulinRate);
+        textView_rate.setText(rateString);
+
+        TextView textView_minRemaining = (TextView) findViewById(R.id.textView_TempBasalMinRemaining);
+        String minRemainingString = String.format("%d min",pair.mDurationMinutes);
+        textView_minRemaining.setText(minRemainingString);
     }
 
     protected void setSleepNotification(int durationSeconds) {
@@ -166,7 +216,11 @@ public class MonitorActivity extends ActionBarActivity {
         intentFilter.addAction(Intents.ROUNDTRIP_BG_READING);
         intentFilter.addAction(Intents.APSLOGIC_LOG_MESSAGE);
         intentFilter.addAction(Intents.ROUNDTRIP_SLEEP_MESSAGE);
-
+        intentFilter.addAction(Intents.APSLOGIC_IOB_UPDATE);
+        intentFilter.addAction(Intents.APSLOGIC_COB_UPDATE);
+        intentFilter.addAction(Intents.APSLOGIC_CURRBASAL_UPDATE);
+        intentFilter.addAction(Intents.APSLOGIC_PREDBG_UPDATE);
+        intentFilter.addAction(Intents.APSLOGIC_TEMPBASAL_UPDATE);
         // register our desire to receive broadcasts from RTDemoService
         LocalBroadcastManager.getInstance(getApplicationContext())
                 .registerReceiver(mBroadcastReceiver, intentFilter);

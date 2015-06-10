@@ -35,6 +35,7 @@ import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfile;
 import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfileEntry;
 import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfileTypeEnum;
 import com.gxwtech.rtdemo.Medtronic.PumpData.HistoryReport;
+import com.gxwtech.rtdemo.Medtronic.PumpData.TempBasalPair;
 import com.gxwtech.rtdemo.MongoWrapper;
 import com.gxwtech.rtdemo.R;
 import com.gxwtech.rtdemo.Services.PumpManager.PumpManager;
@@ -200,19 +201,7 @@ public class RTDemoService extends Service {
                 // since it blocks, we can't do it in Create()
 
             } else if (msg.arg2 == Constants.SRQ.VERIFY_PUMP_COMMUNICATIONS) {
-                // this command should be the first place
-                // we actually try to talk over USB to the carelink.
-                if (!mPumpManager.wakeUpCarelink()) {
-                    llog("Error accessing Carelink USB Stick.");
-                    //Log.e(TAG,"wakeUpCarelink failed");
-                } else {
-                    llog("Carelink ready.");
-                }
-                if (!mPumpManager.verifyPumpCommunications()) {
-                    llog("Error accessing pump.");
-                } else {
-                    llog("Pump ready.");
-                }
+                checkPumpCommunications();
             } else if (msg.arg2 == Constants.SRQ.SET_SERIAL_NUMBER) {
                 // ewww....
                 byte[] serialNumber = (byte[])msg.obj;
@@ -244,6 +233,15 @@ public class RTDemoService extends Service {
                 // APSLOGIC_STARTUP requests the APSLogic module to do the
                 // initial data collection, which can take a long time (MongoDB access, pump access)
                 // get latest BG reading from Mongo
+
+                boolean testing = false;
+                if (testing) {
+                    broadcastAPSLogicStatusMessage("Preparing Pump (temporary measure)");
+                    // Dunno why yet, but this seems to make the pump happy.
+                    // Takes more time, but eases debugging.
+                    checkPumpCommunications();
+                    getPumpManager().getPumpSettings();
+                }
 
                 broadcastAPSLogicStatusMessage("Accessing MongoDB for latest BG reading");
 
@@ -289,6 +287,22 @@ public class RTDemoService extends Service {
                     }
                 }
             }
+        }
+    }
+
+    private void checkPumpCommunications() {
+        // this command should be the first place
+        // we actually try to talk over USB to the carelink.
+        if (!mPumpManager.wakeUpCarelink()) {
+            llog("Error accessing Carelink USB Stick.");
+            //Log.e(TAG,"wakeUpCarelink failed");
+        } else {
+            llog("Carelink ready.");
+        }
+        if (!mPumpManager.verifyPumpCommunications()) {
+            llog("Error accessing pump.");
+        } else {
+            llog("Pump ready.");
         }
     }
 
@@ -425,7 +439,7 @@ public class RTDemoService extends Service {
         String mongoPassword = settings.getString(Constants.PrefName.MongoDBPasswordPrefName,"password");
         String mongoCollection = settings.getString(Constants.PrefName.MongoDBCollectionPrefName, "entries");
 
-        mMongoWrapper.updateURI(server,serverPort,dbname,mongoUsername,mongoPassword,mongoCollection);
+        mMongoWrapper.updateURI(server, serverPort, dbname, mongoUsername, mongoPassword, mongoCollection);
     }
 
     // Note this is called from our local (background) message handler,
@@ -448,6 +462,31 @@ public class RTDemoService extends Service {
         double isf = (double)settings.getFloat(Constants.PrefName.ISFPrefName, (float) 30.0);
         // Notify APSLogic of new value
         mAPSLogic.setISF(isf);
+    }
+
+    // These functions are called by APSLogic.
+    // This allows us to separate Android from APSLogic
+    public void sendTempBasalToUI(TempBasalPair pair) {
+        Intent intent = new Intent(Intents.APSLOGIC_TEMPBASAL_UPDATE);
+        intent.putExtra("name", Constants.ParcelName.TempBasalPairParcelName);
+        intent.putExtra(Constants.ParcelName.TempBasalPairParcelName, new TempBasalPairParcel(pair));
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+    }
+    public void sendCurrBasalToUI(double basalRate) {
+        Intent intent = new Intent(Intents.APSLOGIC_CURRBASAL_UPDATE).putExtra("value", basalRate);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+    public void sendPredBGToUI(double predictedBG) {
+        Intent intent = new Intent(Intents.APSLOGIC_PREDBG_UPDATE).putExtra("value",predictedBG);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+    public void sendIOBToUI(double iobTotal) {
+        Intent intent = new Intent(Intents.APSLOGIC_IOB_UPDATE).putExtra("value",iobTotal);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+    public void sendCOBToUI(double cobTotal) {
+        Intent intent = new Intent(Intents.APSLOGIC_COB_UPDATE).putExtra("value",cobTotal);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     @Override

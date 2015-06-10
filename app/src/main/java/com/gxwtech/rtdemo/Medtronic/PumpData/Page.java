@@ -123,15 +123,15 @@ public class Page {
         // Find possible matches for TempBasalRate, TempBasalDuration and BolusWizard events
         // (as those are the only ones we care about at the moment. and try to parse them.
         int dataIndex = 0;
-        // cheating, for debug:
-        dataIndex = 44; // fixme
         boolean done = false;
         while (!done) {
             Record record = null;
             if (data[dataIndex] != 0) {
                 // just don't bother, if the data byte is zero.
+                /*
                 Log.d(TAG,String.format("Attempting to parse record at offset %d, OpCode is 0x%02X",
                         dataIndex,data[dataIndex]));
+                        */
                 record = attemptParseRecord(data,dataIndex);
             }
             if (record != null) {
@@ -139,8 +139,10 @@ public class Page {
                 if (record.getRecordOp() == RecordTypeEnum.RECORD_TYPE_BOLUSWIZARD.opcode()) {
                     BolusWizard bw = (BolusWizard)record;
                     mRecordList.add(record);
+                    /*
                     Log.d(TAG,String.format("Found BolusWizard record (time:%s) at offset %d",
                             bw.getTimeStamp().toString(),dataIndex));
+                            */
                     if (record.getSize() > 0) {
                         dataIndex += record.getSize();
                     } else {
@@ -149,8 +151,10 @@ public class Page {
                 } else if (record.getRecordOp() == RecordTypeEnum.RECORD_TYPE_TEMPBASALDURATION.opcode()) {
                     TempBasalDuration tbd = (TempBasalDuration) record;
                     mRecordList.add(record);
+                    /*
                     Log.d(TAG,String.format("Found TempBasalDuration record (time:%s) offset %d, duration %d",
                             tbd.getTimeStamp(),dataIndex,tbd.durationMinutes));
+                            */
                     if (record.getSize() > 0) {
                         dataIndex += record.getSize();
                     } else {
@@ -159,8 +163,10 @@ public class Page {
                 } else if (record.getRecordOp() == RecordTypeEnum.RECORD_TYPE_TEMPBASALRATE.opcode()) {
                     TempBasalRate tbr = (TempBasalRate) record;
                     mRecordList.add(record);
+                    /*
                     Log.d(TAG,String.format("Found TempBasalRate record (time:%s) offset %d, rate %.3f",
                             tbr.getTimeStamp(),dataIndex,tbr.basalRate));
+                            */
                     if (record.getSize() > 0) {
                         dataIndex += record.getSize();
                     } else {

@@ -41,7 +41,7 @@ public class ReadHistoryCommand extends MedtronicCommand {
             seq++;
             if (seq > 1) {
                 // note sequential discoveries
-                Log.w(TAG,String.format("SEQ: %d",seq));
+                //Log.w(TAG,String.format("SEQ: %d",seq));
             }
             index = index + r.getSize();
             r = checkForRecord(data,index);
@@ -52,8 +52,10 @@ public class ReadHistoryCommand extends MedtronicCommand {
         Page page = new Page();
         Record record = page.attemptParseRecord(data,index); // CalBgForPh
         if (record!=null) {
+            /*
             Log.d(TAG, String.format("Maybe found record %s at index %d, size %d",
                     record.getClass().getSimpleName(), index, record.getSize()));
+                    */
             int sublength = data.length - index;
             byte[] subset = new byte[sublength];
             System.arraycopy(data,index,subset,0,sublength);
@@ -62,12 +64,14 @@ public class ReadHistoryCommand extends MedtronicCommand {
                 Log.e(TAG, String.format("FOUND RECORD %s at index %d, size %d",
                         record.getClass().getSimpleName(), index, record.getSize()));
             } else {
+                /*
                 Log.e(TAG, String.format("Failed to load record %s at index %d, size %d",
                         record.getClass().getSimpleName(), index, record.getSize()));
+                        */
             }
         } else {
-            Log.d(TAG, String.format("NO RECORD FOUND at index %d, code 0x%02X",
-                    index, data[index]));
+            //Log.d(TAG, String.format("NO RECORD FOUND at index %d, code 0x%02X",index, data[index]));
+
         }
         return record;
     }

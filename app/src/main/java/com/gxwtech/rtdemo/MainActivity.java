@@ -65,7 +65,15 @@ public class MainActivity extends ActionBarActivity {
                 }
             }
         };
-
+        // get serial number from preferences
+        SharedPreferences settings = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
+        String serialNumber = settings.getString(Constants.PrefName.SerialNumberPrefName, "000000");
+        // set serial number in service thread (in PumpManager)
+        byte[] sn_bytes = HexDump.hexStringToByteArray(serialNumber);
+        Intent intent = new Intent(this,RTDemoService.class);
+        intent.putExtra("what", Constants.SRQ.SET_SERIAL_NUMBER);
+        intent.putExtra("serialNumber", sn_bytes);
+        startService(intent);
     }
 
     public void updateText() {

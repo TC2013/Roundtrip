@@ -17,6 +17,8 @@ public class DIATables {
         DIA_5_hour,
         DIA_5pt5_hour
     }
+    // after 300 minutes, assume that there is no more insulin impact from an event
+    static final int insulinImpactMinutesMax = 300;
     // The 2, 3, 4, and 5 hour DIA arrays below were obtained from a 522 Medtronic pump by observing the decay every minute via the pump bolus wizard.  The others were extrapolated from the observed data.
 
     // These arrays have 300 values each, representing the PERCENT of insulin
@@ -60,7 +62,7 @@ public class DIATables {
         int rval;
         if (elapsed_minutes< 0) {
             rval = 100;
-        } else if (elapsed_minutes>300) {
+        } else if (elapsed_minutes>insulinImpactMinutesMax) {
             //all tables are zero after 300 minutes
             rval = 0;
         } else {
