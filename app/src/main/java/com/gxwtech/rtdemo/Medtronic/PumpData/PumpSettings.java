@@ -96,7 +96,9 @@ public class PumpSettings {
         }
         mVariableBolusEnable = (mRawData[4] == 1);
         // MM23 is different
-        mMaxBolus = mRawData[5] / 10.0;
+        int maxBolusByte = mRawData[5];
+        if (maxBolusByte < 0) { maxBolusByte += 256; }
+        mMaxBolus = (maxBolusByte) / 10.0;
         // MM512 and up
         // TODO: check mMaxBasal calculation
         // did I get the bytes in the right order?

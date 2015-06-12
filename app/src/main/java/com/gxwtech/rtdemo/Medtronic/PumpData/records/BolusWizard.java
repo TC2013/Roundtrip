@@ -12,7 +12,7 @@ public class BolusWizard extends TimeStampedRecord {
     private double correction;
     private long bg;
     private int carbInput;
-    private double carbRatio;
+    private double icRatio;
     private int sensitivity;
     private int bgTargetLow;
     private int bgTargetHigh;
@@ -24,7 +24,7 @@ public class BolusWizard extends TimeStampedRecord {
         correction = (double)0.0;
         bg = 0;
         carbInput = 0;
-        carbRatio = 0.0;
+        icRatio = 0.0;
         sensitivity = 0;
         bgTargetLow = 0;
         bgTargetHigh = 0;
@@ -36,7 +36,7 @@ public class BolusWizard extends TimeStampedRecord {
     public double getCorrection() { return correction; }
     public long getBG() { return bg; }
     public int getCarbInput() { return carbInput; }
-    public double getCarbRatio() { return carbRatio; }
+    public double getICRatio() { return icRatio; }
     public int getSensitivity() { return sensitivity; }
     public int getBgTargetLow() { return bgTargetLow; }
     public double getBolusEstimate() { return bolusEstimate; }
@@ -68,7 +68,7 @@ public class BolusWizard extends TimeStampedRecord {
         carbInput = data[bodyIndex];
         if (model == PumpModel.MM523) {
             correction = toInt(data[bodyIndex]) / 40.0f;
-            carbRatio = toInt(data[bodyIndex + 14]) / 10.0f;
+            icRatio = toInt(data[bodyIndex + 14]) / 10.0f;
             sensitivity = toInt(data[bodyIndex + 4]);
             bgTargetLow = data[bodyIndex + 5];
             bgTargetHigh = data[bodyIndex + 3];
@@ -77,7 +77,7 @@ public class BolusWizard extends TimeStampedRecord {
             unabsorbedInsulinTotal = data[bodyIndex + 11] / 40.0f;
         } else {
             correction = (toInt(data[bodyIndex + 7]) + data[bodyIndex + 5] & 0x0F) / 10.0f;
-            carbRatio = toInt(data[bodyIndex + 2]);
+            icRatio = toInt(data[bodyIndex + 2]);
             sensitivity = toInt(data[bodyIndex + 3]);
             bgTargetLow = data[bodyIndex + 4];
             bgTargetHigh = data[bodyIndex + 12];
@@ -92,7 +92,7 @@ public class BolusWizard extends TimeStampedRecord {
 
     @Override
     public void logRecord() {
-        Log.i(TAG,String.format("Time: %s RecordType: %s Bg: %d Carb Input: %d Correction: %.2f Carb Ratio: %.2f Sensitivity: %d BG Target High: %d BG Target Low: %d Bolus Estimate: %.2f Food Estimate: %.2f Unabsorbed Insulin Total: %.2f",
-                timeStamp.toString(), recordTypeName, bg, carbInput, correction, carbRatio, sensitivity, bgTargetHigh, bgTargetLow, bolusEstimate, foodEstimate, unabsorbedInsulinTotal));
+        Log.i(TAG,String.format("Time: %s RecordType: %s Bg: %d Carb Input: %d Correction: %.2f icRatio: %.2f Sensitivity: %d BG Target High: %d BG Target Low: %d Bolus Estimate: %.2f Food Estimate: %.2f Unabsorbed Insulin Total: %.2f",
+                timeStamp.toString(), recordTypeName, bg, carbInput, correction, icRatio, sensitivity, bgTargetHigh, bgTargetLow, bolusEstimate, foodEstimate, unabsorbedInsulinTotal));
     }
 }

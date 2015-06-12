@@ -1,5 +1,6 @@
 package com.gxwtech.rtdemo;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -9,6 +10,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.gxwtech.rtdemo.Services.RTDemoService;
 
 
 public class MongoDBSettingsActivity extends ActionBarActivity {
@@ -52,6 +55,10 @@ public class MongoDBSettingsActivity extends ActionBarActivity {
         // notify user that the settings were saved
         TextView settingsSavedMsg = (TextView)findViewById(R.id.textView_SaveStatusMsg);
         settingsSavedMsg.setVisibility(View.VISIBLE);
+        // tell the background service that the URI has changed.
+        Intent intent = new Intent(this,RTDemoService.class);
+        intent.putExtra("what",Constants.SRQ.MONGO_SETTINGS_CHANGED);
+        startService(intent);
     }
 
     // update all values from the preference

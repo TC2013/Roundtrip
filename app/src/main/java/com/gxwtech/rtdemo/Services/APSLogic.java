@@ -260,6 +260,7 @@ public class APSLogic {
                 } else {
                     double bolusAmount = bw.getBolusEstimate();
                     double carbInput = bw.getCarbInput();
+                    double icRatio = bw.getICRatio();
                     log(String.format("Found Bolus Wizard Event(%s, Carbs %.1f gm, Insulin %.3f U)",
                             timestamp.toLocalDateTime().toString(),
                             carbInput,
@@ -277,11 +278,11 @@ public class APSLogic {
                     iobTotal = iobTotal + iob;
 
                     double cob = cobValueAtAbsTime(timestamp.toInstant(), carbInput, now.toInstant(),
-                            mPersonalProfile.carbRatio);
-                    double remainingBGImpact_COBpartial = cob * mPersonalProfile.isf / mPersonalProfile.carbRatio;
+                            mPersonalProfile.CAR);
+                    double remainingBGImpact_COBpartial = cob * mPersonalProfile.isf / icRatio;
                     log(String.format("Bolus wizard event (%s): COB=%.1f gm, carbRatio=%.1f, BG impact remaining=%.1f mg/dL",
                             timestamp.toString("HH:mm"),
-                            cob,mPersonalProfile.carbRatio,
+                            cob,icRatio,
                             remainingBGImpact_COBpartial));
                     remainingBGImpact_COBtotal = remainingBGImpact_COBtotal + remainingBGImpact_COBpartial;
                     cobTotal = cobTotal + cob;
@@ -599,8 +600,8 @@ public class APSLogic {
 
     // private class (for now) to hold profile. this is temporary.
     public class PersonalProfile {
-        public double carbRatio = -10E6; // conversion from XX to XX (insulin to carbs ratio)
-        public double isf = 0.0;
+        public double CAR = -10E6; // Carb Absorption Ratio - how fast the body absorbs carbs.
+        public double isf = -10E6; // How much does blood sugar change per unit insulin
     }
 
     public void testModule() {
@@ -664,7 +665,7 @@ public class APSLogic {
     // to set our internal value for CarbAbsorptionRatio
     // This is done to keep Android stuff out of APSLogic
     public void setCAR(double car) {
-        mPersonalProfile.carbRatio = car;
+        mPersonalProfile.CAR = car;
     }
 
     // This function is called from outside (from RTDemoService)
