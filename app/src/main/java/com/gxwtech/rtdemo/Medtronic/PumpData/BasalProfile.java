@@ -40,17 +40,33 @@ public class BasalProfile {
     }
     public boolean setRawData(byte[] data) {
         if (data == null) {
+            Log.e(TAG,"setRawData: buffer is null!");
             return false;
         }
         int len = Math.min(MAX_RAW_DATA_SIZE, data.length);
         System.arraycopy(data, 0, mRawData, 0, len);
+        Log.w(TAG,String.format("setRawData: copied raw data buffer of %d bytes.",len));
         return true;
+    }
+
+    public void dumpBasalProfile() {
+        Log.w(TAG,"Basal Profile entries:");
+        ArrayList<BasalProfileEntry> entries = getEntries();
+        for (int i=0; i< entries.size(); i++) {
+            BasalProfileEntry entry = entries.get(i);
+            String startString = entry.startTime.toString("HH:mm");
+            Log.w(TAG,String.format("Entry %d, rate=%.3f (0x%02X), start=%s (0x%02X)",
+                    i+1, entry.rate, entry.rate_raw,
+                    startString, entry.startTime_raw));
+
+        }
     }
 
     public BasalProfileEntry getEntryForTime(LocalTime lt) {
         BasalProfileEntry rval = new BasalProfileEntry();
         ArrayList<BasalProfileEntry> entries = getEntries();
         if (entries.size() == 0) {
+            Log.w(TAG,String.format("getEntryForTime(%s): table is empty",lt.toString("HH:mm")));
             return rval;
         }
         int localMillis = lt.getMillisOfDay();
@@ -64,15 +80,20 @@ public class BasalProfile {
             }
             i++;
             if (i >= entries.size()) {
-                return rval;
+                done = true;
             }
         }
+        Log.w(TAG,String.format("getEntryForTime(%s): Returning entry %d: rate=%.3f (%d), start=%s (%d)",
+                lt.toString("HH:mm"),i,
+                rval.rate,rval.rate_raw,
+                rval.startTime.toString("HH:mm"),rval.startTime_raw));
         return rval;
     }
 
     public ArrayList<BasalProfileEntry> getEntries() {
         ArrayList<BasalProfileEntry> entries = new ArrayList<>();
         if (mRawData[2] == 0x3f) {
+            Log.w(TAG,"Raw Data is empty.");
             return entries; // an empty list
         }
         int i = 0;

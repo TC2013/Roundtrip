@@ -166,20 +166,25 @@ public class APSLogic {
         // figure out which basal period is active and determine the rate.
         BasalProfileEntry entry = basalProfile.getEntryForTime(time_of_day);
         if (entry != null) {
+            log(String.format("For %s, found entry rate=%.3f (%d), start=%s (%d) ",
+                    time_of_day.toString("HH:mm"),
+                    entry.rate,entry.rate_raw,
+                    entry.startTime.toString("HH:mm"),entry.startTime_raw));
             return entry.rate;
         }
-        log("<Error: Null Basal Rate Object?>");
+        log("Error: Null Basal Rate Object?");
         return -9.9999E6; // clearly bad value
     }
 
     // isf is the change in blood glucose due to a unit of insulin.
     // varies with time of day (among many other things!)
+    // To fix: need to gather the rate profile from the pump's bolus wizard settings.
     public double isf(LocalTime time_of_day) {
         // TODO: given a time of day, return the insulin sensitivity factor
         // In the RPi version, we retrieved this number (a single number) from MongoDB profile
         // TODO: Must fix this
         //return mPersonalProfile.isf;
-        return 45.0; // fixme: very broken.
+        return 40.0; // fixme: very broken.
     }
 
     // use this to floor to nearest 0.025
@@ -640,10 +645,16 @@ public class APSLogic {
         // fixme: need to get pump settings before basal profiles.  Should ensure this happens.
         if (mPumpSettings.mSelectedPattern == BasalProfileTypeEnum.A) {
             mCurrentBasalProfile = basalProfileA;
+            log("Using basal profile A");
         } else if (mPumpSettings.mSelectedPattern == BasalProfileTypeEnum.B) {
-                mCurrentBasalProfile = basalProfileB;
+            mCurrentBasalProfile = basalProfileB;
+            log("Using basal profile B");
+        } else {
+            log("Using basal profile STD");
         }
-
+        if (basalProfileSTD == null) log("Basal profile STD is null!");
+        if (basalProfileA == null) log("Basal profile A is null!");
+        if (basalProfileB == null) log("Basal profile B is null!");
         return gotBasalProfiles;
     }
 

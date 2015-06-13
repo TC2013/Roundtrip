@@ -35,10 +35,10 @@ public class MonitorActivity extends ActionBarActivity {
     ArrayList<String> mMessageLog = new ArrayList<>();
     ArrayAdapter<String> adapter = null;
 
-    double m_iob = 0.0;
-    double m_cob = 0.0;
-    double m_cb = 0.0;
-    double m_pbg = 0.0;
+    double m_iob = -99.0;
+    double m_cob = -99.0;
+    double m_cb = -99.0;
+    double m_pbg = -99.0;
     TempBasalPairParcel m_pair = new TempBasalPairParcel();
     BGReadingParcel m_p = new BGReadingParcel();
 
@@ -78,19 +78,19 @@ public class MonitorActivity extends ActionBarActivity {
                     mSleepNotificationDuration = durationSeconds;
                     setSleepNotification();
                 } else if (intent.getAction() == Intents.APSLOGIC_IOB_UPDATE) {
-                    double iob = intent.getDoubleExtra("value",0.0);
+                    double iob = intent.getDoubleExtra("value",-98.0);
                     m_iob = iob;
                     updateCurrentIOB_TextView();
                 } else if (intent.getAction() == Intents.APSLOGIC_COB_UPDATE) {
-                    double cob = intent.getDoubleExtra("value",0.0);
+                    double cob = intent.getDoubleExtra("value",-98.0);
                     m_cob = cob;
                     updateCurrentCOB_TextView();
                 } else if (intent.getAction() == Intents.APSLOGIC_CURRBASAL_UPDATE) {
-                    double cb = intent.getDoubleExtra("value",0.0);
+                    double cb = intent.getDoubleExtra("value",-98.0);
                     m_cb = cb;
                     updateCurrentBasal_TextView();
                 } else if (intent.getAction() == Intents.APSLOGIC_PREDBG_UPDATE) {
-                    double pbg = intent.getDoubleExtra("value",0.0);
+                    double pbg = intent.getDoubleExtra("value",-98.0);
                     m_pbg = pbg;
                     updatePredictedBG_TextView();
                 } else if (intent.getAction() == Intents.APSLOGIC_TEMPBASAL_UPDATE) {
