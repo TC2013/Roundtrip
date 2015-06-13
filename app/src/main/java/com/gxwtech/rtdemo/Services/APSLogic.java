@@ -161,15 +161,18 @@ public class APSLogic {
     }
 
     //Now we define a function to calculate the basal rate at a give time:
-    public double basal_rate_at_abs_time(LocalTime time_of_day, BasalProfile basalProfile) {
+    // todo: this should be fixed to handle all basal profiles, not a given profile.
+    public double basal_rate_at_abs_time(Instant when, BasalProfile basalProfile) {
         // From the pump's basal profiles, and the pump's idea of the time-of-day,
         // figure out which basal period is active and determine the rate.
-        BasalProfileEntry entry = basalProfile.getEntryForTime(time_of_day);
+        BasalProfileEntry entry = basalProfile.getEntryForTime(when);
         if (entry != null) {
+            /*
             log(String.format("For %s, found entry rate=%.3f (%d), start=%s (%d) ",
                     time_of_day.toString("HH:mm"),
                     entry.rate,entry.rate_raw,
                     entry.startTime.toString("HH:mm"),entry.startTime_raw));
+                    */
             return entry.rate;
         }
         log("Error: Null Basal Rate Object?");
@@ -179,7 +182,7 @@ public class APSLogic {
     // isf is the change in blood glucose due to a unit of insulin.
     // varies with time of day (among many other things!)
     // To fix: need to gather the rate profile from the pump's bolus wizard settings.
-    public double isf(LocalTime time_of_day) {
+    public double isf(Instant when) {
         // TODO: given a time of day, return the insulin sensitivity factor
         // In the RPi version, we retrieved this number (a single number) from MongoDB profile
         // TODO: Must fix this
@@ -222,8 +225,8 @@ public class APSLogic {
         log("Getting RTC clock data from pump");
         DateTime rtcDateTime = getRTCTimestampFromPump();
         log("Pump RTC: " + rtcDateTime.toDateTimeISO().toString());
-        DateTime now = DateTime.now(); // cache local system time
-        log("Local System Time is " + now.toLocalDateTime().toString());
+        Instant now = new Instant(); // cache local system time
+        log("Local System Time is " + now.toDateTime().toLocalDateTime().toString());
         Minutes pumpTimeOffsetMinutes = Minutes.minutesBetween(now,rtcDateTime);
         log(String.format("Pump Time is %d minutes %s system time.",
                 Math.abs(pumpTimeOffsetMinutes.getMinutes()),
@@ -241,7 +244,7 @@ public class APSLogic {
             log("Getting basal profiles from pump");
             getBasalProfiles();
         //}
-        double currentBasalRate = basal_rate_at_abs_time(now.toLocalTime(),
+        double currentBasalRate = basal_rate_at_abs_time(now,
                 getCurrentBasalProfile());
         sendCurrBasalToUI(currentBasalRate);
 
@@ -259,7 +262,7 @@ public class APSLogic {
         } else {
             for (BolusWizard bw : historyReport.mBolusWizardEvents) {
                 DateTime timestamp = bw.getTimeStamp();
-                if (timestamp.isBefore(now.minusMinutes(DIATables.insulinImpactMinutesMax))) {
+                if (timestamp.isBefore(now.toDateTime().minusMinutes(DIATables.insulinImpactMinutesMax))) {
                     // The Bolus occurred a long time ago (insulinImpartMinutesMax (300 minutes))
                     // we can safely ignore it.
                 } else {
@@ -345,7 +348,7 @@ public class APSLogic {
              */
             for (int i = 0; i < historyReport.mBasalEvents.size(); i++) {
                 TempBasalEvent tb = historyReport.mBasalEvents.get(i);
-                if (endTimes.get(i).isBefore(now.minusMinutes(DIATables.insulinImpactMinutesMax))) {
+                if (endTimes.get(i).isBefore(now.toDateTime().minusMinutes(DIATables.insulinImpactMinutesMax))) {
                     // The temp basal ended a long time ago (insulinImpartMinutesMax (300 minutes))
                     // we can safely ignore it.
                 } else {
@@ -355,6 +358,18 @@ public class APSLogic {
                     double thisEventIOBRemaining = 0.0;
                     double thisEventIOBImpact = 0.0;
                     ArrayList<DIATables.DIATableEnum> tablesUsed = new ArrayList<>();
+
+                    BasalProfileEntry bpEntry = getCurrentBasalProfile().getEntryForTime(tb.mTimestamp.toInstant());
+                    log(String.format("At start of insulin event(%s), basal rate is %.3f (%d), start %s (%d)",
+                            tb.mTimestamp.toLocalTime().toString("HH:mm"),
+                            bpEntry.rate, bpEntry.rate_raw,
+                            bpEntry.startTime.toString("HH:mm"),bpEntry.startTime_raw));
+
+                    bpEntry = getCurrentBasalProfile().getEntryForTime(endTimes.get(i));
+                    log(String.format("At end of insulin event(%s), basal rate is %.3f (%d), start %s (%d)",
+                            endTimes.get(i).toDateTime().toLocalTime().toString("HH:mm"),
+                            bpEntry.rate, bpEntry.rate_raw,
+                            bpEntry.startTime.toString("HH:mm"),bpEntry.startTime_raw));
 
                     for (int j = 0; j < actualDuration.getMinutes(); j++) {
                         DIATables.DIATableEnum whichTable = default_dia_table;
@@ -367,12 +382,9 @@ public class APSLogic {
                      *  rate.  When using negative relative rates, use the negative insulin table.
                      */
                         // FIXME: this means that we have to keep track of which basal profile was in use!
-                        basal_rate_at_abs_time(now.toLocalTime(),
-                                getCurrentBasalProfile());
-
                         Instant insulinTime = tb.mTimestamp.plusMinutes(j).toInstant();
 
-                        double relativeRate = tb.mBasalPair.mInsulinRate - basal_rate_at_abs_time(insulinTime.toDateTime().toLocalTime(),
+                        double relativeRate = tb.mBasalPair.mInsulinRate - basal_rate_at_abs_time(insulinTime,
                                 getCurrentBasalProfile() // <--- fixme: basal profiles may have changed, current is not correct
                         );
 
@@ -385,7 +397,7 @@ public class APSLogic {
                         double part = iobValueAtAbsTime(insulinTime,
                                 relativeRate / 60, now.toInstant(), whichTable);
                         thisEventIOBRemaining += part;
-                        double remainingBGImpact_IOBPartial = part * isf(insulinTime.toDateTime().toLocalTime());
+                        double remainingBGImpact_IOBPartial = part * isf(insulinTime);
                         thisEventIOBImpact += remainingBGImpact_IOBPartial;
                     } // end integration
                     remainingBGImpact_IOBtotal += thisEventIOBImpact;
@@ -403,7 +415,7 @@ public class APSLogic {
                     // B) It only uses the "current basal profile", not the one that was active at the time
                     log(String.format("TempBasalEvent rate: %.3f U/hr, relative: %.3f U/hr, start: %s, end %s, remaining IOB %.3f, isf=45.0, impact %.1f, tables used: %s",
                             tb.mBasalPair.mInsulinRate,
-                            tb.mBasalPair.mInsulinRate - basal_rate_at_abs_time(tb.mTimestamp.toLocalTime(),
+                            tb.mBasalPair.mInsulinRate - basal_rate_at_abs_time(tb.mTimestamp.toInstant(),
                                     getCurrentBasalProfile()), // <-- fixme: use correct basal profile
                             tb.mTimestamp.toLocalTime().toString("HH:mm"),
                             endTimes.get(i).toDateTime(DateTimeZone.getDefault()).toString("HH:mm"),
@@ -473,7 +485,8 @@ public class APSLogic {
             // so lower the current basal rate with a temp-basal
             double newTempBasalRate; // our desired temp basal rate (Units/Hr)
             log("Warning - using static isf value of 45.0");
-            newTempBasalRate = Math.max(0, currentBasalRate - 2 * (mPersonalProfile.BGMin - predictedBG) / isf(now.toLocalTime()));
+            newTempBasalRate = Math.max(0, currentBasalRate - 2 * (mPersonalProfile.BGMin - predictedBG)
+                    / isf(now));
             log(String.format("We would like to set temporary rate to %.3f U/h",newTempBasalRate));
             newTempBasalRate = mm_floor_rate(newTempBasalRate);
             log(String.format("New temporary rate rounded to %.3f U/h", newTempBasalRate));
@@ -530,7 +543,7 @@ public class APSLogic {
             // high-temp as required, to get predicted BG down to bg_max
             double fastInsulin;
             log("Warning - using static isf of 45.0");
-            fastInsulin = 2 * (predictedBG - mPersonalProfile.BGMax) / isf(now.toLocalTime());
+            fastInsulin = 2 * (predictedBG - mPersonalProfile.BGMax) / isf(now);
             if (fastInsulin > mPersonalProfile.MaxTempBasalRate) {
                 log(String.format("Insulin delivery limited (by roundtrip) from %.3f U/h to %.3f U/h.",
                         fastInsulin,mPersonalProfile.MaxTempBasalRate));
@@ -638,8 +651,17 @@ public class APSLogic {
 
     private boolean getBasalProfiles() {
         basalProfileSTD = getPumpManager().getProfile(BasalProfileTypeEnum.STD);
+        Log.w(TAG,"Basal Profile STD ----------------");
+        basalProfileSTD.dumpBasalProfile();
+
         basalProfileA = getPumpManager().getProfile(BasalProfileTypeEnum.A);
+        Log.w(TAG,"Basal Profile A ------------------");
+        basalProfileA.dumpBasalProfile();
+
         basalProfileB = getPumpManager().getProfile(BasalProfileTypeEnum.B);
+        Log.w(TAG,"Basal Profile B ------------------");
+        basalProfileB.dumpBasalProfile();
+
         gotBasalProfiles = (basalProfileSTD != null) && (basalProfileA != null) && (basalProfileB != null);
         mCurrentBasalProfile = basalProfileSTD;
         // fixme: need to get pump settings before basal profiles.  Should ensure this happens.

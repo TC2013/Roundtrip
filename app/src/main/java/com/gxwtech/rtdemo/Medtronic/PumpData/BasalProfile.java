@@ -2,6 +2,7 @@ package com.gxwtech.rtdemo.Medtronic.PumpData;
 
 import android.util.Log;
 
+import org.joda.time.Instant;
 import org.joda.time.LocalTime;
 
 import java.util.ArrayList;
@@ -62,20 +63,40 @@ public class BasalProfile {
         }
     }
 
-    public BasalProfileEntry getEntryForTime(LocalTime lt) {
+    // TODO: this function must be expanded to include changes in which profile is in use.
+    // and changes to the profiles themselves.
+    public BasalProfileEntry getEntryForTime(Instant when) {
         BasalProfileEntry rval = new BasalProfileEntry();
         ArrayList<BasalProfileEntry> entries = getEntries();
         if (entries.size() == 0) {
-            Log.w(TAG,String.format("getEntryForTime(%s): table is empty",lt.toString("HH:mm")));
+            Log.w(TAG,String.format("getEntryForTime(%s): table is empty",
+                    when.toDateTime().toLocalTime().toString("HH:mm")));
             return rval;
         }
-        int localMillis = lt.getMillisOfDay();
+        //Log.w(TAG,"Assuming first entry");
+        rval = entries.get(0);
+        if (entries.size() == 1) {
+            Log.w(TAG,"getEntryForTime: Only one entry in profile");
+            return rval;
+        }
+
+        int localMillis = when.toDateTime().toLocalTime().getMillisOfDay();
+        boolean basal_profile_entry_debug = false;
         boolean done = false;
-        int i=0;
+        int i=1;
         while (!done) {
             BasalProfileEntry entry = entries.get(i);
-            if (localMillis < entry.startTime.getMillisOfDay()) {
+            if (basal_profile_entry_debug) {
+                Log.w(TAG, String.format("Comparing 'now'=%s to entry 'start time'=%s",
+                        when.toDateTime().toLocalTime().toString("HH:mm"),
+                        entry.startTime.toString("HH:mm")));
+            }
+            if (localMillis >= entry.startTime.getMillisOfDay()) {
                 rval = entry;
+                //Log.w(TAG,"Accepted Entry");
+            } else {
+                // entry at i has later start time, keep older entry
+                //Log.w(TAG,"Rejected Entry");
                 done = true;
             }
             i++;
@@ -83,10 +104,12 @@ public class BasalProfile {
                 done = true;
             }
         }
-        Log.w(TAG,String.format("getEntryForTime(%s): Returning entry %d: rate=%.3f (%d), start=%s (%d)",
-                lt.toString("HH:mm"),i,
-                rval.rate,rval.rate_raw,
-                rval.startTime.toString("HH:mm"),rval.startTime_raw));
+        if (basal_profile_entry_debug) {
+            Log.w(TAG, String.format("getEntryForTime(%s): Returning entry: rate=%.3f (%d), start=%s (%d)",
+                    when.toDateTime().toLocalTime().toString("HH:mm"),
+                    rval.rate, rval.rate_raw,
+                    rval.startTime.toString("HH:mm"), rval.startTime_raw));
+        }
         return rval;
     }
 

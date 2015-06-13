@@ -10,7 +10,7 @@ public class BasalProfileEntry {
     public byte rate_raw;
     public double rate;
     public byte startTime_raw;
-    public LocalTime startTime;
+    public LocalTime startTime; // Just a "time of day"
     public BasalProfileEntry() {
         rate = -9.999E6;
         rate_raw = (byte)0xFF;
