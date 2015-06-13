@@ -17,7 +17,7 @@
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="32dp">
+            android:layout_height="30dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -40,7 +40,7 @@
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="32dp">
+            android:layout_height="30dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -62,7 +62,7 @@
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="32dp">
+            android:layout_height="30dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -85,7 +85,7 @@
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="32dp">
+            android:layout_height="30dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -109,7 +109,7 @@
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="32dp"
+            android:layout_height="30dp"
             android:layout_gravity="center_vertical">
 
             <TextView
@@ -133,7 +133,7 @@
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="32dp"
+            android:layout_height="30dp"
             android:weightSum="1">
 
             <TextView
@@ -176,7 +176,7 @@
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="32dp">
+            android:layout_height="30dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -199,21 +199,21 @@
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="47dp">
+            android:layout_height="45dp">
 
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Test APS"
-                android:id="@+id/button_StartAPS"
+                android:text="Run"
+                android:id="@+id/button_RunAPS"
                 android:onClick="startupButtonClicked" />
 
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="New Button"
-                android:id="@+id/button2"
-                android:visibility="invisible" />
+                android:text="Stop"
+                android:id="@+id/button_StopAPS"
+                android:onClick="buttonStopClicked" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -226,6 +226,19 @@
                 android:gravity="right"
                 />
 
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="45dp">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Suspend for ..."
+                android:id="@+id/button_SuspendAPS"
+                android:onClick="buttonSuspendClicked" />
         </LinearLayout>
 
         <ListView

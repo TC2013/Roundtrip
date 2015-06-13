@@ -142,6 +142,14 @@ ADDED from AndroidManifest.xml:92:9
 		ADDED from AndroidManifest.xml:95:13
 	android:name
 		ADDED from AndroidManifest.xml:93:13
+activity#com.gxwtech.rtdemo.SuspendAPSActivity
+ADDED from AndroidManifest.xml:100:9
+	android:label
+		ADDED from AndroidManifest.xml:102:13
+	android:parentActivityName
+		ADDED from AndroidManifest.xml:103:13
+	android:name
+		ADDED from AndroidManifest.xml:101:13
 uses-sdk
 INJECTED from AndroidManifest.xml:0:0 reason: use-sdk injection requested
 MERGED from com.android.support:appcompat-v7:22.1.1:20:5

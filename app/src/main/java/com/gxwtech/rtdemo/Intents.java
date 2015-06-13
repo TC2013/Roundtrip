@@ -19,5 +19,6 @@ public class Intents {
     public static final String APSLOGIC_CURRBASAL_UPDATE = basename + ".apslogic_currbasal_update";
     public static final String APSLOGIC_PREDBG_UPDATE = basename + ".apslogic_predbg_update";
     public static final String APSLOGIC_TEMPBASAL_UPDATE = basename + ".apslogic_tempbasal_update";
+    public static final String APSLOGIC_DO_SUSPEND_MINUTES = basename + ".apslogic_do_suspend_minutes";
 
 }

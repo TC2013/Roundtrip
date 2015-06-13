@@ -91,9 +91,17 @@ public class RTDemoService extends Service {
     NotificationManager mNM;
     Looper mServiceLooper;
     ServiceHandler mServiceHandler = null;
+
+    // for giving us a signal to run the APS Logic every 5 minutes
+    // Does this need to be separate from mServiceHandler?
+    // feels clumsy.  The mTimerRunnable will post an intent to start
+    // the next run of APSLogic, and will reset itself to run again.
+    Handler mTimerHandler;
+    TimerRunnable mTimerRunnable = new TimerRunnable();
+
     private int NOTIFICATION = R.string.local_service_started;
 
-    protected int secondsBetweenRuns = 20;
+    protected final int secondsBetweenRuns = 5 * 60; // five minutes
     protected int maxQueueLength = 100;
     protected BlockingDeque<String> messageQ = new LinkedBlockingDeque<>(maxQueueLength);
 
@@ -224,55 +232,31 @@ public class RTDemoService extends Service {
                 // there are new settings in the preferences.
                 // Get them and give them to MongoWrapper
                 updateMongoWrapperFromPrefs();
-            } else if (msg.arg2 == Constants.SRQ.SET_CAR) {
-                updateCARFromPrefs();
-            } else if (msg.arg2 == Constants.SRQ.SET_ISF) {
+            } else if (msg.arg2 == Constants.SRQ.PERSONAL_PREFERENCE_CHANGE) {
+                updateFromPersonalPrefs();
+            } else if (msg.arg2 == Constants.SRQ.START_AUTO_MODE) {
+                // MonitorActivity start button runs this.
+                serviceRepeat();
+            } else if (msg.arg2 == Constants.SRQ.STOP_AUTO_MODE) {
+                // MonitorActivity stop button runs this.
+                stopServiceRepeatTimer();
+            } else if (msg.arg2 == Constants.SRQ.DO_SUSPEND_MINUTES) {
+                // MonitorActivity Suspend button runs this.
+                // Get saved suspend duration from preferences.
+                // (Most likely, it was just saved by SuspendAPSActivity)
+                SharedPreferences settings = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
+                int minutes = settings.getInt(Constants.PrefName.SuspendMinutesPrefName, 0);
+                if (minutes <= 0) {
+                    Log.e(TAG,String.format("Cannot suspend for %d minutes.",minutes));
+                } else {
+                    suspendServiceRepeatTimer(minutes);
+                }
+
             } else if (msg.arg2 == Constants.SRQ.VERIFY_DB_ACCESS) {
                 // code removed.  todo: remove VERIFY_DB_ACCESS enum, too.
+                // This should be sent from the timer, so that it happens in the right thread/right queue
             } else if (msg.arg2 == Constants.SRQ.APSLOGIC_STARTUP) {
-                // APSLOGIC_STARTUP requests the APSLogic module to do the
-                // initial data collection, which can take a long time (MongoDB access, pump access)
-                // get latest BG reading from Mongo
-
-                boolean testing = false;
-                if (testing) {
-                    broadcastAPSLogicStatusMessage("Preparing Pump (temporary measure)");
-                    // Dunno why yet, but this seems to make the pump happy.
-                    // Takes more time, but eases debugging.
-                    checkPumpCommunications();
-                    getPumpManager().getPumpSettings();
-                }
-
-                broadcastAPSLogicStatusMessage("Accessing MongoDB for latest BG reading");
-
-                MongoWrapper.BGReadingResponse bgResponse = mMongoWrapper.getBGReading();
-                BGReading reading = bgResponse.reading;
-                if (bgResponse.error) {
-                    broadcastAPSLogicStatusMessage("Error reading BG from mongo:" + bgResponse.errorMessage);
-                    Log.e(TAG,
-                    String.format("Error reading BG from Mongo: %s, and BG reading reports %.2f at %s",
-                            bgResponse.errorMessage,
-                            reading.mBg,reading.mTimestamp.toLocalDateTime().toString()));
-                }
-                // Are the contents of BGReading reading "ok to use", even with an error?
-                // how else to handle?
-
-                // TODO: Need to make RTDemoService regularly hit the mongodb (every 5 min)
-                // For now, the testdb button gets a reading.
-                // broadcast the reading to the world. (esp. to MonitorActivity)
-                Intent intent = new Intent(Intents.ROUNDTRIP_BG_READING);
-                intent.putExtra("name", Constants.ParcelName.BGReadingParcelName);
-                intent.putExtra(Constants.ParcelName.BGReadingParcelName, new BGReadingParcel(reading));
-                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-                Log.i(TAG, "Sending latest BG reading");
-                broadcastAPSLogicStatusMessage(String.format("Latest BG reading reports %.2f at %s",
-                        reading.mBg,reading.mTimestamp.toLocalDateTime().toString()));
-
-                mAPSLogic.updateCachedLatestBGReading(reading);
-
-                // the above should be (re)moved.
-                mAPSLogic.testModule();
-
+                serviceMain();
             } else {
                 // just wait half second
                 long endTime = System.currentTimeMillis() + 500;
@@ -323,9 +307,9 @@ public class RTDemoService extends Service {
         }
         b = mPumpManager.getProfile(BasalProfileTypeEnum.A);
         if (b.getEntries().isEmpty()) {
-            Log.e(TAG,"testGetProfile: A profile is empty");
+            Log.e(TAG, "testGetProfile: A profile is empty");
         } else {
-            Log.e(TAG,"testGetProfile: A profile:");
+            Log.e(TAG, "testGetProfile: A profile:");
             for (i=0; i<b.getEntries().size(); i++) {
                 BasalProfileEntry entry = b.getEntries().get(i);
                 Log.d(TAG,String.format("rate: %.2f, start: %02d:%02d",
@@ -334,9 +318,9 @@ public class RTDemoService extends Service {
         }
         b = mPumpManager.getProfile(BasalProfileTypeEnum.B);
         if (b.getEntries().isEmpty()) {
-            Log.e(TAG,"testGetProfile: B profile is empty");
+            Log.e(TAG, "testGetProfile: B profile is empty");
         } else {
-            Log.e(TAG,"testGetProfile: B profile:");
+            Log.e(TAG, "testGetProfile: B profile:");
             for (i=0; i<b.getEntries().size(); i++) {
                 BasalProfileEntry entry = b.getEntries().get(i);
                 Log.d(TAG,String.format("rate: %.2f, start: %02d:%02d",
@@ -380,7 +364,7 @@ public class RTDemoService extends Service {
     // This function exists to keep Android stuff out of APSLogic
     public void broadcastAPSLogicStatusMessage(String message) {
         Intent intent = new Intent(Intents.APSLOGIC_LOG_MESSAGE);
-        intent.putExtra("message",message);
+        intent.putExtra("message", message);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
@@ -445,23 +429,16 @@ public class RTDemoService extends Service {
     // Note this is called from our local (background) message handler,
     // and also from APSLogic whenever it wants to update its own value.
     // This is intended to keep Android stuff out of APSLogic
-    public void updateCARFromPrefs() {
+    public void updateFromPersonalPrefs() {
         // get CAR value from prefs
         SharedPreferences settings = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
         double car = (double)settings.getFloat(Constants.PrefName.CARPrefName, (float) 30.0);
         // Notify APSLogic of new value
         mAPSLogic.setCAR(car);
-    }
-
-    // Note this is called from our local (background) message handler,
-    // and also from APSLogic whenever it wants to update its own value.
-    // This is intended to keep Android stuff out of APSLogic
-    public void updateISFFromPrefs() {
-        // get ISF value from prefs
-        SharedPreferences settings = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
-        double isf = (double)settings.getFloat(Constants.PrefName.ISFPrefName, (float) 30.0);
-        // Notify APSLogic of new value
-        mAPSLogic.setISF(isf);
+        mAPSLogic.setMaxTempBasalRate((double)settings.getFloat(Constants.PrefName.PPMaxTempBasalRatePrefName,(float)6.1));
+        mAPSLogic.setBGMin((double)settings.getFloat(Constants.PrefName.PPBGMinPrefName, (float) 95.0));
+        mAPSLogic.setTargetBG((double)settings.getFloat(Constants.PrefName.PPTargetBGPrefName, (float) 115.0));
+        mAPSLogic.setBGMax((double)settings.getFloat(Constants.PrefName.PPBGMaxPrefName, (float) 125.0));
     }
 
     // These functions are called by APSLogic.
@@ -511,6 +488,8 @@ public class RTDemoService extends Service {
         // Get the HandlerThread's Looper and use it for our Handler
         mServiceLooper = thread.getLooper();
         mServiceHandler = new ServiceHandler(mServiceLooper);
+        mTimerHandler = new Handler(); // does this need to be kept separate from mServiceHandler?
+
 
         mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
@@ -596,20 +575,73 @@ public class RTDemoService extends Service {
     }
 
     protected void serviceMain() {
+        // APSLOGIC_STARTUP requests the APSLogic module to do the
+        // initial data collection, which can take a long time (MongoDB access, pump access)
+        // get latest BG reading from Mongo
+
+        broadcastAPSLogicStatusMessage("Accessing MongoDB for latest BG reading");
+        MongoWrapper.BGReadingResponse bgResponse = mMongoWrapper.getBGReading();
+        BGReading reading = bgResponse.reading;
+        if (bgResponse.error) {
+            broadcastAPSLogicStatusMessage("Error reading BG from mongo:" + bgResponse.errorMessage);
+            Log.e(TAG,
+                    String.format("Error reading BG from Mongo: %s, and BG reading reports %.2f at %s",
+                            bgResponse.errorMessage,
+                            reading.mBg,reading.mTimestamp.toLocalDateTime().toString()));
+        }
+        // Are the contents of BGReading reading "ok to use", even with an error?
+        // how else to handle?
+
+        // TODO: Need to make RTDemoService regularly hit the mongodb (every 5 min)
+        // For now, the testdb button gets a reading.
+        // broadcast the reading to the world. (esp. to MonitorActivity)
+        Intent intent = new Intent(Intents.ROUNDTRIP_BG_READING);
+        intent.putExtra("name", Constants.ParcelName.BGReadingParcelName);
+        intent.putExtra(Constants.ParcelName.BGReadingParcelName, new BGReadingParcel(reading));
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+        Log.i(TAG, "Sending latest BG reading");
+        broadcastAPSLogicStatusMessage(String.format("Latest BG reading reports %.2f at %s",
+                reading.mBg,reading.mTimestamp.toLocalDateTime().toString()));
+
+        mAPSLogic.updateCachedLatestBGReading(reading);
+
+        // the above should be (re)moved.
+        mAPSLogic.runAPSLogicOnce();
     }
 
     protected void serviceRepeat() {
-        serviceMain();
-        setNextRunTimer(secondsBetweenRuns * 1000);
+        // have ourselves call us back in 5 minutes,
+        startServiceRepeatTimer();
+        // and post an intent to run it now. (So that it is run from the correct handler).
+        Intent intent = new Intent(this,RTDemoService.class);
+        intent.putExtra("what", Constants.SRQ.APSLOGIC_STARTUP);
+        startService(intent);
     }
 
-    protected void setNextRunTimer(int nMilliseconds) {
-        Calendar calendar = Calendar.getInstance();
-        AlarmManager alarm = (AlarmManager)getSystemService(ALARM_SERVICE);
-        alarm.set(alarm.RTC_WAKEUP, calendar.getTimeInMillis() + nMilliseconds,
-                PendingIntent.getService(this, 0, new Intent(this, RTDemoService.class),
-                        PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT));
+    protected void startServiceRepeatTimer() {
+        // call serviceMain, 5 minutes from now.
+        // often, but not always, mTimerRunnable==this
+        mTimerHandler.postDelayed(mTimerRunnable, secondsBetweenRuns * 1000);
+    }
 
+    protected void stopServiceRepeatTimer() {
+        // kill any running timer.
+        mTimerHandler.removeCallbacksAndMessages(null);
+    }
+
+    protected void suspendServiceRepeatTimer(int delayMinutes) {
+        // kill running timer.
+        stopServiceRepeatTimer();
+        int delayMilliseconds = delayMinutes * 60 * 1000;
+        // call serviceRepeat after the given delay
+        mTimerHandler.postDelayed(mTimerRunnable,delayMilliseconds);
+    }
+
+    private class TimerRunnable implements Runnable {
+        @Override
+        public void run() {
+            serviceRepeat();
+        }
     }
 
     private void showNotification(){

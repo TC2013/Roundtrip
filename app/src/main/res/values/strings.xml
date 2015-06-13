@@ -16,5 +16,6 @@
     <string name="title_activity_rtdemo_settings">RTDemoSettingsActivity</string>
     <string name="title_activity_personal_profile">PersonalProfileActivity</string>
     <string name="title_activity_utility">UtilityActivity</string>
+    <string name="title_activity_suspend_aps">SuspendAPSActivity</string>
 
 </resources>

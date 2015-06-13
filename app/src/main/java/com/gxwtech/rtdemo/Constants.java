@@ -31,13 +31,20 @@ public interface Constants {
         public static int SET_TEMP_BASAL = 308;
         // APSLOGIC_STARTUP requests the APSLogic module to do the
         // initial data collection, which can take a long time (MongoDB access, pump access)
+        // and to run the MakeADecision loop once.
         public static int APSLOGIC_STARTUP = 309;
         // MongoDBSettingsActivity fires this off to announce new settings for the DB URI
         public static int MONGO_SETTINGS_CHANGED = 310;
         // PersonalProfileActivity fires this off when the ISF number has been set.
-        public static int SET_ISF = 311;
+        // public static int SET_ISF = 311;
         // PersonalProfileActivity fires this off when the CAR number has been set.
-        public static int SET_CAR = 312;
+        public static int PERSONAL_PREFERENCE_CHANGE = 312;
+        // SuspendAPSActivity sends this when user has requested a suspend
+        public static int DO_SUSPEND_MINUTES = 313;
+        // MonitorActivity start button runs this.
+        public static int START_AUTO_MODE = 314;
+        // MonitorActivity stop button runs this.
+        public static int STOP_AUTO_MODE = 315;
     }
 
     public class ParcelName {
@@ -52,14 +59,18 @@ public interface Constants {
     public class PrefName {
         // Name of an entry in a SharedPreference collection
         public static String SerialNumberPrefName = "PumpSerialNumber";
-        public static String ISFPrefName = "InsulinSensitivityFactor";
         public static String CARPrefName = "CarbAbsorptionRatio";
+        public static String PPTargetBGPrefName = "TargetBG";
+        public static String PPBGMaxPrefName = "TargetBGMax";
+        public static String PPBGMinPrefName = "TargetBGMin";
+        public static String PPMaxTempBasalRatePrefName = "MaxTempBasalRate";
         public static String MongoDBServerPrefName = "MongoDBServerAddress";
         public static String MongoDBServerPortPrefName = "MongoDBServerPort";
         public static String MongoDBDatabasePrefName = "MongoDBDatabase";
         public static String MongoDBUsernamePrefName = "MongoDBUsername";
         public static String MongoDBPasswordPrefName = "MongoDBPassword";
         public static String MongoDBCollectionPrefName = "MongoDBCollection";
+        public static String SuspendMinutesPrefName = "SuspendAPSMinutes";
     }
 
 }

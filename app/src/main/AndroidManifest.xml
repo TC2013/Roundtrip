@@ -97,6 +97,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.gxwtech.rtdemo.RTDemoSettingsActivity" />
         </activity>
+        <activity
+            android:name=".SuspendAPSActivity"
+            android:label="@string/title_activity_suspend_aps"
+            android:parentActivityName=".MonitorActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.gxwtech.rtdemo.MonitorActivity" />
+        </activity>
     </application>
 
 </manifest>
