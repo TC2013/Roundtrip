@@ -23,6 +23,10 @@ public class SignalStrengthCommand extends CarelinkCommand {
         // Note: only the one byte is sent back
         // byte[3], meaning the total packet is 4 bytes
         byte[] response = getRawResponse();
-        mSignalStrength = response[3];
+        if (response != null) {
+            if (response.length > 3) {
+                mSignalStrength = response[3];
+            }
+        }
     }
 }

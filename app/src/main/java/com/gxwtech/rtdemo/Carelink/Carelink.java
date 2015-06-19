@@ -17,6 +17,7 @@ import com.gxwtech.rtdemo.USB.UsbException;
  * implementations.
  */
 public class Carelink {
+    private static final String TAG="Carelink";
     private CareLinkUsb mStick;
     public Context mContext;
 
@@ -29,14 +30,21 @@ public class Carelink {
         if (mStick != null) {
             mStick.close();
             mStick.open(mContext);
+        } else {
+            Log.e(TAG,"reset(): mStick is null");
         }
+
     }
 
     protected byte[] doCommand(byte[] command,int delayMillis, int readSize) throws UsbException {
         // can save raw transmit/receive here
         Log.i("doCommand", "WRITING COMMAND TO CARELINK\n" + HexDump.dumpHexString(command));
         byte[] result = mStick.sendCommand(command,delayMillis, readSize);
-        Log.i("doCommand","READING CARELINK RESPONSE TO COMMAND:\n" + HexDump.dumpHexString(result));
+        if (result != null) {
+            Log.i("doCommand", "READING CARELINK RESPONSE TO COMMAND:\n" + HexDump.dumpHexString(result));
+        } else {
+            Log.e("doCommand", "Null result from mStick.sendCommand");
+        }
         return result;
     }
 

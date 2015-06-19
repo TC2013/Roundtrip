@@ -96,7 +96,7 @@ public class RTDemoService extends IntentService {
     APSLogic mAPSLogic;
     MongoWrapper mMongoWrapper;
 
-    protected static RTDemoService mInstance = null;
+    //protected static RTDemoService mInstance = null;
     NotificationManager mNM;
 
     private int NOTIFICATION = R.string.local_service_started;
@@ -129,20 +129,21 @@ public class RTDemoService extends IntentService {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (ACTION_USB_PERMISSION.equals(action)) {
+                Log.w(TAG,"RTDemoService: ACTION_USB_PERMISSION");
                 synchronized (this) {
                     UsbDevice device = (UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
                         if(device != null){
                             //call method to set up device communication
                             Log.i("GGW", "Received Permission for device! (Carelink) (rebuild PumpManager?)");
-                            /*
-                            mPumpManager = new PumpManager();
+
+                            mPumpManager = new PumpManager(getApplicationContext());
                             // needs application context to access USB manager
                             if (!mPumpManager.open()) {
                                 Log.e(TAG,"Failed to open mPumpManager");
                                 llog("Error opening Pump Manager");
                             }
-                            */
+
                         }
                     }
                     else {
@@ -150,6 +151,7 @@ public class RTDemoService extends IntentService {
                     }
                 }
             } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
+                Log.w(TAG,"RTDemoService: ACTION_USB_DEVICE_DETACHED");
                 UsbDevice device = (UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                 if (device != null) {
                     // call your method that cleans up and closes communication with the device
@@ -167,6 +169,7 @@ public class RTDemoService extends IntentService {
                     }
                 }
             } else if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
+                Log.w(TAG,"RTDemoService: ACTION_USB_DEVICE_ATTACHED");
                 UsbDevice device = (UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                 if (deviceIsCarelink(device)) {
                     if (!getUsbManager().hasPermission(device)) {
@@ -175,14 +178,14 @@ public class RTDemoService extends IntentService {
                         llog("Carelink device attached, permission NOT GRANTED. (rebuild pumpManager?)");
                     }
                     // TODO: need to re-attach cleanly.
-                    /*
-                    mPumpManager = new PumpManager();
+
+                    mPumpManager = new PumpManager(getApplicationContext());
                     // needs application context to access USB manager
                     if (!mPumpManager.open()) {
                         Log.e(TAG,"Failed to open mPumpManager");
                         llog("Error opening Pump Manager");
                     }
-                    */
+
                 } else {
                     //llog("Other USB device attached:" + device.toString());
                 }
@@ -218,6 +221,7 @@ public class RTDemoService extends IntentService {
                 // since it blocks, we can't do it in Create()
 
             } else if (srq.equals(Constants.SRQ.VERIFY_PUMP_COMMUNICATIONS)) {
+                getCarelinkPermission();
                 checkPumpCommunications();
                 /*
             } else if (srq.equals(Constants.SRQ.SET_SERIAL_NUMBER)) {
@@ -470,9 +474,6 @@ public class RTDemoService extends IntentService {
     @Override
     public void onCreate() {
         super.onCreate();
-        if (mInstance == null) {
-            mInstance = this;
-        }
 
         /* This function runs in the main thread (UI thread) */
         /* Here is where we do some initialization, but no work */
@@ -542,7 +543,7 @@ public class RTDemoService extends IntentService {
         } else {
             Log.e(TAG,"Received null intent?");
         }
-        return(START_REDELIVER_INTENT);
+        return(START_REDELIVER_INTENT|START_STICKY);
     }
 
     protected void serviceMain() {
@@ -621,8 +622,10 @@ public class RTDemoService extends IntentService {
 
     @Override
     public void onDestroy() {
+        Log.e(TAG,"onDestroy()");
         /* This function runs in the Foreground */
         /* release resources */
+        mPumpManager.close();
         mNM.cancel(NOTIFICATION);
         unregisterReceiver(mUsbReceiver);
         super.onDestroy();
@@ -664,23 +667,19 @@ public class RTDemoService extends IntentService {
             loopcount ++;
         }
         // receiver no longer needed?
-        unregisterReceiver(mUsbReceiver);
+        //unregisterReceiver(mUsbReceiver);
         return true;
     }
 
-    static UsbManager mUsbManager; // use getUsbManager() to get access
     UsbManager getUsbManager() {
-        if (mUsbManager != null) {
-            return mUsbManager;
-        }
-        mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
-        return mUsbManager;
+        return (UsbManager) getSystemService(Context.USB_SERVICE);
     }
 
-    static UsbDevice mCarelinkDevice; // use getCarelinkDevice to get access
+    UsbDevice mCarelinkDevice; // use getCarelinkDevice to get access
     UsbDevice getCarelinkDevice() {
         // if we already have one, return it
         if (mCarelinkDevice != null) {
+            Log.e(TAG,"Re-using existing carelink device");
             return mCarelinkDevice;
         }
 
@@ -692,13 +691,18 @@ public class RTDemoService extends IntentService {
         while(deviceIterator.hasNext()){
             device = deviceIterator.next();
             if (deviceIsCarelink(device)) {
+
                 break;
             } else {
                 device = null;
             }
         }
-
         mCarelinkDevice = device;
+        if (mCarelinkDevice == null) {
+            Log.e(TAG,"Failed to find suitable carelink device");
+        } else {
+            Log.e(TAG,"Found new carelink device");
+        }
         return mCarelinkDevice; // NOTE: may still be null, if we couldn't find it!
     }
 

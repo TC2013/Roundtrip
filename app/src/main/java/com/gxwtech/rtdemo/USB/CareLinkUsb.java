@@ -36,9 +36,11 @@ public class CareLinkUsb {
 
 
     public CareLinkUsb() {
+        Log.e(TAG,"CarelinkUSB constructor");
     }
 
     public void open(Context context) throws UsbException {
+        Log.e(TAG,"CarelinkUSB open()");
         mUsbManager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
         HashMap<String, UsbDevice> deviceList = mUsbManager.getDeviceList();
         Log.d(TAG, "Enumerating connected devices...");
@@ -77,11 +79,14 @@ public class CareLinkUsb {
     }
 
     public void close() throws UsbException {
+        Log.e(TAG,"CarelinkUSB close()");
         if (mUsbDeviceConnection == null) {
             throw new UsbException("no connection available");
         }
         mUsbDeviceConnection.releaseInterface(mInterface);
+        mInterface = null;
         mUsbDeviceConnection.close();
+        mUsbDeviceConnection = null;
     }
 
     public void drainQueue() throws UsbException {
@@ -204,6 +209,11 @@ public class CareLinkUsb {
 //        }
 //        return null;
         UsbRequest request = write(command);
+        if ((boolean)request.getClientData() == false) {
+            Log.e(TAG, "Error writing USB data");
+            request.close();
+            return null;
+        }
         if (delayMillis > 0) {
             try {
                 Log.i("CareLinkUsb",String.format("Sleeping %d milliseconds.",delayMillis));
@@ -212,8 +222,12 @@ public class CareLinkUsb {
                 Log.i("?", "Sleep Interrupted: " + e.getMessage());
             }
         }
-        return read(request,readSize);
-
+        byte[] rval = read(request,readSize);
+        if ((boolean)request.getClientData() == false) {
+            Log.e(TAG, "Error reading USB data");
+        }
+        request.close();
+        return rval;
     }
 
     public byte[] sendCommand(byte[] command) throws UsbException {

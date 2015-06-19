@@ -63,15 +63,18 @@ public class PumpManager {
         SharedPreferences settings = mContext.getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
         // get strings from prefs
         String lastPower = settings.getString(Constants.PrefName.LastPowerControlRunTime, "never");
+        if (lastPower==null) {
+            lastPower = "never";
+        }
         if ("never".equals(lastPower)) {
             return new DateTime(0);
         }
         return ISODateTimeFormat.dateTime().parseDateTime(lastPower);
     }
 
-    protected void setLastPowerControlRunTime(DateTime when) {
+    protected void setLastPowerControlRunTime(DateTime when_iso) {
         mContext.getSharedPreferences(Constants.PreferenceID.MainActivityPrefName,0).
-                edit().putString(Constants.PrefName.LastPowerControlRunTime,ISODateTimeFormat.dateTime().print(when));
+                edit().putString(Constants.PrefName.LastPowerControlRunTime, ISODateTimeFormat.dateTime().print(when_iso));
     }
 
     public boolean setSerialNumber(byte[] serialNumber) {
@@ -98,6 +101,7 @@ public class PumpManager {
             stick.open(mContext);
             mCarelink = new Carelink(mContext,stick);
         } catch (UsbException e) {
+            Log.e(TAG,"Error on USB open: " + e.toString());
             openedOK = false;
         }
         return openedOK;
@@ -105,6 +109,11 @@ public class PumpManager {
 
     // Called AFTER USB device has been removed.
     public void close() {
+        try {
+            stick.close();
+        } catch (UsbException e) {
+            Log.e(TAG,"Error on USB close: " + e.toString());
+        }
     }
 
     public boolean wakeUpCarelink() {
