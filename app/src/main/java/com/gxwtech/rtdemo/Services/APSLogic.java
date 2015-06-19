@@ -246,6 +246,7 @@ public class APSLogic {
         log("Getting RTC clock data from pump");
         DateTime rtcDateTime = getRTCTimestampFromPump();
         log("Pump RTC: " + rtcDateTime.toDateTimeISO().toString());
+        log("Pump RTC in local time: " + rtcDateTime.toLocalDateTime().toString());
         Instant now = new Instant(); // cache local system time
         log("Local System Time is " + now.toDateTime().toLocalDateTime().toString());
         Minutes pumpTimeOffsetMinutes = Minutes.minutesBetween(now,rtcDateTime);
