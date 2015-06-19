@@ -69,8 +69,14 @@ public class MedtronicCommand {
         return rval;
     }
 
-    private static void sleep(int millis) {
-        RTDemoService.sleep(millis);
+    // TODO: figure out how to get notification up to the gui that we're sleeping.
+    private void sleep(int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            Log.e(TAG, "Sleep interrupted: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     // subclasses should override parse() and get data from mMResponse

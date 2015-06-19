@@ -87,7 +87,7 @@ public class SuspendAPSActivity extends ActionBarActivity {
         // tell the background service to suspend
         Intent intent = new Intent(this,RTDemoService.class);
         // background service will pull the delay amount from the saved preferences.
-        intent.putExtra("what",Constants.SRQ.DO_SUSPEND_MINUTES);
+        intent.putExtra("srq",Constants.SRQ.DO_SUSPEND_MINUTES);
         startService(intent);
         finish();
     }

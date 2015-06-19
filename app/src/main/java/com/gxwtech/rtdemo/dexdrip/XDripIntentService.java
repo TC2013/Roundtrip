@@ -1,9 +1,11 @@
 package com.gxwtech.rtdemo.dexdrip;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v4.content.WakefulBroadcastReceiver;
 
 import com.gxwtech.rtdemo.BGReading;
+import com.gxwtech.rtdemo.Constants;
 import com.gxwtech.rtdemo.Services.RTDemoService;
 
 import org.joda.time.DateTime;
@@ -16,7 +18,7 @@ import java.util.Date;
  * @see XDripDataReceiver
  *
  * Cribbed from Stephen Black's Nightwatch project
- * GGW: unfortunately, our BG classes are different, so I've munged this to use Roundtrip's simplified BG.
+ * GGW: unfortunately, our BG (blood glucose) classes are different, so I've munged this to use Roundtrip's simplified BG.
   */
 public class XDripIntentService extends android.app.IntentService {
     public static final String ACTION_NEW_DATA = "com.dexdrip.stephenblack.nightwatch.action.NEW_DATA";
@@ -35,16 +37,15 @@ public class XDripIntentService extends android.app.IntentService {
 
         try {
             if (ACTION_NEW_DATA.equals(action)) {
-                BGReading bg = new BGReading();
                 Long ts = intent.getLongExtra(XDripIntents.EXTRA_TIMESTAMP, new Date().getTime());
-                // FIXME: how to handle time zones with joda DateTime?
-                DateTime dt = new DateTime(ts);
+                double bg = intent.getDoubleExtra(XDripIntents.EXTRA_BG_ESTIMATE, 0);
 
-                bg.mTimestamp = dt;
-                bg.mBg = intent.getDoubleExtra(XDripIntents.EXTRA_BG_ESTIMATE, 0);
-
-                // TODO: Broadcast the new BG reading locally (ie.e. this app only)
-                RTDemoService.getInstance().receiveXDripBGEstimate(bg);
+                // cram it in the preferences, with everything else.
+                SharedPreferences settings = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
+                SharedPreferences.Editor edit = settings.edit();
+                edit.putLong(Constants.PrefName.LatestBGTimestamp,ts);
+                edit.putFloat(Constants.PrefName.LatestBGReading,(float)bg);
+                edit.commit();
             }
         } finally {
             WakefulBroadcastReceiver.completeWakefulIntent(intent);

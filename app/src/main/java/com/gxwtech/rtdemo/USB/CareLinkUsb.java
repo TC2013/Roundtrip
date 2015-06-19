@@ -10,6 +10,7 @@ import android.hardware.usb.UsbRequest;
 import android.util.Log;
 
 import com.gxwtech.rtdemo.HexDump;
+import com.gxwtech.rtdemo.Services.RTDemoService;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -27,19 +28,18 @@ public class CareLinkUsb {
     private static final String TAG = "CareLinkUsb";
 
     // need context to get at usb manager
-    private Context mContext;
     private UsbManager mUsbManager;
     private UsbDevice mUsbDevice;
     private UsbDeviceConnection mUsbDeviceConnection;
     private UsbInterface mInterface;
     private UsbEndpoint epIN, epOUT;
 
-    public CareLinkUsb(Context context) {
-        mContext = context;
+
+    public CareLinkUsb() {
     }
 
-    public void open() throws UsbException {
-        mUsbManager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
+    public void open(Context context) throws UsbException {
+        mUsbManager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
         HashMap<String, UsbDevice> deviceList = mUsbManager.getDeviceList();
         Log.d(TAG, "Enumerating connected devices...");
         // Getting the CareLink UsbDevice object

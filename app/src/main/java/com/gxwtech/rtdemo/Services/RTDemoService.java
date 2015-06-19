@@ -1,6 +1,7 @@
 package com.gxwtech.rtdemo.Services;
 
 import android.app.AlarmManager;
+import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -19,7 +20,9 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Parcelable;
+import android.os.PowerManager;
 import android.os.Process;
+import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -29,6 +32,7 @@ import com.gxwtech.rtdemo.BGReading;
 import com.gxwtech.rtdemo.BGReadingParcel;
 import com.gxwtech.rtdemo.Carelink.util.ByteUtil;
 import com.gxwtech.rtdemo.Constants;
+import com.gxwtech.rtdemo.HexDump;
 import com.gxwtech.rtdemo.Intents;
 import com.gxwtech.rtdemo.MainActivity;
 import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfile;
@@ -79,8 +83,13 @@ import java.util.concurrent.LinkedBlockingDeque;
  */
 
 
-public class RTDemoService extends Service {
+public class RTDemoService extends IntentService {
     private static final String TAG = "RTDemoService";
+    private static final String WAKELOCKNAME = "com.gxwtech.RTDemo.RTDemoServiceWakeLock";
+    private static volatile PowerManager.WakeLock lockStatic = null;
+    PendingIntent mRepeatingAlarmPendingIntent;
+    public static final String REQUEST_STRING_EXTRANAME = "com.gxwtech.wltest2.requeststring";
+
 
     // GGW: I think APSLogic should be its own service, but for now, it's a member of RTDemoService.
     // It has significant connections with PumpManager which will have to be ironed out.
@@ -89,21 +98,12 @@ public class RTDemoService extends Service {
 
     protected static RTDemoService mInstance = null;
     NotificationManager mNM;
-    Looper mServiceLooper;
-    ServiceHandler mServiceHandler = null;
-
-    // for giving us a signal to run the APS Logic every 5 minutes
-    // Does this need to be separate from mServiceHandler?
-    // feels clumsy.  The mTimerRunnable will post an intent to start
-    // the next run of APSLogic, and will reset itself to run again.
-    Handler mTimerHandler;
-    TimerRunnable mTimerRunnable = new TimerRunnable();
 
     private int NOTIFICATION = R.string.local_service_started;
 
     protected final int secondsBetweenRuns = 5 * 60; // five minutes
     protected int maxQueueLength = 100;
-    protected BlockingDeque<String> messageQ = new LinkedBlockingDeque<>(maxQueueLength);
+    protected ArrayList<String> msgQ = new ArrayList<>();
 
     // Intent for use in asking permission to use Carelink stick
     private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
@@ -111,9 +111,11 @@ public class RTDemoService extends Service {
 
     PumpManager mPumpManager;
 
-    public static RTDemoService getInstance() {
-        return mInstance;
+    public RTDemoService() {
+        super(TAG);
+        setIntentRedelivery(true);
     }
+
     public PumpManager getPumpManager() { return mPumpManager; }
 
     boolean deviceIsCarelink(UsbDevice device) {
@@ -122,6 +124,7 @@ public class RTDemoService extends Service {
         return ((device.getVendorId() == 2593) && (device.getProductId() == 32769));
     }
 
+    // When the system broadcasts USB events, we'd like to know:
     private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
@@ -131,13 +134,15 @@ public class RTDemoService extends Service {
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
                         if(device != null){
                             //call method to set up device communication
-                            Log.i("GGW", "Received Permission for device! (Carelink)");
-                            mPumpManager = new PumpManager(getApplicationContext());
+                            Log.i("GGW", "Received Permission for device! (Carelink) (rebuild PumpManager?)");
+                            /*
+                            mPumpManager = new PumpManager();
                             // needs application context to access USB manager
                             if (!mPumpManager.open()) {
                                 Log.e(TAG,"Failed to open mPumpManager");
                                 llog("Error opening Pump Manager");
                             }
+                            */
                         }
                     }
                     else {
@@ -165,17 +170,19 @@ public class RTDemoService extends Service {
                 UsbDevice device = (UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                 if (deviceIsCarelink(device)) {
                     if (!getUsbManager().hasPermission(device)) {
-                        llog("Carelink device attached, permission OK.");
+                        llog("Carelink device attached, permission OK. (rebuild pumpManager?");
                     } else {
-                        llog("Carelink device attached, permission NOT GRANTED.");
+                        llog("Carelink device attached, permission NOT GRANTED. (rebuild pumpManager?)");
                     }
                     // TODO: need to re-attach cleanly.
-                    mPumpManager = new PumpManager(getApplicationContext());
+                    /*
+                    mPumpManager = new PumpManager();
                     // needs application context to access USB manager
                     if (!mPumpManager.open()) {
                         Log.e(TAG,"Failed to open mPumpManager");
                         llog("Error opening Pump Manager");
                     }
+                    */
                 } else {
                     //llog("Other USB device attached:" + device.toString());
                 }
@@ -183,64 +190,70 @@ public class RTDemoService extends Service {
         }
     };
 
-    /* Private class ServiceHandler that receives messages from the thread */
-    // TODO: This interface between GUI and should be rewritten!
-    private final class ServiceHandler extends Handler {
-        public ServiceHandler(Looper looper) {
-            super(looper);
-        }
 
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        try {
+            // Everything here is run on a single background thread, one request at a time:
+            String srq;
+            srq = intent.getStringExtra("srq");
+            if (srq == null) {
+                srq = "(null)";
+            }
+            Log.w(TAG,String.format("onHandleIntent: received request srq=%s",srq));
+
             /*
-            This is run in the background (service) thread.
-              It is handling messages passed to it by the foreground thread.
-             */
-            int startId = msg.arg1;
-            //llog("handleMessage: received msg, arg1="+startId);
-            Object someObject = msg.obj; // dunno what it is yet
+            if (srq == Constants.SRQ.SET_SERIAL_NUMBER) {
+                msg.obj = intent.getByteArrayExtra("serialNumber");
+                //Log.w(TAG,"gui thread wrote intent arg2=what=SRQ.SET_SERIAL_NUMBER, obj=serialNumber=" + ByteUtil.shortHexString((byte[])msg.obj));
+            } else if (msg.arg2 == Constants.SRQ.SET_TEMP_BASAL) {
+                msg.obj = intent.getParcelableExtra(Constants.ParcelName.TempBasalPairParcelName);
+            */
 
-            if (msg.arg2 == Constants.SRQ.START_SERVICE) {
+            if (srq.equals(Constants.SRQ.START_SERVICE)) {
 
                 // Set up permissions for carelink
                 getCarelinkPermission();
                 // this BLOCKS until we get permission!
                 // since it blocks, we can't do it in Create()
 
-            } else if (msg.arg2 == Constants.SRQ.VERIFY_PUMP_COMMUNICATIONS) {
+            } else if (srq.equals(Constants.SRQ.VERIFY_PUMP_COMMUNICATIONS)) {
                 checkPumpCommunications();
-            } else if (msg.arg2 == Constants.SRQ.SET_SERIAL_NUMBER) {
-                // ewww....
-                byte[] serialNumber = (byte[])msg.obj;
+                /*
+            } else if (srq.equals(Constants.SRQ.SET_SERIAL_NUMBER)) {
+                byte[] serialNumber = intent.getByteArrayExtra("serialNumber");
                 Log.w(TAG,"Service received set serial number, serialNumber=" + ByteUtil.shortHexString(serialNumber));
                 mPumpManager.setSerialNumber(serialNumber);
-            } else if (msg.arg2 == Constants.SRQ.REPORT_PUMP_SETTINGS) {
+                */
+            } else if (srq.equals(Constants.SRQ.REPORT_PUMP_SETTINGS)) {
                 PumpSettingsParcel parcel = new PumpSettingsParcel();
                 parcel.initFromPumpSettings(mPumpManager.getPumpSettings());
                 sendTaskResponseParcel(parcel, "PumpSettingsParcel");
-            } else if (msg.arg2 == Constants.SRQ.REPORT_PUMP_HISTORY) {
+            } else if (srq.equals(Constants.SRQ.REPORT_PUMP_HISTORY)) {
                 Log.d(TAG, "Received request for pump history");
                 HistoryReport report = mPumpManager.getPumpHistory();
 
-            } else if (msg.arg2 == Constants.SRQ.SET_TEMP_BASAL) {
-                TempBasalPairParcel pair = (TempBasalPairParcel) (msg.obj);
+            } else if (srq.equals(Constants.SRQ.SET_TEMP_BASAL)) {
+                TempBasalPairParcel pair = (TempBasalPairParcel)intent.getParcelableExtra(Constants.ParcelName.TempBasalPairParcelName);
                 Log.d(TAG, String.format("Request to Set Temp Basal(Rate %.2fU, duration %d minutes",
                         pair.mInsulinRate, pair.mDurationMinutes));
                 mPumpManager.setTempBasal(pair);
-            } else if (msg.arg2 == Constants.SRQ.MONGO_SETTINGS_CHANGED) {
+            } else if (srq.equals(Constants.SRQ.MONGO_SETTINGS_CHANGED)) {
                 // there are new settings in the preferences.
                 // Get them and give them to MongoWrapper
                 updateMongoWrapperFromPrefs();
-            } else if (msg.arg2 == Constants.SRQ.PERSONAL_PREFERENCE_CHANGE) {
-                updateFromPersonalPrefs();
-            } else if (msg.arg2 == Constants.SRQ.START_AUTO_MODE) {
+            } else if (srq.equals(Constants.SRQ.PERSONAL_PREFERENCE_CHANGE)) {
+                mAPSLogic.updateFromPersonalPrefs();
+            } else if (srq.equals(Constants.SRQ.START_REPEAT_ALARM)) {
                 // MonitorActivity start button runs this.
-                serviceRepeat();
-            } else if (msg.arg2 == Constants.SRQ.STOP_AUTO_MODE) {
+                Log.w(TAG, "onHandleIntent: starting repeating alarm");
+                startRepeatingAlarm(1000); // first run begins in 1 second
+            } else if (srq.equals(Constants.SRQ.STOP_REPEAT_ALARM)) {
                 // MonitorActivity stop button runs this.
-                stopServiceRepeatTimer();
-            } else if (msg.arg2 == Constants.SRQ.DO_SUSPEND_MINUTES) {
+                Log.w(TAG, "onHandleIntent: stopping repeating alarm");
+                stopRepeatingAlarm();
+            } else if (srq.equals(Constants.SRQ.DO_SUSPEND_MINUTES)) {
+                Log.w(TAG,"onHandleIntent: suspending repeating alarm");
                 // MonitorActivity Suspend button runs this.
                 // Get saved suspend duration from preferences.
                 // (Most likely, it was just saved by SuspendAPSActivity)
@@ -249,13 +262,13 @@ public class RTDemoService extends Service {
                 if (minutes <= 0) {
                     Log.e(TAG,String.format("Cannot suspend for %d minutes.",minutes));
                 } else {
-                    suspendServiceRepeatTimer(minutes);
+                    suspendRepeatingAlarm(minutes * 60 * 1000); // five minutes, should be.
                 }
 
-            } else if (msg.arg2 == Constants.SRQ.VERIFY_DB_ACCESS) {
+            } else if (srq.equals(Constants.SRQ.VERIFY_DB_ACCESS)) {
                 // code removed.  todo: remove VERIFY_DB_ACCESS enum, too.
                 // This should be sent from the timer, so that it happens in the right thread/right queue
-            } else if (msg.arg2 == Constants.SRQ.APSLOGIC_STARTUP) {
+            } else if (srq.equals(Constants.SRQ.APSLOGIC_STARTUP)) {
                 serviceMain();
             } else {
                 // just wait half second
@@ -271,7 +284,68 @@ public class RTDemoService extends Service {
                     }
                 }
             }
+
+
         }
+        finally {
+            // The lock was grabbed in onStartCommand
+            PowerManager.WakeLock lock=getLock(this.getApplicationContext());
+            if (lock.isHeld()) {
+                try {
+                    lock.release();
+                }
+                catch (Exception e) {
+                    Log.e(getClass().getSimpleName(),
+                            "Exception when releasing wakelock", e);
+                }
+            }
+        }
+
+    }
+    private AlarmManager getAlarmManager() {
+        return (AlarmManager)getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+    }
+
+    public PendingIntent getAlarmPendingIntent() {
+        if (mRepeatingAlarmPendingIntent == null) {
+            int privateRequestCode = -99;
+            Intent wakeupServiceIntent = new Intent(getApplicationContext(),RTDemoService.class).
+                    putExtra("srq",Constants.SRQ.APSLOGIC_STARTUP);
+            mRepeatingAlarmPendingIntent = PendingIntent.getService(getApplicationContext(),privateRequestCode,
+                    wakeupServiceIntent,0);
+        }
+        return mRepeatingAlarmPendingIntent;
+    }
+
+    public void startRepeatingAlarm(int delayToFirstRunMillis) {
+        int repeatingAlarmInterval = secondsBetweenRuns * 1000; // millis
+
+        getAlarmManager().setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime() + delayToFirstRunMillis,
+                repeatingAlarmInterval, getAlarmPendingIntent());
+    }
+
+    public void stopRepeatingAlarm() {
+
+
+        getAlarmManager().cancel(getAlarmPendingIntent());
+    }
+
+    public void suspendRepeatingAlarm(int suspendMillis) {
+        stopRepeatingAlarm();
+        startRepeatingAlarm(suspendMillis);
+    }
+
+    synchronized private static PowerManager.WakeLock getLock(Context context) {
+        if (lockStatic == null) {
+            PowerManager mgr=
+                    (PowerManager)context.getSystemService(Context.POWER_SERVICE);
+
+            lockStatic=mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCKNAME);
+            lockStatic.setReferenceCounted(true);
+        }
+
+        return(lockStatic);
     }
 
     private void checkPumpCommunications() {
@@ -332,15 +406,15 @@ public class RTDemoService extends Service {
 
     // TODO: UGLY can we please find a way to do this asynchronously? i.e. no sleep!
     // For now, make all sleeps use this sleep, so that we can notify the UI.
-    public static void sleep(int millis) {
+    public void sleep(int millis) {
         if (millis > 1000) {
             // If we sleep for more than 1 second, notify the UI
-            RTDemoService.getInstance().sendSleepNotification(DateTime.now(), millis / 1000);
+            sendSleepNotification(DateTime.now(), millis / 1000);
         }
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
-            Log.e(TAG,"Sleep interrupted: " + e.getMessage());
+            Log.e(TAG, "Sleep interrupted: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -350,21 +424,6 @@ public class RTDemoService extends Service {
         // send the log message to anyone who cares to listen (e.g. a UI component!)
         Intent intent = new Intent(Intents.ROUNDTRIP_SLEEP_MESSAGE)
                 .putExtra(Intents.ROUNDTRIP_SLEEP_MESSAGE_DURATION,durationSeconds);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    // receive an xDrip BGReading and send it to the APSLogic module.
-    // (this exists to make RTDemoService the public interface to the rest of the world,
-    // keeping APSLogic in internal module)
-    public void receiveXDripBGEstimate(BGReading bgr) {
-        mAPSLogic.receiveXDripBGReading(bgr);
-    }
-
-    // This function is used by APSLogic to send a message to the MonitorActivity log window
-    // This function exists to keep Android stuff out of APSLogic
-    public void broadcastAPSLogicStatusMessage(String message) {
-        Intent intent = new Intent(Intents.APSLOGIC_LOG_MESSAGE);
-        intent.putExtra("message", message);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
@@ -383,32 +442,14 @@ public class RTDemoService extends Service {
         // send the message to the Android logging service
         Log.i(TAG + "-LOG",msg);
 
-        // record the message in our own list of recent log messages
-        if (messageQ.size() > maxQueueLength) {
-            messageQ.removeFirst();
-        }
-        messageQ.add(msg);
+        msgQ.add(msg);
 
         // send the log message to anyone who cares to listen (e.g. a UI component!)
         Intent intent = new Intent(Intents.ROUNDTRIP_STATUS_MESSAGE)
-                .putExtra(Intents.ROUNDTRIP_STATUS_MESSAGE_STRING, msg);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
+                .putExtra(Intents.ROUNDTRIP_STATUS_MESSAGE_STRING, msg)
+                .putExtra("messages",msgQ);
 
-    // function to retrieve a list of recent messages
-    // do we need to make this threadsafe?
-    public List<String> getRecentMessages(int howmany) {
-        List<String> rval = new ArrayList<String>();
-        if ((howmany < 1)||(howmany > messageQ.size())) {
-            howmany = messageQ.size();
-        }
-        Iterator<String> i = messageQ.descendingIterator();
-        while(i.hasNext() && (howmany > 0)) {
-            howmany--;
-            // 'new' here is probably not necessary (?)
-            rval.add(0,new String(i.next()));
-        }
-        return rval;
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     // this is done here, because I'm trying to keep the MongoWrapper from getting too much android stuff in it.
@@ -426,48 +467,9 @@ public class RTDemoService extends Service {
         mMongoWrapper.updateURI(server, serverPort, dbname, mongoUsername, mongoPassword, mongoCollection);
     }
 
-    // Note this is called from our local (background) message handler,
-    // and also from APSLogic whenever it wants to update its own value.
-    // This is intended to keep Android stuff out of APSLogic
-    public void updateFromPersonalPrefs() {
-        // get CAR value from prefs
-        SharedPreferences settings = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
-        double car = (double)settings.getFloat(Constants.PrefName.CARPrefName, (float) 30.0);
-        // Notify APSLogic of new value
-        mAPSLogic.setCAR(car);
-        mAPSLogic.setMaxTempBasalRate((double)settings.getFloat(Constants.PrefName.PPMaxTempBasalRatePrefName,(float)6.1));
-        mAPSLogic.setBGMin((double)settings.getFloat(Constants.PrefName.PPBGMinPrefName, (float) 95.0));
-        mAPSLogic.setTargetBG((double)settings.getFloat(Constants.PrefName.PPTargetBGPrefName, (float) 115.0));
-        mAPSLogic.setBGMax((double)settings.getFloat(Constants.PrefName.PPBGMaxPrefName, (float) 125.0));
-    }
-
-    // These functions are called by APSLogic.
-    // This allows us to separate Android from APSLogic
-    public void sendTempBasalToUI(TempBasalPair pair) {
-        Intent intent = new Intent(Intents.APSLOGIC_TEMPBASAL_UPDATE);
-        intent.putExtra("name", Constants.ParcelName.TempBasalPairParcelName);
-        intent.putExtra(Constants.ParcelName.TempBasalPairParcelName, new TempBasalPairParcel(pair));
-        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-    }
-    public void sendCurrBasalToUI(double basalRate) {
-        Intent intent = new Intent(Intents.APSLOGIC_CURRBASAL_UPDATE).putExtra("value", basalRate);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-    public void sendPredBGToUI(double predictedBG) {
-        Intent intent = new Intent(Intents.APSLOGIC_PREDBG_UPDATE).putExtra("value",predictedBG);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-    public void sendIOBToUI(double iobTotal) {
-        Intent intent = new Intent(Intents.APSLOGIC_IOB_UPDATE).putExtra("value",iobTotal);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-    public void sendCOBToUI(double cobTotal) {
-        Intent intent = new Intent(Intents.APSLOGIC_COB_UPDATE).putExtra("value",cobTotal);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
     @Override
     public void onCreate() {
+        super.onCreate();
         if (mInstance == null) {
             mInstance = this;
         }
@@ -475,21 +477,6 @@ public class RTDemoService extends Service {
         /* This function runs in the main thread (UI thread) */
         /* Here is where we do some initialization, but no work */
         Log.d(TAG, "onCreate()");
-
-        // make a thread to do our background work
-        HandlerThread thread = new HandlerThread("Service Thread Name",
-                Process.THREAD_PRIORITY_FOREGROUND);
-
-        thread.start();
-        // this doesn't work: dalvikvm reports threadid is 11, but we get -1.
-        Log.d(TAG, "Started thread with thread id " + thread.getThreadId());
-        Log.d(TAG, "My id is " + getMainLooper().getThread().getId());
-
-        // Get the HandlerThread's Looper and use it for our Handler
-        mServiceLooper = thread.getLooper();
-        mServiceHandler = new ServiceHandler(mServiceLooper);
-        mTimerHandler = new Handler(); // does this need to be kept separate from mServiceHandler?
-
 
         mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
@@ -523,9 +510,15 @@ public class RTDemoService extends Service {
         // set up the receiver with our filter
         registerReceiver(mUsbReceiver, filter);
         // still can't figure out where to do the creation/open properly:
-        mPumpManager = new PumpManager(getApplicationContext());
+        mPumpManager = new PumpManager(this);
+        String serialNumber = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName,0).
+                getString(Constants.PrefName.SerialNumberPrefName, "000000");
+        // convert to bytes
+        byte[] sn_bytes = HexDump.hexStringToByteArray(serialNumber);
+        mPumpManager.setSerialNumber(sn_bytes);
+
         mPumpManager.open();
-        mAPSLogic = new APSLogic();
+        mAPSLogic = new APSLogic(this,mPumpManager);
         mMongoWrapper = new MongoWrapper();
         updateMongoWrapperFromPrefs();
 
@@ -533,57 +526,34 @@ public class RTDemoService extends Service {
         llog("Roundtrip ready.");
     }
 
+    // Here is where the wake-lock begins:
+    // We've received a service startCommand, we grab the lock.
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        /* This function runs in the Foreground */
-        Log.i(TAG, "Received start id " + startId + ": " + intent);
-        /*
-        simply deliver a message of work to be done.
-        */
         if (intent != null) {
-            // for Long operations (tasks involving stick or pump)
-            // Put a task in the service handler's queue.
-            Message msg = mServiceHandler.obtainMessage();
-            msg.arg1 = startId;
-            msg.arg2 = intent.getIntExtra("what",0);
-            msg.obj = intent.getStringExtra("something");
-            // todo: fix hack
-            if (msg.arg2 == Constants.SRQ.SET_SERIAL_NUMBER) {
-                msg.obj = intent.getByteArrayExtra("serialNumber");
-                //Log.w(TAG,"gui thread wrote intent arg2=what=SRQ.SET_SERIAL_NUMBER, obj=serialNumber=" + ByteUtil.shortHexString((byte[])msg.obj));
-            } else if (msg.arg2 == Constants.SRQ.SET_TEMP_BASAL) {
-                msg.obj = intent.getParcelableExtra(Constants.ParcelName.TempBasalPairParcelName);
-                /*  The long way? :
-                if (intent.hasExtra("name")) {
-                    String name = intent.getStringExtra("name");
-                    if (intent.hasExtra(name)) {
-                        if (name == Constants.ParcelName.PumpSettingsParcelName) {
-                            Bundle data = intent.getExtras();
-                            PumpSettingsParcel p = data.getParcelable(name);
-                            // do something with it.
-                            receivePumpSettingsParcel(p);
-                        }
-                    }
-                }
-                */
-            }
-            mServiceHandler.sendMessage(msg);
-        }
+            PowerManager.WakeLock lock = getLock(this.getApplicationContext());
 
-        // START_STICKY means don't kill me, let me run (someone will be using me)
-        return START_STICKY;
+            if (!lock.isHeld() || (flags & START_FLAG_REDELIVERY) != 0) {
+                lock.acquire();
+            }
+
+            // This will end up running onHandleIntent
+            super.onStartCommand(intent, flags, startId);
+        } else {
+            Log.e(TAG,"Received null intent?");
+        }
+        return(START_REDELIVER_INTENT);
     }
 
     protected void serviceMain() {
         // APSLOGIC_STARTUP requests the APSLogic module to do the
         // initial data collection, which can take a long time (MongoDB access, pump access)
         // get latest BG reading from Mongo
-
-        broadcastAPSLogicStatusMessage("Accessing MongoDB for latest BG reading");
+        mAPSLogic.broadcastAPSLogicStatusMessage("Accessing MongoDB for latest BG reading");
         MongoWrapper.BGReadingResponse bgResponse = mMongoWrapper.getBGReading();
         BGReading reading = bgResponse.reading;
         if (bgResponse.error) {
-            broadcastAPSLogicStatusMessage("Error reading BG from mongo:" + bgResponse.errorMessage);
+            mAPSLogic.broadcastAPSLogicStatusMessage("Error reading BG from mongo:" + bgResponse.errorMessage);
             Log.e(TAG,
                     String.format("Error reading BG from Mongo: %s, and BG reading reports %.2f at %s",
                             bgResponse.errorMessage,
@@ -600,48 +570,13 @@ public class RTDemoService extends Service {
         intent.putExtra(Constants.ParcelName.BGReadingParcelName, new BGReadingParcel(reading));
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         Log.i(TAG, "Sending latest BG reading");
-        broadcastAPSLogicStatusMessage(String.format("Latest BG reading reports %.2f at %s",
+        mAPSLogic.broadcastAPSLogicStatusMessage(String.format("Latest BG reading reports %.2f at %s",
                 reading.mBg,reading.mTimestamp.toLocalDateTime().toString()));
 
         mAPSLogic.updateCachedLatestBGReading(reading);
 
         // the above should be (re)moved.
         mAPSLogic.runAPSLogicOnce();
-    }
-
-    protected void serviceRepeat() {
-        // have ourselves call us back in 5 minutes,
-        startServiceRepeatTimer();
-        // and post an intent to run it now. (So that it is run from the correct handler).
-        Intent intent = new Intent(this,RTDemoService.class);
-        intent.putExtra("what", Constants.SRQ.APSLOGIC_STARTUP);
-        startService(intent);
-    }
-
-    protected void startServiceRepeatTimer() {
-        // call serviceMain, 5 minutes from now.
-        // often, but not always, mTimerRunnable==this
-        mTimerHandler.postDelayed(mTimerRunnable, secondsBetweenRuns * 1000);
-    }
-
-    protected void stopServiceRepeatTimer() {
-        // kill any running timer.
-        mTimerHandler.removeCallbacksAndMessages(null);
-    }
-
-    protected void suspendServiceRepeatTimer(int delayMinutes) {
-        // kill running timer.
-        stopServiceRepeatTimer();
-        int delayMilliseconds = delayMinutes * 60 * 1000;
-        // call serviceRepeat after the given delay
-        mTimerHandler.postDelayed(mTimerRunnable,delayMilliseconds);
-    }
-
-    private class TimerRunnable implements Runnable {
-        @Override
-        public void run() {
-            serviceRepeat();
-        }
     }
 
     private void showNotification(){
@@ -689,8 +624,8 @@ public class RTDemoService extends Service {
         /* This function runs in the Foreground */
         /* release resources */
         mNM.cancel(NOTIFICATION);
-        // tell user we've stopped:
-        Toast.makeText(this,R.string.local_service_stopped, Toast.LENGTH_SHORT).show();
+        unregisterReceiver(mUsbReceiver);
+        super.onDestroy();
     }
     // getting permission for the device is necessarily an asynchronous action
     boolean getCarelinkPermission() {

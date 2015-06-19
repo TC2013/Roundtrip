@@ -23,7 +23,7 @@ public class UtilityActivity extends ActionBarActivity {
     public void getHistoryButtonClicked(View view) {
         Log.d(TAG, "GetHistoryButtonClicked");
         Intent intent = new Intent(this,RTDemoService.class);
-        intent.putExtra("what", Constants.SRQ.REPORT_PUMP_HISTORY);
+        intent.putExtra("srq", Constants.SRQ.REPORT_PUMP_HISTORY);
         startService(intent);
     }
 

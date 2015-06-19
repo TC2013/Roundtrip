@@ -14,15 +14,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
 import com.gxwtech.rtdemo.Services.PumpManager.PumpSettingsParcel;
 import com.gxwtech.rtdemo.Services.RTDemoService;
@@ -77,23 +72,19 @@ public class PumpSettingsActivity extends ActionBarActivity {
         SharedPreferences.Editor edit= preferences.edit();
         edit.putString(Constants.PrefName.SerialNumberPrefName, sn);
         edit.commit();
-        setSerialNumber(sn);
     }
 
+    /*
     // set the 3 byte serial number for the pump
     public void setSerialNumber(String sn) {
         // now convert to a 3 byte string
         byte[] sn_bytes = HexDump.hexStringToByteArray(sn);
         //Log.w(TAG,"setSerialNumber bytes:" + HexDump.toHexString(sn_bytes));
         Intent intent = new Intent(this,RTDemoService.class);
-        intent.putExtra("what", Constants.SRQ.SET_SERIAL_NUMBER);
+        intent.putExtra("srq", Constants.SRQ.SET_SERIAL_NUMBER);
         intent.putExtra("serialNumber", sn_bytes);
-        /*
-        Log.w(TAG,"setSerialNumber: running intent with what=SRQ.SET_SERIAL_NUMBER, serialNumber="
-                + ByteUtil.shortHexString(serialNumber));
-        */
         startService(intent);
-    }
+    }*/
 
     // get serial number from preferences, load it into proper field
     public String updateSerialNumberFromPreferences() {
@@ -128,82 +119,11 @@ public class PumpSettingsActivity extends ActionBarActivity {
         // for now, just re-create the view
         updatePumpSettingsView();
     }
-/*
-    public void updateViewFromPumpSettingsParcel(PumpSettingsParcel p) {
-        Log.d(TAG,"updateViewFromPumpSettingsParcel");
-        EditText autoOffDuration = (EditText)findViewById(R.id.editText_autoOffDuration);
-        autoOffDuration.setText(String.format("%d",p.mAutoOffDuration_hours));
-
-        EditText alarmMode = (EditText)findViewById(R.id.editText_alarmMode);
-        alarmMode.setText(String.format("%d",p.mAlarmMode));
-
-        EditText alarmVolume = (EditText)findViewById(R.id.editText_alarmVolume);
-        alarmVolume.setText(String.format("%d", p.mAlarmVolume));
-
-        Switch audioBolusEnable = (Switch)findViewById(R.id.switch1_audioBolusEnable);
-        audioBolusEnable.setChecked(p.mAudioBolusEnable);
-
-        EditText audioBolusSize = (EditText)findViewById(R.id.editText_audioBolusSize);
-        audioBolusSize.setText(String.format("%.2f", p.mAudioBolusSize));
-
-        ToggleButton variableBolusEnable = (ToggleButton)findViewById(R.id.toggleButton_variableBolusEnable);
-        variableBolusEnable.setChecked(p.mVariableBolusEnable);
-
-        EditText maxBolus = (EditText)findViewById(R.id.editText_maxBolus);
-        maxBolus.setText(String.format("%.2f",p.mMaxBolus));
-
-        EditText maxBasal = (EditText)findViewById(R.id.editText_maxBasal);
-        maxBasal.setText(String.format("%.2f",p.mMaxBasal));
-
-        EditText timeFormat = (EditText)findViewById(R.id.editText_timeFormat);
-        timeFormat.setText(String.format("%d",p.mTimeFormat));
-
-        RadioGroup insulinConcentration = (RadioGroup) findViewById(R.id.radioGroup_insulinConcentration);
-        if (p.mInsulinConcentration != 0) {
-            insulinConcentration.check(R.id.radioButton_insulinConcentration100);
-        } else {
-            insulinConcentration.check(R.id.radioButton_insulinConcentration50);
-        }
-
-        CheckBox patternsEnable = (CheckBox)findViewById(R.id.checkBox_patternsEnable);
-        patternsEnable.setChecked(p.mPatternsEnabled);
-
-        EditText selectedPattern = (EditText)findViewById(R.id.editText_selectedPattern);
-        selectedPattern.setText(String.format("%d", p.mSelectedPattern));
-
-        EditText rfEnable = (EditText)findViewById(R.id.editText_RFEnable);
-        rfEnable.setText(p.mRFEnable ? "true":"false");
-
-        EditText blockEnable = (EditText)findViewById(R.id.editText_blockEnable);
-        blockEnable.setText(p.mBlockEnable ? "true":"false");
-
-        EditText tempBasalType = (EditText)findViewById(R.id.editText_tempBasalType);
-        tempBasalType.setText(String.format("%d", p.mTempBasalType));
-
-        EditText tempBasalRate = (EditText)findViewById(R.id.editText_tempBasalRate);
-        tempBasalRate.setText(String.format("%d", p.mTempBasalRate));
-
-        EditText paradigmEnable = (EditText)findViewById(R.id.editText_paradigmEnable);
-        paradigmEnable.setText(String.format("%d", p.mParadigmEnable));
-
-        EditText insulinActionType = (EditText)findViewById(R.id.editText_insulinActionType);
-        insulinActionType.setText(String.format("%d", p.mInsulinActionType));
-
-        EditText lowReservoirWarnType = (EditText)findViewById(R.id.editText_lowReservoirWarnType);
-        lowReservoirWarnType.setText(String.format("%d", p.mLowReservoirWarnType));
-
-        EditText lowReservoirWarnPoint = (EditText)findViewById(R.id.editText_lowReservoirWarnPoint);
-        lowReservoirWarnPoint.setText(String.format("%d", p.mLowReservoirWarnPoint));
-
-        EditText keypadLockStatus = (EditText)findViewById(R.id.editText_keypadLockStatus);
-        keypadLockStatus.setText(String.format("%d", p.mKeypadLockStatus));
-    }
-*/
 
     public void getPumpSettingsClicked(View view) {
         Log.w(TAG, "getPumpSettingsClicked");
         Intent intent = new Intent(this, RTDemoService.class);
-        intent.putExtra("what", Constants.SRQ.REPORT_PUMP_SETTINGS);
+        intent.putExtra("srq", Constants.SRQ.REPORT_PUMP_SETTINGS);
         startService(intent);
         ProgressBar waiting = (ProgressBar) findViewById(R.id.progressBar_getPumpSettingsWaiting);
         waiting.setVisibility(View.VISIBLE);
@@ -245,8 +165,6 @@ public class PumpSettingsActivity extends ActionBarActivity {
 
         // get serial number from preferences
         String sn = updateSerialNumberFromPreferences();
-        // set serial number in service thread (in PumpManager)
-        setSerialNumber(sn);
         // On first run, we don't have mPumpSettings yet, so
         // this will end up with default values.  OK?
         updatePumpSettingsView();

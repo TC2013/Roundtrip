@@ -1,5 +1,6 @@
 package com.gxwtech.rtdemo.Carelink;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.gxwtech.rtdemo.HexDump;
@@ -17,15 +18,17 @@ import com.gxwtech.rtdemo.USB.UsbException;
  */
 public class Carelink {
     private CareLinkUsb mStick;
+    public Context mContext;
 
-    public Carelink(CareLinkUsb stick) {
+    public Carelink(Context context, CareLinkUsb stick) {
+        mContext = context;
         mStick = stick;
     }
 
     public void reset() throws UsbException {
         if (mStick != null) {
             mStick.close();
-            mStick.open();
+            mStick.open(mContext);
         }
     }
 

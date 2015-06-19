@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.os.Parcelable;
 import android.support.v4.content.LocalBroadcastManager;
@@ -21,6 +22,7 @@ import com.gxwtech.rtdemo.Carelink.util.ByteUtil;
 import com.gxwtech.rtdemo.Services.PumpManager.PumpSettingsParcel;
 import com.gxwtech.rtdemo.Services.RTDemoService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -28,24 +30,37 @@ public class MainActivity extends ActionBarActivity {
     private static final String TAG = "MainActivity";
 
     // For receiving and displaying log messages from the Service thread
-    private ListView mLogWindow;
     BroadcastReceiver broadcastReceiver;
-    int nRecentMessages = 20;
-    List<String> msgList = null;
+    int nRecentMessages = 50;
+    List<String> msgList = new ArrayList<>();
     ArrayAdapter<String> adapter = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        startService(new Intent(this, RTDemoService.class));
+
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, msgList);
+        ListView lv = (ListView) findViewById(R.id.listView_Log);
+        lv.setAdapter(adapter);
 
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction() == Intents.ROUNDTRIP_STATUS_MESSAGE) {
                     Log.d(TAG,"Received Roundtrip_Status_message");
-                    updateText();
+                    if (intent.hasExtra("messages")) {
+                        ArrayList<String> newMsgList = intent.getStringArrayListExtra("messages");
+                                Log.w(TAG, String.format("Found extra: %d messages",msgList.size()));
+                        adapter.clear();
+                        adapter.addAll(newMsgList);
+                        adapter.notifyDataSetChanged();
+                    }
+                    if (intent.hasExtra(Intents.ROUNDTRIP_STATUS_MESSAGE_STRING)) {
+                        String s = intent.getStringExtra(Intents.ROUNDTRIP_STATUS_MESSAGE_STRING);
+                        Log.w(TAG,"Found extra: one string:" + s);
+                    }
+
                 } else if (intent.getAction() == Intents.ROUNDTRIP_TASK_RESPONSE) {
                     // pump settings viewer used to be here.
                     // I'm leaving it as an example of how to receive task_response
@@ -65,45 +80,13 @@ public class MainActivity extends ActionBarActivity {
                 }
             }
         };
-        // get serial number from preferences
-        SharedPreferences settings = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
-        String serialNumber = settings.getString(Constants.PrefName.SerialNumberPrefName, "000000");
-        // set serial number in service thread (in PumpManager)
-        byte[] sn_bytes = HexDump.hexStringToByteArray(serialNumber);
-        Intent intent = new Intent(this,RTDemoService.class);
-        intent.putExtra("what", Constants.SRQ.SET_SERIAL_NUMBER);
-        intent.putExtra("serialNumber", sn_bytes);
-        startService(intent);
-    }
-
-    public void updateText() {
-        RTDemoService svc = RTDemoService.getInstance();
-        if (svc != null) {
-            msgList = svc.getRecentMessages(nRecentMessages);
-            adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, msgList);
-            ListView lv = (ListView) findViewById(R.id.listView_Log);
-            lv.setAdapter(adapter);
-        } else {
-            /*
-            this can happen at the start of the app, when all is not yet ready.
-             */
-            Log.i("RTDemoMain","Failed to get singleton instance. (ignore)");
-
-        }
-    }
-
-    // contains a View parameter because it is called from a control (a button)
-    // No need to call startRTService, as it is called from onResume()
-    public void startRTService(View view) {
-        // start the RTService thread
-        Intent intent = new Intent(this,RTDemoService.class);
-        intent.putExtra("what", Constants.SRQ.START_SERVICE);
-        startService(intent);
+        // the source of our null intents?
+        startService(new Intent(this, RTDemoService.class).putExtra("srq", Constants.SRQ.START_SERVICE));
     }
 
     public void verifyPumpCommunications(View view) {
         Intent intent = new Intent(this,RTDemoService.class);
-        intent.putExtra("what", Constants.SRQ.VERIFY_PUMP_COMMUNICATIONS);
+        intent.putExtra("srq", Constants.SRQ.VERIFY_PUMP_COMMUNICATIONS);
         startService(intent);
     }
 
@@ -131,7 +114,6 @@ public class MainActivity extends ActionBarActivity {
         // register our desire to receive broadcasts from RTDemoService
         LocalBroadcastManager.getInstance(getApplicationContext())
                 .registerReceiver(broadcastReceiver, intentFilter);
-        updateText();
     }
 
     protected void onPause() {
@@ -139,7 +121,8 @@ public class MainActivity extends ActionBarActivity {
         LocalBroadcastManager.getInstance(getApplicationContext())
                 .unregisterReceiver(broadcastReceiver);
     }
- @Override
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);

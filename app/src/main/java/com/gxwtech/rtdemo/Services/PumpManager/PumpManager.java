@@ -1,11 +1,16 @@
 package com.gxwtech.rtdemo.Services.PumpManager;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.gxwtech.rtdemo.Carelink.Carelink;
 import com.gxwtech.rtdemo.Carelink.ProductInfoCommand;
 import com.gxwtech.rtdemo.Carelink.SignalStrengthCommand;
+import com.gxwtech.rtdemo.Constants;
+import com.gxwtech.rtdemo.Intents;
 import com.gxwtech.rtdemo.Medtronic.MedtronicCommandStatusEnum;
 import com.gxwtech.rtdemo.Medtronic.PowerControlCommand;
 import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfile;
@@ -19,14 +24,13 @@ import com.gxwtech.rtdemo.Medtronic.ReadProfileCommand;
 import com.gxwtech.rtdemo.Medtronic.ReadPumpRTCCommand;
 import com.gxwtech.rtdemo.Medtronic.ReadPumpSettingsCommand;
 import com.gxwtech.rtdemo.Medtronic.SetTempBasalCommand;
-import com.gxwtech.rtdemo.RTDemoSettingsActivity;
-import com.gxwtech.rtdemo.Services.RTDemoService;
 import com.gxwtech.rtdemo.USB.CareLinkUsb;
 import com.gxwtech.rtdemo.USB.UsbException;
 
 import org.joda.time.DateTime;
-
-import java.util.Calendar;
+import org.joda.time.Instant;
+import org.joda.time.Seconds;
+import org.joda.time.format.ISODateTimeFormat;
 
 /**
  * Created by geoff on 5/8/15.
@@ -43,17 +47,31 @@ public class PumpManager {
     private static final String TAG = "PumpManager";
     CareLinkUsb stick; // The USB connection
     Carelink mCarelink; // The CarelinkCommand runner, built from a CareLinkUsb
-    Context mContext;
     byte[] mSerialNumber; // need a setter for this
+    Context mContext;
 
     // we need to keep track of the last time the PowerControl command was run,
     // so that if we're getting close to the end of the RF Transmitter 'on' time, we can rerun it.
-    protected Calendar mLastPowerControlRunTime;
+    //protected Calendar mLastPowerControlRunTime;
 
-    // need access to context to get at UsbManager
     public PumpManager(Context context) {
         mContext = context;
         init();
+    }
+
+    protected DateTime getLastPowerControlRunTime() {
+        SharedPreferences settings = mContext.getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
+        // get strings from prefs
+        String lastPower = settings.getString(Constants.PrefName.LastPowerControlRunTime, "never");
+        if ("never".equals(lastPower)) {
+            return new DateTime(0);
+        }
+        return ISODateTimeFormat.dateTime().parseDateTime(lastPower);
+    }
+
+    protected void setLastPowerControlRunTime(DateTime when) {
+        mContext.getSharedPreferences(Constants.PreferenceID.MainActivityPrefName,0).
+                edit().putString(Constants.PrefName.LastPowerControlRunTime,ISODateTimeFormat.dateTime().print(when));
     }
 
     public boolean setSerialNumber(byte[] serialNumber) {
@@ -76,9 +94,9 @@ public class PumpManager {
     public boolean open() {
         boolean openedOK = true;
         try {
-            stick = new CareLinkUsb(mContext);
-            stick.open();
-            mCarelink = new Carelink(stick);
+            stick = new CareLinkUsb();
+            stick.open(mContext);
+            mCarelink = new Carelink(mContext,stick);
         } catch (UsbException e) {
             openedOK = false;
         }
@@ -154,29 +172,28 @@ public class PumpManager {
     public void checkPowerControl() {
         byte minutesOfRFPower = (byte) 10; // can set this to 3, or 10, or ?
         boolean runPowerControlCommand = false;
-        if (mLastPowerControlRunTime == null) {
-            // haven't run it yet.  Do so.
+
+        DateTime lastPowerControlRunTime = getLastPowerControlRunTime();
+
+        long timeDifference = Seconds.secondsBetween(lastPowerControlRunTime,DateTime.now()).getSeconds();
+
+        long secondsRemaining = (minutesOfRFPower * 60 /* seconds per minute*/)
+                - timeDifference;
+        Log.w(TAG, String.format("Seconds remaining on RF power: %d", secondsRemaining));
+        if (secondsRemaining < 60 /* seconds */) {
             runPowerControlCommand = true;
-        } else {
-            long timeDifference = Calendar.getInstance().getTimeInMillis()
-                    - mLastPowerControlRunTime.getTimeInMillis();
-            long secondsRemaining = (minutesOfRFPower * 60 /* seconds per minute*/)
-                    - (timeDifference / 1000 /* millis per second*/);
-            Log.w(TAG, String.format("Seconds remaining on RF power: %d", secondsRemaining));
-            if (secondsRemaining < 60 /* seconds */) {
-                runPowerControlCommand = true;
-            }
         }
+
         // now run it if we have to.
         if (runPowerControlCommand) {
             PowerControlCommand powerControlCommand = new PowerControlCommand((byte) 1, minutesOfRFPower);
             // the power control command can take a long time (>17 seconds) to run.
             // so get the new run time before running the command
-            Calendar newRunTime = Calendar.getInstance();
+
             MedtronicCommandStatusEnum en = powerControlCommand.run(mCarelink, mSerialNumber);
             Log.w(TAG, "PowerControlCommand returned status: " + en.name());
             // Only set the new run time if the command succeeded?
-            mLastPowerControlRunTime = newRunTime;
+            setLastPowerControlRunTime(DateTime.now());
         }
     }
 
@@ -234,9 +251,20 @@ public class PumpManager {
         return profile;
     }
 
-    // Use RTDemoService's sleep, so we can notify UI.
-    public static void sleep(int millis) {
-        RTDemoService.sleep(millis);
+    public void sleep(int millis) {
+        if (millis > 1000) {
+            // If we sleep for more than 1 second, notify the UI
+            // Let the UI know that we're sleeping (for pump communication delays)
+            // send the log message to anyone who cares to listen (e.g. a UI component!)
+            Intent intent = new Intent(Intents.ROUNDTRIP_SLEEP_MESSAGE)
+                    .putExtra(Intents.ROUNDTRIP_SLEEP_MESSAGE_DURATION,millis/1000);
+            LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+        }
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            Log.e(TAG, "Sleep interrupted: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
-
 }

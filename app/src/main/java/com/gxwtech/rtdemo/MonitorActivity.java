@@ -32,7 +32,7 @@ public class MonitorActivity extends ActionBarActivity {
     DateTime mLastBGUpdateTime = null;
     DateTime mSleepNotificationStartTime = null;
     int mSleepNotificationDuration = 0;
-    ArrayList<String> mMessageLog = new ArrayList<>();
+    ArrayList<String> msgList = new ArrayList<>();
     ArrayAdapter<String> adapter = null;
 
     double m_iob = -99.0;
@@ -52,6 +52,10 @@ public class MonitorActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         timerHandler = new Handler();
         setContentView(R.layout.activity_monitor);
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, msgList);
+        ListView lv = (ListView) findViewById(R.id.listView_MonitorMsgs);
+        lv.setAdapter(adapter);
+
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -112,17 +116,10 @@ public class MonitorActivity extends ActionBarActivity {
         if (msg.equals("")) {
             msg = "(empty message)";
         }
-        mMessageLog.add(0,msg);
-        if (mMessageLog.size() > MaxLogSize) {
-            mMessageLog.remove(mMessageLog.size()-1);
+        adapter.insert(msg,0);
+        if (adapter.getCount() > MaxLogSize) {
+            adapter.remove(adapter.getItem(adapter.getCount()-1));
         }
-        rebuildArrayAdapter(); // do we need to do this?
-    }
-
-    public void rebuildArrayAdapter() {
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, mMessageLog);
-        ListView lv = (ListView) findViewById(R.id.listView_MonitorMsgs);
-        lv.setAdapter(adapter);
     }
 
     public void UpdateBGReading() {
@@ -200,7 +197,7 @@ public class MonitorActivity extends ActionBarActivity {
     public void startupButtonClicked(View view) {
         Log.d(TAG, "startupButtonClicked");
         Intent intent = new Intent(this,RTDemoService.class);
-        intent.putExtra("what", Constants.SRQ.START_AUTO_MODE);
+        intent.putExtra("srq", Constants.SRQ.START_REPEAT_ALARM);
         startService(intent);
     }
 
@@ -212,7 +209,7 @@ public class MonitorActivity extends ActionBarActivity {
 
     public void buttonStopClicked(View view) {
         Intent intent = new Intent(this,RTDemoService.class);
-        intent.putExtra("what", Constants.SRQ.STOP_AUTO_MODE);
+        intent.putExtra("srq", Constants.SRQ.STOP_REPEAT_ALARM);
         startService(intent);
     }
 
@@ -255,7 +252,6 @@ public class MonitorActivity extends ActionBarActivity {
         // register our desire to receive broadcasts from RTDemoService
         LocalBroadcastManager.getInstance(getApplicationContext())
                 .registerReceiver(mBroadcastReceiver, intentFilter);
-        rebuildArrayAdapter();
         UpdateBGReading();
         updateBGTimer();
         updateCurrentIOB_TextView();

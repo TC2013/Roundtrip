@@ -4,59 +4,60 @@ package com.gxwtech.rtdemo;
  * Created by geoff on 4/10/15.
  */
 public interface Constants {
-    public class ACTION {
+    class ACTION {
         public static String GENERIC_ACTION = "com.gxwtech.rtdemo.action.GENERIC_ACTION";
         public static String START_RT_ACTION = "com.gxwtech.rtdemo.action.START_RT_ACTION";
         public static int UPDATE_LOG_LISTVIEW = 200;
     }
-    public class NOTIFICATION_ID {
+    class NOTIFICATION_ID {
         public static int RT_NOTIFICATION = 111;
     }
     // SRQ is service requests
     // these are codes passed from foreground (MainActivity)
     // to background (RTDemoService)
-    public class SRQ {
-        public static int START_SERVICE = 301;
-        public static int SRQ_UNUSED = 302;
-        public static int VERIFY_PUMP_COMMUNICATIONS = 303;
-        public static int VERIFY_DB_ACCESS = 304;
+    class SRQ {
+        public static String START_SERVICE = "StartService"; // 301
+        public static String SRQ_UNUSED = "UNUSED-302"; // 302;
+        public static String VERIFY_PUMP_COMMUNICATIONS = "VerifyPumpCommunications"; //303;
+
+        public static String VERIFY_DB_ACCESS = "VerifyDBAccess"; //304;
         // report_pump_settings sends back a PumpSettingsParcel
-        public static int REPORT_PUMP_SETTINGS = 305;
+        public static String REPORT_PUMP_SETTINGS = "ReportPumpSettings"; //305;
         // SET_SERIAL_NUMBER takes arg2 as a byte[3] array;
-        public static int SET_SERIAL_NUMBER = 306;
+        //public static String SET_SERIAL_NUMBER = "SetSerialNumber"; //306;
         // REPORT_PUMP_HISTORY should take a "minutes" argument, but doesn't yet.
-        public static int REPORT_PUMP_HISTORY = 307;
+        public static String REPORT_PUMP_HISTORY = "ReportPumpHistory"; //307;
         // SET_TEMP_BASAL needs a double insulinUnits and an int durationMinutes
         // Pass as a parcel, using TempBasalPairParcel
-        public static int SET_TEMP_BASAL = 308;
+        public static String SET_TEMP_BASAL = "SetTempBasal"; //308;
         // APSLOGIC_STARTUP requests the APSLogic module to do the
         // initial data collection, which can take a long time (MongoDB access, pump access)
         // and to run the MakeADecision loop once.
-        public static int APSLOGIC_STARTUP = 309;
+        public static String APSLOGIC_STARTUP = "APSLogicStartup"; //309;
         // MongoDBSettingsActivity fires this off to announce new settings for the DB URI
-        public static int MONGO_SETTINGS_CHANGED = 310;
+        public static String MONGO_SETTINGS_CHANGED = "MongoSettingsChanged"; //310;
         // PersonalProfileActivity fires this off when the ISF number has been set.
         // public static int SET_ISF = 311;
         // PersonalProfileActivity fires this off when the CAR number has been set.
-        public static int PERSONAL_PREFERENCE_CHANGE = 312;
+        public static String PERSONAL_PREFERENCE_CHANGE = "PersonalPreferencesChanged"; //312;
         // SuspendAPSActivity sends this when user has requested a suspend
-        public static int DO_SUSPEND_MINUTES = 313;
+        public static String DO_SUSPEND_MINUTES = "DoSuspendMinutes"; //313;
         // MonitorActivity start button runs this.
-        public static int START_AUTO_MODE = 314;
+        public static String START_REPEAT_ALARM = "StartRepeatingAlarm"; //314;
         // MonitorActivity stop button runs this.
-        public static int STOP_AUTO_MODE = 315;
+        public static String STOP_REPEAT_ALARM = "StopRepeatingAlarm"; //315;
     }
 
-    public class ParcelName {
+    class ParcelName {
         public static String PumpSettingsParcelName = "PumpSettingsParcel";
         public static String TempBasalPairParcelName = "TempBasalPairParcel";
         public static String BGReadingParcelName = "BGReadingParcel";
     }
-    public class PreferenceID {
+    class PreferenceID {
         // Name of a SharedPreference collection
         public static String MainActivityPrefName = "MainActivityPreferences";
     }
-    public class PrefName {
+    class PrefName {
         // Name of an entry in a SharedPreference collection
         public static String SerialNumberPrefName = "PumpSerialNumber";
         public static String CARPrefName = "CarbAbsorptionRatio";
@@ -71,6 +72,10 @@ public interface Constants {
         public static String MongoDBPasswordPrefName = "MongoDBPassword";
         public static String MongoDBCollectionPrefName = "MongoDBCollection";
         public static String SuspendMinutesPrefName = "SuspendAPSMinutes";
+        // and all kinds of other goodies:
+        public static String LatestBGTimestamp = "LatestBGTimestamp";
+        public static String LatestBGReading = "LatestBGReading";
+        public static String LastPowerControlRunTime = "LastPowerControlRunTime";
     }
 
 }

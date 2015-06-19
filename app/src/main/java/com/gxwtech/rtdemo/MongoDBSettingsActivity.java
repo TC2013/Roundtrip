@@ -57,7 +57,7 @@ public class MongoDBSettingsActivity extends ActionBarActivity {
         settingsSavedMsg.setVisibility(View.VISIBLE);
         // tell the background service that the URI has changed.
         Intent intent = new Intent(this,RTDemoService.class);
-        intent.putExtra("what",Constants.SRQ.MONGO_SETTINGS_CHANGED);
+        intent.putExtra("srq",Constants.SRQ.MONGO_SETTINGS_CHANGED);
         startService(intent);
     }
 

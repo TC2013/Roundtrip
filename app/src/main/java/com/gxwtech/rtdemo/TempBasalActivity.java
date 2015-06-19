@@ -36,7 +36,7 @@ public class TempBasalActivity extends ActionBarActivity {
 
     protected void SendSetTempBasalRequest(TempBasalPair pair) {
         Intent intent = new Intent(this, RTDemoService.class);
-        intent.putExtra("what", Constants.SRQ.SET_TEMP_BASAL);
+        intent.putExtra("srq", Constants.SRQ.SET_TEMP_BASAL);
         intent.putExtra("name", Constants.ParcelName.TempBasalPairParcelName);
         intent.putExtra(Constants.ParcelName.TempBasalPairParcelName,new TempBasalPairParcel(pair));
         startService(intent);

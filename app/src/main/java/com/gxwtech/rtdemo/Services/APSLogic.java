@@ -1,8 +1,15 @@
 package com.gxwtech.rtdemo.Services;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Environment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.gxwtech.rtdemo.BGReading;
+import com.gxwtech.rtdemo.Constants;
+import com.gxwtech.rtdemo.Intents;
 import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfile;
 import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfileEntry;
 import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfileTypeEnum;
@@ -14,6 +21,7 @@ import com.gxwtech.rtdemo.Medtronic.ReadBasalTempCommand;
 import com.gxwtech.rtdemo.Medtronic.TempBasalEvent;
 import com.gxwtech.rtdemo.MongoWrapper;
 import com.gxwtech.rtdemo.Services.PumpManager.PumpManager;
+import com.gxwtech.rtdemo.Services.PumpManager.TempBasalPairParcel;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -23,6 +31,10 @@ import org.joda.time.LocalTime;
 import org.joda.time.Minutes;
 import org.joda.time.Seconds;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -79,6 +91,9 @@ import java.util.Comparator;
 public class APSLogic {
     /* BEGIN settable defaults */
     private static final String TAG = "APSLogic";
+    Context mContext;
+    PumpManager mPumpManager;
+    String mLogfileName;
 
     // our cache of the profile settings
     // Updated (at the minimum) at the start of each MakeADecision() run
@@ -195,6 +210,8 @@ public class APSLogic {
         return (Math.floor(x * 40.0))/40.0;
     }
 
+
+
     // This function is to be run after CollectData()
     // Here we make a decision about TempBasals, based on all factors
     private void MakeADecision() {
@@ -209,8 +226,12 @@ public class APSLogic {
         // and user preferences such as algorithm options like
         // enable_low_glucose_suspend, AR Regression
 
+        // TODO: make each run of MakeADecision log to a text file locally.
+        // TODO: Delete log files older than xxx
+
         // ensure that our settings from PersonalPreferences are up to date
-        RTDemoService.getInstance().updateFromPersonalPrefs();
+        updateFromPersonalPrefs();
+
         log(String.format("CAR=%.1f, bgmax=%.1f, target=%.1f, bgmin=%.1f, max temp=%.3f",
                 mPersonalProfile.CAR,
                 mPersonalProfile.BGMax,
@@ -615,7 +636,10 @@ public class APSLogic {
      * Anything that isn't directly related to making decisions.
      *
      *******************************************************/
-    public APSLogic() {
+    public APSLogic(Context context, PumpManager pumpManager) {
+        mContext = context;
+        mPumpManager = pumpManager;
+        mLogfileName = DateTime.now().toString();
         init();
     }
     public void init() {
@@ -684,7 +708,7 @@ public class APSLogic {
     // Don't cache the pumpManager, as it can be reinstantiated when the USB device is (un)plugged.
     // todo: this may cause crashes when the carelink is (un)plugged.  fix in RTDemoService? how?
     private PumpManager getPumpManager() {
-        return RTDemoService.getInstance().getPumpManager();
+        return mPumpManager;
     }
 
     // When this method succeeds, it also contacts the database to add the new treatment.
@@ -705,9 +729,18 @@ public class APSLogic {
         // sanity check and cache the latest reading, used only if xDrip samples are enabled.
     }
 
-    // This function is called from outside (from RTDemoService)
-    // to set our internal value for CarbAbsorptionRatio
-    // This is done to keep Android stuff out of APSLogic
+    public void updateFromPersonalPrefs() {
+        // get CAR value from prefs
+        SharedPreferences settings = mContext.getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
+        double car = (double)settings.getFloat(Constants.PrefName.CARPrefName, (float) 30.0);
+        // Notify APSLogic of new value
+        setCAR(car);
+        setMaxTempBasalRate((double) settings.getFloat(Constants.PrefName.PPMaxTempBasalRatePrefName, (float) 6.1));
+        setBGMin((double) settings.getFloat(Constants.PrefName.PPBGMinPrefName, (float) 95.0));
+        setTargetBG((double) settings.getFloat(Constants.PrefName.PPTargetBGPrefName, (float) 115.0));
+        setBGMax((double) settings.getFloat(Constants.PrefName.PPBGMaxPrefName, (float) 125.0));
+    }
+
     public void setCAR(double car) {
         mPersonalProfile.CAR = car;
     }
@@ -750,34 +783,65 @@ public class APSLogic {
     // Communications with the UI involve Android system classes and calls,
     // Let RTDemoService be the interface for all that stuff
     public void sendTempBasalToUI(TempBasalPair pair) {
-        RTDemoService.getInstance().sendTempBasalToUI(pair);
+        Intent intent = new Intent(Intents.APSLOGIC_TEMPBASAL_UPDATE);
+        intent.putExtra("name", Constants.ParcelName.TempBasalPairParcelName);
+        intent.putExtra(Constants.ParcelName.TempBasalPairParcelName, new TempBasalPairParcel(pair));
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }
     public void sendCurrBasalToUI(double basalRate) {
-        RTDemoService.getInstance().sendCurrBasalToUI(basalRate);
+        Intent intent = new Intent(Intents.APSLOGIC_CURRBASAL_UPDATE).putExtra("value", basalRate);
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }
     public void sendPredBGToUI(double predictedBG) {
-        RTDemoService.getInstance().sendPredBGToUI(predictedBG);
+        Intent intent = new Intent(Intents.APSLOGIC_PREDBG_UPDATE).putExtra("value",predictedBG);
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }
     public void sendIOBToUI(double iobTotal) {
-        RTDemoService.getInstance().sendIOBToUI(iobTotal);
+        Intent intent = new Intent(Intents.APSLOGIC_IOB_UPDATE).putExtra("value",iobTotal);
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }
     public void sendCOBToUI(double cobTotal) {
-        RTDemoService.getInstance().sendCOBToUI(cobTotal);
+        Intent intent = new Intent(Intents.APSLOGIC_COB_UPDATE).putExtra("value",cobTotal);
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }
 
+    public void broadcastAPSLogicStatusMessage(String message) {
+        Intent intent = new Intent(Intents.APSLOGIC_LOG_MESSAGE);
+        intent.putExtra("message", message);
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+    }
 
     // This is used to send messages to the MonitorActivity about APSLogic's actions and decisions
     // Those messages are displayed in the lower part of the MonitorActivity's window
-    // This is a call to RTDemoService so that I can keep Android stuff out of this class.
-    public static void log(String message) {
+    public void log(String message) {
         dlog(message);
-        RTDemoService.getInstance().broadcastAPSLogicStatusMessage(message);
+        broadcastAPSLogicStatusMessage(message);
+        writeMessageToLogfile(message);
     }
 
     // This is same as above, but doesn't log to the window
     // That makes it easy to change what appears on the window and what goes to the Android log.
     private static void dlog(String message) {
         Log.d(TAG,message);
+    }
+
+    private void writeMessageToLogfile(String message) {
+        File log=new File(Environment.getExternalStorageDirectory(),
+                mLogfileName);
+        try {
+            // if file doesnt exists, then create it
+            if (!log.exists()) {
+                log.createNewFile();
+            }
+            BufferedWriter out=new BufferedWriter(new FileWriter(log.getAbsolutePath(),true));
+
+            out.write(DateTime.now().toString() + message);
+            out.write("\n");
+            out.close();
+        }
+        catch (IOException e) {
+            Log.e(TAG, "Exception appending to log file", e);
+        }
     }
 
 }
