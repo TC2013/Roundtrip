@@ -4,10 +4,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,9 +16,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.gxwtech.rtdemo.Medtronic.PumpData.TempBasalPair;
-import com.gxwtech.rtdemo.Services.PumpManager.TempBasalPairParcel;
-import com.gxwtech.rtdemo.Services.RTDemoService;
+import com.gxwtech.rtdemo.services.pumpmanager.TempBasalPairParcel;
+import com.gxwtech.rtdemo.services.RTDemoService;
 
 import org.joda.time.DateTime;
 import org.joda.time.Seconds;

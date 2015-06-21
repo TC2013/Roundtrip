@@ -4,23 +4,17 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.IntentSender;
-import android.content.SharedPreferences;
-import android.os.Parcelable;
+import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ListView;
 
-import com.gxwtech.rtdemo.Carelink.util.ByteUtil;
-import com.gxwtech.rtdemo.Services.PumpManager.PumpSettingsParcel;
-import com.gxwtech.rtdemo.Services.RTDemoService;
+import com.gxwtech.rtdemo.services.RTDemoService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,17 +42,17 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction() == Intents.ROUNDTRIP_STATUS_MESSAGE) {
-                    Log.d(TAG,"Received Roundtrip_Status_message");
+                    Log.d(TAG, "Received Roundtrip_Status_message");
                     if (intent.hasExtra("messages")) {
                         ArrayList<String> newMsgList = intent.getStringArrayListExtra("messages");
-                                Log.w(TAG, String.format("Found extra: %d messages",msgList.size()));
+                        Log.w(TAG, String.format("Found extra: %d messages", msgList.size()));
                         adapter.clear();
                         adapter.addAll(newMsgList);
                         adapter.notifyDataSetChanged();
                     }
                     if (intent.hasExtra(Intents.ROUNDTRIP_STATUS_MESSAGE_STRING)) {
                         String s = intent.getStringExtra(Intents.ROUNDTRIP_STATUS_MESSAGE_STRING);
-                        Log.w(TAG,"Found extra: one string:" + s);
+                        Log.w(TAG, "Found extra: one string:" + s);
                     }
 
                 } else if (intent.getAction() == Intents.ROUNDTRIP_TASK_RESPONSE) {
@@ -80,24 +74,24 @@ public class MainActivity extends ActionBarActivity {
                 }
             }
         };
-        // the source of our null intents?
-        startService(new Intent(this, RTDemoService.class).putExtra("srq", Constants.SRQ.START_SERVICE));
+        // FIXME the source of our null intents?
+        this.startService(new Intent(this, RTDemoService.class).putExtra("srq", Constants.SRQ.START_SERVICE));
     }
 
     public void verifyPumpCommunications(View view) {
-        Intent intent = new Intent(this,RTDemoService.class);
+        Intent intent = new Intent(this, RTDemoService.class);
         intent.putExtra("srq", Constants.SRQ.VERIFY_PUMP_COMMUNICATIONS);
-        startService(intent);
+        this.startService(intent);
     }
 
     public void launchRTDemoSettingsActivity(View view) {
-        Intent intent = new Intent(this,RTDemoSettingsActivity.class);
-        startActivity(intent);
+        Intent intent = new Intent(this, RTDemoSettingsActivity.class);
+        this.startActivity(intent);
     }
 
     public void launchMonitorActivity(View view) {
-        Intent intent = new Intent(this,MonitorActivity.class);
-        startActivity(intent);
+        Intent intent = new Intent(this, MonitorActivity.class);
+        this.startActivity(intent);
     }
 
     // No need to call stopRTService, as we don't care to ever stop the service.

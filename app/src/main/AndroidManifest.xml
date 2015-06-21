@@ -36,7 +36,7 @@
         </activity>
 
         <service
-            android:name="com.gxwtech.rtdemo.Services.RTDemoService"
+            android:name="com.gxwtech.rtdemo.services.RTDemoService"
             android:enabled="true"
             android:exported="true" >
             <intent-filter>

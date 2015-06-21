@@ -2,14 +2,14 @@ package com.gxwtech.rtdemo;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
-import com.gxwtech.rtdemo.Services.RTDemoService;
+import com.gxwtech.rtdemo.services.RTDemoService;
 
 
 public class SuspendAPSActivity extends ActionBarActivity {

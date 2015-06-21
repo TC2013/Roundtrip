@@ -4,11 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v4.content.WakefulBroadcastReceiver;
 
-import com.gxwtech.rtdemo.BGReading;
 import com.gxwtech.rtdemo.Constants;
-import com.gxwtech.rtdemo.Services.RTDemoService;
-
-import org.joda.time.DateTime;
 
 import java.util.Date;
 
