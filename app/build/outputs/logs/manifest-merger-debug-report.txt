@@ -74,7 +74,7 @@ ADDED from AndroidManifest.xml:33:13
 		ADDED from AndroidManifest.xml:35:17
 	android:name
 		ADDED from AndroidManifest.xml:34:17
-service#com.gxwtech.rtdemo.Services.RTDemoService
+service#com.gxwtech.rtdemo.services.RTDemoService
 ADDED from AndroidManifest.xml:38:9
 	android:exported
 		ADDED from AndroidManifest.xml:41:13
