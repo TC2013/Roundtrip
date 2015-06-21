@@ -1,7 +1,5 @@
 package com.gxwtech.rtdemo.Medtronic.PumpData;
 
-import android.util.Log;
-
 /**
  * Created by geoff on 5/7/15.
  *

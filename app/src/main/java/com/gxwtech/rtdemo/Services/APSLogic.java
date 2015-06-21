@@ -17,19 +17,14 @@ import com.gxwtech.rtdemo.Medtronic.PumpData.HistoryReport;
 import com.gxwtech.rtdemo.Medtronic.PumpData.PumpSettings;
 import com.gxwtech.rtdemo.Medtronic.PumpData.TempBasalPair;
 import com.gxwtech.rtdemo.Medtronic.PumpData.records.BolusWizard;
-import com.gxwtech.rtdemo.Medtronic.ReadBasalTempCommand;
 import com.gxwtech.rtdemo.Medtronic.TempBasalEvent;
-import com.gxwtech.rtdemo.MongoWrapper;
 import com.gxwtech.rtdemo.Services.PumpManager.PumpManager;
 import com.gxwtech.rtdemo.Services.PumpManager.TempBasalPairParcel;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.joda.time.Duration;
 import org.joda.time.Instant;
-import org.joda.time.LocalTime;
 import org.joda.time.Minutes;
-import org.joda.time.Seconds;
 
 import java.io.BufferedWriter;
 import java.io.File;

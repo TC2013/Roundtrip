@@ -3,7 +3,6 @@ package com.gxwtech.rtdemo.Medtronic.PumpData;
 import android.util.Log;
 
 import org.joda.time.Instant;
-import org.joda.time.LocalTime;
 
 import java.util.ArrayList;
 

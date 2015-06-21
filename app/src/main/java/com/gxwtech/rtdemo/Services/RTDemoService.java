@@ -5,7 +5,6 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,23 +13,16 @@ import android.content.SharedPreferences;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Binder;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.IBinder;
-import android.os.Looper;
-import android.os.Message;
 import android.os.Parcelable;
 import android.os.PowerManager;
-import android.os.Process;
 import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.gxwtech.rtdemo.BGReading;
 import com.gxwtech.rtdemo.BGReadingParcel;
-import com.gxwtech.rtdemo.Carelink.util.ByteUtil;
 import com.gxwtech.rtdemo.Constants;
 import com.gxwtech.rtdemo.HexDump;
 import com.gxwtech.rtdemo.Intents;
@@ -39,7 +31,6 @@ import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfile;
 import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfileEntry;
 import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfileTypeEnum;
 import com.gxwtech.rtdemo.Medtronic.PumpData.HistoryReport;
-import com.gxwtech.rtdemo.Medtronic.PumpData.TempBasalPair;
 import com.gxwtech.rtdemo.MongoWrapper;
 import com.gxwtech.rtdemo.R;
 import com.gxwtech.rtdemo.Services.PumpManager.PumpManager;
@@ -49,18 +40,14 @@ import com.gxwtech.rtdemo.Services.PumpManager.TempBasalPairParcel;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.LinkedBlockingDeque;
 
 /**
  * Created by geoff on 4/9/15.
  * <p/>
  * This service handles all communication with the carelink stick
- * and the medtronic pump.  MainActivity shouldn't access those directly.
+ * and the Medtronic pump.  MainActivity shouldn't access those directly.
  * <p/>
  * This class is mainly for handling the Android GUI/Background issues, like intents & messages.
  * Put the code for the pump into the PumpManager whenever possible.
@@ -73,7 +60,7 @@ import java.util.concurrent.LinkedBlockingDeque;
  * heirarchy: they all call each other at various times.  The goal was to keep related code together
  * but it needs to be refactored.
  * <p/>
- * PumpManager: Handles pump data types and pump communcations.
+ * PumpManager: Handles pump data types and pump communications.
  * <p/>
  * APSLogic: does the insulin/TempBasal decision making.  It has to collect a lot of data to do this.
  * <p/>
@@ -83,6 +70,16 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 
 public class RTDemoService extends IntentService {
+    // @TODO Move this to constants
+    private static final String MEDTRONIC_DEFAULT_SERIAL = "000000";
+
+    private static String MONGO_DEFAULT_SERVER =  "localhost";
+    private static String MONGO_DEFAULT_PORT =  "27015";
+    private static String MONGO_DEFAULT_DATABASE =  "nightscout";
+    private static String MONGO_DEFAULT_USERNAME =  "username";
+    private static String MONGO_DEFAULT_PASSWORD =  "password";
+    private static String MONGO_DEFAULT_COLLECTION =  "entries";
+
     private static final String TAG = "RTDemoService";
     private static final String WAKELOCKNAME = "com.gxwtech.RTDemo.RTDemoServiceWakeLock";
     private static volatile PowerManager.WakeLock lockStatic = null;
@@ -457,12 +454,12 @@ public class RTDemoService extends IntentService {
         // open prefs
         SharedPreferences settings = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
         // get strings from prefs
-        String server = settings.getString(Constants.PrefName.MongoDBServerPrefName, "localhost");
-        String serverPort = settings.getString(Constants.PrefName.MongoDBServerPortPrefName, "12345");
-        String dbname = settings.getString(Constants.PrefName.MongoDBDatabasePrefName, "db");
-        String mongoUsername = settings.getString(Constants.PrefName.MongoDBUsernamePrefName, "username");
-        String mongoPassword = settings.getString(Constants.PrefName.MongoDBPasswordPrefName, "password");
-        String mongoCollection = settings.getString(Constants.PrefName.MongoDBCollectionPrefName, "entries");
+        String server = settings.getString(Constants.PrefName.MongoDBServerPrefName, MONGO_DEFAULT_SERVER);
+        String serverPort = settings.getString(Constants.PrefName.MongoDBServerPortPrefName, MONGO_DEFAULT_PORT);
+        String dbname = settings.getString(Constants.PrefName.MongoDBDatabasePrefName, MONGO_DEFAULT_DATABASE);
+        String mongoUsername = settings.getString(Constants.PrefName.MongoDBUsernamePrefName, MONGO_DEFAULT_USERNAME);
+        String mongoPassword = settings.getString(Constants.PrefName.MongoDBPasswordPrefName, MONGO_DEFAULT_PASSWORD);
+        String mongoCollection = settings.getString(Constants.PrefName.MongoDBCollectionPrefName, MONGO_DEFAULT_COLLECTION);
 
         mMongoWrapper.updateURI(server, serverPort, dbname, mongoUsername, mongoPassword, mongoCollection);
     }
@@ -509,7 +506,7 @@ public class RTDemoService extends IntentService {
         // still can't figure out where to do the creation/open properly:
         mPumpManager = new PumpManager(this);
         String serialNumber = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0).
-                getString(Constants.PrefName.SerialNumberPrefName, "000000");
+                getString(Constants.PrefName.SerialNumberPrefName, MEDTRONIC_DEFAULT_SERIAL);
         // convert to bytes
         byte[] sn_bytes = HexDump.hexStringToByteArray(serialNumber);
         mPumpManager.setSerialNumber(sn_bytes);

@@ -12,8 +12,6 @@ import com.gxwtech.rtdemo.Medtronic.PumpData.records.RecordTypeEnum;
 import com.gxwtech.rtdemo.Medtronic.PumpData.records.TempBasalDuration;
 import com.gxwtech.rtdemo.Medtronic.PumpData.records.TempBasalRate;
 
-import java.util.ArrayList;
-
 /**
  * Created by Geoff on 5/2/2015.
  */

@@ -9,53 +9,23 @@ package com.gxwtech.rtdemo.Medtronic.PumpData;
  * to do the work in sane fashion.
  *
  */
+
 import android.util.Log;
 
 import com.gxwtech.rtdemo.CRC;
 import com.gxwtech.rtdemo.HexDump;
-import com.gxwtech.rtdemo.Medtronic.PumpData.records.BasalProfileStart;
-import com.gxwtech.rtdemo.Medtronic.PumpData.records.BatteryActivity;
-import com.gxwtech.rtdemo.Medtronic.PumpData.records.Bolus;
 import com.gxwtech.rtdemo.Medtronic.PumpData.records.BolusWizard;
-import com.gxwtech.rtdemo.Medtronic.PumpData.records.BolusWizardChange;
-import com.gxwtech.rtdemo.Medtronic.PumpData.records.CalBgForPh;
-import com.gxwtech.rtdemo.Medtronic.PumpData.records.ChangeBasalProfile;
-import com.gxwtech.rtdemo.Medtronic.PumpData.records.ChangeRemoteId;
-import com.gxwtech.rtdemo.Medtronic.PumpData.records.ChangeTime;
-import com.gxwtech.rtdemo.Medtronic.PumpData.records.ChangeTimeDisplay;
-import com.gxwtech.rtdemo.Medtronic.PumpData.records.ChangeUtility;
-import com.gxwtech.rtdemo.Medtronic.PumpData.records.ClearAlarm;
-import com.gxwtech.rtdemo.Medtronic.PumpData.records.EndResultsTotals;
-import com.gxwtech.rtdemo.Medtronic.PumpData.records.Ian3F;
-import com.gxwtech.rtdemo.Medtronic.PumpData.records.LowBattery;
-import com.gxwtech.rtdemo.Medtronic.PumpData.records.LowReservoir;
-import com.gxwtech.rtdemo.Medtronic.PumpData.records.NewTimeSet;
-import com.gxwtech.rtdemo.Medtronic.PumpData.records.NoDeliveryAlarm;
-import com.gxwtech.rtdemo.Medtronic.PumpData.records.Old6c;
-import com.gxwtech.rtdemo.Medtronic.PumpData.records.Prime;
-import com.gxwtech.rtdemo.Medtronic.PumpData.records.PumpResumed;
-import com.gxwtech.rtdemo.Medtronic.PumpData.records.PumpSuspended;
 import com.gxwtech.rtdemo.Medtronic.PumpData.records.Record;
 import com.gxwtech.rtdemo.Medtronic.PumpData.records.RecordTypeEnum;
-import com.gxwtech.rtdemo.Medtronic.PumpData.records.ResultTotals;
-import com.gxwtech.rtdemo.Medtronic.PumpData.records.Rewound;
-import com.gxwtech.rtdemo.Medtronic.PumpData.records.Sara6E;
-import com.gxwtech.rtdemo.Medtronic.PumpData.records.SelectBasalProfile;
 import com.gxwtech.rtdemo.Medtronic.PumpData.records.TempBasalDuration;
 import com.gxwtech.rtdemo.Medtronic.PumpData.records.TempBasalRate;
-import com.gxwtech.rtdemo.Medtronic.PumpData.records.ToggleRemote;
-import com.gxwtech.rtdemo.Medtronic.PumpData.records.UnabsorbedInsulin;
 import com.gxwtech.rtdemo.Medtronic.PumpModel;
 
 import org.joda.time.DateTime;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Page {
     private final static String TAG = "Page";

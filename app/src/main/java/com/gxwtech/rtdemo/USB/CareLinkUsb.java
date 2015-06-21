@@ -10,7 +10,6 @@ import android.hardware.usb.UsbRequest;
 import android.util.Log;
 
 import com.gxwtech.rtdemo.HexDump;
-import com.gxwtech.rtdemo.Services.RTDemoService;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;

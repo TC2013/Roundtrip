@@ -1,10 +1,6 @@
 package com.gxwtech.rtdemo.Medtronic.PumpData.records;
 
-import android.util.Log;
-
 import com.gxwtech.rtdemo.Medtronic.PumpModel;
-
-import org.joda.time.DateTime;
 
 public class ResultTotals extends Record {
     private static final String TAG = "ResultTotals";

@@ -2,7 +2,6 @@ package com.gxwtech.rtdemo.Medtronic;
 
 import android.util.Log;
 
-import com.gxwtech.rtdemo.HexDump;
 import com.gxwtech.rtdemo.Medtronic.PumpData.TempBasalPair;
 
 /**

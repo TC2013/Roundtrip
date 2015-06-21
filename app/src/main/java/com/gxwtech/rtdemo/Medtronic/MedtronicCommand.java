@@ -10,10 +10,7 @@ import com.gxwtech.rtdemo.Carelink.ReadRadioCommand;
 import com.gxwtech.rtdemo.Carelink.TransmitPacketCommand;
 import com.gxwtech.rtdemo.Carelink.util.ByteUtil;
 import com.gxwtech.rtdemo.HexDump;
-import com.gxwtech.rtdemo.Services.RTDemoService;
 import com.gxwtech.rtdemo.USB.UsbException;
-
-import java.util.Calendar;
 
 /**
  * Created by geoff on 4/27/15.

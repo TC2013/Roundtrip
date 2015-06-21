@@ -3,7 +3,6 @@ package com.gxwtech.rtdemo.Services.PumpManager;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.gxwtech.rtdemo.Medtronic.PumpData.BasalProfileTypeEnum;
 import com.gxwtech.rtdemo.Medtronic.PumpData.PumpSettings;
 
 import java.util.ArrayList;

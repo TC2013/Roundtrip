@@ -28,7 +28,6 @@ import com.gxwtech.rtdemo.USB.CareLinkUsb;
 import com.gxwtech.rtdemo.USB.UsbException;
 
 import org.joda.time.DateTime;
-import org.joda.time.Instant;
 import org.joda.time.Seconds;
 import org.joda.time.format.ISODateTimeFormat;
 

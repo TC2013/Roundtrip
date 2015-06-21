@@ -1,9 +1,5 @@
 package com.gxwtech.rtdemo.Medtronic;
 
-import android.util.Log;
-
-import com.gxwtech.rtdemo.HexDump;
-
 import org.joda.time.DateTime;
 
 /**
