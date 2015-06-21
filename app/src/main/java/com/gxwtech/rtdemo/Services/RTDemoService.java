@@ -58,28 +58,27 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 /**
  * Created by geoff on 4/9/15.
- *
+ * <p/>
  * This service handles all communication with the carelink stick
  * and the medtronic pump.  MainActivity shouldn't access those directly.
- *
+ * <p/>
  * This class is mainly for handling the Android GUI/Background issues, like intents & messages.
  * Put the code for the pump into the PumpManager whenever possible.
- *
+ * <p/>
  * Unfortunately, it still has to handle USB issues, AFAICT, as these are OS issues.
- *
+ * <p/>
  * 2015-06-05 GGW: This class started out just being the background thread for pump communications,
  * but it has grown into being ALL background services.  There are really three very important
  * classes where the work is done: APSLogic, PumpManager and RTDemoService.  It is not a clean
  * heirarchy: they all call each other at various times.  The goal was to keep related code together
  * but it needs to be refactored.
- *
+ * <p/>
  * PumpManager: Handles pump data types and pump communcations.
- *
+ * <p/>
  * APSLogic: does the insulin/TempBasal decision making.  It has to collect a lot of data to do this.
- *
+ * <p/>
  * RTDemoService: Handles anything Android related (except the android Log facility, which
  * I ended up using everywhere).
- *
  */
 
 
@@ -116,7 +115,9 @@ public class RTDemoService extends IntentService {
         setIntentRedelivery(true);
     }
 
-    public PumpManager getPumpManager() { return mPumpManager; }
+    public PumpManager getPumpManager() {
+        return mPumpManager;
+    }
 
     boolean deviceIsCarelink(UsbDevice device) {
         if (device == null) return false;
@@ -129,30 +130,29 @@ public class RTDemoService extends IntentService {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (ACTION_USB_PERMISSION.equals(action)) {
-                Log.w(TAG,"RTDemoService: ACTION_USB_PERMISSION");
+                Log.w(TAG, "RTDemoService: ACTION_USB_PERMISSION");
                 synchronized (this) {
-                    UsbDevice device = (UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+                    UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-                        if(device != null){
+                        if (device != null) {
                             //call method to set up device communication
                             Log.i("GGW", "Received Permission for device! (Carelink) (rebuild PumpManager?)");
 
                             mPumpManager = new PumpManager(getApplicationContext());
                             // needs application context to access USB manager
                             if (!mPumpManager.open()) {
-                                Log.e(TAG,"Failed to open mPumpManager");
+                                Log.e(TAG, "Failed to open mPumpManager");
                                 llog("Error opening Pump Manager");
                             }
 
                         }
-                    }
-                    else {
+                    } else {
                         Log.d(TAG, "Permission denied for device " + device.toString());
                     }
                 }
             } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
-                Log.w(TAG,"RTDemoService: ACTION_USB_DEVICE_DETACHED");
-                UsbDevice device = (UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+                Log.w(TAG, "RTDemoService: ACTION_USB_DEVICE_DETACHED");
+                UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                 if (device != null) {
                     // call your method that cleans up and closes communication with the device
                     if (deviceIsCarelink(device)) {
@@ -169,8 +169,8 @@ public class RTDemoService extends IntentService {
                     }
                 }
             } else if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
-                Log.w(TAG,"RTDemoService: ACTION_USB_DEVICE_ATTACHED");
-                UsbDevice device = (UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+                Log.w(TAG, "RTDemoService: ACTION_USB_DEVICE_ATTACHED");
+                UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                 if (deviceIsCarelink(device)) {
                     if (!getUsbManager().hasPermission(device)) {
                         llog("Carelink device attached, permission OK. (rebuild pumpManager?");
@@ -182,7 +182,7 @@ public class RTDemoService extends IntentService {
                     mPumpManager = new PumpManager(getApplicationContext());
                     // needs application context to access USB manager
                     if (!mPumpManager.open()) {
-                        Log.e(TAG,"Failed to open mPumpManager");
+                        Log.e(TAG, "Failed to open mPumpManager");
                         llog("Error opening Pump Manager");
                     }
 
@@ -203,7 +203,7 @@ public class RTDemoService extends IntentService {
             if (srq == null) {
                 srq = "(null)";
             }
-            Log.w(TAG,String.format("onHandleIntent: received request srq=%s",srq));
+            Log.w(TAG, String.format("onHandleIntent: received request srq=%s", srq));
 
             /*
             if (srq == Constants.SRQ.SET_SERIAL_NUMBER) {
@@ -238,7 +238,7 @@ public class RTDemoService extends IntentService {
                 HistoryReport report = mPumpManager.getPumpHistory();
 
             } else if (srq.equals(Constants.SRQ.SET_TEMP_BASAL)) {
-                TempBasalPairParcel pair = (TempBasalPairParcel)intent.getParcelableExtra(Constants.ParcelName.TempBasalPairParcelName);
+                TempBasalPairParcel pair = (TempBasalPairParcel) intent.getParcelableExtra(Constants.ParcelName.TempBasalPairParcelName);
                 Log.d(TAG, String.format("Request to Set Temp Basal(Rate %.2fU, duration %d minutes",
                         pair.mInsulinRate, pair.mDurationMinutes));
                 mPumpManager.setTempBasal(pair);
@@ -257,14 +257,14 @@ public class RTDemoService extends IntentService {
                 Log.w(TAG, "onHandleIntent: stopping repeating alarm");
                 stopRepeatingAlarm();
             } else if (srq.equals(Constants.SRQ.DO_SUSPEND_MINUTES)) {
-                Log.w(TAG,"onHandleIntent: suspending repeating alarm");
+                Log.w(TAG, "onHandleIntent: suspending repeating alarm");
                 // MonitorActivity Suspend button runs this.
                 // Get saved suspend duration from preferences.
                 // (Most likely, it was just saved by SuspendAPSActivity)
                 SharedPreferences settings = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
                 int minutes = settings.getInt(Constants.PrefName.SuspendMinutesPrefName, 0);
                 if (minutes <= 0) {
-                    Log.e(TAG,String.format("Cannot suspend for %d minutes.",minutes));
+                    Log.e(TAG, String.format("Cannot suspend for %d minutes.", minutes));
                 } else {
                     suspendRepeatingAlarm(minutes * 60 * 1000); // five minutes, should be.
                 }
@@ -288,17 +288,13 @@ public class RTDemoService extends IntentService {
                     }
                 }
             }
-
-
-        }
-        finally {
+        } finally {
             // The lock was grabbed in onStartCommand
-            PowerManager.WakeLock lock=getLock(this.getApplicationContext());
+            PowerManager.WakeLock lock = getLock(this.getApplicationContext());
             if (lock.isHeld()) {
                 try {
                     lock.release();
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     Log.e(getClass().getSimpleName(),
                             "Exception when releasing wakelock", e);
                 }
@@ -306,17 +302,18 @@ public class RTDemoService extends IntentService {
         }
 
     }
+
     private AlarmManager getAlarmManager() {
-        return (AlarmManager)getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+        return (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
     }
 
     public PendingIntent getAlarmPendingIntent() {
         if (mRepeatingAlarmPendingIntent == null) {
             int privateRequestCode = -99;
-            Intent wakeupServiceIntent = new Intent(getApplicationContext(),RTDemoService.class).
-                    putExtra("srq",Constants.SRQ.APSLOGIC_STARTUP);
-            mRepeatingAlarmPendingIntent = PendingIntent.getService(getApplicationContext(),privateRequestCode,
-                    wakeupServiceIntent,0);
+            Intent wakeupServiceIntent = new Intent(getApplicationContext(), RTDemoService.class).
+                    putExtra("srq", Constants.SRQ.APSLOGIC_STARTUP);
+            mRepeatingAlarmPendingIntent = PendingIntent.getService(getApplicationContext(), privateRequestCode,
+                    wakeupServiceIntent, 0);
         }
         return mRepeatingAlarmPendingIntent;
     }
@@ -342,14 +339,14 @@ public class RTDemoService extends IntentService {
 
     synchronized private static PowerManager.WakeLock getLock(Context context) {
         if (lockStatic == null) {
-            PowerManager mgr=
-                    (PowerManager)context.getSystemService(Context.POWER_SERVICE);
+            PowerManager mgr =
+                    (PowerManager) context.getSystemService(Context.POWER_SERVICE);
 
-            lockStatic=mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCKNAME);
+            lockStatic = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCKNAME);
             lockStatic.setReferenceCounted(true);
         }
 
-        return(lockStatic);
+        return (lockStatic);
     }
 
     private void checkPumpCommunications() {
@@ -374,13 +371,13 @@ public class RTDemoService extends IntentService {
 
         b = mPumpManager.getProfile(BasalProfileTypeEnum.STD);
         if (b.getEntries().isEmpty()) {
-            Log.e(TAG,"testGetProfile: STD profile is empty");
+            Log.e(TAG, "testGetProfile: STD profile is empty");
         } else {
-            Log.e(TAG,"testGetProfile: STD profile:");
-            for (i=0; i<b.getEntries().size(); i++) {
+            Log.e(TAG, "testGetProfile: STD profile:");
+            for (i = 0; i < b.getEntries().size(); i++) {
                 BasalProfileEntry entry = b.getEntries().get(i);
-                Log.d(TAG,String.format("rate: %.2f, start: %02d:%02d",
-                        entry.rate, entry.startTime.getHourOfDay(),entry.startTime.getMinuteOfHour()));
+                Log.d(TAG, String.format("rate: %.2f, start: %02d:%02d",
+                        entry.rate, entry.startTime.getHourOfDay(), entry.startTime.getMinuteOfHour()));
             }
         }
         b = mPumpManager.getProfile(BasalProfileTypeEnum.A);
@@ -388,10 +385,10 @@ public class RTDemoService extends IntentService {
             Log.e(TAG, "testGetProfile: A profile is empty");
         } else {
             Log.e(TAG, "testGetProfile: A profile:");
-            for (i=0; i<b.getEntries().size(); i++) {
+            for (i = 0; i < b.getEntries().size(); i++) {
                 BasalProfileEntry entry = b.getEntries().get(i);
-                Log.d(TAG,String.format("rate: %.2f, start: %02d:%02d",
-                        entry.rate, entry.startTime.getHourOfDay(),entry.startTime.getMinuteOfHour()));
+                Log.d(TAG, String.format("rate: %.2f, start: %02d:%02d",
+                        entry.rate, entry.startTime.getHourOfDay(), entry.startTime.getMinuteOfHour()));
             }
         }
         b = mPumpManager.getProfile(BasalProfileTypeEnum.B);
@@ -399,10 +396,10 @@ public class RTDemoService extends IntentService {
             Log.e(TAG, "testGetProfile: B profile is empty");
         } else {
             Log.e(TAG, "testGetProfile: B profile:");
-            for (i=0; i<b.getEntries().size(); i++) {
+            for (i = 0; i < b.getEntries().size(); i++) {
                 BasalProfileEntry entry = b.getEntries().get(i);
-                Log.d(TAG,String.format("rate: %.2f, start: %02d:%02d",
-                        entry.rate, entry.startTime.getHourOfDay(),entry.startTime.getMinuteOfHour()));
+                Log.d(TAG, String.format("rate: %.2f, start: %02d:%02d",
+                        entry.rate, entry.startTime.getHourOfDay(), entry.startTime.getMinuteOfHour()));
             }
         }
 
@@ -427,31 +424,30 @@ public class RTDemoService extends IntentService {
     public void sendSleepNotification(DateTime starttime, int durationSeconds) {
         // send the log message to anyone who cares to listen (e.g. a UI component!)
         Intent intent = new Intent(Intents.ROUNDTRIP_SLEEP_MESSAGE)
-                .putExtra(Intents.ROUNDTRIP_SLEEP_MESSAGE_DURATION,durationSeconds);
+                .putExtra(Intents.ROUNDTRIP_SLEEP_MESSAGE_DURATION, durationSeconds);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     // send back to the UI thread an arbitrary response parcel
     protected void sendTaskResponseParcel(Parcelable p, String typename) {
         Intent intent = new Intent(Intents.ROUNDTRIP_TASK_RESPONSE);
-        intent.putExtra("name",typename);
+        intent.putExtra("name", typename);
         intent.putExtra(typename, p);
         Log.d(TAG, "Sending task response parcel, name = " + typename);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     // local log function that also posts to the front page status gui
-    protected void llog(String msg){
-
+    protected void llog(String msg) {
         // send the message to the Android logging service
-        Log.i(TAG + "-LOG",msg);
+        Log.i(TAG + "-LOG", msg);
 
         msgQ.add(msg);
 
         // send the log message to anyone who cares to listen (e.g. a UI component!)
         Intent intent = new Intent(Intents.ROUNDTRIP_STATUS_MESSAGE)
                 .putExtra(Intents.ROUNDTRIP_STATUS_MESSAGE_STRING, msg)
-                .putExtra("messages",msgQ);
+                .putExtra("messages", msgQ);
 
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
@@ -462,10 +458,10 @@ public class RTDemoService extends IntentService {
         SharedPreferences settings = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
         // get strings from prefs
         String server = settings.getString(Constants.PrefName.MongoDBServerPrefName, "localhost");
-        String serverPort = settings.getString(Constants.PrefName.MongoDBServerPortPrefName,"12345");
-        String dbname = settings.getString(Constants.PrefName.MongoDBDatabasePrefName,"db");
-        String mongoUsername = settings.getString(Constants.PrefName.MongoDBUsernamePrefName,"username");
-        String mongoPassword = settings.getString(Constants.PrefName.MongoDBPasswordPrefName,"password");
+        String serverPort = settings.getString(Constants.PrefName.MongoDBServerPortPrefName, "12345");
+        String dbname = settings.getString(Constants.PrefName.MongoDBDatabasePrefName, "db");
+        String mongoUsername = settings.getString(Constants.PrefName.MongoDBUsernamePrefName, "username");
+        String mongoPassword = settings.getString(Constants.PrefName.MongoDBPasswordPrefName, "password");
         String mongoCollection = settings.getString(Constants.PrefName.MongoDBCollectionPrefName, "entries");
 
         mMongoWrapper.updateURI(server, serverPort, dbname, mongoUsername, mongoPassword, mongoCollection);
@@ -512,14 +508,14 @@ public class RTDemoService extends IntentService {
         registerReceiver(mUsbReceiver, filter);
         // still can't figure out where to do the creation/open properly:
         mPumpManager = new PumpManager(this);
-        String serialNumber = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName,0).
+        String serialNumber = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0).
                 getString(Constants.PrefName.SerialNumberPrefName, "000000");
         // convert to bytes
         byte[] sn_bytes = HexDump.hexStringToByteArray(serialNumber);
         mPumpManager.setSerialNumber(sn_bytes);
 
         mPumpManager.open();
-        mAPSLogic = new APSLogic(this,mPumpManager);
+        mAPSLogic = new APSLogic(this, mPumpManager);
         mMongoWrapper = new MongoWrapper();
         updateMongoWrapperFromPrefs();
 
@@ -541,9 +537,9 @@ public class RTDemoService extends IntentService {
             // This will end up running onHandleIntent
             super.onStartCommand(intent, flags, startId);
         } else {
-            Log.e(TAG,"Received null intent?");
+            Log.e(TAG, "Received null intent?");
         }
-        return(START_REDELIVER_INTENT|START_STICKY);
+        return (START_REDELIVER_INTENT | START_STICKY);
     }
 
     protected void serviceMain() {
@@ -558,7 +554,7 @@ public class RTDemoService extends IntentService {
             Log.e(TAG,
                     String.format("Error reading BG from Mongo: %s, and BG reading reports %.2f at %s",
                             bgResponse.errorMessage,
-                            reading.mBg,reading.mTimestamp.toLocalDateTime().toString()));
+                            reading.mBg, reading.mTimestamp.toLocalDateTime().toString()));
         }
         // Are the contents of BGReading reading "ok to use", even with an error?
         // how else to handle?
@@ -572,7 +568,7 @@ public class RTDemoService extends IntentService {
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         Log.i(TAG, "Sending latest BG reading");
         mAPSLogic.broadcastAPSLogicStatusMessage(String.format("Latest BG reading reports %.2f at %s",
-                reading.mBg,reading.mTimestamp.toLocalDateTime().toString()));
+                reading.mBg, reading.mTimestamp.toLocalDateTime().toString()));
 
         mAPSLogic.updateCachedLatestBGReading(reading);
 
@@ -580,7 +576,7 @@ public class RTDemoService extends IntentService {
         mAPSLogic.runAPSLogicOnce();
     }
 
-    private void showNotification(){
+    private void showNotification() {
         /* Build a Notification Icon for the top left, to show we're running and provide access */
         Intent notificationIntent = new Intent(this, MainActivity.class);
         notificationIntent.setAction(Constants.ACTION.START_RT_ACTION);
@@ -593,7 +589,7 @@ public class RTDemoService extends IntentService {
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentIntent(pendingIntent);
         Notification notification = b.build();
-        mNM.notify(NOTIFICATION,notification);
+        mNM.notify(NOTIFICATION, notification);
     }
 
     @Override
@@ -622,7 +618,7 @@ public class RTDemoService extends IntentService {
 
     @Override
     public void onDestroy() {
-        Log.e(TAG,"onDestroy()");
+        Log.e(TAG, "onDestroy()");
         /* This function runs in the Foreground */
         /* release resources */
         mPumpManager.close();
@@ -630,11 +626,18 @@ public class RTDemoService extends IntentService {
         unregisterReceiver(mUsbReceiver);
         super.onDestroy();
     }
+
     // getting permission for the device is necessarily an asynchronous action
-    boolean getCarelinkPermission() {
+    private boolean getCarelinkPermission() {
         UsbDevice device = getCarelinkDevice();
-        int loopcount = 0;
-        if (getUsbManager().hasPermission(device)) {
+
+        // If the device cannot be found, then the permissions are not given.
+        if (device == null) {
+            return false;
+        }
+
+        UsbManager manager = getUsbManager();
+        if (manager.hasPermission(device)) {
             return true;
         }
         // create a PendingIntent to give to the USB Manager, to call us back with the result.
@@ -652,34 +655,35 @@ public class RTDemoService extends IntentService {
         // ask for permission
         getUsbManager().requestPermission(device, mPermissionIntent);
 
+        int loopcount = 0;
         // wait for permission (BLOCKING!)
         while (!getUsbManager().hasPermission(device)) {
-            if (loopcount % 100 == 0) {
-                Log.i("gapp","Waiting for Carelink Permission");
+            if (loopcount++ % 100 == 0) {
+                Log.i("gapp", "Waiting for Carelink Permission");
             }
             // sleep for milliseconds
             try {
                 Thread.sleep(100);
             } catch (java.lang.InterruptedException e) {
                 // whatever
-                Log.i("gapp","Exception(?):" + e.getMessage());
+                Log.i("gapp", "Exception(?):" + e.getMessage());
             }
-            loopcount ++;
         }
         // receiver no longer needed?
         //unregisterReceiver(mUsbReceiver);
         return true;
     }
 
-    UsbManager getUsbManager() {
+    private UsbManager getUsbManager() {
         return (UsbManager) getSystemService(Context.USB_SERVICE);
     }
 
-    UsbDevice mCarelinkDevice; // use getCarelinkDevice to get access
-    UsbDevice getCarelinkDevice() {
+    private UsbDevice mCarelinkDevice; // use getCarelinkDevice to get access
+
+    private UsbDevice getCarelinkDevice() {
         // if we already have one, return it
         if (mCarelinkDevice != null) {
-            Log.e(TAG,"Re-using existing carelink device");
+            Log.e(TAG, "Re-using existing carelink device");
             return mCarelinkDevice;
         }
 
@@ -688,21 +692,22 @@ public class RTDemoService extends IntentService {
         Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
 
         UsbDevice device = null;
-        while(deviceIterator.hasNext()){
+        while (deviceIterator.hasNext()) {
             device = deviceIterator.next();
             if (deviceIsCarelink(device)) {
-
                 break;
             } else {
+                Log.e(TAG, "Found a device, but it is not a CareLink: " + device.getDeviceName());
                 device = null;
             }
         }
         mCarelinkDevice = device;
         if (mCarelinkDevice == null) {
-            Log.e(TAG,"Failed to find suitable carelink device");
+            Log.e(TAG, "Failed to find suitable CareLink device");
         } else {
-            Log.e(TAG,"Found new carelink device");
+            Log.e(TAG, "Found new CareLink device");
         }
+
         return mCarelinkDevice; // NOTE: may still be null, if we couldn't find it!
     }
 

@@ -33,7 +33,6 @@ public class Carelink {
         } else {
             Log.e(TAG,"reset(): mStick is null");
         }
-
     }
 
     protected byte[] doCommand(byte[] command,int delayMillis, int readSize) throws UsbException {
