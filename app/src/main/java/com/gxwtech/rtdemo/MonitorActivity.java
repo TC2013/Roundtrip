@@ -16,8 +16,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.gxwtech.rtdemo.Services.PumpManager.TempBasalPairParcel;
-import com.gxwtech.rtdemo.Services.RTDemoService;
+import com.gxwtech.rtdemo.services.pumpmanager.TempBasalPairParcel;
+import com.gxwtech.rtdemo.services.RTDemoService;
 
 import org.joda.time.DateTime;
 import org.joda.time.Seconds;

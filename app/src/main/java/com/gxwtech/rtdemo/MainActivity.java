@@ -14,7 +14,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.gxwtech.rtdemo.Services.RTDemoService;
+import com.gxwtech.rtdemo.services.RTDemoService;
 
 import java.util.ArrayList;
 import java.util.List;

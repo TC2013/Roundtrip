@@ -8,9 +8,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.gxwtech.rtdemo.Medtronic.PumpData.TempBasalPair;
-import com.gxwtech.rtdemo.Services.PumpManager.TempBasalPairParcel;
-import com.gxwtech.rtdemo.Services.RTDemoService;
+import com.gxwtech.rtdemo.medtronic.PumpData.TempBasalPair;
+import com.gxwtech.rtdemo.services.pumpmanager.TempBasalPairParcel;
+import com.gxwtech.rtdemo.services.RTDemoService;
 
 
 public class TempBasalActivity extends ActionBarActivity {

@@ -19,8 +19,8 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.gxwtech.rtdemo.Services.PumpManager.PumpSettingsParcel;
-import com.gxwtech.rtdemo.Services.RTDemoService;
+import com.gxwtech.rtdemo.services.pumpmanager.PumpSettingsParcel;
+import com.gxwtech.rtdemo.services.RTDemoService;
 
 
 public class PumpSettingsActivity extends ActionBarActivity {
