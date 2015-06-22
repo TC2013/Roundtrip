@@ -11,7 +11,7 @@ public class UnabsorbedInsulin extends VariableSizeBodyRecord {
         if (!super.collectRawData(data, model)) {
             return false;
         }
-        bodySize = data[1];
+        bodySize = readUnsignedByte(data[1]);
         calcSize();
         return true;
     }

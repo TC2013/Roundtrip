@@ -28,8 +28,8 @@ public class Prime extends TimeStampedRecord {
         if (!super.decode(data)) {
             return false;
         }
-        amount = data[4] / 10.0f;
-        fixed = data[2] / 10.0f;
+        amount = readUnsignedByte(data[4]) / 10.0f;
+        fixed = readUnsignedByte(data[2]) / 10.0f;
         primeType = (fixed == 0) ? PrimeType.MANUAL : PrimeType.FIXED;
         logRecord();
         return true;

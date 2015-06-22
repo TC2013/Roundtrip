@@ -23,8 +23,8 @@ public class TempBasalDuration extends TimeStampedRecord {
 
         int bodyIndex = headerSize + timestampSize;
         if (data.length > bodyIndex) {
-            byte durationByte = data[1]; // This is the second byte of the packet, not the body.
-            durationMinutes = durationByte * 30;
+            // This is the second byte of the packet (i.e. header), not the body.
+            durationMinutes = readUnsignedByte(data[1]) * 30;
             Log.d(TAG, "SUCCESS! Parsed TempBasalDuration Record");
         }
         return true;

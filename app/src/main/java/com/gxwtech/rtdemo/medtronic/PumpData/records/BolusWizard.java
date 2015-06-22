@@ -54,36 +54,33 @@ public class BolusWizard extends TimeStampedRecord {
         return decode(data);
     }
 
-    protected int toInt(byte b) {
-        return (int)b;
-    }
-
     protected boolean decode(byte[] data) {
         if (!super.decode(data)) {
             return false;
         }
         int bodyIndex = headerSize + timestampSize;
 
-        bg = (((data[bodyIndex + 1] & 0x0F) << 8) | toInt(data[1]));
-        carbInput = data[bodyIndex];
+        // GGW: is the BG number really broken up into a byte in the header and four bits in the body?
+        bg = (((data[bodyIndex + 1] & 0x0F) << 8) | data[1]);
+        carbInput = readUnsignedByte(data[bodyIndex]);
         if (model == PumpModel.MM523) {
-            correction = toInt(data[bodyIndex]) / 40.0f;
-            icRatio = toInt(data[bodyIndex + 14]) / 10.0f;
-            sensitivity = toInt(data[bodyIndex + 4]);
-            bgTargetLow = data[bodyIndex + 5];
-            bgTargetHigh = data[bodyIndex + 3];
-            bolusEstimate = data[bodyIndex + 13] / 40.0f;
-            foodEstimate = data[bodyIndex + 8] / 40.0f;
-            unabsorbedInsulinTotal = data[bodyIndex + 11] / 40.0f;
+            correction = readUnsignedByte(data[bodyIndex]) / 40.0f;
+            icRatio = readUnsignedByte(data[bodyIndex + 14]) / 10.0f;
+            sensitivity = readUnsignedByte(data[bodyIndex + 4]);
+            bgTargetLow = readUnsignedByte(data[bodyIndex + 5]);
+            bgTargetHigh = readUnsignedByte(data[bodyIndex + 3]);
+            bolusEstimate = readUnsignedByte(data[bodyIndex + 13]) / 40.0f;
+            foodEstimate = readUnsignedByte(data[bodyIndex + 8]) / 40.0f;
+            unabsorbedInsulinTotal = readUnsignedByte(data[bodyIndex + 11]) / 40.0f;
         } else {
-            correction = (toInt(data[bodyIndex + 7]) + data[bodyIndex + 5] & 0x0F) / 10.0f;
-            icRatio = toInt(data[bodyIndex + 2]);
-            sensitivity = toInt(data[bodyIndex + 3]);
-            bgTargetLow = data[bodyIndex + 4];
-            bgTargetHigh = data[bodyIndex + 12];
-            bolusEstimate = data[bodyIndex + 11] / 10.0f;
-            foodEstimate = data[bodyIndex + 6] / 10.0f;
-            unabsorbedInsulinTotal = data[bodyIndex + 9] / 10.0f;
+            correction = (readUnsignedByte(data[bodyIndex + 7]) + (data[bodyIndex + 5] & 0x0F)) / 10.0f;
+            icRatio = readUnsignedByte(data[bodyIndex + 2]);
+            sensitivity = readUnsignedByte(data[bodyIndex + 3]);
+            bgTargetLow = readUnsignedByte(data[bodyIndex + 4]);
+            bgTargetHigh = readUnsignedByte(data[bodyIndex + 12]);
+            bolusEstimate = readUnsignedByte(data[bodyIndex + 11]) / 10.0f;
+            foodEstimate = readUnsignedByte(data[bodyIndex + 6]) / 10.0f;
+            unabsorbedInsulinTotal = readUnsignedByte(data[bodyIndex + 9]) / 10.0f;
         }
         Log.e(TAG,"SUCCESS! Parsed BolusWizard Record");
         logRecord();
