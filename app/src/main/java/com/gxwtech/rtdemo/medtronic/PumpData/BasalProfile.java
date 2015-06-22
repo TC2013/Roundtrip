@@ -2,6 +2,8 @@ package com.gxwtech.rtdemo.medtronic.PumpData;
 
 import android.util.Log;
 
+import com.gxwtech.rtdemo.medtronic.PumpData.records.Record;
+
 import org.joda.time.Instant;
 
 import java.util.ArrayList;
@@ -38,6 +40,8 @@ public class BasalProfile {
         mRawData[1] = 0;
         mRawData[2] = 0x3f;
     }
+    // this readUnsignedByte should be combined with Record.readUnsignedByte, and placed in a new util class.
+    protected static int readUnsignedByte(byte b) { return (b<0)?b+256:b; }
     public boolean setRawData(byte[] data) {
         if (data == null) {
             Log.e(TAG,"setRawData: buffer is null!");
@@ -120,10 +124,11 @@ public class BasalProfile {
         }
         int i = 0;
         boolean done = false;
-        byte r,st;
+        int r,st;
         while (!done) {
-            r = mRawData[i];
-            st = mRawData[i+2];
+            r = readUnsignedByte(mRawData[i]);
+            // What is mRawData[i+1]? Not used in decocare.
+            st = readUnsignedByte(mRawData[i+2]);
             entries.add(new BasalProfileEntry(r,st));
             i=i+3;
             if (i>=21) {

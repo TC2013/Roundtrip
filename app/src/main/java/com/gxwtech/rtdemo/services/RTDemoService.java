@@ -696,7 +696,8 @@ public class RTDemoService extends IntentService {
             if (deviceIsCarelink(device)) {
                 break;
             } else {
-                Log.e(TAG, "Found a device, but it is not a CareLink:" + device.getDeviceName() + ", " + device.getProductName() + " (ProductID: " + device.getProductId() + ", VendorID: " + device.getVendorId() + ")");
+                //Log.e(TAG, "Found a device, but it is not a CareLink:" + device.getDeviceName() + ", " + device.getProductName() + " (ProductID: " + device.getProductId() + ", VendorID: " + device.getVendorId() + ")");
+                Log.e(TAG, "Found a device, but it is not a CareLink");
                 device = null;
             }
         }
