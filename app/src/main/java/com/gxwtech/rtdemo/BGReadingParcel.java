@@ -23,7 +23,9 @@ public class BGReadingParcel extends BGReading implements Parcelable {
     }
 
     public BGReadingParcel(BGReading bgr) {
-        init(bgr.mTimestamp, bgr.mBg);
+        if (bgr != null) {
+            init(bgr.mTimestamp, bgr.mBg);
+        }
     }
 
     @Override

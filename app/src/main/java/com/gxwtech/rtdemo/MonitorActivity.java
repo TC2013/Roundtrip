@@ -132,9 +132,13 @@ public class MonitorActivity extends ActionBarActivity {
     public void updateBGTimer() {
         if (mLastBGUpdateTime != null) {
             Seconds seconds = Seconds.secondsBetween(mLastBGUpdateTime, DateTime.now());
+            String viewtext = "never";
             int elapsedMinutes = seconds.getSeconds() / 60;
+            if (elapsedMinutes < 1000) {
+                viewtext = String.format("%d min ago", elapsedMinutes);
+            }
             TextView view = (TextView) findViewById(R.id.textView_LastBGReadTime);
-            view.setText(String.format("%d min ago", elapsedMinutes));
+            view.setText(viewtext);
         }
     }
 

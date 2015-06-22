@@ -2,6 +2,7 @@ package com.gxwtech.rtdemo;
 
 import android.util.Log;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
@@ -11,6 +12,7 @@ import com.mongodb.MongoClientURI;
 
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
+import org.joda.time.Instant;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -74,9 +76,11 @@ public class MongoWrapper {
         DB db = mongoClient.getDB(mDBName);
         DBCollection coll = db.getCollection(mCollection);
         // remember to use mongoClient.close()...
-
-        int i = 0;
-        DBCursor cursor = coll.find();
+        Log.d(TAG,"Getting BG reading from MongoDB");
+        int recordCount = 0;
+        Long millisecondsAtTwentyMinutesAgo = Instant.now().getMillis() - (20 * 60 * 1000);
+        BasicDBObject query = new BasicDBObject("date", new BasicDBObject("$gt",millisecondsAtTwentyMinutesAgo));
+        DBCursor cursor = coll.find(query);
         BGReading latestBGReading = null;
         Duration latestDiff = null;
         try {
@@ -90,7 +94,7 @@ public class MongoWrapper {
                 // for now, grab last one.
                 DBObject obj = cursor.next();
                 if (obj.containsField("sgv")) {
-                    Long secondsSince1970 = (Long)(obj.get("date"));
+                    Long millisecondsSince1970 = (Long)(obj.get("date"));
                     String dateString = (String)(obj.get("dateString"));
                     // When reading the DB, I see two formats of dateString:
                     //dateString:2015-05-30T18:23:07.272-05:00
@@ -114,10 +118,10 @@ public class MongoWrapper {
                         int bg = Integer.parseInt(obj.get("sgv").toString());
                         BGReading reading;
                         reading = new BGReading(bgTimestamp,(double)bg);
-                        /*
+
                         Log.i(TAG, String.format("Found record: Timestamp %s, bg: %.2f",
                                 reading.mTimestamp.toString(), reading.mBg));
-                        */
+
 
                         DateTime now = DateTime.now();
                         if (latestBGReading != null) {
@@ -132,9 +136,10 @@ public class MongoWrapper {
                         }
                     }
                 }
-                i = i + 1;
+                recordCount += 1;
             }
             response.reading = latestBGReading;
+            Log.i(TAG,"Total MongoDB entries read: " + recordCount);
             // android says commandFailureException is deprecated, but it's what's thrown...
         } catch (com.mongodb.CommandFailureException e) {
             response.setError(e.toString());
@@ -150,6 +155,8 @@ public class MongoWrapper {
             // This is the latest reading, though it may not be new to us.  Let APSLogic handle that.
             Log.i(TAG, String.format("BG Reading from MongoDB: Timestamp %s, bg: %.2f",
                     latestBGReading.mTimestamp.toString(), latestBGReading.mBg));
+        } else {
+            response.setError("Zero records found");
         }
 
         return response;

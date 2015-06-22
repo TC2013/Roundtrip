@@ -41,6 +41,7 @@ import com.gxwtech.rtdemo.usb.CareLinkUsb;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -249,7 +250,8 @@ public class RTDemoService extends IntentService {
             } else if (srq.equals(Constants.SRQ.START_REPEAT_ALARM)) {
                 // MonitorActivity start button runs this.
                 Log.w(TAG, "onHandleIntent: starting repeating alarm");
-                startRepeatingAlarm(1000); // first run begins in 1 second
+                //startRepeatingAlarm(3 * 1000); // first run begins in 3 seconds
+                startRepeatingAlarm(0); // first run begins now
             } else if (srq.equals(Constants.SRQ.STOP_REPEAT_ALARM)) {
                 // MonitorActivity stop button runs this.
                 Log.w(TAG, "onHandleIntent: stopping repeating alarm");
@@ -272,20 +274,8 @@ public class RTDemoService extends IntentService {
                 // This should be sent from the timer, so that it happens in the right thread/right queue
             } else if (srq.equals(Constants.SRQ.APSLOGIC_STARTUP)) {
                 serviceMain();
-            } else {
-                // just wait half second
-                long endTime = System.currentTimeMillis() + 500;
-                while (System.currentTimeMillis() < endTime) {
-                    synchronized (this) {
-                        try {
-                            wait(endTime - System.currentTimeMillis());
-                            //llog("(Service has updated from data sources)");
-                        } catch (Exception e) {
-                            llog(e.getMessage());
-                        }
-                    }
-                }
             }
+
         } finally {
             // The lock was grabbed in onStartCommand
             PowerManager.WakeLock lock = getLock(this.getApplicationContext());
@@ -318,20 +308,27 @@ public class RTDemoService extends IntentService {
 
     public void startRepeatingAlarm(int delayToFirstRunMillis) {
         int repeatingAlarmInterval = secondsBetweenRuns * 1000; // millis
+        stopRepeatingAlarm();
+        boolean use_elapsed_clock = true;
+        if (use_elapsed_clock) {
+            getAlarmManager().setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    SystemClock.elapsedRealtime() + delayToFirstRunMillis,
+                    repeatingAlarmInterval, getAlarmPendingIntent());
+        } else {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(System.currentTimeMillis() + delayToFirstRunMillis);
 
-        getAlarmManager().setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime() + delayToFirstRunMillis,
-                repeatingAlarmInterval, getAlarmPendingIntent());
+            getAlarmManager().setRepeating(AlarmManager.RTC_WAKEUP,
+                    calendar.getTimeInMillis(),
+                    repeatingAlarmInterval, getAlarmPendingIntent());
+        }
     }
 
     public void stopRepeatingAlarm() {
-
-
         getAlarmManager().cancel(getAlarmPendingIntent());
     }
 
     public void suspendRepeatingAlarm(int suspendMillis) {
-        stopRepeatingAlarm();
         startRepeatingAlarm(suspendMillis);
     }
 
@@ -549,30 +546,34 @@ public class RTDemoService extends IntentService {
         MongoWrapper.BGReadingResponse bgResponse = mMongoWrapper.getBGReading();
         BGReading reading = bgResponse.reading;
         if (bgResponse.error) {
-            mAPSLogic.broadcastAPSLogicStatusMessage("Error reading BG from mongo:" + bgResponse.errorMessage);
-            Log.e(TAG,
-                    String.format("Error reading BG from Mongo: %s, and BG reading reports %.2f at %s",
-                            bgResponse.errorMessage,
-                            reading.mBg, reading.mTimestamp.toLocalDateTime().toString()));
+            mAPSLogic.broadcastAPSLogicStatusMessage("Error reading BG from mongo: " + bgResponse.errorMessage);
+            if (reading!=null) {
+                Log.e(TAG,
+                        String.format("Error reading BG from Mongo: %s, and BG reading reports %.2f at %s",
+                                bgResponse.errorMessage,
+                                reading.mBg, reading.mTimestamp.toLocalDateTime().toString()));
+            }
+            // Are the contents of BGReading reading "ok to use", even with an error?
+            // how else to handle?
+
+            // for the moment, refuse to run if we can't get a BG reading.
+        } else {
+            // TODO: Need to make RTDemoService regularly hit the mongodb (every 5 min)
+            // For now, the testdb button gets a reading.
+            // broadcast the reading to the world. (esp. to MonitorActivity)
+            Intent intent = new Intent(Intents.ROUNDTRIP_BG_READING);
+            intent.putExtra("name", Constants.ParcelName.BGReadingParcelName);
+            intent.putExtra(Constants.ParcelName.BGReadingParcelName, new BGReadingParcel(reading));
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+            Log.i(TAG, "Sending latest BG reading");
+            mAPSLogic.broadcastAPSLogicStatusMessage(String.format("Latest BG reading reports %.2f at %s",
+                    reading.mBg, reading.mTimestamp.toLocalDateTime().toString()));
+
+            mAPSLogic.updateCachedLatestBGReading(reading);
+
+            // the above should be (re)moved.
+            mAPSLogic.runAPSLogicOnce();
         }
-        // Are the contents of BGReading reading "ok to use", even with an error?
-        // how else to handle?
-
-        // TODO: Need to make RTDemoService regularly hit the mongodb (every 5 min)
-        // For now, the testdb button gets a reading.
-        // broadcast the reading to the world. (esp. to MonitorActivity)
-        Intent intent = new Intent(Intents.ROUNDTRIP_BG_READING);
-        intent.putExtra("name", Constants.ParcelName.BGReadingParcelName);
-        intent.putExtra(Constants.ParcelName.BGReadingParcelName, new BGReadingParcel(reading));
-        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-        Log.i(TAG, "Sending latest BG reading");
-        mAPSLogic.broadcastAPSLogicStatusMessage(String.format("Latest BG reading reports %.2f at %s",
-                reading.mBg, reading.mTimestamp.toLocalDateTime().toString()));
-
-        mAPSLogic.updateCachedLatestBGReading(reading);
-
-        // the above should be (re)moved.
-        mAPSLogic.runAPSLogicOnce();
     }
 
     private void showNotification() {

@@ -28,6 +28,7 @@ import com.gxwtech.rtdemo.usb.CareLinkUsb;
 import com.gxwtech.rtdemo.usb.UsbException;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Seconds;
 import org.joda.time.format.ISODateTimeFormat;
 
@@ -62,18 +63,25 @@ public class PumpManager {
         SharedPreferences settings = mContext.getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
         // get strings from prefs
         String lastPower = settings.getString(Constants.PrefName.LastPowerControlRunTime, "never");
+        Log.d(TAG,"getLastPowerControlRunTime reports preference value: " + lastPower);
         if (lastPower==null) {
             lastPower = "never";
         }
         if ("never".equals(lastPower)) {
+            Log.d(TAG,"getLastPowerControlRunTime: returning invalid DateTime");
             return new DateTime(0);
         }
-        return ISODateTimeFormat.dateTime().parseDateTime(lastPower);
+        DateTime rval = ISODateTimeFormat.dateTime().parseDateTime(lastPower);
+        Log.d(TAG,"getLastPowerControlRunTime: returning (ISO) " + rval.toString());
+        return rval;
     }
 
     protected void setLastPowerControlRunTime(DateTime when_iso) {
+        Log.d(TAG,"setLastPowerControlRunTime: setting new run time: " + ISODateTimeFormat.dateTime().print(when_iso));
         mContext.getSharedPreferences(Constants.PreferenceID.MainActivityPrefName,0).
-                edit().putString(Constants.PrefName.LastPowerControlRunTime, ISODateTimeFormat.dateTime().print(when_iso));
+                edit().putString(Constants.PrefName.LastPowerControlRunTime, ISODateTimeFormat.dateTime().print(when_iso))
+                .commit();
+
     }
 
     public boolean setSerialNumber(byte[] serialNumber) {
@@ -201,7 +209,7 @@ public class PumpManager {
             MedtronicCommandStatusEnum en = powerControlCommand.run(mCarelink, mSerialNumber);
             Log.w(TAG, "PowerControlCommand returned status: " + en.name());
             // Only set the new run time if the command succeeded?
-            setLastPowerControlRunTime(DateTime.now());
+            setLastPowerControlRunTime(DateTime.now(DateTimeZone.UTC));
         }
     }
 
