@@ -43,7 +43,7 @@ public class CareLinkUsb {
     }
 
     public void open(Context context) throws UsbException {
-        Log.e(TAG,"CarelinkUSB open()");
+        Log.d(TAG,"CarelinkUSB open()");
         mUsbManager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
         HashMap<String, UsbDevice> deviceList = mUsbManager.getDeviceList();
         Log.d(TAG, "Enumerating connected devices...");
@@ -82,7 +82,7 @@ public class CareLinkUsb {
     }
 
     public void close() throws UsbException {
-        Log.e(TAG,"CarelinkUSB close()");
+        Log.d(TAG,"CarelinkUSB close()");
         if (mUsbDeviceConnection == null) {
             throw new UsbException("no connection available");
         }
@@ -107,8 +107,8 @@ public class CareLinkUsb {
                 done = true;
                 Log.w("drainQueue", String.format("read 0 bytes, queue drained.", nRead));
             } else {
-                Log.e("drainQueue", String.format("read %d bytes, trying to drain more.", nRead));
-                Log.e("drainQueue", "Dump of drained bytes: " + HexDump.dumpHexString(buf));
+                Log.d("drainQueue", String.format("read %d bytes, trying to drain more.", nRead));
+                Log.d("drainQueue", "Dump of drained bytes: " + HexDump.dumpHexString(buf));
             }
         }
     }
