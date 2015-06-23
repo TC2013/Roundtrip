@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 
 
 /**
@@ -272,16 +273,52 @@ public class APSLogic {
         double remainingBGImpact_COBtotal = 0;
         // Go get the history report from the pump
         // NOTE! this command may take many seconds to return (around 6 seconds, 23 seconds if we have
-        // to renew the pump's wireless power control
-        HistoryReport historyReport = getPumpManager().getPumpHistory();
-        if (historyReport.mBolusWizardEvents.size() == 0) {
+        // to renew the pump's wireless power control (for each report)
+        DateTime oldestBWTimestamp = DateTime.now();
+        DateTime oldestTempBasalTimestamp = DateTime.now();
+        HistoryReport collatedHistory = new HistoryReport();
+        int historyPageCount = 0;
+        final int maxHistoryPageLookback = 10;
+        // seek pages until we have found sufficiently old records for both types,
+        // or until we've just looked too far back (maxHistoryPageLookback)
+        while (((oldestBWTimestamp.isAfter(now.toDateTime().minusMinutes(DIATables.insulinImpactMinutesMax)))
+                || (oldestTempBasalTimestamp.isAfter(now.toDateTime().minusMinutes(DIATables.insulinImpactMinutesMax))))
+                && (historyPageCount < maxHistoryPageLookback)) {
+
+            HistoryReport historyReport = getPumpManager().getPumpHistory(historyPageCount);
+            // first bolus wizard events
+            for (BolusWizard bw : historyReport.mBolusWizardEvents) {
+                DateTime timestamp = bw.getTimeStamp();
+                if (timestamp.isBefore(oldestBWTimestamp)) {
+                    oldestBWTimestamp = timestamp;
+                }
+                collatedHistory.addBolusWizardEvent(bw);
+            }
+            // now TempBasalEvents
+            for (TempBasalEvent t : historyReport.mBasalEvents) {
+                // Look at the end of the temp basal event, not the start
+                DateTime timestamp = t.mTimestamp.minusMinutes(t.mBasalPair.mDurationMinutes);
+                if (timestamp.isBefore(oldestTempBasalTimestamp)) {
+                    oldestTempBasalTimestamp = timestamp;
+                }
+                collatedHistory.addTempBasalEvent(t);
+            }
+            historyPageCount++;
+        }
+        Log.i(TAG,"Read "+historyPageCount+" history pages with "+collatedHistory.mBasalEvents.size()
+                +" Temp Basal Events and "+collatedHistory.mBolusWizardEvents.size()+" Bolus Wizard events");
+        Log.i(TAG,"Oldest Bolus Wizard event is "+oldestBWTimestamp.toLocalDateTime().toString("(yyyy/MM/dd)HH:mm"));
+        Log.i(TAG,"Oldest Temp Basal event is "+oldestTempBasalTimestamp.toLocalDateTime().toString("(yyyy/MM/dd)HH:mm"));
+        if (collatedHistory.mBolusWizardEvents.size() == 0) {
             log("No Bolus Wizard events found in history");
         } else {
-            for (BolusWizard bw : historyReport.mBolusWizardEvents) {
+            for (BolusWizard bw : collatedHistory.mBolusWizardEvents) {
                 DateTime timestamp = bw.getTimeStamp();
                 if (timestamp.isBefore(now.toDateTime().minusMinutes(DIATables.insulinImpactMinutesMax))) {
                     // The Bolus occurred a long time ago (insulinImpartMinutesMax (300 minutes))
                     // we can safely ignore it.
+                    Log.i(TAG,"Ignoring BolusWizard Event from " +
+                            timestamp.toDateTime().toLocalDateTime().toString("(MM/dd)HH:mm"));
                 } else {
                     double bolusAmount = bw.getBolusEstimate();
                     double carbInput = bw.getCarbInput();
@@ -316,7 +353,7 @@ public class APSLogic {
             }
         }
         // Now deal with any temp basal events reported:
-        if (historyReport.mBasalEvents.size() == 0) {
+        if (collatedHistory.mBasalEvents.size() == 0) {
             log("No Temp Basal events found in history.");
         } else
 
@@ -325,7 +362,7 @@ public class APSLogic {
             //Sorting: create a sorter by date
             // process temp basal events in order, calculating IOB for each event.
             // Must process in order, so that we can see when one starts and stops
-            Collections.sort(historyReport.mBasalEvents, new Comparator<TempBasalEvent>() {
+            Collections.sort(collatedHistory.mBasalEvents, new Comparator<TempBasalEvent>() {
                 @Override
                 public int compare(TempBasalEvent ev1, TempBasalEvent ev2) {
                     return ev1.mTimestamp.compareTo(ev2.mTimestamp);
@@ -341,12 +378,12 @@ public class APSLogic {
             // if the rate and duration are zero, it is the end of a temp basal (or a cancellation)
             // Find start and end time for each event
             //   Find scheduled end-time
-            for (int i = 0; i < historyReport.mBasalEvents.size(); i++) {
-                TempBasalEvent tb = historyReport.mBasalEvents.get(i);
+            for (int i = 0; i < collatedHistory.mBasalEvents.size(); i++) {
+                TempBasalEvent tb = collatedHistory.mBasalEvents.get(i);
                 Instant endtime = tb.mTimestamp.plusMinutes(tb.mBasalPair.mDurationMinutes).toInstant();
-                if (i < historyReport.mBasalEvents.size() - 1) {
+                if (i < collatedHistory.mBasalEvents.size() - 1) {
                     // Not the last event, so next event may end this one.
-                    Instant nextStartTime = historyReport.mBasalEvents.get(i + 1).mTimestamp.toInstant();
+                    Instant nextStartTime = collatedHistory.mBasalEvents.get(i + 1).mTimestamp.toInstant();
                     if (nextStartTime.isBefore(endtime)) {
                         // next event does end this one.
                         endtime = nextStartTime;
@@ -363,11 +400,14 @@ public class APSLogic {
              * divide up the temp basal and treat it as a series of boluses delivered
              * once per minute.
              */
-            for (int i = 0; i < historyReport.mBasalEvents.size(); i++) {
-                TempBasalEvent tb = historyReport.mBasalEvents.get(i);
+            for (int i = 0; i < collatedHistory.mBasalEvents.size(); i++) {
+                TempBasalEvent tb = collatedHistory.mBasalEvents.get(i);
                 if (endTimes.get(i).isBefore(now.toDateTime().minusMinutes(DIATables.insulinImpactMinutesMax))) {
                     // The temp basal ended a long time ago (insulinImpartMinutesMax (300 minutes))
                     // we can safely ignore it.
+                    Log.i(TAG, "Ignoring TempBasalEvent from " +
+                            tb.mTimestamp.toDateTime().toLocalDateTime().toString("(MM/dd)HH:mm"));
+
                 } else {
                     Minutes actualDuration = Minutes.minutesBetween(tb.mTimestamp.toInstant(), endTimes.get(i));
                     double insulinDelivered = (tb.mBasalPair.mInsulinRate / 60) * actualDuration.getMinutes();
@@ -443,8 +483,7 @@ public class APSLogic {
             }
         }
 
-
-        log(String.format("Totals: IOB=%.3f U, COB=%.1f gm",iobTotal,cobTotal));
+        log(String.format("Totals: IOB=%.3f U, COB=%.1f gm", iobTotal, cobTotal));
         log(String.format("BG impact remaining from IOB=%.1f mg/dL, COB=%.1f mg/dL",
                 remainingBGImpact_IOBtotal, remainingBGImpact_COBtotal));
         sendIOBToUI(iobTotal);

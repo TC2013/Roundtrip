@@ -18,12 +18,14 @@ import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileTypeEnum;
 import com.gxwtech.rtdemo.medtronic.PumpData.HistoryReport;
 import com.gxwtech.rtdemo.medtronic.PumpData.PumpSettings;
 import com.gxwtech.rtdemo.medtronic.PumpData.TempBasalPair;
+import com.gxwtech.rtdemo.medtronic.PumpData.records.BolusWizard;
 import com.gxwtech.rtdemo.medtronic.ReadBasalTempCommand;
 import com.gxwtech.rtdemo.medtronic.ReadHistoryCommand;
 import com.gxwtech.rtdemo.medtronic.ReadProfileCommand;
 import com.gxwtech.rtdemo.medtronic.ReadPumpRTCCommand;
 import com.gxwtech.rtdemo.medtronic.ReadPumpSettingsCommand;
 import com.gxwtech.rtdemo.medtronic.SetTempBasalCommand;
+import com.gxwtech.rtdemo.medtronic.TempBasalEvent;
 import com.gxwtech.rtdemo.usb.CareLinkUsb;
 import com.gxwtech.rtdemo.usb.UsbException;
 
@@ -31,6 +33,8 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Seconds;
 import org.joda.time.format.ISODateTimeFormat;
+
+import java.util.ArrayList;
 
 /**
  * Created by geoff on 5/8/15.
@@ -77,7 +81,7 @@ public class PumpManager {
     }
 
     protected void setLastPowerControlRunTime(DateTime when_iso) {
-        Log.d(TAG,"setLastPowerControlRunTime: setting new run time: " + ISODateTimeFormat.dateTime().print(when_iso));
+        Log.d(TAG, "setLastPowerControlRunTime: setting new run time: " + ISODateTimeFormat.dateTime().print(when_iso));
         mContext.getSharedPreferences(Constants.PreferenceID.MainActivityPrefName,0).
                 edit().putString(Constants.PrefName.LastPowerControlRunTime, ISODateTimeFormat.dateTime().print(when_iso))
                 .commit();
@@ -220,11 +224,18 @@ public class PumpManager {
         return cmd.getPumpSettings();
     }
 
-    public HistoryReport getPumpHistory() {
+    public HistoryReport getPumpHistory(int pageNumber) {
+        // TODO: pass success or failure code back to caller
         checkPowerControl();
         ReadHistoryCommand rhcmd = new ReadHistoryCommand();
         //rhcmd.testParser();
-        rhcmd.run(mCarelink, mSerialNumber);
+        rhcmd.setPageNumber(pageNumber);
+        MedtronicCommandStatusEnum cmdStatus = rhcmd.run(mCarelink, mSerialNumber);
+        if ((cmdStatus == MedtronicCommandStatusEnum.ACK) && (rhcmd.mParsedOK)) {
+            Log.d(TAG,"ReadHistoryCommand reports success on page " + pageNumber);
+        } else {
+            Log.d(TAG, "ReadHistoryCommand reports failure on page " + pageNumber);
+        }
         return rhcmd.mHistoryReport;
     }
 

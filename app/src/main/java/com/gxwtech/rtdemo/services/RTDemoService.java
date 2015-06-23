@@ -233,8 +233,11 @@ public class RTDemoService extends IntentService {
                 parcel.initFromPumpSettings(mPumpManager.getPumpSettings());
                 sendTaskResponseParcel(parcel, "PumpSettingsParcel");
             } else if (srq.equals(Constants.SRQ.REPORT_PUMP_HISTORY)) {
+
+                // this was just used for debugging the getting of history reports.
+                // TODO: Remove this and the pump history GUI, or fix them both to work properly
                 Log.d(TAG, "Received request for pump history");
-                HistoryReport report = mPumpManager.getPumpHistory();
+                HistoryReport report = mPumpManager.getPumpHistory(0);
 
             } else if (srq.equals(Constants.SRQ.SET_TEMP_BASAL)) {
                 TempBasalPairParcel pair = (TempBasalPairParcel) intent.getParcelableExtra(Constants.ParcelName.TempBasalPairParcelName);
@@ -301,7 +304,7 @@ public class RTDemoService extends IntentService {
             Intent wakeupServiceIntent = new Intent(getApplicationContext(), RTDemoService.class).
                     putExtra("srq", Constants.SRQ.APSLOGIC_STARTUP);
             mRepeatingAlarmPendingIntent = PendingIntent.getService(getApplicationContext(), privateRequestCode,
-                    wakeupServiceIntent, 0);
+                    wakeupServiceIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         }
         return mRepeatingAlarmPendingIntent;
     }

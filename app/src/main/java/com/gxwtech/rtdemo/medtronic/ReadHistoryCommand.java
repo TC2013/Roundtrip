@@ -27,10 +27,15 @@ public class ReadHistoryCommand extends MedtronicCommand {
         mMaxRecords = 2;
         mSleepForPumpResponse = 100; // must adjust these numbers to get data from carelink?
         mSleepForPumpRetry = 350;
-        mParams = new byte[] { 0x00 }; // 0x02? 0x03?
+        mParams = new byte[] { 0x00 }; // This is the page number
         mParsedOK = false;
 
     }
+
+    public void setPageNumber(int pageNumber) {
+        mParams[0] = (byte)pageNumber;
+    }
+
     private static void checkForRecordSequence(byte[] data, int index) {
         Record r;
         int seq = 0;
@@ -139,6 +144,7 @@ public class ReadHistoryCommand extends MedtronicCommand {
                 }
             } else {
                 Log.e(TAG, String.format("Cannot decode page of invalid size %d (should be 1024)",d));
+                mParsedOK = false;
             }
         }
     }
