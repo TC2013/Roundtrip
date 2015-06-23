@@ -15,8 +15,6 @@ import org.joda.time.DateTimeZone;
  *
  * The old method was individually storing all preferences items.
  * I want to move all those into here, so that we can have common get/set for each.
- * For example, in the BGReading get/set, there is time/date translation that I don't
- * want to have duplicated all over the place.
  *
  */
 public class PreferenceBackedStorage {
@@ -34,28 +32,36 @@ public class PreferenceBackedStorage {
      *
      */
     public BGReading getLatestBGReading() {
-        final int bad_ts_value = -10000;
+        final String bad_ts_value = "(never)";
         final float bad_bg_value = -10000.1f;
         BGReading rval = new BGReading();
 
-        long ts = p.getLong(Constants.PrefName.LatestBGTimestamp,bad_ts_value);
-        if (ts == bad_ts_value) {
+        String ts = bad_ts_value;
+        try {
+            ts = p.getString(Constants.PrefName.LatestBGTimestamp, bad_ts_value);
+        } catch (ClassCastException e) {
             return rval;
         }
+        if (ts.equals(bad_ts_value)) {
+            return rval;
+        }
+        DateTime timestamp = DateTime.parse(ts);
+
         float bgr = p.getFloat(Constants.PrefName.LatestBGReading,bad_bg_value);
-        if (ts == bad_bg_value) {
+        if (bgr == bad_bg_value) {
             return rval;
         }
-        rval = new BGReading(new DateTime(ts,DateTimeZone.getDefault()),bgr);
+        rval = new BGReading(timestamp,bgr);
         return rval;
     }
+
     public void setLatestBGReading(BGReading r) {
         // cram it in the preferences, with everything else.
         if (mContext == null) {
             return;
         }
         SharedPreferences.Editor edit = p.edit();
-        edit.putLong(Constants.PrefName.LatestBGTimestamp,r.mTimestamp.toInstant().getMillis());
+        edit.putString(Constants.PrefName.LatestBGTimestamp,r.mTimestamp.toString());
         edit.putFloat(Constants.PrefName.LatestBGReading,(float)r.mBg);
         edit.commit();
     }

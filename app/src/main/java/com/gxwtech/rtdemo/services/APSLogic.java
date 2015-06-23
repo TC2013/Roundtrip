@@ -241,24 +241,29 @@ public class APSLogic {
         // If a temp basal is running, fine.  It will expire.
         BGReading mCachedLatestBGReading = mStorage.getLatestBGReading();
         Minutes cgm_elapsed = Minutes.minutesBetween(mCachedLatestBGReading.mTimestamp,DateTime.now());
+        Log.d(TAG,"BG timestamp: "+mCachedLatestBGReading.mTimestamp.toString("(MM/dd)HH:mm"));
+        Log.d(TAG,"NOW timestamp: "+DateTime.now().toString("(MM/dd)HH:mm"));
         if (cgm_elapsed.getMinutes() > 10) {
             log(String.format("Most recent CGM reading is %d minutes old. Quitting.",
-                    cgm_elapsed.getMinutes()));
+                    Math.abs(cgm_elapsed.getMinutes())));
             return;
-        } else if (cgm_elapsed.getMinutes() < 10) {
+        } else if (cgm_elapsed.getMinutes() < -10) {
             log(String.format("Most recent CGM reading is %d minutes in the future. Quitting.",
-                    cgm_elapsed.getMinutes()));
+                    Math.abs(cgm_elapsed.getMinutes())));
             return;
         }
 
         // LOW GLUCOSE SUSPEND
         double lowGlucoseSuspendPoint = mStorage.getLowGlucoseSuspendPoint();
-        if (mCachedLatestBGReading.mBg < lowGlucoseSuspendPoint) {
-            log(String.format("LOW GLUCOSE SUSPEND: CGM reading of %.1f is below set point of %.1f",
-                    mCachedLatestBGReading.mBg,lowGlucoseSuspendPoint));
-            log("LOW GLUCOSE SUSPEND: Setting pump for Temp Basal of 0.0 units for 30 minutes");
-            setTempBasal(0,30,0);
-            return;
+        // if the low glucose suspend point is zero, it is effectively turned off.
+        if (lowGlucoseSuspendPoint > 0.0) {
+            if (mCachedLatestBGReading.mBg < lowGlucoseSuspendPoint) {
+                log(String.format("LOW GLUCOSE SUSPEND: CGM reading of %.1f is below set point of %.1f",
+                        mCachedLatestBGReading.mBg, lowGlucoseSuspendPoint));
+                log("LOW GLUCOSE SUSPEND: Setting pump for Temp Basal of 0.0 units for 30 minutes");
+                setTempBasal(0, 30, 0);
+                return;
+            }
         }
         log("Getting status of temp basal from pump.");
                 getCurrentTempBasalFromPump();
@@ -557,7 +562,7 @@ public class APSLogic {
             // we predict that the BG will go too low,
             // so lower the current basal rate with a temp-basal
             double newTempBasalRate; // our desired temp basal rate (Units/Hr)
-            log("Warning - using static isf value of 45.0");
+            log(String.format("Warning - using static isf value of %.1f",isf(now)));
             newTempBasalRate = Math.max(0, currentBasalRate - 2 * (mPersonalProfile.BGMin - predictedBG)
                     / isf(now));
             log(String.format("We would like to set temporary rate to %.3f U/h",newTempBasalRate));
@@ -615,7 +620,7 @@ public class APSLogic {
                     predictedBG,mPersonalProfile.BGMax));
             // high-temp as required, to get predicted BG down to bg_max
             double fastInsulin;
-            log("Warning - using static isf of 45.0");
+            log(String.format("Warning - using static isf of %.1f",isf(now)));
             fastInsulin = 2 * (predictedBG - mPersonalProfile.BGMax) / isf(now);
             if (fastInsulin > mPersonalProfile.MaxTempBasalRate) {
                 log(String.format("Insulin delivery limited (by roundtrip) from %.3f U/h to %.3f U/h.",

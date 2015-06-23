@@ -14,16 +14,20 @@ import com.gxwtech.rtdemo.services.RTDemoService;
 
 public class PersonalProfileActivity extends ActionBarActivity {
     private static final String TAG = "PersonalProfileActivity";
+    PreferenceBackedStorage mStorage;
+    // Note: need to move all these to PreferenceBackedStorage, but only lowGlucoseSuspend is done.
     double mCAR;
     double mBGMax;
     double mTargetBG;
     double mBGMin;
     double mMaxTmpBasalRate;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_personal_profile);
+        mStorage = new PreferenceBackedStorage(getApplicationContext());
     }
 
     protected void onResume() {
@@ -82,6 +86,15 @@ public class PersonalProfileActivity extends ActionBarActivity {
         savePreferences();
     }
 
+    public void editLowBGSuspendClicked(View view) {
+        EditText editText = (EditText)findViewById(R.id.editText_LowBGSuspend);
+        double newLowBGSuspend = Double.parseDouble(editText.getText().toString());
+        if (newLowBGSuspend < 0) {
+            newLowBGSuspend = 0.0;
+        }
+        mStorage.setLowGlucoseSuspendPoint(newLowBGSuspend);
+    }
+
     public void savePreferences() {
         // save in SharedPreferences
         SharedPreferences preferences = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, MODE_PRIVATE);
@@ -128,6 +141,10 @@ public class PersonalProfileActivity extends ActionBarActivity {
         mBGMax = (double)settings.getFloat(Constants.PrefName.PPBGMaxPrefName, (float) 125.0);
         editText = (EditText)findViewById(R.id.editText_BGMax);
         str = String.format("%.1f",mBGMax);
+        editText.setText(str);
+
+        editText = (EditText)findViewById(R.id.editText_LowBGSuspend);
+        str = String.format("%.1f",mStorage.getLowGlucoseSuspendPoint());
         editText.setText(str);
     }
 
