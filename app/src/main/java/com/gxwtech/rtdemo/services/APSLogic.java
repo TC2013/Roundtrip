@@ -10,6 +10,7 @@ import android.util.Log;
 import com.gxwtech.rtdemo.BGReading;
 import com.gxwtech.rtdemo.Constants;
 import com.gxwtech.rtdemo.Intents;
+import com.gxwtech.rtdemo.PreferenceBackedStorage;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfile;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileEntry;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileTypeEnum;
@@ -90,6 +91,7 @@ public class APSLogic {
     Context mContext;
     PumpManager mPumpManager;
     String mLogfileName;
+    PreferenceBackedStorage mStorage;
 
     // our cache of the profile settings
     // Updated (at the minimum) at the start of each MakeADecision() run
@@ -167,7 +169,7 @@ public class APSLogic {
                 rval = 0;
             }
         }
-        dlog(String.format("COB remaining from event: %.1f",rval));
+        dlog(String.format("COB remaining from event: %.1f", rval));
         return rval;
     }
 
@@ -235,6 +237,29 @@ public class APSLogic {
                 mPersonalProfile.BGMin,
                 mPersonalProfile.MaxTempBasalRate));
 
+        // if most recent reading is more than ten minutes old, do nothing.
+        // If a temp basal is running, fine.  It will expire.
+        BGReading mCachedLatestBGReading = mStorage.getLatestBGReading();
+        Minutes cgm_elapsed = Minutes.minutesBetween(mCachedLatestBGReading.mTimestamp,DateTime.now());
+        if (cgm_elapsed.getMinutes() > 10) {
+            log(String.format("Most recent CGM reading is %d minutes old. Quitting.",
+                    cgm_elapsed.getMinutes()));
+            return;
+        } else if (cgm_elapsed.getMinutes() < 10) {
+            log(String.format("Most recent CGM reading is %d minutes in the future. Quitting.",
+                    cgm_elapsed.getMinutes()));
+            return;
+        }
+
+        // LOW GLUCOSE SUSPEND
+        double lowGlucoseSuspendPoint = mStorage.getLowGlucoseSuspendPoint();
+        if (mCachedLatestBGReading.mBg < lowGlucoseSuspendPoint) {
+            log(String.format("LOW GLUCOSE SUSPEND: CGM reading of %.1f is below set point of %.1f",
+                    mCachedLatestBGReading.mBg,lowGlucoseSuspendPoint));
+            log("LOW GLUCOSE SUSPEND: Setting pump for Temp Basal of 0.0 units for 30 minutes");
+            setTempBasal(0,30,0);
+            return;
+        }
         log("Getting status of temp basal from pump.");
                 getCurrentTempBasalFromPump();
                 log(String.format("Temp Basal status: %.2f U, %d minutes remaining.",
@@ -489,16 +514,8 @@ public class APSLogic {
         sendIOBToUI(iobTotal);
         sendCOBToUI(cobTotal);
 
-        // if most recent reading is more than ten minutes old, do nothing.
-        // If a temp basal is running, fine.  It will expire.
-        Minutes cgm_elapsed = Minutes.minutesBetween(mCachedLatestBGReading.mTimestamp,now);
-        if (cgm_elapsed.getMinutes() > 10) {
-            log(String.format("Most recent CGM reading is %d minutes old. Quitting.",
-                    cgm_elapsed.getMinutes()));
-            return;
-        }
-
-        log(String.format("Using CGM reading %.2f, which is %d minutes old",
+        cgm_elapsed = Minutes.minutesBetween(mCachedLatestBGReading.mTimestamp,now);
+        log(String.format("Using CGM reading %.1f, which is %d minutes old",
                 mCachedLatestBGReading.mBg,cgm_elapsed.getMinutes()));
 
         // todo: get these values from pump history, MongoDB, CGM, etc.
@@ -673,6 +690,7 @@ public class APSLogic {
      *******************************************************/
     public APSLogic(Context context, PumpManager pumpManager) {
         mContext = context;
+        mStorage = new PreferenceBackedStorage(context);
         mPumpManager = pumpManager;
         mLogfileName = DateTime.now().toString();
         init();
@@ -697,14 +715,9 @@ public class APSLogic {
         MakeADecision();
     }
 
-    public void updateCachedLatestBGReading(BGReading bgr) {
-        mCachedLatestBGReading = bgr;
-    }
-
     BasalProfile basalProfileSTD, basalProfileA, basalProfileB, mCurrentBasalProfile;
 
     boolean gotBasalProfiles = false;
-    BGReading mCachedLatestBGReading = new BGReading();
     TempBasalPair mCurrentTempBasal = new TempBasalPair();
     PumpSettings mPumpSettings = new PumpSettings();
 

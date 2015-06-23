@@ -27,6 +27,7 @@ import com.gxwtech.rtdemo.Constants;
 import com.gxwtech.rtdemo.HexDump;
 import com.gxwtech.rtdemo.Intents;
 import com.gxwtech.rtdemo.MainActivity;
+import com.gxwtech.rtdemo.PreferenceBackedStorage;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfile;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileEntry;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileTypeEnum;
@@ -94,6 +95,7 @@ public class RTDemoService extends IntentService {
     // It has significant connections with PumpManager which will have to be ironed out.
     APSLogic mAPSLogic;
     MongoWrapper mMongoWrapper;
+    PreferenceBackedStorage mStorage;
 
     //protected static RTDemoService mInstance = null;
     NotificationManager mNM;
@@ -359,7 +361,7 @@ public class RTDemoService extends IntentService {
             }
         } else {
             llog("Error accessing CareLink USB Stick.");
-            Log.e(TAG,"wakeUpCarelink failed");
+            Log.e(TAG, "wakeUpCarelink failed");
         }
     }
 
@@ -474,6 +476,8 @@ public class RTDemoService extends IntentService {
         /* Here is where we do some initialization, but no work */
         Log.d(TAG, "onCreate()");
 
+        mStorage = new PreferenceBackedStorage(getApplicationContext());
+
         mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         /* Make this service run in the foreground to make it harder to kill */
@@ -541,42 +545,46 @@ public class RTDemoService extends IntentService {
         return (START_REDELIVER_INTENT | START_STICKY);
     }
 
-    protected void serviceMain() {
-        // APSLOGIC_STARTUP requests the APSLogic module to do the
-        // initial data collection, which can take a long time (MongoDB access, pump access)
-        // get latest BG reading from Mongo
-        mAPSLogic.broadcastAPSLogicStatusMessage("Accessing MongoDB for latest BG reading");
-        MongoWrapper.BGReadingResponse bgResponse = mMongoWrapper.getBGReading();
-        BGReading reading = bgResponse.reading;
-        if (bgResponse.error) {
-            mAPSLogic.broadcastAPSLogicStatusMessage("Error reading BG from mongo: " + bgResponse.errorMessage);
-            if (reading!=null) {
-                Log.e(TAG,
-                        String.format("Error reading BG from Mongo: %s, and BG reading reports %.2f at %s",
-                                bgResponse.errorMessage,
-                                reading.mBg, reading.mTimestamp.toLocalDateTime().toString()));
+    public void checkAndUpdateBGReading() {
+        // get latest BG reading from Mongo.  This can block, during internet access
+
+        // check to see if our BGReading is old.
+        BGReading latestBG = mStorage.getLatestBGReading();
+        if ((latestBG.mTimestamp.isBefore(DateTime.now().minusMinutes(10)))
+                || (latestBG.mTimestamp.isAfter(DateTime.now().plusMinutes(5))))
+        {
+            mAPSLogic.broadcastAPSLogicStatusMessage("Accessing MongoDB for latest BG reading");
+            MongoWrapper.BGReadingResponse bgResponse = mMongoWrapper.getBGReading();
+            BGReading reading = bgResponse.reading;
+            if (bgResponse.error) {
+                mAPSLogic.broadcastAPSLogicStatusMessage("Error reading BG from mongo: " + bgResponse.errorMessage);
+                if (reading != null) {
+                    Log.e(TAG,
+                            String.format("Error reading BG from Mongo: %s, and BG reading reports %.2f at %s",
+                                    bgResponse.errorMessage,
+                                    reading.mBg, reading.mTimestamp.toLocalDateTime().toString()));
+                }
+                // Are the contents of BGReading reading "ok to use", even with an error?
+                // how else to handle?
+            } else {
+                // Save the reading
+                mStorage.setLatestBGReading(reading);
+
+                // broadcast the reading to the world. (esp. to MonitorActivity)
+                Intent intent = new Intent(Intents.ROUNDTRIP_BG_READING);
+                intent.putExtra("name", Constants.ParcelName.BGReadingParcelName);
+                intent.putExtra(Constants.ParcelName.BGReadingParcelName, new BGReadingParcel(reading));
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+                Log.i(TAG, "Sending latest BG reading");
+                mAPSLogic.broadcastAPSLogicStatusMessage(String.format("Latest BG reading reports %.2f at %s",
+                        reading.mBg, reading.mTimestamp.toLocalDateTime().toString()));
             }
-            // Are the contents of BGReading reading "ok to use", even with an error?
-            // how else to handle?
-
-            // for the moment, refuse to run if we can't get a BG reading.
-        } else {
-            // TODO: Need to make RTDemoService regularly hit the mongodb (every 5 min)
-            // For now, the testdb button gets a reading.
-            // broadcast the reading to the world. (esp. to MonitorActivity)
-            Intent intent = new Intent(Intents.ROUNDTRIP_BG_READING);
-            intent.putExtra("name", Constants.ParcelName.BGReadingParcelName);
-            intent.putExtra(Constants.ParcelName.BGReadingParcelName, new BGReadingParcel(reading));
-            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-            Log.i(TAG, "Sending latest BG reading");
-            mAPSLogic.broadcastAPSLogicStatusMessage(String.format("Latest BG reading reports %.2f at %s",
-                    reading.mBg, reading.mTimestamp.toLocalDateTime().toString()));
-
-            mAPSLogic.updateCachedLatestBGReading(reading);
-
-            // the above should be (re)moved.
-            mAPSLogic.runAPSLogicOnce();
         }
+    }
+
+    protected void serviceMain() {
+        checkAndUpdateBGReading();
+        mAPSLogic.runAPSLogicOnce();
     }
 
     private void showNotification() {

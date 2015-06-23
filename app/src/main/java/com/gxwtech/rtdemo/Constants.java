@@ -73,9 +73,12 @@ public interface Constants {
         public static String MongoDBCollectionPrefName = "MongoDBCollection";
         public static String SuspendMinutesPrefName = "SuspendAPSMinutes";
         // and all kinds of other goodies:
+        public static String LastPowerControlRunTime = "LastPowerControlRunTime";
+
+        // These have been moved to PreferenceBackedStorage.  TODO: move all others there
         public static String LatestBGTimestamp = "LatestBGTimestamp";
         public static String LatestBGReading = "LatestBGReading";
-        public static String LastPowerControlRunTime = "LastPowerControlRunTime";
+        public static String LowGlucoseSuspendPoint = "LowGlucoseSuspendPoint";
     }
 
 }
