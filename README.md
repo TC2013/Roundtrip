@@ -20,4 +20,4 @@ Roundtrip is a limited port of OpenAPS (author Ben West) into an Android applica
 1. When reading temp basal history, need to fix APS logic to correctly calculate IOB.  Logic currently assumes current basal rate.<br />
 2. Improve UI. The list of improvements needed here is long, so I will just leave it at that.<br />
 3. App needs further testing.  Used with 522/722 models. We will likely need patches for other pumps to function correctly.<br />
-4. Add the ability to use the RileyLink! <br/>
+4. Add the ability to use the RileyLink!! <br/>
