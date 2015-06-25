@@ -344,8 +344,11 @@ public class APSLogic {
         } else {
             for (BolusWizard bw : collatedHistory.mBolusWizardEvents) {
                 DateTime timestamp = bw.getTimeStamp();
-                if (timestamp.isBefore(now.toDateTime().minusMinutes(DIATables.insulinImpactMinutesMax))) {
+                // sanity check the date on the bolus wizard event.
+                if ((timestamp.isBefore(now.toDateTime().minusMinutes(DIATables.insulinImpactMinutesMax)))
+                        || (timestamp.isAfter(now.toDateTime().plusMinutes(10)))) {
                     // The Bolus occurred a long time ago (insulinImpartMinutesMax (300 minutes))
+                    // (or is in the future, somehow)
                     // we can safely ignore it.
                     Log.i(TAG,"Ignoring BolusWizard Event from " +
                             timestamp.toDateTime().toLocalDateTime().toString("(MM/dd)HH:mm"));
@@ -432,8 +435,11 @@ public class APSLogic {
              */
             for (int i = 0; i < collatedHistory.mBasalEvents.size(); i++) {
                 TempBasalEvent tb = collatedHistory.mBasalEvents.get(i);
-                if (endTimes.get(i).isBefore(now.toDateTime().minusMinutes(DIATables.insulinImpactMinutesMax))) {
+                // sanity check timestamps on temp basal events
+                if ((endTimes.get(i).isBefore(now.toDateTime().minusMinutes(DIATables.insulinImpactMinutesMax)))
+                        || (endTimes.get(i).isAfter(now.toDateTime().plusMinutes(10)))) {
                     // The temp basal ended a long time ago (insulinImpartMinutesMax (300 minutes))
+                    // (or is in the future, somehow)
                     // we can safely ignore it.
                     Log.i(TAG, "Ignoring TempBasalEvent from " +
                             tb.mTimestamp.toDateTime().toLocalDateTime().toString("(MM/dd)HH:mm"));
