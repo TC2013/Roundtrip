@@ -67,7 +67,6 @@ public class MonitorActivity extends ActionBarActivity {
                     mSleepNotificationDuration = durationSeconds;
                     setSleepNotification();
                 } else if (intent.getAction().equals(Intents.MONITOR_DATA_CHANGED)) {
-                    Log.d(TAG,"Received data-change-notice, updating values");
                     updateGUIValues();
                 }
 
