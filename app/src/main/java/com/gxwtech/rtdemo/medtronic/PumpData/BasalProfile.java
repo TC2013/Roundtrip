@@ -96,10 +96,10 @@ public class BasalProfile {
             }
             if (localMillis >= entry.startTime.getMillisOfDay()) {
                 rval = entry;
-                //Log.w(TAG,"Accepted Entry");
+                if (basal_profile_entry_debug) Log.w(TAG,"Accepted Entry");
             } else {
                 // entry at i has later start time, keep older entry
-                //Log.w(TAG,"Rejected Entry");
+                if (basal_profile_entry_debug) Log.w(TAG,"Rejected Entry");
                 done = true;
             }
             i++;

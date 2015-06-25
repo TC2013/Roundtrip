@@ -60,11 +60,6 @@ public interface Constants {
     class PrefName {
         // Name of an entry in a SharedPreference collection
         public static String SerialNumberPrefName = "PumpSerialNumber";
-        public static String CARPrefName = "CarbAbsorptionRatio";
-        public static String PPTargetBGPrefName = "TargetBG";
-        public static String PPBGMaxPrefName = "TargetBGMax";
-        public static String PPBGMinPrefName = "TargetBGMin";
-        public static String PPMaxTempBasalRatePrefName = "MaxTempBasalRate";
         public static String MongoDBServerPrefName = "MongoDBServerAddress";
         public static String MongoDBServerPortPrefName = "MongoDBServerPort";
         public static String MongoDBDatabasePrefName = "MongoDBDatabase";
@@ -79,6 +74,18 @@ public interface Constants {
         public static String LatestBGTimestamp = "LatestBGTimestamp";
         public static String LatestBGReading = "LatestBGReading";
         public static String LowGlucoseSuspendPoint = "LowGlucoseSuspendPoint";
-    }
+        public static String CARPrefName = "CarbAbsorptionRatio";
+        public static String PPTargetBGPrefName = "TargetBG";
+        public static String PPBGMaxPrefName = "TargetBGMax";
+        public static String PPBGMinPrefName = "TargetBGMin";
+        public static String PPMaxTempBasalRatePrefName = "MaxTempBasalRate";
 
+        // These are in PreferenceBackedStorage, used for communication from apslogic to monitorActivity
+        public static String Monitor_TempBasalRate = "Monitor_TempBasalRate";
+        public static String Monitor_TempBasalDuration = "Monitor_TempBasalDuration";
+        public static String Monitor_CurrBasalRate = "Monitor_CurrBasalRate";
+        public static String Monitor_PredBG = "Monitor_PredBG";
+        public static String Monitor_IOB = "Monitor_IOB";
+        public static String Monitor_COB = "Monitor_COB";
+    }
 }

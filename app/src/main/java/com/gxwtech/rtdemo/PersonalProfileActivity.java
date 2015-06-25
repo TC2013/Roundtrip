@@ -15,13 +15,6 @@ import com.gxwtech.rtdemo.services.RTDemoService;
 public class PersonalProfileActivity extends ActionBarActivity {
     private static final String TAG = "PersonalProfileActivity";
     PreferenceBackedStorage mStorage;
-    // Note: need to move all these to PreferenceBackedStorage, but only lowGlucoseSuspend is done.
-    double mCAR;
-    double mBGMax;
-    double mTargetBG;
-    double mBGMin;
-    double mMaxTmpBasalRate;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,8 +34,7 @@ public class PersonalProfileActivity extends ActionBarActivity {
         if ((newBGMax > 500) || (newBGMax < 40)) {
             return;
         }
-        mBGMax = newBGMax;
-        savePreferences();
+        mStorage.setBGMax(newBGMax);
     }
 
     public void setTargetBGClicked(View view) {
@@ -51,8 +43,7 @@ public class PersonalProfileActivity extends ActionBarActivity {
         if ((newTargetBG > 500) || (newTargetBG < 40)) {
             return;
         }
-        mTargetBG = newTargetBG;
-        savePreferences();
+        mStorage.setTargetBG(newTargetBG);
     }
 
     public void setBGMinClicked(View view) {
@@ -61,8 +52,7 @@ public class PersonalProfileActivity extends ActionBarActivity {
         if ((newBGMin > 500) || (newBGMin< 40)) {
             return;
         }
-        mBGMin = newBGMin;
-        savePreferences();
+        mStorage.setBGMin(newBGMin);
     }
 
     public void setMaxTmpBasalRateClicked(View view) {
@@ -71,8 +61,7 @@ public class PersonalProfileActivity extends ActionBarActivity {
         if (newMaxTmpBasalRate < 0) {
             newMaxTmpBasalRate = 0.0;
         }
-        mMaxTmpBasalRate = newMaxTmpBasalRate;
-        savePreferences();
+        mStorage.setMaxTempBasalRate(newMaxTmpBasalRate);
     }
 
     // this is run when the SET button is clicked.
@@ -82,8 +71,7 @@ public class PersonalProfileActivity extends ActionBarActivity {
         if (newCAR < 0) {
             return;
         }
-        mCAR = newCAR;
-        savePreferences();
+        mStorage.setCAR(newCAR);
     }
 
     public void editLowBGSuspendClicked(View view) {
@@ -95,59 +83,29 @@ public class PersonalProfileActivity extends ActionBarActivity {
         mStorage.setLowGlucoseSuspendPoint(newLowBGSuspend);
     }
 
-    public void savePreferences() {
-        // save in SharedPreferences
-        SharedPreferences preferences = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, MODE_PRIVATE);
-        SharedPreferences.Editor edit = preferences.edit();
-        edit.putFloat(Constants.PrefName.CARPrefName, (float) mCAR);
-        edit.putFloat(Constants.PrefName.PPMaxTempBasalRatePrefName, (float) mMaxTmpBasalRate);
-        edit.putFloat(Constants.PrefName.PPBGMinPrefName, (float) mBGMin);
-        edit.putFloat(Constants.PrefName.PPTargetBGPrefName,(float)mTargetBG);
-        edit.putFloat(Constants.PrefName.PPBGMaxPrefName, (float) mBGMax);
-        edit.commit();
-        announcePreferenceChanges();
-    }
+    /*
+
+    If we want to tell the rest of the app that the personal Preferences have changed,
+    here's how:
 
     public void announcePreferenceChanges() {
         Intent intent = new Intent(this,RTDemoService.class);
         intent.putExtra("srq", Constants.SRQ.PERSONAL_PREFERENCE_CHANGE);
         startService(intent);
     }
+    */
 
     // get from preferences, load it into proper field
     public void updateFromPreferences() {
-        SharedPreferences settings = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
-
-        mCAR = (double)settings.getFloat(Constants.PrefName.CARPrefName, (float) 30.0);
-        EditText editText = (EditText)findViewById(R.id.editText_CAR);
-        String str = String.format("%.1f",mCAR);
-        editText.setText(str);
-
-        mMaxTmpBasalRate = (double)settings.getFloat(Constants.PrefName.PPMaxTempBasalRatePrefName,(float)6.1);
-        editText = (EditText)findViewById(R.id.editText_MaxTmpBasalRate);
-        str = String.format("%.3f", mMaxTmpBasalRate);
-        editText.setText(str);
-
-        mBGMin = (double)settings.getFloat(Constants.PrefName.PPBGMinPrefName, (float) 95.0);
-        editText = (EditText)findViewById(R.id.editText_BGMin);
-        str = String.format("%.1f", mBGMin);
-        editText.setText(str);
-
-        mTargetBG = (double)settings.getFloat(Constants.PrefName.PPTargetBGPrefName, (float) 115.0);
-        editText = (EditText)findViewById(R.id.editText_TargetBG);
-        str = String.format("%.1f", mTargetBG);
-        editText.setText(str);
-
-        mBGMax = (double)settings.getFloat(Constants.PrefName.PPBGMaxPrefName, (float) 125.0);
-        editText = (EditText)findViewById(R.id.editText_BGMax);
-        str = String.format("%.1f",mBGMax);
-        editText.setText(str);
-
-        editText = (EditText)findViewById(R.id.editText_LowBGSuspend);
-        str = String.format("%.1f",mStorage.getLowGlucoseSuspendPoint());
-        editText.setText(str);
+        ((EditText)findViewById(R.id.editText_CAR)).setText(String.format("%.1f", mStorage.getCAR()));
+        ((EditText)findViewById(R.id.editText_MaxTmpBasalRate)).
+                setText(String.format("%.3f", mStorage.getMaxTempBasalRate()));
+        ((EditText)findViewById(R.id.editText_BGMin)).setText(String.format("%.1f", mStorage.getBGMin()));
+        ((EditText)findViewById(R.id.editText_TargetBG)).setText(String.format("%.1f",mStorage.getTargetBG()));
+        ((EditText)findViewById(R.id.editText_BGMax)).setText(String.format("%.1f",mStorage.getBGMax()));
+        ((EditText)findViewById(R.id.editText_LowBGSuspend))
+                .setText(String.format("%.1f",mStorage.getLowGlucoseSuspendPoint()));
     }
-
 
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.

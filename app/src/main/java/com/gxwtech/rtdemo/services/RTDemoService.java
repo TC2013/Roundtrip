@@ -45,6 +45,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by geoff on 4/9/15.
@@ -205,15 +207,6 @@ public class RTDemoService extends IntentService {
                 srq = "(null)";
             }
             Log.w(TAG, String.format("onHandleIntent: received request srq=%s", srq));
-
-            /*
-            if (srq == Constants.SRQ.SET_SERIAL_NUMBER) {
-                msg.obj = intent.getByteArrayExtra("serialNumber");
-                //Log.w(TAG,"gui thread wrote intent arg2=what=SRQ.SET_SERIAL_NUMBER, obj=serialNumber=" + ByteUtil.shortHexString((byte[])msg.obj));
-            } else if (msg.arg2 == Constants.SRQ.SET_TEMP_BASAL) {
-                msg.obj = intent.getParcelableExtra(Constants.ParcelName.TempBasalPairParcelName);
-            */
-
             if (srq.equals(Constants.SRQ.START_SERVICE)) {
 
                 // Set up permissions for carelink
@@ -224,12 +217,6 @@ public class RTDemoService extends IntentService {
             } else if (srq.equals(Constants.SRQ.VERIFY_PUMP_COMMUNICATIONS)) {
                 getCarelinkPermission();
                 checkPumpCommunications();
-                /*
-            } else if (srq.equals(Constants.SRQ.SET_SERIAL_NUMBER)) {
-                byte[] serialNumber = intent.getByteArrayExtra("serialNumber");
-                Log.w(TAG,"Service received set serial number, serialNumber=" + ByteUtil.shortHexString(serialNumber));
-                mPumpManager.setSerialNumber(serialNumber);
-                */
             } else if (srq.equals(Constants.SRQ.REPORT_PUMP_SETTINGS)) {
                 PumpSettingsParcel parcel = new PumpSettingsParcel();
                 parcel.initFromPumpSettings(mPumpManager.getPumpSettings());
@@ -250,13 +237,13 @@ public class RTDemoService extends IntentService {
                 // there are new settings in the preferences.
                 // Get them and give them to MongoWrapper
                 updateMongoWrapperFromPrefs();
-            } else if (srq.equals(Constants.SRQ.PERSONAL_PREFERENCE_CHANGE)) {
-                mAPSLogic.updateFromPersonalPrefs();
             } else if (srq.equals(Constants.SRQ.START_REPEAT_ALARM)) {
                 // MonitorActivity start button runs this.
                 Log.w(TAG, "onHandleIntent: starting repeating alarm");
                 //startRepeatingAlarm(3 * 1000); // first run begins in 3 seconds
-                startRepeatingAlarm(0); // first run begins now
+                startRepeatingAlarm(secondsBetweenRuns * 1000); // first run begins 5 minutes from now
+                // and run it once right now.
+                serviceMain();
             } else if (srq.equals(Constants.SRQ.STOP_REPEAT_ALARM)) {
                 // MonitorActivity stop button runs this.
                 Log.w(TAG, "onHandleIntent: stopping repeating alarm");
@@ -279,6 +266,7 @@ public class RTDemoService extends IntentService {
                 // This should be sent from the timer, so that it happens in the right thread/right queue
             } else if (srq.equals(Constants.SRQ.APSLOGIC_STARTUP)) {
                 serviceMain();
+                // note: START_REPEAT_ALARM also calls serviceMain()
             }
 
         } finally {
@@ -452,7 +440,7 @@ public class RTDemoService extends IntentService {
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
-    // this is done here, because I'm trying to keep the MongoWrapper from getting too much android stuff in it.
+    // These need to be moved into PreferenceBackedStorage and loaded directly from MongoWrapper
     private void updateMongoWrapperFromPrefs() {
         // open prefs
         SharedPreferences settings = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
@@ -582,9 +570,31 @@ public class RTDemoService extends IntentService {
         }
     }
 
+    protected void cleanupLogfiles() {
+        // Check for logfiles older than 3 hours, delete them.
+        String[] fnames = fileList();
+        Pattern namePattern = Pattern.compile("RTLog_(.*)$");
+        for (int i = 0; i<fnames.length; i++) {
+            Matcher m = namePattern.matcher(fnames[i]);
+            if (m.find()) {
+                String tstamp = m.group(0);
+                Log.w(TAG,"Found logfile with time: " + tstamp);
+                DateTime dt = DateTime.parse(tstamp);
+                if (dt.isBefore(DateTime.now().minusHours(3))) {
+                    Log.w(TAG,"Deleting old file " + fnames[i]);
+                    deleteFile(fnames[i]);
+                }
+            } else {
+                Log.w(TAG,"Not my logfile?: " + fnames[i]);
+            }
+        }
+    }
+
+
     protected void serviceMain() {
         checkAndUpdateBGReading();
         mAPSLogic.runAPSLogicOnce();
+        cleanupLogfiles();
     }
 
     private void showNotification() {

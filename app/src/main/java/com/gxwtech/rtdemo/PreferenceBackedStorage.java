@@ -16,6 +16,11 @@ import org.joda.time.DateTimeZone;
  * The old method was individually storing all preferences items.
  * I want to move all those into here, so that we can have common get/set for each.
  *
+ * This could be broken into subclasses (extends, implements, whichever) for different areas.
+ *
+ * All of these could be changed into extensions of basic types (Int, Double) and set to persist,
+ * along with default values and key names
+ *
  */
 public class PreferenceBackedStorage {
     Context mContext; // be careful, can leak contexts
@@ -85,4 +90,85 @@ public class PreferenceBackedStorage {
         edit.commit();
     }
 
+    public void setCAR(double car) {
+        p.edit().putFloat(Constants.PrefName.CARPrefName,(float) car).commit();
+    }
+
+    public double getCAR() {
+        return p.getFloat(Constants.PrefName.CARPrefName,30.0f);
+    }
+
+    public void setMaxTempBasalRate(double rate) {
+        p.edit().putFloat(Constants.PrefName.PPMaxTempBasalRatePrefName,(float)rate).commit();
+    }
+    public double getMaxTempBasalRate() {
+        return p.getFloat(Constants.PrefName.PPMaxTempBasalRatePrefName,6.1f);
+    }
+    public void setBGMin(double bgMin) {
+        p.edit().putFloat(Constants.PrefName.PPBGMinPrefName,(float)bgMin).commit();
+    }
+    public double getBGMin() {
+        return p.getFloat(Constants.PrefName.PPBGMinPrefName,95.0f);
+    }
+    public void setTargetBG(double targetBG) {
+        p.edit().putFloat(Constants.PrefName.PPTargetBGPrefName,(float)targetBG).commit();
+    }
+    public double getTargetBG() {
+        return p.getFloat(Constants.PrefName.PPTargetBGPrefName,115.0f);
+    }
+    public void setBGMax(double bgMax) {
+        p.edit().putFloat(Constants.PrefName.PPBGMaxPrefName,(float)bgMax).commit();
+    }
+    public double getBGMax() {
+        return p.getFloat(Constants.PrefName.PPBGMaxPrefName,125.0f);
+    }
+
+    // these are specific to the MonitorActivity UI, so could be moved to another (sub) class
+    public void setMonitor_TempBasalRate(double rate) {
+        p.edit().putFloat(Constants.PrefName.Monitor_TempBasalRate,(float)rate).commit();
+    }
+
+    public double getMonitor_TempBasalRate() {
+        return p.getFloat(Constants.PrefName.Monitor_TempBasalRate,-99.0f);
+    }
+
+    public void setMonitor_TempBasalDuration(int duration_minutes) {
+        p.edit().putInt(Constants.PrefName.Monitor_TempBasalDuration,duration_minutes).commit();
+    }
+
+    public int getMonitor_TempBasalDuration() {
+        return p.getInt(Constants.PrefName.Monitor_TempBasalDuration,-99);
+    }
+
+    public void setMonitor_CurrBasalRate(double rate) {
+        p.edit().putFloat(Constants.PrefName.Monitor_CurrBasalRate,(float)rate).commit();
+    }
+
+    public double getMonitor_CurrBasalRate() {
+        return p.getFloat(Constants.PrefName.Monitor_CurrBasalRate,-99.0f);
+    }
+
+    public void setMonitor_PredBG(double predBG) {
+        p.edit().putFloat(Constants.PrefName.Monitor_PredBG,(float)predBG).commit();
+    }
+
+    public double getMonitor_PredBG() {
+        return p.getFloat(Constants.PrefName.Monitor_PredBG,-99.0f);
+    }
+
+    public void setMonitor_IOB(double iob) {
+        p.edit().putFloat(Constants.PrefName.Monitor_IOB,(float)iob).commit();
+    }
+
+    public double getMonitor_IOB() {
+        return p.getFloat(Constants.PrefName.Monitor_IOB,-99.0f);
+    }
+
+    public void setMonitor_COB(double cob) {
+        p.edit().putFloat(Constants.PrefName.Monitor_COB,(float)cob).commit();
+    }
+
+    public double getMonitor_COB() {
+        return p.getFloat(Constants.PrefName.Monitor_COB,-99.0f);
+    }
 }
