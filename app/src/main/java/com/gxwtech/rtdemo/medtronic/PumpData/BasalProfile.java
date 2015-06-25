@@ -131,7 +131,7 @@ public class BasalProfile {
             st = readUnsignedByte(mRawData[i+2]);
             entries.add(new BasalProfileEntry(r,st));
             i=i+3;
-            if (i>=21) {
+            if (i>=MAX_RAW_DATA_SIZE) {
                 done=true;
             } else if ((mRawData[i]==0) && (mRawData[i+1]==0) && (mRawData[i+2]==0)) {
                 done = true;

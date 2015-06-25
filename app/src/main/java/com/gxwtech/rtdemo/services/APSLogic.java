@@ -243,6 +243,42 @@ public class APSLogic {
                 BGMin,
                 MaxTempBasalRate));
 
+        // how often should we check for changes in pump settings?
+        // Make a button on UI to reset/reload settings from pump.
+        //if (!gotBasalProfiles) {
+        // NOTE: get pump settings before getting basal profiles
+        log("Getting basal profiles from pump");
+        getBasalProfiles();
+        //}
+
+        boolean debug_basal_profiles = false;
+        if (debug_basal_profiles) {
+            BasalProfile bp = getCurrentBasalProfile();
+            log("Using basal profile:");
+            ArrayList<BasalProfileEntry> entries = bp.getEntries();
+            for (int i = 0; i < entries.size(); i++) {
+                BasalProfileEntry entry = entries.get(i);
+                String startString = entry.startTime.toString("HH:mm");
+                log(String.format("Entry %d, rate=%.3f (0x%02X), start=%s (0x%02X)",
+                        i + 1, entry.rate, entry.rate_raw,
+                        startString, entry.startTime_raw));
+
+            }
+            Instant atTime = DateTime.now().withTime(13, 23, 0, 0).toInstant();
+            BasalProfileEntry anEntry = bp.getEntryForTime(atTime);
+            log(String.format("Example: rate at %s is %.3f", atTime.toDateTime().toString("HH:mm"), anEntry.rate));
+
+            atTime = DateTime.now().withTime(14, 23, 0, 0).toInstant();
+            anEntry = bp.getEntryForTime(atTime);
+            log(String.format("Example: rate at %s is %.3f", atTime.toDateTime().toString("HH:mm"), anEntry.rate));
+
+            atTime = DateTime.now().withTime(15, 23, 0, 0).toInstant();
+            anEntry = bp.getEntryForTime(atTime);
+            log(String.format("Example: rate at %s is %.3f", atTime.toDateTime().toString("HH:mm"), anEntry.rate));
+
+        }
+
+
         // if most recent reading is more than ten minutes old, do nothing.
         // If a temp basal is running, fine.  It will expire.
         Minutes cgm_elapsed = Minutes.minutesBetween(mCachedLatestBGReading.mTimestamp,DateTime.now());
@@ -289,13 +325,6 @@ public class APSLogic {
         getPumpSettingsFromPump();
         log(String.format("PumpSettings reports Max Basal Rate: %.2f",mPumpSettings.mMaxBasal));
 
-        // how often should we check for changes in pump settings?
-        // Make a button on UI to reset/reload settings from pump.
-        //if (!gotBasalProfiles) {
-            // NOTE: get pump settings before getting basal profiles
-            log("Getting basal profiles from pump");
-            getBasalProfiles();
-        //}
         double currentBasalRate = basal_rate_at_abs_time(now,
                 getCurrentBasalProfile());
         // save value for MonitorActivity
@@ -457,7 +486,7 @@ public class APSLogic {
                     double thisEventIOBRemaining = 0.0;
                     double thisEventIOBImpact = 0.0;
                     ArrayList<DIATables.DIATableEnum> tablesUsed = new ArrayList<>();
-
+                    /*
                     BasalProfileEntry bpEntry = getCurrentBasalProfile().getEntryForTime(tb.mTimestamp.toInstant());
                     log(String.format("At start of insulin event(%s), basal rate is %.3f (%d), start %s (%d)",
                             tb.mTimestamp.toLocalTime().toString("HH:mm"),
@@ -469,7 +498,7 @@ public class APSLogic {
                             endTimes.get(i).toDateTime().toLocalTime().toString("HH:mm"),
                             bpEntry.rate, bpEntry.rate_raw,
                             bpEntry.startTime.toString("HH:mm"),bpEntry.startTime_raw));
-
+                    */
                     for (int j = 0; j < actualDuration.getMinutes(); j++) {
                         DIATables.DIATableEnum whichTable = default_dia_table;
 
@@ -538,7 +567,6 @@ public class APSLogic {
         log(String.format("Using CGM reading %.1f, which is %d minutes old",
                 mCachedLatestBGReading.mBg,cgm_elapsed.getMinutes()));
 
-        // todo: get these values from pump history, MongoDB, CGM, etc.
         double bg = mCachedLatestBGReading.mBg; // for simplified reading of the algorithm below
         /*
         todo: sanity-check latest BG reading (is it less than 39? is it greater than 500?
