@@ -99,7 +99,7 @@ public class APSLogic {
 
     // pump_high_temp_max is maximum units that the pump will produce for a temp basal (2 U/h for MM722)
     // +++ fixme: read this value from the pump
-    private static double pump_high_temp_max = 6.2;
+    private static double pump_high_temp_max = 6.35;
 
     // don't high-temp if IOB > max_IOB
     double max_IOB = 15;
