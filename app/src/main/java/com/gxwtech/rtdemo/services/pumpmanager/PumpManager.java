@@ -258,11 +258,16 @@ public class PumpManager {
     // insulinRate is in Units, granularity 0.025U
     // durationMinutes is in minutes, granularity 30min
     // both values will be checked and floor'd.
-    public void setTempBasal(double insulinRate, int durationMinutes) {
+    // returns true on success, false on any error
+    public boolean setTempBasal(double insulinRate, int durationMinutes) {
+        boolean success = false;
         checkPowerControl();
         SetTempBasalCommand cmd = new SetTempBasalCommand(insulinRate, durationMinutes);
-        cmd.run(mCarelink, mSerialNumber);
-        // TODO: check for success?
+        MedtronicCommandStatusEnum cmdSuccess = cmd.run(mCarelink, mSerialNumber);
+        if (cmdSuccess == MedtronicCommandStatusEnum.ACK) {
+            success = true;
+        }
+        return success;
     }
 
     public void setTempBasal(TempBasalPair pair) {
