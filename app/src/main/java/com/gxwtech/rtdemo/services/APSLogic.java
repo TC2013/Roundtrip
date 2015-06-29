@@ -99,10 +99,15 @@ public class APSLogic {
 
     // pump_high_temp_max is maximum units that the pump will produce for a temp basal (2 U/h for MM722)
     // +++ fixme: read this value from the pump
-    private static double pump_high_temp_max = 6.35;
+    // The pump may be able to do a higher high_temp_max, but is the highest 8 bit value we can send.
+    // Need to check if we can send a 16 bit value. (units of 0.025 U/h)
+    private static final double pump_high_temp_max = 6.35;
 
     // don't high-temp if IOB > max_IOB
-    double max_IOB = 15;
+    static final double max_IOB = 15;
+
+    // don't use CGM reading, if it is below this number:
+    static final double min_useable_bg_reading = 40.0;
 
     // choices here are: dia_0pt5_hour, dia_1pt5_hour, dia_1_hour, dia_2_hour, dia_2pt5_hour, dia_3_hour, dia_3pt5_hour,dia_4_hour, dia_4pt5_hour, dia_5_hour, dia_5pt5_hour
     // Which Duration of Insulin Action table to use?
@@ -143,20 +148,20 @@ public class APSLogic {
                                     double carbGrams,
                                     Instant valueTime,
                                     double carbs_absorbed_per_hour) {
+        final int digestionDelay_minutes = 20;
         // CAR is carbs absorbed per minute
         double CAR = carbs_absorbed_per_hour / 60.0;
         double rval = 0;
-        //int elapsed_minutes = (valueTime - startTime).total_seconds() / 60;
         Minutes minutes = Minutes.minutesBetween(startTime, valueTime); // todo: check this
         int elapsed_minutes = minutes.getMinutes();
         if (elapsed_minutes < 0) {
             //none ingested
             rval = 0;
-        } else if (elapsed_minutes < 20) {
+        } else if (elapsed_minutes < digestionDelay_minutes) {
             //ingested, but none yet absorbed
             rval = carbGrams;
         } else {
-            double carbs_absorbed = (CAR * (elapsed_minutes - 20));
+            double carbs_absorbed = (CAR * (elapsed_minutes - digestionDelay_minutes));
             rval = carbGrams - carbs_absorbed;
             // negative values do not make sense
             if (rval < 0) {
@@ -242,6 +247,13 @@ public class APSLogic {
                 TargetBG,
                 BGMin,
                 MaxTempBasalRate));
+
+        // If the CGM reading is not a sane value, refuse to run.  How to define sane?
+        if (mCachedLatestBGReading.mBg < min_useable_bg_reading) {
+            log(String.format("Most recent CGM reading of %.1f mg/dL, at %s indicates CGM error.  Quitting.",
+                    mCachedLatestBGReading.mBg, mCachedLatestBGReading.mTimestamp.toString("(MM/dd)HH:mm")));
+            return;
+        }
 
         // how often should we check for changes in pump settings?
         // Make a button on UI to reset/reload settings from pump.
@@ -595,6 +607,17 @@ public class APSLogic {
 
         mStorage.setMonitor_PredBG(predictedBG);
         notifyMonitorDataChanged();
+
+        // APSLogic doesn't have enough information to handle COB yet.
+        // So, for now, if COB > 0, do nothing.
+        if (cobTotal > 0) {
+            log(String.format("Carbs on board (%.1f gm) -- insulin management suspended.",cobTotal));
+            if (mCurrentTempBasal.mDurationMinutes > 0) {
+                log(String.format("Carbs on board (%.1f gm) -- cancelling current temp basal",cobTotal));
+                setTempBasal(0, 0, currentBasalRate);
+            }
+            return;
+        }
 
         /*
         todo: many places below talk about "for %d more minutes" but reference a total, not remaining duration. fix.
