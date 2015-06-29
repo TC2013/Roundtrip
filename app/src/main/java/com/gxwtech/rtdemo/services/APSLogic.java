@@ -799,31 +799,9 @@ public class APSLogic {
 
     // When this method succeeds, it also contacts the database to add the new treatment.
     // todo?: Need curr_basal to calculate if this is a negative insulin event
-    // returns true on success
-    public boolean setTempBasal(double rateUnitsPerHour, int periodMinutes, double currBasalRate) {
-        boolean success = false;
+    public void setTempBasal(double rateUnitsPerHour, int periodMinutes, double currBasalRate) {
         log(String.format("Set Temp Basal: rate=%.3f, minutes=%d",rateUnitsPerHour,periodMinutes));
-        boolean setSuccess = getPumpManager().setTempBasal(rateUnitsPerHour,periodMinutes);
-        if (setSuccess == false) {
-            log("Set Temp Basal failed.");
-        }
-        // don't quit just yet.
-        getCurrentTempBasalFromPump(); // sets mCurrentTempBasal, and notifies GUI
-        boolean readbackSuccess = true;
-        final boolean force_fail_for_testing = false;
-        if ((mCurrentTempBasal.mInsulinRate != rateUnitsPerHour)
-                // allow for one minute difference between durations
-                || ((Math.abs(mCurrentTempBasal.mDurationMinutes - periodMinutes)) > 1)
-                || (force_fail_for_testing)) {
-
-            log(String.format("Error: Mismatch in Set Temp Basal."));
-            log(String.format("We told the pump %d min @ %.3f U/h, but pump reports %d min @ %.3f U/h",
-                    periodMinutes, rateUnitsPerHour,
-                    mCurrentTempBasal.mDurationMinutes, mCurrentTempBasal.mInsulinRate));
-            readbackSuccess = false;
-        }
-        success = (setSuccess && readbackSuccess);
-        return success;
+        getPumpManager().setTempBasal(rateUnitsPerHour,periodMinutes);
     }
 
     // Get currently used Basals Profile from the pump.
