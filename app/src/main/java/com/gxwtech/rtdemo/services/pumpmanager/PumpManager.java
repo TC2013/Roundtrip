@@ -190,7 +190,7 @@ public class PumpManager {
     }
 
     public void checkPowerControl() {
-        byte minutesOfRFPower = (byte) 10; // TODO can set this to 3, or 10, or ?
+        byte minutesOfRFPower = (byte) 3; // TODO can set this to 3, or 10, or ?
         boolean runPowerControlCommand = false;
 
         DateTime lastPowerControlRunTime = getLastPowerControlRunTime();
