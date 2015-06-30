@@ -34,6 +34,10 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        int versionCode = BuildConfig.VERSION_CODE;
+        String versionName = BuildConfig.VERSION_NAME;
+        setTitle("Roundtrip " + versionName + "-" + versionCode);
+
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, msgList);
         ListView lv = (ListView) findViewById(R.id.listView_Log);
         lv.setAdapter(adapter);
