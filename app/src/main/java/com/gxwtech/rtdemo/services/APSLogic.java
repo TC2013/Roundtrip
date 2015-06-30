@@ -197,7 +197,6 @@ public class APSLogic {
     public double isf(Instant when) {
         // TODO: given a time of day, return the insulin sensitivity factor
         // In the RPi version, we retrieved this number (a single number) from MongoDB profile
-        // TODO: Must fix this
         //return mPersonalProfile.isf;
         return 40.0; // fixme: very broken.
     }
@@ -207,10 +206,7 @@ public class APSLogic {
         return (Math.floor(x * 40.0))/40.0;
     }
 
-
-
-    // This function is to be run after CollectData()
-    // Here we make a decision about TempBasals, based on all factors
+    // Here we make a decision about Temp Basals, based on all factors
     private void MakeADecision() {
         // get a recent blood-glucose (BG) reading from CGM or from Mongo (to start with)
         // make sure we have all the pump info we need, such as Basal Profiles,
@@ -223,13 +219,8 @@ public class APSLogic {
         // and user preferences such as algorithm options like
         // enable_low_glucose_suspend, AR Regression
 
-        // TODO: make each run of MakeADecision log to a text file locally.
-        // TODO: Delete log files older than xxx
 
         // Cache this values for the remainder of this run
-        /* Note: One of the design goals for this algorithm is to make it (more easily) readable by
-         * non-programmers.  So, I'm more lenient on naming conventions for the rest of this routine.
-         */
 
         double CAR = mStorage.getCAR();
         double BGMax = mStorage.getBGMax();
@@ -248,20 +239,8 @@ public class APSLogic {
                 BGMin,
                 MaxTempBasalRate));
 
-        // If the CGM reading is not a sane value, refuse to run.  How to define sane?
-        if (mCachedLatestBGReading.mBg < min_useable_bg_reading) {
-            log(String.format("Most recent CGM reading of %.1f mg/dL, at %s indicates CGM error.  Quitting.",
-                    mCachedLatestBGReading.mBg, mCachedLatestBGReading.mTimestamp.toString("(MM/dd)HH:mm")));
-            return;
-        }
-
-        // how often should we check for changes in pump settings?
-        // Make a button on UI to reset/reload settings from pump.
-        //if (!gotBasalProfiles) {
-        // NOTE: get pump settings before getting basal profiles
         log("Getting basal profiles from pump");
         getBasalProfiles();
-        //}
 
         boolean debug_basal_profiles = false;
         if (debug_basal_profiles) {
@@ -290,33 +269,6 @@ public class APSLogic {
 
         }
 
-
-        // if most recent reading is more than ten minutes old, do nothing.
-        // If a temp basal is running, fine.  It will expire.
-        Minutes cgm_elapsed = Minutes.minutesBetween(mCachedLatestBGReading.mTimestamp,DateTime.now());
-        Log.d(TAG,"BG timestamp: "+mCachedLatestBGReading.mTimestamp.toString("(MM/dd)HH:mm"));
-        Log.d(TAG,"NOW timestamp: "+DateTime.now().toString("(MM/dd)HH:mm"));
-        if (cgm_elapsed.getMinutes() > 10) {
-            log(String.format("Most recent CGM reading is %d minutes old. Quitting.",
-                    Math.abs(cgm_elapsed.getMinutes())));
-            return;
-        } else if (cgm_elapsed.getMinutes() < -10) {
-            log(String.format("Most recent CGM reading is %d minutes in the future. Quitting.",
-                    Math.abs(cgm_elapsed.getMinutes())));
-            return;
-        }
-
-        // LOW GLUCOSE SUSPEND
-        // if the low glucose suspend point is zero, it is effectively turned off.
-        if (lowGlucoseSuspendPoint > 0.0) {
-            if (mCachedLatestBGReading.mBg < lowGlucoseSuspendPoint) {
-                log(String.format("LOW GLUCOSE SUSPEND: CGM reading of %.1f is below set point of %.1f",
-                        mCachedLatestBGReading.mBg, lowGlucoseSuspendPoint));
-                log("LOW GLUCOSE SUSPEND: Setting pump for Temp Basal of 0.0 units for 30 minutes");
-                setTempBasal(0, 30, 0);
-                return;
-            }
-        }
         log("Getting status of temp basal from pump.");
                 getCurrentTempBasalFromPump();
                 log(String.format("Temp Basal status: %.2f U, %d minutes remaining.",
@@ -327,7 +279,7 @@ public class APSLogic {
         log("Pump RTC in local time: " + rtcDateTime.toLocalDateTime().toString());
         Instant now = new Instant(); // cache local system time
         log("Local System Time is " + now.toDateTime().toLocalDateTime().toString());
-        Minutes pumpTimeOffsetMinutes = Minutes.minutesBetween(now,rtcDateTime);
+        Minutes pumpTimeOffsetMinutes = Minutes.minutesBetween(now, rtcDateTime);
         log(String.format("Pump Time is %d minutes %s system time.",
                 Math.abs(pumpTimeOffsetMinutes.getMinutes()),
                 (pumpTimeOffsetMinutes.getMinutes() < 0) ? "behind" : "ahead of"));
@@ -409,7 +361,7 @@ public class APSLogic {
                             carbInput,
                             bolusAmount));
 
-                    //TODO: Use correct table, (from profile?)
+                    //TODO: Use correct DIA table
                     double iob = iobValueAtAbsTime(timestamp.toInstant(), bolusAmount, now.toInstant(),
                             DIATables.DIATableEnum.DIA_3_hour);
                     double remainingBGImpact_IOBpartial = iob * isf;
@@ -575,14 +527,55 @@ public class APSLogic {
         mStorage.setMonitor_COB(cobTotal);
         notifyMonitorDataChanged();
 
-        cgm_elapsed = Minutes.minutesBetween(mCachedLatestBGReading.mTimestamp,now);
+        // TODO: Check for an expired Temp Basal, and if found write it to MongoDB
+
+        // We have collected all the data we need, now use it to make a decision
+
+
+        // Sanity check the BG reading.  Is it a reasonable value? is it too old? in the future?
+        Minutes cgm_elapsed = Minutes.minutesBetween(mCachedLatestBGReading.mTimestamp,now);
         log(String.format("Using CGM reading %.1f, which is %d minutes old",
                 mCachedLatestBGReading.mBg,cgm_elapsed.getMinutes()));
 
+        // If the CGM reading is not a sane value, refuse to run.  How to define sane?
+        if (mCachedLatestBGReading.mBg < min_useable_bg_reading) {
+            log(String.format("Most recent CGM reading of %.1f mg/dL, at %s indicates CGM error.  Quitting.",
+                    mCachedLatestBGReading.mBg, mCachedLatestBGReading.mTimestamp.toString("(MM/dd)HH:mm")));
+            return;
+        }
+
+        // if most recent reading is more than ten minutes old, do nothing.
+        // If a temp basal is running, fine.  It will expire.
+        cgm_elapsed = Minutes.minutesBetween(mCachedLatestBGReading.mTimestamp,DateTime.now());
+        Log.d(TAG,"BG timestamp: "+mCachedLatestBGReading.mTimestamp.toString("(MM/dd)HH:mm"));
+        Log.d(TAG, "NOW timestamp: " + DateTime.now().toString("(MM/dd)HH:mm"));
+        if (cgm_elapsed.getMinutes() > 10) {
+            log(String.format("Most recent CGM reading is %d minutes old. Quitting.",
+                    Math.abs(cgm_elapsed.getMinutes())));
+            return;
+        } else if (cgm_elapsed.getMinutes() < -10) {
+            log(String.format("Most recent CGM reading is %d minutes in the future. Quitting.",
+                    Math.abs(cgm_elapsed.getMinutes())));
+            return;
+        }
+
+        // LOW GLUCOSE SUSPEND
+        // if the low glucose suspend point is zero, it is effectively turned off.
+        // Note: you can set this in the gui to zero to turn it off.
+        if (lowGlucoseSuspendPoint > 0.0) {
+            if (mCachedLatestBGReading.mBg < lowGlucoseSuspendPoint) {
+                log(String.format("LOW GLUCOSE SUSPEND: CGM reading of %.1f is below set point of %.1f",
+                        mCachedLatestBGReading.mBg, lowGlucoseSuspendPoint));
+                log("LOW GLUCOSE SUSPEND: Setting pump for Temp Basal of 0.0 units for 30 minutes");
+                setTempBasal(0, 30, 0);
+                return;
+            }
+        }
+
+
+
+
         double bg = mCachedLatestBGReading.mBg; // for simplified reading of the algorithm below
-        /*
-        todo: sanity-check latest BG reading (is it less than 39? is it greater than 500?
-         */
 
         //calc desired BG adjustment
         // We then predict a value for the BG for "sometime in the future, when all IOB and COB are used up".
