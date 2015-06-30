@@ -6,6 +6,8 @@
 /build/
 /app/build/
 /app/.idea/
+/app/build/generated
+/app/build/outputs/logs/manifest-merger-debug-report.txt
 
 /.idea/*
 *.iml
