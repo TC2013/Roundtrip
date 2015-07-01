@@ -114,17 +114,11 @@ public class APSLogic {
     // don't use CGM reading, if it is below this number:
     static final double min_useable_bg_reading = 40.0;
 
-    // choices here are: dia_0pt5_hour, dia_1pt5_hour, dia_1_hour, dia_2_hour, dia_2pt5_hour, dia_3_hour, dia_3pt5_hour,dia_4_hour, dia_4pt5_hour, dia_5_hour, dia_5pt5_hour
-    // Which Duration of Insulin Action table to use?
-    // TODO: change this to an enum
-    DIATables.DIATableEnum meal_bolus_dia_table = DIATables.DIATableEnum.DIA_4pt5_hour;
-    DIATables.DIATableEnum negative_insulin_dia_table = DIATables.DIATableEnum.DIA_2_hour;
-    DIATables.DIATableEnum default_dia_table = DIATables.DIATableEnum.DIA_3_hour;
     /* END settable defaults */
 
     public double iobValueAtAbsTime(Instant startTime, double insulinUnits,
                                     Instant valueTime,
-                                    DIATables.DIATableEnum dia_table) {
+                                    DIATable dia_table) {
         boolean debug_iobValueAtAbsTime = false;
         if (debug_iobValueAtAbsTime) {
             log("startTime: " + startTime.toString());
@@ -138,7 +132,7 @@ public class APSLogic {
         if (debug_iobValueAtAbsTime) {
             log(String.format("elapsed minutes since insulin event began: %d",elapsed_minutes));
         }
-        double rval = insulinUnits * DIATables.insulinPercentRemaining(elapsed_minutes, dia_table) / 100;
+        double rval = insulinUnits * dia_table.insulinPercentRemaining(elapsed_minutes) / 100;
         if (debug_iobValueAtAbsTime) {
             log(String.format("IOB remaining from event: %.3f",rval));
         }
@@ -244,10 +238,28 @@ public class APSLogic {
                 BGMin,
                 MaxTempBasalRate));
 
+        log("Getting status of temp basal from pump.");
+                getCurrentTempBasalFromPump();
+                log(String.format("Temp Basal status: %.2f U, %d minutes remaining.",
+                        mCurrentTempBasal.mInsulinRate, mCurrentTempBasal.mDurationMinutes));
+        log("Getting RTC clock data from pump");
+        DateTime rtcDateTime = getRTCTimestampFromPump();
+        log("Pump RTC: " + rtcDateTime.toDateTimeISO().toString());
+        //log("Pump RTC in local time: " + rtcDateTime.toLocalDateTime().toString());
+        Instant now = new Instant(); // cache local system time
+        log("Local System Time is " + now.toDateTime().toLocalDateTime().toString());
+        int pumpTimeOffsetMinutes = Minutes.minutesBetween(now, rtcDateTime).getMinutes();
+        log(String.format("Pump Time is %d minutes %s system time.",
+                Math.abs(pumpTimeOffsetMinutes),
+                (pumpTimeOffsetMinutes < 0) ? "behind" : "ahead of"));
+
+        log("Getting pump settings");
+        // NOTE: get pump settings before getting basal profiles.
+        getPumpSettingsFromPump();
+
         log("Getting basal profiles from pump");
         getBasalProfiles();
-
-        boolean debug_basal_profiles = false;
+        boolean debug_basal_profiles = true;
         if (debug_basal_profiles) {
             BasalProfile bp = getCurrentBasalProfile();
             log("Using basal profile:");
@@ -274,24 +286,7 @@ public class APSLogic {
 
         }
 
-        log("Getting status of temp basal from pump.");
-                getCurrentTempBasalFromPump();
-                log(String.format("Temp Basal status: %.2f U, %d minutes remaining.",
-                        mCurrentTempBasal.mInsulinRate, mCurrentTempBasal.mDurationMinutes));
-        log("Getting RTC clock data from pump");
-        DateTime rtcDateTime = getRTCTimestampFromPump();
-        log("Pump RTC: " + rtcDateTime.toDateTimeISO().toString());
-        //log("Pump RTC in local time: " + rtcDateTime.toLocalDateTime().toString());
-        Instant now = new Instant(); // cache local system time
-        log("Local System Time is " + now.toDateTime().toLocalDateTime().toString());
-        int pumpTimeOffsetMinutes = Minutes.minutesBetween(now, rtcDateTime).getMinutes();
-        log(String.format("Pump Time is %d minutes %s system time.",
-                Math.abs(pumpTimeOffsetMinutes),
-                (pumpTimeOffsetMinutes < 0) ? "behind" : "ahead of"));
 
-        log("Getting pump settings");
-        // NOTE: get pump settings before getting basal profiles.
-        getPumpSettingsFromPump();
         log(String.format("PumpSettings reports Max Basal Rate: %.2f",mPumpSettings.mMaxBasal));
 
         double currentBasalRate = basal_rate_at_abs_time(now,
@@ -321,8 +316,8 @@ public class APSLogic {
         final int maxHistoryPageLookback = 10;
         // seek pages until we have found sufficiently old records for both types,
         // or until we've just looked too far back (maxHistoryPageLookback)
-        while (((oldestBWTimestamp.isAfter(now.toDateTime().minusMinutes(DIATables.insulinImpactMinutesMax)))
-                || (oldestTempBasalTimestamp.isAfter(now.toDateTime().minusMinutes(DIATables.insulinImpactMinutesMax))))
+        while (((oldestBWTimestamp.isAfter(now.toDateTime().minusMinutes(DIATable.insulinImpactMinutesMax)))
+                || (oldestTempBasalTimestamp.isAfter(now.toDateTime().minusMinutes(DIATable.insulinImpactMinutesMax))))
                 && (historyPageCount < maxHistoryPageLookback)) {
 
             HistoryReport historyReport = getPumpManager().getPumpHistory(historyPageCount);
@@ -349,13 +344,15 @@ public class APSLogic {
                 +" Temp Basal Events and "+collatedHistory.mBolusWizardEvents.size()+" Bolus Wizard events");
         Log.i(TAG, "Oldest Bolus Wizard event is " + oldestBWTimestamp.toLocalDateTime().toString("(yyyy/MM/dd)HH:mm"));
         Log.i(TAG, "Oldest Temp Basal event is " + oldestTempBasalTimestamp.toLocalDateTime().toString("(yyyy/MM/dd)HH:mm"));
+        DIATable normalDIATable = new DIATable(mStorage.normalDIATable.get());
+        DIATable negativeInsulinDIATable = new DIATable(mStorage.negativeInsulinDIATable.get());
         if (collatedHistory.mBolusWizardEvents.size() == 0) {
             log("No Bolus Wizard events found in history");
         } else {
             for (BolusWizard bw : collatedHistory.mBolusWizardEvents) {
                 DateTime timestamp = bw.getTimeStamp();
                 // sanity check the date on the bolus wizard event.
-                if ((timestamp.isBefore(now.toDateTime().minusMinutes(DIATables.insulinImpactMinutesMax)))
+                if ((timestamp.isBefore(now.toDateTime().minusMinutes(DIATable.insulinImpactMinutesMax)))
                         || (timestamp.isAfter(now.toDateTime().plusMinutes(10)))) {
                     // The Bolus occurred a long time ago (insulinImpartMinutesMax (300 minutes))
                     // (or is in the future, somehow)
@@ -372,9 +369,8 @@ public class APSLogic {
                             carbInput,
                             bolusAmount));
 
-                    //TODO: Use correct DIA table
                     double iob = iobValueAtAbsTime(timestamp.toInstant(), bolusAmount, now.toInstant(),
-                            DIATables.DIATableEnum.DIA_3_hour);
+                            normalDIATable);
                     double remainingBGImpact_IOBpartial = iob * isf;
                     log(String.format("Bolus wizard event (%s): IOB=%.1f U, isf=%.1f, bg impact remaining=%.1f mg/dL",
                             timestamp.toString("HH:mm"),
@@ -475,7 +471,7 @@ public class APSLogic {
 
                     double thisEventIOBRemaining = 0.0;
                     double thisEventIOBImpact = 0.0;
-                    ArrayList<DIATables.DIATableEnum> tablesUsed = new ArrayList<>();
+                    ArrayList<DIATable> tablesUsed = new ArrayList<>();
                     /*
                     BasalProfileEntry bpEntry = getCurrentBasalProfile().getEntryForTime(tb.mTimestamp.toInstant());
                     log(String.format("At start of insulin event(%s), basal rate is %.3f (%d), start %s (%d)",
@@ -490,7 +486,7 @@ public class APSLogic {
                             bpEntry.startTime.toString("HH:mm"),bpEntry.startTime_raw));
                     */
                     for (int j = 0; j < tb.actualDurationMinutes; j++) {
-                        DIATables.DIATableEnum whichTable = default_dia_table;
+                        DIATable whichTable = normalDIATable;
 
                     /*
                      *  Temp basals that are below the current basal rate are handled by
@@ -509,7 +505,7 @@ public class APSLogic {
                         tb.mTotalRelativeInsulin += relativeRate / 60.0;
 
                         if (relativeRate < 0) {
-                            whichTable = negative_insulin_dia_table;
+                            whichTable = negativeInsulinDIATable;
                         }
                         if (!tablesUsed.contains(whichTable)) {
                             tablesUsed.add(whichTable);
@@ -523,8 +519,8 @@ public class APSLogic {
                     remainingBGImpact_IOBtotal += thisEventIOBImpact;
                     iobTotal += thisEventIOBRemaining;
                     String tableString = "";
-                    for (DIATables.DIATableEnum en : tablesUsed) {
-                        tableString += en.name() + " ";
+                    for (DIATable en : tablesUsed) {
+                        tableString += en.toString() + " ";
                     }
                     if (tableString.equals("")) {
                         tableString = "none";
@@ -560,7 +556,7 @@ public class APSLogic {
             // Get last (insulinImpactMinutesMax) minutes of TempBasal treatment entries from mongodb
             log("Getting list of previous Temp Basal events from MongoDB");
             List<DBTempBasalEntry> treatmentListFromDB =
-                    mMongoWrapper.downloadRecentTreatments(DIATables.insulinImpactMinutesMax + 30 /* minutes */);
+                    mMongoWrapper.downloadRecentTreatments(DIATable.insulinImpactMinutesMax + 30 /* minutes */);
 
             // for each entry in our history, check to see if there is a corresponding db entry.
             // if not, post an entry for the tempbasal event. (only if it has ended)
@@ -568,7 +564,7 @@ public class APSLogic {
             // typical should be much less.
             for (APSTempBasalEvent localTB : simplifiedBasalEvents) {
                 // we only care about events within (DIATables.insulinImpactMinutesMax + 30) minutes
-                if (localTB.mTimestamp.isAfter(DateTime.now().minusMinutes(DIATables.insulinImpactMinutesMax + 30))) {
+                if (localTB.mTimestamp.isAfter(DateTime.now().minusMinutes(DIATable.insulinImpactMinutesMax + 30))) {
                     boolean found = false;
                     for (DBTempBasalEntry remoteTB : treatmentListFromDB) {
                         int diffSeconds = Seconds.secondsBetween(remoteTB.mTimestamp, localTB.mTimestamp).getSeconds();

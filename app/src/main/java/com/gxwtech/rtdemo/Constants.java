@@ -76,10 +76,13 @@ public interface Constants {
         public static String LatestBGReading = "LatestBGReading";
         public static String LowGlucoseSuspendPoint = "LowGlucoseSuspendPoint";
         public static String CARPrefName = "CarbAbsorptionRatio";
+        public static String CarbDelayPrefName = "CarbDelayMinutes";
         public static String PPTargetBGPrefName = "TargetBG";
         public static String PPBGMaxPrefName = "TargetBGMax";
         public static String PPBGMinPrefName = "TargetBGMin";
         public static String PPMaxTempBasalRatePrefName = "MaxTempBasalRate";
+        public static String PPNormalDIATable = "NormalDIATable";
+        public static String PPNegativeInsulinDIATable = "NegativeInsulinDIATable";
 
         // These are in PreferenceBackedStorage, used for communication from apslogic to monitorActivity
         public static String Monitor_TempBasalRate = "Monitor_TempBasalRate";
@@ -88,5 +91,6 @@ public interface Constants {
         public static String Monitor_PredBG = "Monitor_PredBG";
         public static String Monitor_IOB = "Monitor_IOB";
         public static String Monitor_COB = "Monitor_COB";
+
     }
 }

@@ -3,6 +3,8 @@ package com.gxwtech.rtdemo;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.gxwtech.rtdemo.services.DIATable;
+
 import org.joda.time.DateTime;
 
 /**
@@ -32,10 +34,13 @@ public class PreferenceBackedStorage {
     public PersistentDouble monitorCOB;
     public PersistentDouble lowGlucoseSuspendPoint;
     public PersistentDouble CAR;
+    public PersistentInt carbDelay;
     public PersistentDouble maxTempBasalRate;
     public PersistentDouble bgMin;
     public PersistentDouble targetBG;
     public PersistentDouble bgMax;
+    public PersistentInt normalDIATable;
+    public PersistentInt negativeInsulinDIATable;
     public PreferenceBackedStorage(Context ctx) {
         mContext = ctx;
         p = mContext.getSharedPreferences(Constants.PreferenceID.MainActivityPrefName,0);
@@ -53,6 +58,7 @@ public class PreferenceBackedStorage {
 
         lowGlucoseSuspendPoint = new PersistentDouble(p,Constants.PrefName.LowGlucoseSuspendPoint,85.0f);
         CAR = new PersistentDouble(p,Constants.PrefName.CARPrefName,30.0f);
+        carbDelay = new PersistentInt(p,Constants.PrefName.CarbDelayPrefName,20);
         maxTempBasalRate = new PersistentDouble(p,Constants.PrefName.PPMaxTempBasalRatePrefName,6.1f);
         bgMin = new PersistentDouble(p,Constants.PrefName.PPBGMinPrefName,95.0f);
         targetBG = new PersistentDouble(p,Constants.PrefName.PPTargetBGPrefName,115.0f);
@@ -64,6 +70,11 @@ public class PreferenceBackedStorage {
         monitorPredictedBG = new PersistentDouble(p,Constants.PrefName.Monitor_PredBG,-99.0f);
         monitorIOB = new PersistentDouble(p,Constants.PrefName.Monitor_IOB, -99.0f);
         monitorCOB = new PersistentDouble(p,Constants.PrefName.Monitor_COB,-99.0f);
+
+        normalDIATable = new PersistentInt(p,Constants.PrefName.PPNormalDIATable, DIATable.DIA_3_hour);
+        negativeInsulinDIATable = new PersistentInt(p,Constants.PrefName.PPNegativeInsulinDIATable,DIATable.DIA_2_hour);
+
+
     }
     /*
      *

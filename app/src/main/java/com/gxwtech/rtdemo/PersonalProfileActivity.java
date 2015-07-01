@@ -1,30 +1,87 @@
 package com.gxwtech.rtdemo;
 
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 
-import com.gxwtech.rtdemo.services.RTDemoService;
+import com.gxwtech.rtdemo.services.DIATable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class PersonalProfileActivity extends ActionBarActivity {
     private static final String TAG = "PersonalProfileActivity";
     PreferenceBackedStorage mStorage;
+    // have to hold references for post.
+    Spinner mNormDIATableSpinner;
+    Spinner mNegDIATableSpinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_personal_profile);
         mStorage = new PreferenceBackedStorage(getApplicationContext());
+        Spinner normalDIATableSpinner = (Spinner)findViewById(R.id.spinner_NormalDIATable);
+        Spinner negativeDIATableSpinner = (Spinner)findViewById(R.id.spinner_NegativeDIATable);
+        List<DIATable> list = new ArrayList<>();
+        list.add(new DIATable(DIATable.DIA_0pt5_hour));
+        list.add(new DIATable(DIATable.DIA_1_hour));
+        list.add(new DIATable(DIATable.DIA_1pt5_hour));
+        list.add(new DIATable(DIATable.DIA_2_hour));
+        list.add(new DIATable(DIATable.DIA_2pt5_hour));
+        list.add(new DIATable(DIATable.DIA_3_hour));
+        list.add(new DIATable(DIATable.DIA_3pt5_hour));
+        list.add(new DIATable(DIATable.DIA_4_hour));
+        list.add(new DIATable(DIATable.DIA_4pt5_hour));
+        list.add(new DIATable(DIATable.DIA_5_hour));
+        list.add(new DIATable(DIATable.DIA_5pt5_hour));
+
+        ArrayAdapter<DIATable> adapter1 = new ArrayAdapter<DIATable>(this, android.R.layout.simple_spinner_item,list);
+        adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        normalDIATableSpinner.setAdapter(adapter1);
+        normalDIATableSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view,
+                                       int position, long id) {
+                DIATable t = (DIATable)parent.getItemAtPosition(position);
+                mStorage.normalDIATable.set(t.mFlavor);
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {
+            }
+        });
+
+        // duplicated code from above.  Should be combined, but I have no patience for it at the moment.
+        ArrayAdapter<DIATable> adapter2 = new ArrayAdapter<DIATable>(this, android.R.layout.simple_spinner_item,list);
+        adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        negativeDIATableSpinner.setAdapter(adapter2);
+        negativeDIATableSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view,
+                                       int position, long id) {
+                DIATable t = (DIATable) parent.getItemAtPosition(position);
+                mStorage.negativeInsulinDIATable.set(t.mFlavor);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {
+            }
+        });
     }
 
     protected void onResume() {
         super.onResume();
+        mNormDIATableSpinner = (Spinner)findViewById(R.id.spinner_NormalDIATable);
+        mNegDIATableSpinner = (Spinner)findViewById(R.id.spinner_NegativeDIATable);
         updateFromPreferences();
     }
 
@@ -73,6 +130,15 @@ public class PersonalProfileActivity extends ActionBarActivity {
         }
         mStorage.CAR.set(newCAR);
     }
+    public void editCarbDelayClicked(View view) {
+        EditText editText = (EditText)findViewById(R.id.editText_CarbDelay);
+        int newCarbDelay = Integer.parseInt(editText.getText().toString());
+        if ((newCarbDelay < 0)||(newCarbDelay > 200)) {
+            newCarbDelay = mStorage.carbDelay.mDefaultValue;
+        }
+        mStorage.carbDelay.set(newCarbDelay);
+
+    }
 
     public void editLowBGSuspendClicked(View view) {
         EditText editText = (EditText)findViewById(R.id.editText_LowBGSuspend);
@@ -98,13 +164,27 @@ public class PersonalProfileActivity extends ActionBarActivity {
     // get from preferences, load it into proper field
     public void updateFromPreferences() {
         ((EditText)findViewById(R.id.editText_CAR)).setText(String.format("%.1f", mStorage.CAR.get()));
+        ((EditText)findViewById(R.id.editText_CarbDelay)).setText(String.format("%d", mStorage.carbDelay.get()));
         ((EditText)findViewById(R.id.editText_MaxTmpBasalRate)).
                 setText(String.format("%.3f", mStorage.maxTempBasalRate.get()));
         ((EditText)findViewById(R.id.editText_BGMin)).setText(String.format("%.1f", mStorage.bgMin.get()));
-        ((EditText)findViewById(R.id.editText_TargetBG)).setText(String.format("%.1f",mStorage.targetBG.get()));
-        ((EditText)findViewById(R.id.editText_BGMax)).setText(String.format("%.1f",mStorage.bgMax.get()));
+        ((EditText)findViewById(R.id.editText_TargetBG)).setText(String.format("%.1f", mStorage.targetBG.get()));
+        ((EditText)findViewById(R.id.editText_BGMax)).setText(String.format("%.1f", mStorage.bgMax.get()));
         ((EditText)findViewById(R.id.editText_LowBGSuspend))
-                .setText(String.format("%.1f",mStorage.lowGlucoseSuspendPoint.get()));
+                .setText(String.format("%.1f", mStorage.lowGlucoseSuspendPoint.get()));
+        mNormDIATableSpinner.post(new Runnable() {
+            @Override
+            public void run() {
+                mNormDIATableSpinner.setSelection(mStorage.normalDIATable.get() -1);
+            }
+        });
+        mNegDIATableSpinner.post(new Runnable() {
+            @Override
+            public void run() {
+                mNegDIATableSpinner.setSelection(mStorage.negativeInsulinDIATable.get()-1);
+            }
+        });
+
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {

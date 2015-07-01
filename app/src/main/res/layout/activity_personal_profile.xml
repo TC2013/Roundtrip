@@ -50,6 +50,36 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Carb Delay (minutes)"
+                android:id="@+id/textView_CarbDelay" />
+
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:ems="10"
+                android:id="@+id/editText_CarbDelay"
+                android:layout_weight="1"
+                android:hint="20"
+                android:gravity="right"
+                android:singleLine="true" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Set"
+                android:id="@+id/button_SetCarbDelay"
+                android:onClick="editCarbDelayClicked" />
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="BG Target max:"
                 android:id="@+id/textView_Label_BGMax" />
 
@@ -192,6 +222,59 @@
                 android:text="Set"
                 android:id="@+id/button_SetLowBGSuspend"
                 android:onClick="editLowBGSuspendClicked" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Normal DIA table:"
+                android:id="@+id/textView_NormalDIATable"
+                android:singleLine="true"
+                android:layout_gravity="center_vertical" />
+
+            <Spinner
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/spinner_NormalDIATable" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Set"
+                android:id="@+id/button_SetNormalDIATable" />
+
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Negative DIA table:"
+                android:id="@+id/textView_NegativeDIATable"
+                android:singleLine="true"
+                android:layout_gravity="center_vertical" />
+
+            <Spinner
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/spinner_NegativeDIATable" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Set"
+                android:id="@+id/button_SetNegativeDIATable" />
+
         </LinearLayout>
     </LinearLayout>
 

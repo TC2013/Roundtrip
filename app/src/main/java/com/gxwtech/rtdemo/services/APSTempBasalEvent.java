@@ -27,7 +27,7 @@ public class APSTempBasalEvent extends TempBasalEvent {
 
     public boolean isRecent() {
         // isRecent is defined by being within the maximum insulin effect time plus 30 minutes.
-        return (endtime.isAfter(DateTime.now().minusMinutes(DIATables.insulinImpactMinutesMax + 30)));
+        return (endtime.isAfter(DateTime.now().minusMinutes(DIATable.insulinImpactMinutesMax + 30)));
     }
 
 }
