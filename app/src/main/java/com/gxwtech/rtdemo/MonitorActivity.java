@@ -120,23 +120,23 @@ public class MonitorActivity extends ActionBarActivity {
     }
 
     public void updateCurrentIOB_TextView() {
-        UpdateTextViewDouble(R.id.textView_IOB, "%.1f U", mStorage.getMonitor_IOB());
+        UpdateTextViewDouble(R.id.textView_IOB, "%.1f U", mStorage.monitorIOB.get());
     }
 
     public void updateCurrentCOB_TextView() {
-        UpdateTextViewDouble(R.id.textView_COB,"%.1f gm",mStorage.getMonitor_COB());
+        UpdateTextViewDouble(R.id.textView_COB,"%.1f gm",mStorage.monitorCOB.get());
     }
 
     public void updateCurrentBasal_TextView() {
-        UpdateTextViewDouble(R.id.textView_CurrentBasal, "%.3f U/hr", mStorage.getMonitor_CurrBasalRate());
+        UpdateTextViewDouble(R.id.textView_CurrentBasal, "%.3f U/hr", mStorage.monitorCurrBasalRate.get());
     }
 
     public void updatePredictedBG_TextView() {
-        UpdateTextViewDouble(R.id.textView_PredBG, "%.1f mg/dL", mStorage.getMonitor_PredBG());
+        UpdateTextViewDouble(R.id.textView_PredBG, "%.1f mg/dL", mStorage.monitorPredictedBG.get());
     }
     public void updateTempBasal_TextView() {
-        UpdateTextViewDouble(R.id.textView_TempBasalRate,"%.3f U/hr",mStorage.getMonitor_TempBasalRate());
-        UpdateTextViewInt(R.id.textView_TempBasalMinRemaining, "%d min", mStorage.getMonitor_TempBasalDuration());
+        UpdateTextViewDouble(R.id.textView_TempBasalRate,"%.3f U/hr",mStorage.monitorTempBasalRate.get());
+        UpdateTextViewInt(R.id.textView_TempBasalMinRemaining, "%d min", mStorage.monitorTempBasalDuration.get());
     }
 
     protected void setSleepNotification() {

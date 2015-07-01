@@ -505,7 +505,7 @@ public class RTDemoService extends IntentService {
         byte[] sn_bytes = HexDump.hexStringToByteArray(serialNumber);
         mPumpManager.setSerialNumber(sn_bytes);
         mPumpManager.open();
-        mMongoWrapper = new MongoWrapper();
+        mMongoWrapper = new MongoWrapper(getApplicationContext());
         updateMongoWrapperFromPrefs();
 
         mAPSLogic = new APSLogic(this, mPumpManager, mMongoWrapper);

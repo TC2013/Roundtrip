@@ -66,6 +66,7 @@ public interface Constants {
         public static String MongoDBUsernamePrefName = "MongoDBUsername";
         public static String MongoDBPasswordPrefName = "MongoDBPassword";
         public static String MongoDBCollectionPrefName = "MongoDBCollection";
+        public static String MongoDBAllowWritingToDBPrefName = "MongoDBAllowWrites";
         public static String SuspendMinutesPrefName = "SuspendAPSMinutes";
         // and all kinds of other goodies:
         public static String LastPowerControlRunTime = "LastPowerControlRunTime";

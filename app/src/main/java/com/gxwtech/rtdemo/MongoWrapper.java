@@ -1,5 +1,6 @@
 package com.gxwtech.rtdemo;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.mongodb.BasicDBObject;
@@ -26,10 +27,12 @@ import java.util.List;
  */
 public class MongoWrapper {
     private static final String TAG = "MongoWrapper";
+    public PersistentBoolean allowWritingToDB;
     protected String mURIString = "<MongoDB URI string - uninitialized>";
     protected String mDBName = "<MongoDB database name - uninitialized>";
     protected String mCollection = "entries"; // cgm readings
     protected String mTreatmentsCollectionName = "treatments"; // treatments (Temp Basals/carb corrections)
+
 
     protected boolean setupCompleted = false;
     MongoClientURI mUri = null;
@@ -51,7 +54,11 @@ public class MongoWrapper {
             errorMessage = message;
         }
     }
-    public MongoWrapper() {
+
+    public MongoWrapper(Context ctx) {
+        allowWritingToDB = new PersistentBoolean(ctx.getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0),
+                Constants.PrefName.MongoDBAllowWritingToDBPrefName,true);
+
     }
 
     public void checkSetup() throws java.net.UnknownHostException {

@@ -34,7 +34,7 @@ public class PersonalProfileActivity extends ActionBarActivity {
         if ((newBGMax > 500) || (newBGMax < 40)) {
             return;
         }
-        mStorage.setBGMax(newBGMax);
+        mStorage.bgMin.set(newBGMax);
     }
 
     public void setTargetBGClicked(View view) {
@@ -43,7 +43,7 @@ public class PersonalProfileActivity extends ActionBarActivity {
         if ((newTargetBG > 500) || (newTargetBG < 40)) {
             return;
         }
-        mStorage.setTargetBG(newTargetBG);
+        mStorage.targetBG.set(newTargetBG);
     }
 
     public void setBGMinClicked(View view) {
@@ -52,7 +52,7 @@ public class PersonalProfileActivity extends ActionBarActivity {
         if ((newBGMin > 500) || (newBGMin< 40)) {
             return;
         }
-        mStorage.setBGMin(newBGMin);
+        mStorage.bgMin.set(newBGMin);
     }
 
     public void setMaxTmpBasalRateClicked(View view) {
@@ -61,7 +61,7 @@ public class PersonalProfileActivity extends ActionBarActivity {
         if (newMaxTmpBasalRate < 0) {
             newMaxTmpBasalRate = 0.0;
         }
-        mStorage.setMaxTempBasalRate(newMaxTmpBasalRate);
+        mStorage.maxTempBasalRate.set(newMaxTmpBasalRate);
     }
 
     // this is run when the SET button is clicked.
@@ -71,7 +71,7 @@ public class PersonalProfileActivity extends ActionBarActivity {
         if (newCAR < 0) {
             return;
         }
-        mStorage.setCAR(newCAR);
+        mStorage.CAR.set(newCAR);
     }
 
     public void editLowBGSuspendClicked(View view) {
@@ -80,7 +80,7 @@ public class PersonalProfileActivity extends ActionBarActivity {
         if (newLowBGSuspend < 0) {
             newLowBGSuspend = 0.0;
         }
-        mStorage.setLowGlucoseSuspendPoint(newLowBGSuspend);
+        mStorage.lowGlucoseSuspendPoint.set(newLowBGSuspend);
     }
 
     /*
@@ -97,14 +97,14 @@ public class PersonalProfileActivity extends ActionBarActivity {
 
     // get from preferences, load it into proper field
     public void updateFromPreferences() {
-        ((EditText)findViewById(R.id.editText_CAR)).setText(String.format("%.1f", mStorage.getCAR()));
+        ((EditText)findViewById(R.id.editText_CAR)).setText(String.format("%.1f", mStorage.CAR.get()));
         ((EditText)findViewById(R.id.editText_MaxTmpBasalRate)).
-                setText(String.format("%.3f", mStorage.getMaxTempBasalRate()));
-        ((EditText)findViewById(R.id.editText_BGMin)).setText(String.format("%.1f", mStorage.getBGMin()));
-        ((EditText)findViewById(R.id.editText_TargetBG)).setText(String.format("%.1f",mStorage.getTargetBG()));
-        ((EditText)findViewById(R.id.editText_BGMax)).setText(String.format("%.1f",mStorage.getBGMax()));
+                setText(String.format("%.3f", mStorage.maxTempBasalRate.get()));
+        ((EditText)findViewById(R.id.editText_BGMin)).setText(String.format("%.1f", mStorage.bgMin.get()));
+        ((EditText)findViewById(R.id.editText_TargetBG)).setText(String.format("%.1f",mStorage.targetBG.get()));
+        ((EditText)findViewById(R.id.editText_BGMax)).setText(String.format("%.1f",mStorage.bgMax.get()));
         ((EditText)findViewById(R.id.editText_LowBGSuspend))
-                .setText(String.format("%.1f",mStorage.getLowGlucoseSuspendPoint()));
+                .setText(String.format("%.1f",mStorage.lowGlucoseSuspendPoint.get()));
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -227,12 +227,12 @@ public class APSLogic {
 
         // Cache this values for the remainder of this run
 
-        double CAR = mStorage.getCAR();
-        double BGMax = mStorage.getBGMax();
-        double TargetBG = mStorage.getTargetBG();
-        double BGMin = mStorage.getBGMin();
-        double MaxTempBasalRate = mStorage.getMaxTempBasalRate();
-        double lowGlucoseSuspendPoint = mStorage.getLowGlucoseSuspendPoint();
+        double CAR = mStorage.CAR.get();
+        double BGMax = mStorage.bgMax.get();
+        double TargetBG = mStorage.targetBG.get();
+        double BGMin = mStorage.bgMin.get();
+        double MaxTempBasalRate = mStorage.maxTempBasalRate.get();
+        double lowGlucoseSuspendPoint = mStorage.lowGlucoseSuspendPoint.get();
         BGReading mCachedLatestBGReading = mStorage.getLatestBGReading();
         // to keep Monitor in sync with APSLogic:
         notifyMonitorDataChanged();
@@ -281,7 +281,7 @@ public class APSLogic {
         log("Getting RTC clock data from pump");
         DateTime rtcDateTime = getRTCTimestampFromPump();
         log("Pump RTC: " + rtcDateTime.toDateTimeISO().toString());
-        log("Pump RTC in local time: " + rtcDateTime.toLocalDateTime().toString());
+        //log("Pump RTC in local time: " + rtcDateTime.toLocalDateTime().toString());
         Instant now = new Instant(); // cache local system time
         log("Local System Time is " + now.toDateTime().toLocalDateTime().toString());
         int pumpTimeOffsetMinutes = Minutes.minutesBetween(now, rtcDateTime).getMinutes();
@@ -297,8 +297,8 @@ public class APSLogic {
         double currentBasalRate = basal_rate_at_abs_time(now,
                 getCurrentBasalProfile());
         // save value for MonitorActivity
-        mStorage.setMonitor_CurrBasalRate(currentBasalRate);
-        notifyMonitorDataChanged();
+        mStorage.monitorCurrBasalRate.set(currentBasalRate);
+        //notifyMonitorDataChanged();
 
         // Get total IOB and COB from pump bolus wizard events
         double iobTotal = 0; // insulin-on-board total, amount of unabsorbed insulin (in Units) in body
@@ -383,8 +383,8 @@ public class APSLogic {
                     remainingBGImpact_IOBtotal = remainingBGImpact_IOBtotal + remainingBGImpact_IOBpartial;
                     iobTotal = iobTotal + iob;
 
-                    double cob = cobValueAtAbsTime(timestamp.toInstant(), carbInput, now.toInstant(),
-                            mStorage.getCAR());
+                    double cob = cobValueAtAbsTime(timestamp.toInstant(), carbInput, now.toInstant(),CAR);
+
                     double remainingBGImpact_COBpartial = cob * isf / icRatio;
                     log(String.format("Bolus wizard event (%s): COB=%.1f gm, carbRatio=%.1f, BG impact remaining=%.1f mg/dL",
                             timestamp.toString("HH:mm"),
@@ -551,41 +551,43 @@ public class APSLogic {
                 remainingBGImpact_IOBtotal, remainingBGImpact_COBtotal));
 
         // save in prefs for Monitor activity
-        mStorage.setMonitor_IOB(iobTotal);
-        mStorage.setMonitor_COB(cobTotal);
-        notifyMonitorDataChanged();
+        mStorage.monitorIOB.set(iobTotal);
+        mStorage.monitorCOB.set(cobTotal);
+        //notifyMonitorDataChanged();
 
-        // TODO: Check for an expired Temp Basal, and if found write it to MongoDB
-        // Get last (insulinImpactMinutesMax) minutes of TempBasal treatment entries from mongodb
-        log("Getting list of previous Temp Basal events from MongoDB");
-        List<DBTempBasalEntry> treatmentListFromDB =
-                mMongoWrapper.downloadRecentTreatments(DIATables.insulinImpactMinutesMax + 30 /* minutes */);
+        // If we're not allowed to write to the MongoDB, skip this section
+        if (mMongoWrapper.allowWritingToDB.get()) {
+            // Get last (insulinImpactMinutesMax) minutes of TempBasal treatment entries from mongodb
+            log("Getting list of previous Temp Basal events from MongoDB");
+            List<DBTempBasalEntry> treatmentListFromDB =
+                    mMongoWrapper.downloadRecentTreatments(DIATables.insulinImpactMinutesMax + 30 /* minutes */);
 
-        // for each entry in our history, check to see if there is a corresponding db entry.
-        // if not, post an entry for the tempbasal event. (only if it has ended)
-        // Approx. max entries would be 36, so for-loop processing is 36x36 or 1296 iterations.
-        // typical should be much less.
-        for (APSTempBasalEvent localTB : simplifiedBasalEvents) {
-            // we only care about events within (DIATables.insulinImpactMinutesMax + 30) minutes
-            if (localTB.mTimestamp.isAfter(DateTime.now().minusMinutes(DIATables.insulinImpactMinutesMax + 30))) {
-                boolean found = false;
-                for (DBTempBasalEntry remoteTB : treatmentListFromDB) {
-                    int diffSeconds = Seconds.secondsBetween(remoteTB.mTimestamp, localTB.mTimestamp).getSeconds();
-                    if (Math.abs(diffSeconds) < 10) {
-                        // consider it a match
-                        found = true;
-                        break;
+            // for each entry in our history, check to see if there is a corresponding db entry.
+            // if not, post an entry for the tempbasal event. (only if it has ended)
+            // Approx. max entries would be 36, so for-loop processing is 36x36 or 1296 iterations.
+            // typical should be much less.
+            for (APSTempBasalEvent localTB : simplifiedBasalEvents) {
+                // we only care about events within (DIATables.insulinImpactMinutesMax + 30) minutes
+                if (localTB.mTimestamp.isAfter(DateTime.now().minusMinutes(DIATables.insulinImpactMinutesMax + 30))) {
+                    boolean found = false;
+                    for (DBTempBasalEntry remoteTB : treatmentListFromDB) {
+                        int diffSeconds = Seconds.secondsBetween(remoteTB.mTimestamp, localTB.mTimestamp).getSeconds();
+                        if (Math.abs(diffSeconds) < 10) {
+                            // consider it a match
+                            found = true;
+                            break;
+                        }
                     }
-                }
-                if (!found) {
-                    Log.d(TAG, String.format("Adding Temp Basal DB record: Rel. ins. %.3f, Act. dur: %d, start: %s",
-                            localTB.mTotalRelativeInsulin, localTB.actualDurationMinutes,
-                            localTB.mTimestamp.toString("(MM/dd) hh:mmaa")));
-                    DBTempBasalEntry dbEntry = new DBTempBasalEntry(
-                            localTB.mTimestamp,
-                            localTB.mTotalRelativeInsulin,
-                            localTB.actualDurationMinutes);
-                    mMongoWrapper.uploadTreatment(dbEntry);
+                    if (!found) {
+                        Log.d(TAG, String.format("Adding Temp Basal DB record: Rel. ins. %.3f, Act. dur: %d, start: %s",
+                                localTB.mTotalRelativeInsulin, localTB.actualDurationMinutes,
+                                localTB.mTimestamp.toString("(MM/dd) hh:mmaa")));
+                        DBTempBasalEntry dbEntry = new DBTempBasalEntry(
+                                localTB.mTimestamp,
+                                localTB.mTotalRelativeInsulin,
+                                localTB.actualDurationMinutes);
+                        mMongoWrapper.uploadTreatment(dbEntry);
+                    }
                 }
             }
         }
@@ -659,8 +661,8 @@ public class APSLogic {
             predictedBG = (bg + eventualBG) / 2;
         }
 
-        mStorage.setMonitor_PredBG(predictedBG);
-        notifyMonitorDataChanged();
+        mStorage.monitorPredictedBG.set(predictedBG);
+        //notifyMonitorDataChanged();
 
         // APSLogic doesn't have enough information to handle COB yet.
         // So, for now, if COB > 0, do nothing.
@@ -893,10 +895,10 @@ public class APSLogic {
     public void getCurrentTempBasalFromPump() {
         TempBasalPair rval;
         rval = getPumpManager().getCurrentTempBasal();
-        // store value from pump in persistant storage for gui
-        mStorage.setMonitor_TempBasalRate(rval.mInsulinRate);
-        mStorage.setMonitor_TempBasalDuration(rval.mDurationMinutes);
-        notifyMonitorDataChanged();
+        // store value from pump in persistent storage for gui
+        mStorage.monitorTempBasalRate.set(rval.mInsulinRate);
+        mStorage.monitorTempBasalDuration.set(rval.mDurationMinutes);
+        //notifyMonitorDataChanged();
         mCurrentTempBasal = rval;
     }
 
