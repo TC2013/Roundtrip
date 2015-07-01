@@ -504,11 +504,11 @@ public class RTDemoService extends IntentService {
         // convert to bytes
         byte[] sn_bytes = HexDump.hexStringToByteArray(serialNumber);
         mPumpManager.setSerialNumber(sn_bytes);
-
         mPumpManager.open();
-        mAPSLogic = new APSLogic(this, mPumpManager);
         mMongoWrapper = new MongoWrapper();
         updateMongoWrapperFromPrefs();
+
+        mAPSLogic = new APSLogic(this, mPumpManager, mMongoWrapper);
 
         //llog("End of onCreate()");
         llog("Roundtrip ready.");

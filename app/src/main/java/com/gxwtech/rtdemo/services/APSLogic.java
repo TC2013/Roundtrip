@@ -9,7 +9,9 @@ import android.util.Log;
 
 import com.gxwtech.rtdemo.BGReading;
 import com.gxwtech.rtdemo.Constants;
+import com.gxwtech.rtdemo.DBTempBasalEntry;
 import com.gxwtech.rtdemo.Intents;
+import com.gxwtech.rtdemo.MongoWrapper;
 import com.gxwtech.rtdemo.PreferenceBackedStorage;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfile;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileEntry;
@@ -26,6 +28,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Instant;
 import org.joda.time.Minutes;
+import org.joda.time.Seconds;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -35,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -90,6 +94,7 @@ public class APSLogic {
     private static final String TAG = "APSLogic";
     Context mContext;
     PumpManager mPumpManager;
+    MongoWrapper mMongoWrapper;
     String mLogfileName;
     PreferenceBackedStorage mStorage;
 
@@ -279,10 +284,10 @@ public class APSLogic {
         log("Pump RTC in local time: " + rtcDateTime.toLocalDateTime().toString());
         Instant now = new Instant(); // cache local system time
         log("Local System Time is " + now.toDateTime().toLocalDateTime().toString());
-        Minutes pumpTimeOffsetMinutes = Minutes.minutesBetween(now, rtcDateTime);
+        int pumpTimeOffsetMinutes = Minutes.minutesBetween(now, rtcDateTime).getMinutes();
         log(String.format("Pump Time is %d minutes %s system time.",
-                Math.abs(pumpTimeOffsetMinutes.getMinutes()),
-                (pumpTimeOffsetMinutes.getMinutes() < 0) ? "behind" : "ahead of"));
+                Math.abs(pumpTimeOffsetMinutes),
+                (pumpTimeOffsetMinutes < 0) ? "behind" : "ahead of"));
 
         log("Getting pump settings");
         // NOTE: get pump settings before getting basal profiles.
@@ -306,6 +311,12 @@ public class APSLogic {
         DateTime oldestBWTimestamp = DateTime.now();
         DateTime oldestTempBasalTimestamp = DateTime.now();
         HistoryReport collatedHistory = new HistoryReport();
+        ArrayList<APSTempBasalEvent> simplifiedBasalEvents = new ArrayList<>();
+        // endTimes is an array that parallels the (sorted) list collatedHistory.mBasalEvents,
+        // so we can see when a temp basal event ended.  We need this information for calculating iob,
+        // and also for noting when a temp-basal treatment ended and posting a log entry to MongoDB.
+        //ArrayList<Instant> endTimes = new ArrayList<>();
+
         int historyPageCount = 0;
         final int maxHistoryPageLookback = 10;
         // seek pages until we have found sufficiently old records for both types,
@@ -390,7 +401,6 @@ public class APSLogic {
         } else
 
         {
-            ArrayList<Instant> endTimes = new ArrayList<>();
             //Sorting: create a sorter by date
             // process temp basal events in order, calculating IOB for each event.
             // Must process in order, so that we can see when one starts and stops
@@ -412,40 +422,56 @@ public class APSLogic {
             //   Find scheduled end-time
             for (int i = 0; i < collatedHistory.mBasalEvents.size(); i++) {
                 TempBasalEvent tb = collatedHistory.mBasalEvents.get(i);
-                Instant endtime = tb.mTimestamp.plusMinutes(tb.mBasalPair.mDurationMinutes).toInstant();
-                if (i < collatedHistory.mBasalEvents.size() - 1) {
-                    // Not the last event, so next event may end this one.
-                    Instant nextStartTime = collatedHistory.mBasalEvents.get(i + 1).mTimestamp.toInstant();
-                    if (nextStartTime.isBefore(endtime)) {
-                        // next event does end this one.
-                        endtime = nextStartTime;
+                // if the duration was zero, it was a "cancellation event", not a delivery event.
+                if (tb.mBasalPair.mDurationMinutes > 0) {
+                    DateTime endtime = tb.mTimestamp.plusMinutes(tb.mBasalPair.mDurationMinutes);
+                    if (i < collatedHistory.mBasalEvents.size() - 1) {
+                        // Not the last event, so next event may end this one.
+                        DateTime nextStartTime = collatedHistory.mBasalEvents.get(i + 1).mTimestamp;
+                        if (nextStartTime.isBefore(endtime)) {
+                            // next event does end this one.
+                            endtime = nextStartTime.toDateTime();
+                        }
+                        // create a more complete record of what happened:
+                        APSTempBasalEvent apsTempBasalEvent = new APSTempBasalEvent(tb);
+                        apsTempBasalEvent.endtime = endtime;
+                        // only keep track of recent events in the simplified list
+                        if (apsTempBasalEvent.isRecent()) {
+                            simplifiedBasalEvents.add(apsTempBasalEvent);
+                        } else {
+                            // The temp basal ended a long time ago
+                            // (or will end in the future more than 30 minutes (shouldn't happen))
+                            // we can safely ignore it for calculating insulin delivered.
+                            Log.i(TAG, "Ignoring TempBasalEvent from " +
+                                    tb.mTimestamp.toDateTime().toLocalDateTime().toString("(MM/dd)HH:mm"));
+                        }
                     }
                 }
-                // Remember, one of them may not have ended yet.
-                if (DateTime.now().plus(pumpTimeOffsetMinutes).isBefore(endtime)) {
-                    endtime = DateTime.now().plus(pumpTimeOffsetMinutes).toInstant();
-                }
-                // Now record the endtime for the event (using parallel arrays)
-                endTimes.add(i, endtime);
             }
             /* Temp basals are delivered slowly. To estimate the IOB, we will
              * divide up the temp basal and treat it as a series of boluses delivered
              * once per minute.
              */
-            for (int i = 0; i < collatedHistory.mBasalEvents.size(); i++) {
-                TempBasalEvent tb = collatedHistory.mBasalEvents.get(i);
+            //for (int i = 0; i < collatedHistory.mBasalEvents.size(); i++) {
+            for (APSTempBasalEvent tb : simplifiedBasalEvents) {
                 // sanity check timestamps on temp basal events
-                if ((endTimes.get(i).isBefore(now.toDateTime().minusMinutes(DIATables.insulinImpactMinutesMax)))
-                        || (endTimes.get(i).isAfter(now.toDateTime().plusMinutes(10)))) {
-                    // The temp basal ended a long time ago (insulinImpartMinutesMax (300 minutes))
-                    // (or is in the future, somehow)
-                    // we can safely ignore it.
-                    Log.i(TAG, "Ignoring TempBasalEvent from " +
+                if ((tb.isRecent() == false)
+                        || (tb.endtime.isAfter(now.toDateTime().plusMinutes(30)))) {
+                    // The temp basal ended a long time ago
+                    // (or will end in the future more than 30 minutes (shouldn't happen))
+                    // we can safely ignore it for calculating insulin delivered.
+                    Log.i(TAG, "Ignoring APSTempBasalEvent from " +
                             tb.mTimestamp.toDateTime().toLocalDateTime().toString("(MM/dd)HH:mm"));
 
                 } else {
-                    Minutes actualDuration = Minutes.minutesBetween(tb.mTimestamp.toInstant(), endTimes.get(i));
-                    double insulinDelivered = (tb.mBasalPair.mInsulinRate / 60) * actualDuration.getMinutes();
+                    DateTime thisEventEndTime = tb.endtime;
+                    // Remember, one of them may not have ended yet.
+                    if (DateTime.now().plus(pumpTimeOffsetMinutes).isBefore(thisEventEndTime)) {
+                        // use the "now" endtime for calculating delivered insulin (relative)
+                        thisEventEndTime = DateTime.now().plus(pumpTimeOffsetMinutes);
+                    }
+
+                    tb.actualDurationMinutes = Minutes.minutesBetween(tb.mTimestamp, thisEventEndTime).getMinutes();
 
                     double thisEventIOBRemaining = 0.0;
                     double thisEventIOBImpact = 0.0;
@@ -463,7 +489,7 @@ public class APSLogic {
                             bpEntry.rate, bpEntry.rate_raw,
                             bpEntry.startTime.toString("HH:mm"),bpEntry.startTime_raw));
                     */
-                    for (int j = 0; j < actualDuration.getMinutes(); j++) {
+                    for (int j = 0; j < tb.actualDurationMinutes; j++) {
                         DIATables.DIATableEnum whichTable = default_dia_table;
 
                     /*
@@ -471,7 +497,7 @@ public class APSLogic {
                      *  using a rate that is relative to the basal at the time of insulin delivery.
                      *  i.e. We determine what the normal basal rate was at the time of the 1-minute interval
                      *  and subtract it from the temp basal rate.  This can give us a negative insulin
-                     *  rate.  When using negative relative rates, use the negative insulin table.
+                     *  rate.  When using negative relative rates, use the negative insulin table for IOB calc.
                      */
                         // FIXME: this means that we have to keep track of which basal profile was in use!
                         Instant insulinTime = tb.mTimestamp.plusMinutes(j).toInstant();
@@ -479,6 +505,8 @@ public class APSLogic {
                         double relativeRate = tb.mBasalPair.mInsulinRate - basal_rate_at_abs_time(insulinTime,
                                 getCurrentBasalProfile() // <--- fixme: basal profiles may have changed, current is not correct
                         );
+                        // accumulate the amount of relative insulin received *in this minute*
+                        tb.mTotalRelativeInsulin += relativeRate / 60.0;
 
                         if (relativeRate < 0) {
                             whichTable = negative_insulin_dia_table;
@@ -510,7 +538,7 @@ public class APSLogic {
                             tb.mBasalPair.mInsulinRate - basal_rate_at_abs_time(tb.mTimestamp.toInstant(),
                                     getCurrentBasalProfile()), // <-- fixme: use correct basal profile
                             tb.mTimestamp.toLocalTime().toString("HH:mm"),
-                            endTimes.get(i).toDateTime(DateTimeZone.getDefault()).toString("HH:mm"),
+                            thisEventEndTime.toDateTime(DateTimeZone.getDefault()).toString("HH:mm"),
                             thisEventIOBRemaining,
                             thisEventIOBImpact,
                             tableString));
@@ -528,6 +556,39 @@ public class APSLogic {
         notifyMonitorDataChanged();
 
         // TODO: Check for an expired Temp Basal, and if found write it to MongoDB
+        // Get last (insulinImpactMinutesMax) minutes of TempBasal treatment entries from mongodb
+        log("Getting list of previous Temp Basal events from MongoDB");
+        List<DBTempBasalEntry> treatmentListFromDB =
+                mMongoWrapper.downloadRecentTreatments(DIATables.insulinImpactMinutesMax + 30 /* minutes */);
+
+        // for each entry in our history, check to see if there is a corresponding db entry.
+        // if not, post an entry for the tempbasal event. (only if it has ended)
+        // Approx. max entries would be 36, so for-loop processing is 36x36 or 1296 iterations.
+        // typical should be much less.
+        for (APSTempBasalEvent localTB : simplifiedBasalEvents) {
+            // we only care about events within (DIATables.insulinImpactMinutesMax + 30) minutes
+            if (localTB.mTimestamp.isAfter(DateTime.now().minusMinutes(DIATables.insulinImpactMinutesMax + 30))) {
+                boolean found = false;
+                for (DBTempBasalEntry remoteTB : treatmentListFromDB) {
+                    int diffSeconds = Seconds.secondsBetween(remoteTB.mTimestamp, localTB.mTimestamp).getSeconds();
+                    if (Math.abs(diffSeconds) < 10) {
+                        // consider it a match
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    Log.d(TAG, String.format("Adding Temp Basal DB record: Rel. ins. %.3f, Act. dur: %d, start: %s",
+                            localTB.mTotalRelativeInsulin, localTB.actualDurationMinutes,
+                            localTB.mTimestamp.toString("(MM/dd) hh:mmaa")));
+                    DBTempBasalEntry dbEntry = new DBTempBasalEntry(
+                            localTB.mTimestamp,
+                            localTB.mTotalRelativeInsulin,
+                            localTB.actualDurationMinutes);
+                    mMongoWrapper.uploadTreatment(dbEntry);
+                }
+            }
+        }
 
         // We have collected all the data we need, now use it to make a decision
 
@@ -754,10 +815,11 @@ public class APSLogic {
      * Anything that isn't directly related to making decisions.
      *
      *******************************************************/
-    public APSLogic(Context context, PumpManager pumpManager) {
+    public APSLogic(Context context, PumpManager pumpManager, MongoWrapper mongoWrapper) {
         mContext = context;
         mStorage = new PreferenceBackedStorage(context);
         mPumpManager = pumpManager;
+        mMongoWrapper = mongoWrapper;
         mLogfileName = "RTLog_" + DateTime.now().toString();
         init();
     }
