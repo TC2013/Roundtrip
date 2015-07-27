@@ -41,7 +41,7 @@ public class ReadBasalTempCommand extends MedtronicCommand {
 
         mTempBasalPair.mInsulinRate = rateByte * 0.025;
         mTempBasalPair.mDurationMinutes = minutes;
-        Log.i(TAG,String.format("TempBasalPair read as: insulinRate: %.3f U, duration %d minutes",
+        Log.v(TAG,String.format("TempBasalPair read as: insulinRate: %.3f U, duration %d minutes",
                 mTempBasalPair.mInsulinRate, mTempBasalPair.mDurationMinutes));
     }
 
