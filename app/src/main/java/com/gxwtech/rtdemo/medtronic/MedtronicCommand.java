@@ -16,7 +16,8 @@ import com.gxwtech.rtdemo.usb.UsbException;
  * Created by geoff on 4/27/15.
  */
 public class MedtronicCommand {
-    private static String TAG = "MedtronicCommand";
+    private static final String TAG = "MedtronicCommand";
+    private static final boolean DEBUG_MEDTRONICCOMMAND = false;
     protected MedtronicCommandEnum mCode;
     protected MedtronicCommandStatusEnum mStatus;
     protected byte[] mPacket;
@@ -78,12 +79,13 @@ public class MedtronicCommand {
 
     // subclasses should override parse() and get data from mMResponse
     protected void parse(byte[] receivedData) {
-        Log.i(TAG,"Base class parse called on command " + getName());
+        Log.w(TAG,"Base class parse called on command " + getName());
     }
 
     public MedtronicCommandStatusEnum run(Carelink carelink, byte[] serialNumber) {
-
-        Log.i("MEDTRONIC COMMAND", getName() + ": serial number " + ByteUtil.shortHexString(serialNumber));
+        if (DEBUG_MEDTRONICCOMMAND) {
+            Log.v("MEDTRONIC COMMAND", getName() + ": serial number " + ByteUtil.shortHexString(serialNumber));
+        }
 
         // Send a packet to the Medtronic
         TransmitPacketCommand sender = new TransmitPacketCommand(
@@ -115,11 +117,15 @@ public class MedtronicCommand {
                 mStatus = MedtronicCommandStatusEnum.ERROR_USB;
             }
 
-            Log.i("MEDTRONIC COMMAND", "Sender status is " + senderStatus.toString());
+            if (DEBUG_MEDTRONICCOMMAND) {
+                Log.v("MEDTRONIC COMMAND", "Sender status is " + senderStatus.toString());
+            }
             // we've only just sent the packet, and expected the carelink to say "ok, I sent it."
 
             if (mSleepForPumpResponse > 0) {
-                Log.e("MEDTRONIC COMMAND", String.format("Sleeping %d milliseconds before checking pump response.", mSleepForPumpResponse));
+                if (DEBUG_MEDTRONICCOMMAND) {
+                    Log.v("MEDTRONIC COMMAND", String.format("Sleeping %d milliseconds before checking pump response.", mSleepForPumpResponse));
+                }
                 sleep(mSleepForPumpResponse);
             }
             try {
@@ -127,11 +133,15 @@ public class MedtronicCommand {
                 if (receivedData == null) {
                     Log.e(TAG, "downloadIdeal returned null buffer");
                 } else {
-                    Log.e(TAG, String.format("downloadIdeal reported %d bytes received", receivedData.length));
+                    if (DEBUG_MEDTRONICCOMMAND) {
+                        Log.v(TAG, String.format("downloadIdeal reported %d bytes received", receivedData.length));
+                    }
                     if (receivedData.length > 0) {
                         // got something, call it quits
                         resendDownloadRequest = false;
-                        Log.e(TAG,String.format("Got %d bytes from radio buffer, ending run.",receivedData.length));
+                        if (DEBUG_MEDTRONICCOMMAND) {
+                            Log.v(TAG, String.format("Got %d bytes from radio buffer, ending run.", receivedData.length));
+                        }
                     } else {
                         // got a zero length buffer from radio.  Try to read radio buffer again?
                         resendDownloadRetries++;
@@ -140,7 +150,7 @@ public class MedtronicCommand {
                             Log.e(TAG,String.format("Too many retries in reading radio buffer, giving up."));
                             resendDownloadRequest = false;
                         } else {
-                            Log.e(TAG, String.format("Radio buffer gave us zero bytes.  Trying again %d/%d",
+                            Log.w(TAG, String.format("Radio buffer gave us zero bytes.  Trying again %d/%d",
                                     resendDownloadRetries,resendDownloadRetriesMax));
                         }
                     }
@@ -157,7 +167,9 @@ public class MedtronicCommand {
             parse(receivedData);
         }
 
-        Log.i(TAG,"End of Medtronic downloadIdeal");
+        if (DEBUG_MEDTRONICCOMMAND) {
+            Log.v(TAG, "End of Medtronic downloadIdeal");
+        }
         return mStatus;
     }
 
@@ -169,14 +181,18 @@ public class MedtronicCommand {
         if (carelinkAck == CarelinkCommandStatusEnum.ACK) {
             size = ck.getReadSize();
         }
-        Log.d(TAG,"checkForData():CarelinkStatus is " + ck.responseToString());
+        if (DEBUG_MEDTRONICCOMMAND) {
+            Log.v(TAG, "checkForData():CarelinkStatus is " + ck.responseToString());
+        }
         return size;
     }
 
     public byte[] downloadIdeal(Carelink carelink, byte[] serialNumber) throws UsbException {
         int recordsExpected = calcRecordsRequired();
         int recordsReceived = 0;
-        Log.d(TAG,String.format("DownloadIdeal:recordsRequired=%d",recordsExpected));
+        if (DEBUG_MEDTRONICCOMMAND) {
+            Log.v(TAG, String.format("DownloadIdeal:recordsRequired=%d", recordsExpected));
+        }
         boolean moreDataToGet = true;
         int tries = 0;
         byte[] mDataReceived = new byte[] {};
@@ -235,23 +251,27 @@ public class MedtronicCommand {
                     mDataReceived = ByteUtil.concat(mDataReceived, rrcmd.getResponse().getPumpData());
                     //mDataReceived = ByteUtil.concat(rrcmd.getResponse().getPumpData(),mDataReceived);
                     recordsReceived++;
-                    Log.d(TAG,"Adding newly downloaded data. Now we have:\n"
-                            + HexDump.dumpHexString(mDataReceived));
+                    if (DEBUG_MEDTRONICCOMMAND) {
+                        Log.v(TAG,"Adding newly downloaded data. Now we have:\n"
+                                + HexDump.dumpHexString(mDataReceived));
+                    }
                     // If we've started to receive something, reset the tries
                     tries = 1;
                     boolean endOfData = rrcmd.getResponse().isEOD();
                     if (endOfData) {
-                        Log.i(TAG,String.format("Found EOD, received %d bytes.",mDataReceived.length));
-                        /* doesn't belong here, but for checking....*/
-                        if (mDataReceived.length >= 1022) {
-                            byte[] first1022 = new byte[1022];
-                            System.arraycopy(mDataReceived, 0, first1022, 0, 1022);
-                            Log.i(TAG, String.format("Checksum of 1022 bytes: %s",
-                                    HexDump.toHexString(CRC.calculate16CCITT(first1022))));
-                        }
-                        if (mDataReceived.length >= 1024) {
-                            Log.i(TAG, String.format("Checksum of 1024 bytes: %s",
-                                    HexDump.toHexString(CRC.calculate16CCITT(mDataReceived))));
+                        if (DEBUG_MEDTRONICCOMMAND) {
+                            Log.i(TAG, String.format("Found EOD, received %d bytes.", mDataReceived.length));
+                            /* doesn't belong here, but for checking....*/
+                            if (mDataReceived.length >= 1022) {
+                                byte[] first1022 = new byte[1022];
+                                System.arraycopy(mDataReceived, 0, first1022, 0, 1022);
+                                Log.v(TAG, String.format("Checksum of 1022 bytes: %s",
+                                        HexDump.toHexString(CRC.calculate16CCITT(first1022))));
+                            }
+                            if (mDataReceived.length >= 1024) {
+                                Log.v(TAG, String.format("Checksum of 1024 bytes: %s",
+                                        HexDump.toHexString(CRC.calculate16CCITT(mDataReceived))));
+                            }
                         }
                         rval = mDataReceived;
                         moreDataToGet = false;
@@ -260,7 +280,7 @@ public class MedtronicCommand {
             }
         }
         if (recordsReceived < recordsExpected) {
-            Log.w(TAG,String.format("Expected %d records, received %d.",recordsExpected,recordsReceived));
+            Log.w(TAG, String.format("Expected %d records, received %d.", recordsExpected, recordsReceived));
         }
         return rval;
     }
