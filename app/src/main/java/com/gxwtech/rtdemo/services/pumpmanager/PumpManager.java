@@ -49,6 +49,7 @@ import java.util.ArrayList;
  */
 public class PumpManager {
     private static final String TAG = "PumpManager";
+    private static final boolean DEBUG_PUMPMANAGER = false;
     CareLinkUsb stick; // The USB connection
     Carelink mCarelink; // The CarelinkCommand runner, built from a CareLinkUsb
     byte[] mSerialNumber; // need a setter for this
@@ -67,21 +68,29 @@ public class PumpManager {
         SharedPreferences settings = mContext.getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
         // get strings from prefs
         String lastPower = settings.getString(Constants.PrefName.LastPowerControlRunTime, "never");
-        Log.d(TAG,"getLastPowerControlRunTime reports preference value: " + lastPower);
+        if (DEBUG_PUMPMANAGER) {
+            Log.d(TAG, "getLastPowerControlRunTime reports preference value: " + lastPower);
+        }
         if (lastPower==null) {
             lastPower = "never";
         }
         if ("never".equals(lastPower)) {
-            Log.d(TAG,"getLastPowerControlRunTime: returning invalid DateTime");
+            if (DEBUG_PUMPMANAGER) {
+                Log.d(TAG, "getLastPowerControlRunTime: returning invalid DateTime");
+            }
             return new DateTime(0);
         }
         DateTime rval = ISODateTimeFormat.dateTime().parseDateTime(lastPower);
-        Log.d(TAG,"getLastPowerControlRunTime: returning (ISO) " + rval.toString());
+        if (DEBUG_PUMPMANAGER) {
+            Log.d(TAG, "getLastPowerControlRunTime: returning (ISO) " + rval.toString());
+        }
         return rval;
     }
 
     protected void setLastPowerControlRunTime(DateTime when_iso) {
-        Log.d(TAG, "setLastPowerControlRunTime: setting new run time: " + ISODateTimeFormat.dateTime().print(when_iso));
+        if (DEBUG_PUMPMANAGER) {
+            Log.d(TAG, "setLastPowerControlRunTime: setting new run time: " + ISODateTimeFormat.dateTime().print(when_iso));
+        }
         mContext.getSharedPreferences(Constants.PreferenceID.MainActivityPrefName,0).
                 edit().putString(Constants.PrefName.LastPowerControlRunTime, ISODateTimeFormat.dateTime().print(when_iso))
                 .commit();
@@ -96,7 +105,9 @@ public class PumpManager {
             return false;
         }
         System.arraycopy(serialNumber, 0, mSerialNumber, 0, 3);
-        Log.w(TAG, String.format("New serial number: %02X%02X%02X", mSerialNumber[0], mSerialNumber[1], mSerialNumber[2]));
+        if (DEBUG_PUMPMANAGER) {
+            Log.w(TAG, String.format("New serial number: %02X%02X%02X", mSerialNumber[0], mSerialNumber[1], mSerialNumber[2]));
+        }
         return true;
     }
 
@@ -183,7 +194,9 @@ public class PumpManager {
                 }
             } else {
                 canHearPump = true;
-                Log.w(TAG, "Stick can hear pump.");
+                if (DEBUG_PUMPMANAGER) {
+                    Log.i(TAG, "Stick can hear pump.");
+                }
             }
         }
         return canHearPump;
@@ -199,7 +212,9 @@ public class PumpManager {
 
         long secondsRemaining = (minutesOfRFPower * 60 /* seconds per minute*/)
                 - timeDifference;
-        Log.w(TAG, String.format("Seconds remaining on RF power: %d", secondsRemaining));
+        if (DEBUG_PUMPMANAGER) {
+            Log.i(TAG, String.format("Seconds remaining on RF power: %d", secondsRemaining));
+        }
         if (secondsRemaining < 60 /* seconds */) {
             runPowerControlCommand = true;
         }
@@ -211,7 +226,9 @@ public class PumpManager {
             // so get the new run time before running the command
 
             MedtronicCommandStatusEnum en = powerControlCommand.run(mCarelink, mSerialNumber);
-            Log.w(TAG, "PowerControlCommand returned status: " + en.name());
+            if (DEBUG_PUMPMANAGER) {
+                Log.i(TAG, "PowerControlCommand returned status: " + en.name());
+            }
             // Only set the new run time if the command succeeded?
             setLastPowerControlRunTime(DateTime.now(DateTimeZone.UTC));
         }
@@ -231,10 +248,12 @@ public class PumpManager {
         //rhcmd.testParser();
         rhcmd.setPageNumber(pageNumber);
         MedtronicCommandStatusEnum cmdStatus = rhcmd.run(mCarelink, mSerialNumber);
-        if ((cmdStatus == MedtronicCommandStatusEnum.ACK) && (rhcmd.mParsedOK)) {
-            Log.d(TAG,"ReadHistoryCommand reports success on page " + pageNumber);
-        } else {
-            Log.d(TAG, "ReadHistoryCommand reports failure on page " + pageNumber);
+        if (DEBUG_PUMPMANAGER) {
+            if ((cmdStatus == MedtronicCommandStatusEnum.ACK) && (rhcmd.mParsedOK)) {
+                Log.d(TAG, "ReadHistoryCommand reports success on page " + pageNumber);
+            } else {
+                Log.d(TAG, "ReadHistoryCommand reports failure on page " + pageNumber);
+            }
         }
         return rhcmd.mHistoryReport;
     }
