@@ -29,6 +29,7 @@ public class CareLinkUsb {
     private static final int MAX_PACKAGE_SIZE = 64;
 
     private static final String TAG = "CareLinkUsb";
+    private static final boolean DEBUG_CARELINKUSB = false;
 
     // need context to get at usb manager
     private UsbManager mUsbManager;
@@ -39,14 +40,17 @@ public class CareLinkUsb {
 
 
     public CareLinkUsb() {
-        Log.e(TAG,"CarelinkUSB constructor");
     }
 
     public void open(Context context) throws UsbException {
-        Log.d(TAG,"CarelinkUSB open()");
+        if (DEBUG_CARELINKUSB) {
+            Log.v(TAG, "CarelinkUSB open()");
+        }
         mUsbManager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
         HashMap<String, UsbDevice> deviceList = mUsbManager.getDeviceList();
-        Log.d(TAG, "Enumerating connected devices...");
+        if (DEBUG_CARELINKUSB) {
+            Log.v(TAG, "Enumerating connected devices...");
+        }
         // Getting the CareLink UsbDevice object
         Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
         while (deviceIterator.hasNext()) {
@@ -82,7 +86,7 @@ public class CareLinkUsb {
     }
 
     public void close() throws UsbException {
-        Log.d(TAG,"CarelinkUSB close()");
+        Log.v(TAG,"CarelinkUSB close()");
         if (mUsbDeviceConnection == null) {
             throw new UsbException("no connection available");
         }
@@ -105,10 +109,14 @@ public class CareLinkUsb {
                 throw new UsbException(String.format("Error in drainQueue, bulkTransfer returned %d", nRead));
             } else if (nRead == 0) {
                 done = true;
-                Log.w("drainQueue", String.format("read 0 bytes, queue drained.", nRead));
+                if (DEBUG_CARELINKUSB) {
+                    Log.v("drainQueue", String.format("read 0 bytes, queue drained.", nRead));
+                }
             } else {
-                Log.d("drainQueue", String.format("read %d bytes, trying to drain more.", nRead));
-                Log.d("drainQueue", "Dump of drained bytes: " + HexDump.dumpHexString(buf));
+                if (DEBUG_CARELINKUSB) {
+                    Log.v("drainQueue", String.format("read %d bytes, trying to drain more.", nRead));
+                    Log.v("drainQueue", "Dump of drained bytes: " + HexDump.dumpHexString(buf));
+                }
             }
         }
     }
@@ -219,15 +227,17 @@ public class CareLinkUsb {
         }
         if (delayMillis > 0) {
             try {
-                Log.i("CareLinkUsb",String.format("Sleeping %d milliseconds.",delayMillis));
+                if (DEBUG_CARELINKUSB) {
+                    Log.v(TAG, String.format("Sleeping %d milliseconds.", delayMillis));
+                }
                 Thread.sleep(delayMillis);
             } catch (InterruptedException e) {
-                Log.i("?", "Sleep Interrupted: " + e.getMessage());
+                Log.i(TAG, "Sleep Interrupted: " + e.getMessage());
             }
         }
         byte[] rval = read(request,readSize);
         if ((boolean)request.getClientData() == false) {
-            Log.e(TAG, "Error reading USB data");
+            Log.v(TAG, "Error reading USB data");
         }
         request.close();
         return rval;
@@ -245,20 +255,20 @@ public class CareLinkUsb {
         if ((fullSize % MAX_PACKAGE_SIZE) > 0) {
             recordsNeeded++;
         }
-        Log.i("CareLinkUsb",String.format("Expecting to receive %d bytes in %d frames",fullSize,recordsNeeded));
+        Log.v("CareLinkUsb",String.format("Expecting to receive %d bytes in %d frames",fullSize,recordsNeeded));
         byte[] fullResponse = new byte[0];
         UsbRequest request = write(command);
         if (delayMillis > 0) {
             try {
-                Log.i("CareLinkUsb", String.format("Sleeping %d milliseconds.", delayMillis));
+                Log.v(TAG, String.format("Sleeping %d milliseconds.", delayMillis));
                 Thread.sleep(delayMillis);
             } catch (InterruptedException e) {
-                Log.i("?", "Sleep Interrupted: " + e.getMessage());
+                Log.i(TAG, "Sleep Interrupted: " + e.getMessage());
             }
         }
         fullResponse = read(request, fullSize);
 
-        Log.d(TAG,String.format("Received full response in %d frames:",recordsNeeded)
+        Log.v(TAG,String.format("Received full response in %d frames:",recordsNeeded)
                 + HexDump.dumpHexString(fullResponse));
         return fullResponse;
     }
