@@ -47,8 +47,7 @@ public class Bolus extends TimeStampedRecord {
             duration = readUnsignedByte(data[3]) * 30;
         }
         bolusType = (duration > 0) ? BolusType.SQUARE : BolusType.NORMAL;
-        Log.e(TAG,"SUCCESS! Parsed Bolus Record");
-        logRecord();
+        //logRecord();
         return true;
     }
 
