@@ -9,6 +9,7 @@ import org.joda.time.DateTime;
 
 abstract public class TimeStampedRecord extends Record {
     private final static String TAG = "TimeStampedRecord";
+    private final static boolean DEBUG_TIMESTAMPEDRECORD = false;
 
     protected DateTime timeStamp;
 
@@ -48,8 +49,10 @@ abstract public class TimeStampedRecord extends Record {
         // python code says year is data[1] & 0x0F, but that will cause problem in 2016.
         // Hopefully, the remaining bits are part of the year...
         int year = data[1 + offset] & 0x3F;
+        /*
         Log.w(TAG, String.format("Attempting to create DateTime from: %04d-%02d-%02d %02d:%02d:%02d",
                 year + 2000, month, dayOfMonth, hour, minutes, seconds));
+        */
         try {
             timeStamp = new DateTime(year + 2000, month, dayOfMonth, hour, minutes, seconds);
         } catch (org.joda.time.IllegalFieldValueException e) {
@@ -63,8 +66,10 @@ abstract public class TimeStampedRecord extends Record {
     // for relation to old code, replace offset with headerSize
     protected boolean parseDate(byte[] data, int offset){
         //offset = headerSize;
-        Log.w(TAG,String.format("bytes to parse: 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X",
-                data[offset], data[offset+1], data[offset+2], data[offset+3], data[offset+4]));
+        if (DEBUG_TIMESTAMPEDRECORD) {
+            Log.w(TAG, String.format("bytes to parse: 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X",
+                    data[offset], data[offset + 1], data[offset + 2], data[offset + 3], data[offset + 4]));
+        }
         int seconds = data[offset] & 0x3F;
         int minutes = data[offset + 1] & 0x3F;
         int hour = data[offset + 2] & 0x1F;
@@ -72,12 +77,16 @@ abstract public class TimeStampedRecord extends Record {
         // Yes, the month bits are stored in the high bits above seconds and minutes!!
         int month = ((data[offset] & 0xC0) >> 4) | ((data[offset + 1] & 0xC0) >> 6);
         int year = data[offset + 4] & 0x3F; // Assuming this is correct, need to verify. Otherwise this will be a problem in 2016.
+        /*
         Log.w(TAG,String.format("Attempting to create DateTime from: %04d-%02d-%02d %02d:%02d:%02d",
                 year+2000,month,dayOfMonth,hour,minutes,seconds));
+        */
         try {
             timeStamp = new DateTime(year + 2000, month, dayOfMonth, hour, minutes, seconds);
         } catch (org.joda.time.IllegalFieldValueException e) {
-            Log.e(TAG,"Illegal DateTime field");
+            if (DEBUG_TIMESTAMPEDRECORD) {
+                Log.e(TAG, "Illegal DateTime field");
+            }
             //e.printStackTrace();
             return false;
         }
