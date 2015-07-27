@@ -31,7 +31,7 @@ public class Prime extends TimeStampedRecord {
         amount = readUnsignedByte(data[4]) / 10.0f;
         fixed = readUnsignedByte(data[2]) / 10.0f;
         primeType = (fixed == 0) ? PrimeType.MANUAL : PrimeType.FIXED;
-        logRecord();
+        //logRecord();
         return true;
     }
 
