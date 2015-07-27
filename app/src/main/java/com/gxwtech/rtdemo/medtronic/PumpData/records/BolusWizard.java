@@ -82,8 +82,7 @@ public class BolusWizard extends TimeStampedRecord {
             foodEstimate = readUnsignedByte(data[bodyIndex + 6]) / 10.0f;
             unabsorbedInsulinTotal = readUnsignedByte(data[bodyIndex + 9]) / 10.0f;
         }
-        Log.e(TAG,"SUCCESS! Parsed BolusWizard Record");
-        logRecord();
+        //logRecord();
         return true;
     }
 
