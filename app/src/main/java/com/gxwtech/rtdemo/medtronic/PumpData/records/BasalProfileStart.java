@@ -32,7 +32,7 @@ public class BasalProfileStart extends TimeStampedRecord {
             rate = readUnsignedByte(data[bodyOffset + 1]) * 0.025f;
         }
         index = readUnsignedByte(data[bodyOffset + 2]);
-        logRecord();
+        //logRecord();
         return true;
     }
 
