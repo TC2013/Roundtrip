@@ -8,6 +8,6 @@ public final class BuildConfig {
   public static final String APPLICATION_ID = "com.gxwtech.rtdemo";
   public static final String BUILD_TYPE = "debug";
   public static final String FLAVOR = "";
-  public static final int VERSION_CODE = 80;
-  public static final String VERSION_NAME = "alpha-22-g4e8f8dd-dirty";
+  public static final int VERSION_CODE = 81;
+  public static final String VERSION_NAME = "alpha-23-g1edcfcf-dirty";
 }

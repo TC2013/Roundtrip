@@ -154,7 +154,7 @@ ADDED from AndroidManifest.xml:96:9
 		ADDED from AndroidManifest.xml:99:13
 	android:name
 		ADDED from AndroidManifest.xml:97:13
-activity#com.gxwtech.rtdemo.SuspendAPSActivity
+activity#com.gxwtech.rtdemo.LoggingSettingsActivity
 ADDED from AndroidManifest.xml:104:9
 	android:label
 		ADDED from AndroidManifest.xml:106:13
@@ -162,6 +162,14 @@ ADDED from AndroidManifest.xml:104:9
 		ADDED from AndroidManifest.xml:107:13
 	android:name
 		ADDED from AndroidManifest.xml:105:13
+activity#com.gxwtech.rtdemo.SuspendAPSActivity
+ADDED from AndroidManifest.xml:112:9
+	android:label
+		ADDED from AndroidManifest.xml:114:13
+	android:parentActivityName
+		ADDED from AndroidManifest.xml:115:13
+	android:name
+		ADDED from AndroidManifest.xml:113:13
 uses-sdk
 INJECTED from AndroidManifest.xml:0:0 reason: use-sdk injection requested
 MERGED from com.android.support:appcompat-v7:22.1.1:20:5

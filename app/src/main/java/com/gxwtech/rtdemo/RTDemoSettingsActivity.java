@@ -37,6 +37,11 @@ public class RTDemoSettingsActivity extends ActionBarActivity {
         startActivity(intent);
     }
 
+    public void launchLoggingSettingsActivity(View view) {
+        Intent intent = new Intent(this,LoggingSettingsActivity.class);
+        startActivity(intent);
+    }
+
     public void launchUtilityActivity(View view) {
         Intent intent = new Intent(this,UtilityActivity.class);
         startActivity(intent);

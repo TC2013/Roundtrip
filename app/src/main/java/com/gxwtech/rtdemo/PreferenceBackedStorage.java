@@ -41,6 +41,7 @@ public class PreferenceBackedStorage {
     public PersistentDouble bgMax;
     public PersistentInt normalDIATable;
     public PersistentInt negativeInsulinDIATable;
+    public PersistentBoolean loggingEnabled;
     public PreferenceBackedStorage(Context ctx) {
         mContext = ctx;
         p = mContext.getSharedPreferences(Constants.PreferenceID.MainActivityPrefName,0);
@@ -73,6 +74,7 @@ public class PreferenceBackedStorage {
 
         normalDIATable = new PersistentInt(p,Constants.PrefName.PPNormalDIATable, DIATable.DIA_3_hour);
         negativeInsulinDIATable = new PersistentInt(p,Constants.PrefName.PPNegativeInsulinDIATable,DIATable.DIA_2_hour);
+        loggingEnabled = new PersistentBoolean(p,Constants.PrefName.LoggingEnabled,false);
 
 
     }

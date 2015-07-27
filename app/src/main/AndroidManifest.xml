@@ -102,6 +102,14 @@
                 android:value="com.gxwtech.rtdemo.RTDemoSettingsActivity" />
         </activity>
         <activity
+            android:name=".LoggingSettingsActivity"
+            android:label="Logging Settings"
+            android:parentActivityName=".RTDemoSettingsActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.gxwtech.rtdemo.RTDemoSettingsActivity" />
+        </activity>
+        <activity
             android:name=".SuspendAPSActivity"
             android:label="@string/title_activity_suspend_aps"
             android:parentActivityName=".MonitorActivity" >

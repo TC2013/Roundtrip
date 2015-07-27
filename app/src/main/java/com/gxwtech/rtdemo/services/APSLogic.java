@@ -920,7 +920,9 @@ public class APSLogic {
     public void log(String message) {
         dlog(message);
         broadcastAPSLogicStatusMessage(message);
-        writeMessageToLogfile(message);
+        if (mStorage.loggingEnabled.get() == true) {
+            writeMessageToLogfile(message);
+        }
     }
 
     // This is same as above, but doesn't log to the window
