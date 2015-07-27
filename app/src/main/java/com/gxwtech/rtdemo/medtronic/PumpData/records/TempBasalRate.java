@@ -24,7 +24,6 @@ public class TempBasalRate extends TimeStampedRecord {
         if (data.length > bodyIndex) {
             // this is the second byte of the packet (i.e. header), not the body.
             basalRate = readUnsignedByte(data[1]) * 0.025;
-            Log.d(TAG, "SUCCESS! Parsed TempBasalRate Record");
         }
         return true;
     }
