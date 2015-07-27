@@ -29,6 +29,7 @@ import java.util.ArrayList;
  */
 public class BasalProfile {
     private static final String TAG = "BasalProfile";
+    private static final boolean DEBUG_BASALPROFILE = false;
     protected static final int MAX_RAW_DATA_SIZE = (21 * 3) + 1;
     protected byte[] mRawData; // store as byte array to make transport (via parcel) easier
     public BasalProfile() {
@@ -49,17 +50,19 @@ public class BasalProfile {
         }
         int len = Math.min(MAX_RAW_DATA_SIZE, data.length);
         System.arraycopy(data, 0, mRawData, 0, len);
-        Log.w(TAG,String.format("setRawData: copied raw data buffer of %d bytes.",len));
+        if (DEBUG_BASALPROFILE) {
+            Log.v(TAG, String.format("setRawData: copied raw data buffer of %d bytes.", len));
+        }
         return true;
     }
 
     public void dumpBasalProfile() {
-        Log.w(TAG,"Basal Profile entries:");
+        Log.v(TAG, "Basal Profile entries:");
         ArrayList<BasalProfileEntry> entries = getEntries();
         for (int i=0; i< entries.size(); i++) {
             BasalProfileEntry entry = entries.get(i);
             String startString = entry.startTime.toString("HH:mm");
-            Log.w(TAG,String.format("Entry %d, rate=%.3f (0x%02X), start=%s (0x%02X)",
+            Log.v(TAG,String.format("Entry %d, rate=%.3f (0x%02X), start=%s (0x%02X)",
                     i+1, entry.rate, entry.rate_raw,
                     startString, entry.startTime_raw));
 
@@ -79,27 +82,26 @@ public class BasalProfile {
         //Log.w(TAG,"Assuming first entry");
         rval = entries.get(0);
         if (entries.size() == 1) {
-            Log.w(TAG,"getEntryForTime: Only one entry in profile");
+            Log.v(TAG,"getEntryForTime: Only one entry in profile");
             return rval;
         }
 
         int localMillis = when.toDateTime().toLocalTime().getMillisOfDay();
-        boolean basal_profile_entry_debug = false;
         boolean done = false;
         int i=1;
         while (!done) {
             BasalProfileEntry entry = entries.get(i);
-            if (basal_profile_entry_debug) {
-                Log.w(TAG, String.format("Comparing 'now'=%s to entry 'start time'=%s",
+            if (DEBUG_BASALPROFILE) {
+                Log.v(TAG, String.format("Comparing 'now'=%s to entry 'start time'=%s",
                         when.toDateTime().toLocalTime().toString("HH:mm"),
                         entry.startTime.toString("HH:mm")));
             }
             if (localMillis >= entry.startTime.getMillisOfDay()) {
                 rval = entry;
-                if (basal_profile_entry_debug) Log.w(TAG,"Accepted Entry");
+                if (DEBUG_BASALPROFILE) Log.v(TAG,"Accepted Entry");
             } else {
                 // entry at i has later start time, keep older entry
-                if (basal_profile_entry_debug) Log.w(TAG,"Rejected Entry");
+                if (DEBUG_BASALPROFILE) Log.v(TAG,"Rejected Entry");
                 done = true;
             }
             i++;
@@ -107,8 +109,8 @@ public class BasalProfile {
                 done = true;
             }
         }
-        if (basal_profile_entry_debug) {
-            Log.w(TAG, String.format("getEntryForTime(%s): Returning entry: rate=%.3f (%d), start=%s (%d)",
+        if (DEBUG_BASALPROFILE) {
+            Log.v(TAG, String.format("getEntryForTime(%s): Returning entry: rate=%.3f (%d), start=%s (%d)",
                     when.toDateTime().toLocalTime().toString("HH:mm"),
                     rval.rate, rval.rate_raw,
                     rval.startTime.toString("HH:mm"), rval.startTime_raw));
