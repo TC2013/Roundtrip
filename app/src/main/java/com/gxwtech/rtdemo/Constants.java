@@ -76,7 +76,8 @@ public interface Constants {
         public static String LatestBGReading = "LatestBGReading";
         public static String LowGlucoseSuspendPoint = "LowGlucoseSuspendPoint";
         public static String CARPrefName = "CarbAbsorptionRatio";
-        public static String CarbDelayPrefName = "CarbDelayMinutes";
+        //public static String CarbDelayPrefName = "CarbDelayMinutes";
+        public static String ISFPrefName = "InsulinSensitivityFactor";
         public static String PPTargetBGPrefName = "TargetBG";
         public static String PPBGMaxPrefName = "TargetBGMax";
         public static String PPBGMinPrefName = "TargetBGMin";

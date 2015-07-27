@@ -90,7 +90,7 @@
     <orderEntry type="library" exported="" name="mongo-java-driver-2.13.2" level="project" />
     <orderEntry type="library" exported="" name="joda-time-2.5" level="project" />
     <orderEntry type="library" exported="" name="support-v4-22.1.1" level="project" />
-    <orderEntry type="library" exported="" name="gson-2.3" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-22.1.1" level="project" />
+    <orderEntry type="library" exported="" name="gson-2.3" level="project" />
   </component>
 </module>

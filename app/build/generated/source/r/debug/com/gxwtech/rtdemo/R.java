@@ -1547,7 +1547,7 @@ containing a value of this type.
         public static final int button_SetBGMax=0x7f0b0085;
         public static final int button_SetBGMin=0x7f0b008b;
         public static final int button_SetCAR=0x7f0b007f;
-        public static final int button_SetCarbDelay=0x7f0b0082;
+        public static final int button_SetISF=0x7f0b0082;
         public static final int button_SetLowBGSuspend=0x7f0b0091;
         public static final int button_SetMaxTmpBasalRate=0x7f0b008e;
         public static final int button_SetNegativeDIATable=0x7f0b0097;
@@ -1578,8 +1578,8 @@ containing a value of this type.
         public static final int editText_BGMax=0x7f0b0084;
         public static final int editText_BGMin=0x7f0b008a;
         public static final int editText_CAR=0x7f0b007e;
-        public static final int editText_CarbDelay=0x7f0b0081;
         public static final int editText_DatabaseName=0x7f0b005e;
+        public static final int editText_ISF=0x7f0b0081;
         public static final int editText_LowBGSuspend=0x7f0b0090;
         public static final int editText_MaxTmpBasalRate=0x7f0b008d;
         public static final int editText_MongoCollectionName=0x7f0b0064;
@@ -1648,10 +1648,10 @@ containing a value of this type.
         public static final int textSpacerNoButtons=0x7f0b0033;
         public static final int textView_CAR=0x7f0b007d;
         public static final int textView_COB=0x7f0b0070;
-        public static final int textView_CarbDelay=0x7f0b0080;
         public static final int textView_CurrentBasal=0x7f0b0072;
         public static final int textView_DatabaseName=0x7f0b005d;
         public static final int textView_IOB=0x7f0b006e;
+        public static final int textView_ISFLabel=0x7f0b0080;
         public static final int textView_Label_BGMax=0x7f0b0083;
         public static final int textView_Label_BGMin=0x7f0b0089;
         public static final int textView_Label_COB=0x7f0b006f;

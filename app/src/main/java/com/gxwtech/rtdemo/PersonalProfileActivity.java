@@ -130,13 +130,13 @@ public class PersonalProfileActivity extends ActionBarActivity {
         }
         mStorage.CAR.set(newCAR);
     }
-    public void editCarbDelayClicked(View view) {
-        EditText editText = (EditText)findViewById(R.id.editText_CarbDelay);
-        int newCarbDelay = Integer.parseInt(editText.getText().toString());
-        if ((newCarbDelay < 0)||(newCarbDelay > 200)) {
-            newCarbDelay = mStorage.carbDelay.mDefaultValue;
+    public void editISFClicked(View view) {
+        EditText editText = (EditText)findViewById(R.id.editText_ISF);
+        double newISF = Double.parseDouble(editText.getText().toString());
+        if ((newISF < 0)||(newISF > 200)) {
+            newISF = mStorage.ISF.mDefaultValue;
         }
-        mStorage.carbDelay.set(newCarbDelay);
+        mStorage.ISF.set(newISF);
 
     }
 
@@ -164,7 +164,7 @@ public class PersonalProfileActivity extends ActionBarActivity {
     // get from preferences, load it into proper field
     public void updateFromPreferences() {
         ((EditText)findViewById(R.id.editText_CAR)).setText(String.format("%.1f", mStorage.CAR.get()));
-        ((EditText)findViewById(R.id.editText_CarbDelay)).setText(String.format("%d", mStorage.carbDelay.get()));
+        ((EditText)findViewById(R.id.editText_ISF)).setText(String.format("%.1f", mStorage.ISF.get()));
         ((EditText)findViewById(R.id.editText_MaxTmpBasalRate)).
                 setText(String.format("%.3f", mStorage.maxTempBasalRate.get()));
         ((EditText)findViewById(R.id.editText_BGMin)).setText(String.format("%.1f", mStorage.bgMin.get()));

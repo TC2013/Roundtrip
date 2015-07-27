@@ -34,7 +34,7 @@ public class PreferenceBackedStorage {
     public PersistentDouble monitorCOB;
     public PersistentDouble lowGlucoseSuspendPoint;
     public PersistentDouble CAR;
-    public PersistentInt carbDelay;
+    public PersistentDouble ISF;
     public PersistentDouble maxTempBasalRate;
     public PersistentDouble bgMin;
     public PersistentDouble targetBG;
@@ -58,7 +58,7 @@ public class PreferenceBackedStorage {
 
         lowGlucoseSuspendPoint = new PersistentDouble(p,Constants.PrefName.LowGlucoseSuspendPoint,85.0f);
         CAR = new PersistentDouble(p,Constants.PrefName.CARPrefName,30.0f);
-        carbDelay = new PersistentInt(p,Constants.PrefName.CarbDelayPrefName,20);
+        ISF = new PersistentDouble(p,Constants.PrefName.ISFPrefName,40.0f);
         maxTempBasalRate = new PersistentDouble(p,Constants.PrefName.PPMaxTempBasalRatePrefName,6.1f);
         bgMin = new PersistentDouble(p,Constants.PrefName.PPBGMinPrefName,95.0f);
         targetBG = new PersistentDouble(p,Constants.PrefName.PPTargetBGPrefName,115.0f);

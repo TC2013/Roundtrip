@@ -147,7 +147,7 @@ public class APSLogic {
                                     double carbGrams,
                                     Instant valueTime,
                                     double carbs_absorbed_per_hour) {
-        final int digestionDelay_minutes = 20;
+        final int digestionDelay_minutes = 0; // this used to be configurable, but we no longer use it.
         // CAR is carbs absorbed per minute
         double CAR = carbs_absorbed_per_hour / 60.0;
         double rval = 0;
@@ -195,9 +195,7 @@ public class APSLogic {
     // To fix: need to gather the rate profile from the pump's bolus wizard settings.
     public double isf(Instant when) {
         // TODO: given a time of day, return the insulin sensitivity factor
-        // In the RPi version, we retrieved this number (a single number) from MongoDB profile
-        //return mPersonalProfile.isf;
-        return 40.0; // fixme: very broken.
+        return mStorage.ISF.get();
     }
 
     // use this to floor to nearest 0.025
