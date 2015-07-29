@@ -29,7 +29,7 @@ public class CareLinkUsb {
     private static final int MAX_PACKAGE_SIZE = 64;
 
     private static final String TAG = "CareLinkUsb";
-    private static final boolean DEBUG_CARELINKUSB = false;
+    private static final boolean DEBUG_CARELINKUSB = true;
 
     // need context to get at usb manager
     private UsbManager mUsbManager;

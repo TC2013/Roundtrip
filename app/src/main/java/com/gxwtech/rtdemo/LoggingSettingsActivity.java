@@ -41,6 +41,16 @@ public class LoggingSettingsActivity extends ActionBarActivity {
         mStorage.loggingEnabled.set(newSetting);
     }
 
+    public void editKLFHClicked(View view) {
+        EditText editText = (EditText)findViewById(R.id.editText_KeepLogsForHours);
+        int newHours = Integer.parseInt(editText.getText().toString());
+        if ((newHours < 0)||(newHours > 200)) {
+            newHours = mStorage.keepLogsForHours.mDefaultValue;
+        }
+        mStorage.keepLogsForHours.set(newHours);
+
+    }
+
     // get from preferences, load it into proper field
     public void updateFromPreferences() {
         boolean loggingEnabled = mStorage.loggingEnabled.get();
@@ -50,6 +60,9 @@ public class LoggingSettingsActivity extends ActionBarActivity {
         } else {
             Log.e(TAG,"toggle button is null(?)");
         }
+        int keepLogHours = mStorage.keepLogsForHours.get();
+        EditText editText = (EditText)findViewById(R.id.editText_KeepLogsForHours);
+        editText.setText(String.format("%d",keepLogHours));
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {

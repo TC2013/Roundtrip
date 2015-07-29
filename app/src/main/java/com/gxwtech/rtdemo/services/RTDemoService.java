@@ -13,6 +13,7 @@ import android.content.SharedPreferences;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Binder;
+import android.os.Environment;
 import android.os.IBinder;
 import android.os.Parcelable;
 import android.os.PowerManager;
@@ -41,6 +42,7 @@ import com.gxwtech.rtdemo.usb.CareLinkUsb;
 
 import org.joda.time.DateTime;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -571,21 +573,38 @@ public class RTDemoService extends IntentService {
     }
 
     protected void cleanupLogfiles() {
+        int keepHours = mStorage.keepLogsForHours.get();
         // Check for logfiles older than 3 hours, delete them.
-        String[] fnames = fileList();
+        //String[] fnames = fileList();
+        ArrayList<String> fnames = new ArrayList<>();
         Pattern namePattern = Pattern.compile("RTLog_(.*)$");
-        for (int i = 0; i<fnames.length; i++) {
-            Matcher m = namePattern.matcher(fnames[i]);
+
+        String path = Environment.getExternalStorageDirectory().toString();
+        Log.d("Files", "Path: " + path);
+        File f = new File(path);
+        File file[] = f.listFiles();
+        Log.d("Files", "Size: "+ file.length);
+        for (int i=0; i < file.length; i++)
+        {
+            Log.d("Files", "FileName:" + file[i].getName());
+            fnames.add(file[i].getName());
+        }
+
+        for (int i = 0; i<fnames.size(); i++) {
+            Matcher m = namePattern.matcher(fnames.get(i));
             if (m.find()) {
-                String tstamp = m.group(0);
+                String tstamp = m.group(1);
                 Log.w(TAG,"Found logfile with time: " + tstamp);
                 DateTime dt = DateTime.parse(tstamp);
-                if (dt.isBefore(DateTime.now().minusHours(3))) {
-                    Log.w(TAG,"Deleting old file " + fnames[i]);
-                    deleteFile(fnames[i]);
+                if (dt.isBefore(DateTime.now().minusHours(keepHours))) {
+                    Log.w(TAG,"Deleting old file " + fnames.get(i));
+                    //getApplicationContext().deleteFile(fnames.get(i));
+                    File fd = new File(path,fnames.get(i));
+                    boolean deleted = fd.delete();
+                    Log.v(TAG,"successfully deleted = " + (deleted ? "True" : "False"));
                 }
             } else {
-                Log.w(TAG,"Not my logfile?: " + fnames[i]);
+                Log.w(TAG,"Not my logfile?: " + fnames.get(i));
             }
         }
     }

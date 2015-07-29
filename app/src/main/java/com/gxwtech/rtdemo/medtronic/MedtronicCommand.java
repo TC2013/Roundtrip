@@ -32,7 +32,7 @@ public class MedtronicCommand {
 
     // +++ what's all this talk of a new way?
     protected byte[] mRawReceivedData;
-    protected int mSleepForPumpResponse = 80; //millis // was 100
+    protected int mSleepForPumpResponse = 100;
     protected int mSleepForPumpRetry = 500; //millis
 
     public MedtronicCommand() {

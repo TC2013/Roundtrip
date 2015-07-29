@@ -27,7 +27,7 @@ public class ReadHistoryCommand extends MedtronicCommand {
         mNRetries = 2;
         mMaxRecords = 2;
         mSleepForPumpResponse = 100; // must adjust these numbers to get data from carelink?
-        mSleepForPumpRetry = 350;
+        mSleepForPumpRetry = 500;
         mParams = new byte[] { 0x00 }; // This is the page number
         mParsedOK = false;
 

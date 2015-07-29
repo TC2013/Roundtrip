@@ -35,6 +35,39 @@
                 android:onClick="setLoggingEnableClicked" />
 
         </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Delete logs older than (hours)"
+                android:id="@+id/textView_Label_KeepLogsForHours" />
+
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:ems="10"
+                android:id="@+id/editText_KeepLogsForHours"
+                android:layout_weight="1"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:hint="24"
+                android:gravity="right"
+                android:singleLine="true" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Set"
+                android:id="@+id/button_SetKeepLogsForHours"
+                android:onClick="editKLFHClicked" />
+        </LinearLayout>
+
 
     </LinearLayout>
 

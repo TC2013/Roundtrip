@@ -85,6 +85,7 @@ public interface Constants {
         public static String PPNormalDIATable = "NormalDIATable";
         public static String PPNegativeInsulinDIATable = "NegativeInsulinDIATable";
         public static String LoggingEnabled = "LoggingEnabled";
+        public static String KeepLogsForHours = "KeepLogsForHours";
 
         // These are in PreferenceBackedStorage, used for communication from apslogic to monitorActivity
         public static String Monitor_TempBasalRate = "Monitor_TempBasalRate";
