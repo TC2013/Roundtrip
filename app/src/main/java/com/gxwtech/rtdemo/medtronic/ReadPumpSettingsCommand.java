@@ -13,7 +13,7 @@ public class ReadPumpSettingsCommand extends MedtronicCommand {
         mNRetries = 2;
         mMaxRecords = 1;
         mSleepForPumpResponse = 5000;
-        mSleepForPumpRetry = 2000;
+        mSleepForPumpRetry = 501;
         // member variable initialization
         mPumpSettings = new PumpSettings();
     }

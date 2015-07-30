@@ -212,7 +212,7 @@ public class MedtronicCommand {
                     if (tries > mNRetries) {
                         moreDataToGet = false;
                         keepTrying = false;
-                        Log.e(TAG, "DOWNLOAD ATTEMPT EXCEEDED RETRIES: " + mNRetries);
+                        Log.e(TAG, String.format("Download attempt %d/%d failed, giving up.",tries,mNRetries+1));
                     } else {
                         Log.w(TAG, String.format("Download attempt %d/%d failed, sleeping %d millis to try again.", tries, mNRetries + 1, mSleepForPumpRetry));
                         if (bytesAvailable == 14) {
@@ -224,6 +224,8 @@ public class MedtronicCommand {
                             // todo: fix hack?
                             mSleepForPumpResponse /= 2;
                             mSleepForPumpRetry /=2;
+                            Log.w(TAG,String.format("Carelink returned zero bytes. Trying shorter wait times: %dms/%dms",
+                                    mSleepForPumpResponse,mSleepForPumpRetry));
                         } else {
                             sleep(mSleepForPumpRetry);
                         }
@@ -262,6 +264,7 @@ public class MedtronicCommand {
                         if (DEBUG_MEDTRONICCOMMAND) {
                             Log.i(TAG, String.format("Found EOD, received %d bytes.", mDataReceived.length));
                             /* doesn't belong here, but for checking....*/
+                            /*
                             if (mDataReceived.length >= 1022) {
                                 byte[] first1022 = new byte[1022];
                                 System.arraycopy(mDataReceived, 0, first1022, 0, 1022);
@@ -272,6 +275,7 @@ public class MedtronicCommand {
                                 Log.v(TAG, String.format("Checksum of 1024 bytes: %s",
                                         HexDump.toHexString(CRC.calculate16CCITT(mDataReceived))));
                             }
+                            */
                         }
                         rval = mDataReceived;
                         moreDataToGet = false;

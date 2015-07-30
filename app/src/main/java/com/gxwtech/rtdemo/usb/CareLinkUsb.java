@@ -128,6 +128,7 @@ public class CareLinkUsb {
      * @throws UsbException
      */
     public byte[] read(UsbRequest outRequest,int readSize) throws UsbException {
+        byte[] rval;
         if (mUsbDeviceConnection == null) {
             throw new UsbException("no connection available");
         }
@@ -149,7 +150,14 @@ public class CareLinkUsb {
             inRequest.initialize(mUsbDeviceConnection, epIN);
             if (inRequest.queue(buffer, readSize)) {
                 mUsbDeviceConnection.requestWait();
-                return buffer.array();
+                rval = new byte[buffer.array().length];
+                byte[] src = buffer.array();
+                System.arraycopy(src,0,rval,0,src.length);
+                inRequest.close();
+                outRequest.close();
+                return rval;
+            } else {
+                inRequest.close();
             }
         }
         return null;

@@ -20,6 +20,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,8 +39,18 @@ public class MongoWrapper {
 
     protected boolean setupCompleted = false;
     MongoClientURI mUri = null;
-    MongoClient mMongoClient = null;
+    public static MongoClient mongoClientInstance = null;
     DB mDB = null;
+    public static synchronized MongoClient getMongoClientInstance(MongoClientURI uri) {
+    if (mongoClientInstance == null) {
+        try {
+            mongoClientInstance = new MongoClient(uri);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+    }
+    return mongoClientInstance;
+}
 
     // todo: I don't like inner classes.  Move to a new class
     public class BGReadingResponse {
@@ -70,9 +81,9 @@ public class MongoWrapper {
         mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]
         */
         Log.i(TAG,"Mongo Client URI is:" + mURIString);
-        mUri = new MongoClientURI(mURIString);
-        mMongoClient = new MongoClient(mUri);
-        mDB = mMongoClient.getDB(mDBName);
+        //mUri = new MongoClientURI(mURIString);
+
+        mDB = getMongoClientInstance(new MongoClientURI(mURIString)).getDB(mDBName);
 
         setupCompleted = true;
     }
