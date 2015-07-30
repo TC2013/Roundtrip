@@ -74,7 +74,7 @@ public class MonitorActivity extends ActionBarActivity {
         };
     }
 
-    private int MaxLogSize = 500;
+    private final int MaxLogSize = 500;
     public void receiveLogMessage(String msg) {
         // keep 50 messages?  make configurable?
         if (msg == null) {

@@ -33,14 +33,12 @@ public class BasalProfile {
     protected static final int MAX_RAW_DATA_SIZE = (21 * 3) + 1;
     protected byte[] mRawData; // store as byte array to make transport (via parcel) easier
     public BasalProfile() {
-        init();
-    }
-    public void init() {
         mRawData = new byte[MAX_RAW_DATA_SIZE];
         mRawData[0] = 0;
         mRawData[1] = 0;
         mRawData[2] = 0x3f;
     }
+
     // this readUnsignedByte should be combined with Record.readUnsignedByte, and placed in a new util class.
     protected static int readUnsignedByte(byte b) { return (b<0)?b+256:b; }
     public boolean setRawData(byte[] data) {

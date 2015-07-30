@@ -10,10 +10,7 @@ public class Sara6E extends Record {
         calcSize();
     }
     public boolean collectRawData(byte[] data, PumpModel model) {
-        if (!super.collectRawData(data, model)) {
-            return false;
-        }
-        return true;
+        return super.collectRawData(data, model);
     }
 
     @Override

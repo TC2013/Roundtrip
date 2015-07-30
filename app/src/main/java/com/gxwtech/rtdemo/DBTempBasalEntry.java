@@ -36,7 +36,7 @@ public class DBTempBasalEntry {
     }
 
     public BasicDBObject formatDBObject() {
-        BasicDBObject myDBObj = new BasicDBObject("enteredBy",enteredBy)
+        return new BasicDBObject("enteredBy",enteredBy)
                 .append("eventType",eventType)
                 .append("date",mTimestamp.getMillis())
                 //.append("date", String.format("%d", mTimestamp.getMillis()))
@@ -44,8 +44,6 @@ public class DBTempBasalEntry {
                 .append("durationMin", String.format("%d", mDurationMinutes))
                 .append("created_at", mTimestamp.toDateTime(DateTimeZone.UTC).toString())
                 .append("notes", "Start: " + startTime + "\nEnd: " + endTime + "\n");
-        return myDBObj;
-
     }
 
     public void readFromDBObject(DBObject obj) {

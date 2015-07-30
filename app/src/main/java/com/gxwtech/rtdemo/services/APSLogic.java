@@ -92,11 +92,11 @@ import java.util.List;
 public class APSLogic {
     /* BEGIN settable defaults */
     private static final String TAG = "APSLogic";
-    Context mContext;
-    PumpManager mPumpManager;
-    MongoWrapper mMongoWrapper;
-    String mLogfileName;
-    PreferenceBackedStorage mStorage;
+    private Context mContext;
+    private PumpManager mPumpManager;
+    private MongoWrapper mMongoWrapper;
+    private String mLogfileName;
+    private PreferenceBackedStorage mStorage;
 
     // our cache of the profile settings
     // Updated (at the minimum) at the start of each MakeADecision() run
@@ -109,14 +109,14 @@ public class APSLogic {
     private static final double pump_high_temp_max = 6.35;
 
     // don't high-temp if IOB > max_IOB
-    static final double max_IOB = 15;
+    private static final double max_IOB = 15;
 
     // don't use CGM reading, if it is below this number:
-    static final double min_useable_bg_reading = 40.0;
+    private static final double min_useable_bg_reading = 40.0;
 
     /* END settable defaults */
 
-    public double iobValueAtAbsTime(Instant startTime, double insulinUnits,
+    private double iobValueAtAbsTime(Instant startTime, double insulinUnits,
                                     Instant valueTime,
                                     DIATable dia_table) {
         boolean debug_iobValueAtAbsTime = false;
@@ -143,7 +143,7 @@ public class APSLogic {
     // Easier than IOB, as we assume it is a linear relationship rate=profile.carbs_hr,
     // 20 minutes delayed from consumption
     // Geoff, if possible make the minutes delayed from consumption and editable option in the profile UI. -Toby
-    public double cobValueAtAbsTime(Instant startTime,
+    private double cobValueAtAbsTime(Instant startTime,
                                     double carbGrams,
                                     Instant valueTime,
                                     double carbs_absorbed_per_hour) {
@@ -173,7 +173,7 @@ public class APSLogic {
 
     //Now we define a function to calculate the basal rate at a give time:
     // todo: this should be fixed to handle all basal profiles, not a given profile.
-    public double basal_rate_at_abs_time(Instant when, BasalProfile basalProfile) {
+    private double basal_rate_at_abs_time(Instant when, BasalProfile basalProfile) {
         // From the pump's basal profiles, and the pump's idea of the time-of-day,
         // figure out which basal period is active and determine the rate.
         BasalProfileEntry entry = basalProfile.getEntryForTime(when);
@@ -199,7 +199,7 @@ public class APSLogic {
     }
 
     // use this to floor to nearest 0.025
-    public double mm_floor_rate(double x) {
+    private double mm_floor_rate(double x) {
         return (Math.floor(x * 40.0))/40.0;
     }
 
@@ -817,21 +817,17 @@ public class APSLogic {
         mPumpManager = pumpManager;
         mMongoWrapper = mongoWrapper;
         mLogfileName = "RTLog_" + DateTime.now().toString();
-        init();
-    }
-    public void init() {
-        // initialize member vars to sane settings.
     }
 
     public void runAPSLogicOnce() {
         MakeADecision();
     }
 
-    BasalProfile basalProfileSTD, basalProfileA, basalProfileB, mCurrentBasalProfile;
+    private BasalProfile basalProfileSTD, basalProfileA, basalProfileB, mCurrentBasalProfile;
 
-    boolean gotBasalProfiles = false;
-    TempBasalPair mCurrentTempBasal = new TempBasalPair();
-    PumpSettings mPumpSettings = new PumpSettings();
+    private boolean gotBasalProfiles = false;
+    private TempBasalPair mCurrentTempBasal = new TempBasalPair();
+    private PumpSettings mPumpSettings = new PumpSettings();
 
     private boolean getBasalProfiles() {
         basalProfileSTD = getPumpManager().getProfile(BasalProfileTypeEnum.STD);
@@ -873,20 +869,20 @@ public class APSLogic {
 
     // When this method succeeds, it also contacts the database to add the new treatment.
     // todo?: Need curr_basal to calculate if this is a negative insulin event
-    public void setTempBasal(double rateUnitsPerHour, int periodMinutes, double currBasalRate) {
+    private void setTempBasal(double rateUnitsPerHour, int periodMinutes, double currBasalRate) {
         log(String.format("Set Temp Basal: rate=%.3f, minutes=%d",rateUnitsPerHour,periodMinutes));
         getPumpManager().setTempBasal(rateUnitsPerHour,periodMinutes);
     }
 
     // Get currently used Basals Profile from the pump.
     // We want to fetch these once on startup, then used cached copies.
-    public BasalProfile getCurrentBasalProfile() {
+    private BasalProfile getCurrentBasalProfile() {
         return mCurrentBasalProfile;
     }
 
     // This command retrieves the CURRENTLY ACTIVE temp basal from the pump
     // This command can "sleep" for up to 20 seconds while running.
-    public void getCurrentTempBasalFromPump() {
+    private void getCurrentTempBasalFromPump() {
         TempBasalPair rval;
         rval = getPumpManager().getCurrentTempBasal();
         // store value from pump in persistent storage for gui
@@ -896,12 +892,12 @@ public class APSLogic {
         mCurrentTempBasal = rval;
     }
 
-    public DateTime getRTCTimestampFromPump() {
+    private DateTime getRTCTimestampFromPump() {
         DateTime dt = getPumpManager().getRTCTimestamp();
         return dt;
     }
 
-    public void getPumpSettingsFromPump() {
+    private void getPumpSettingsFromPump() {
         PumpSettings settings = getPumpManager().getPumpSettings();
         mPumpSettings = settings;
     }
@@ -912,12 +908,12 @@ public class APSLogic {
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }
 
-    public void notifyMonitorDataChanged() {
+    private void notifyMonitorDataChanged() {
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(Intents.MONITOR_DATA_CHANGED));
     }
 
     // Those messages are displayed in the lower part of the MonitorActivity's window
-    public void log(String message) {
+    private void log(String message) {
         dlog(message);
         broadcastAPSLogicStatusMessage(message);
         if (mStorage.loggingEnabled.get() == true) {

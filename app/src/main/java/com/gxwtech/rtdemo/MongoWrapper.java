@@ -10,6 +10,8 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import com.mongodb.MongoCommandException;
+import com.mongodb.MongoTimeoutException;
 
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
@@ -118,7 +120,7 @@ public class MongoWrapper {
                     Log.d(TAG,"Unknown entry in MongoDB collection '" + mTreatmentsCollectionName + "'");
                 }
             }
-        } catch (com.mongodb.CommandFailureException e) {
+        } catch (MongoCommandException e) {
             e.printStackTrace();
         } catch (com.mongodb.MongoTimeoutException e) {
             Log.e(TAG, "MongoDB connection timeout");
@@ -216,10 +218,10 @@ public class MongoWrapper {
             response.reading = latestBGReading;
             Log.i(TAG,"Total MongoDB entries read: " + recordCount);
             // android says commandFailureException is deprecated, but it's what's thrown...
-        } catch (com.mongodb.CommandFailureException e) {
+        } catch (MongoCommandException e) {
             response.setError(e.toString());
             e.printStackTrace();
-        } catch (com.mongodb.MongoTimeoutException e) {
+        } catch (MongoTimeoutException e) {
             response.setError("MongoDB connection timeout");
             Log.e(TAG, "MongoDB connection timeout");
         } finally {
