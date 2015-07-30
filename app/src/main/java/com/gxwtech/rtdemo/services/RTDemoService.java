@@ -7,6 +7,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -223,7 +224,10 @@ public class RTDemoService extends IntentService {
                 getCarelinkPermission();
                 checkPumpCommunications();
             } else if (srq.equals(Constants.SRQ.VERIFY_BLUETOOTH_PUMP_COMMUNICATIONS)) {
-                final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+                final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+                final BluetoothAdapter mBluetoothAdapter = bluetoothManager.getAdapter();
+
                 if (mBluetoothAdapter != null) {
                     if (mBluetoothAdapter.isEnabled()) {
                         final Set<BluetoothDevice> devices = mBluetoothAdapter.getBondedDevices();

@@ -2,6 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.gxwtech.rtdemo" >
 
+    <!--
+        Enable BLE and set it as mandatory
+    -->
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
+
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.INTERNET" />
