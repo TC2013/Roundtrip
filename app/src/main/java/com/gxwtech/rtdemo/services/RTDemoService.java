@@ -5,6 +5,8 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -28,13 +30,13 @@ import com.gxwtech.rtdemo.Constants;
 import com.gxwtech.rtdemo.HexDump;
 import com.gxwtech.rtdemo.Intents;
 import com.gxwtech.rtdemo.MainActivity;
+import com.gxwtech.rtdemo.MongoWrapper;
 import com.gxwtech.rtdemo.PreferenceBackedStorage;
+import com.gxwtech.rtdemo.R;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfile;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileEntry;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileTypeEnum;
 import com.gxwtech.rtdemo.medtronic.PumpData.HistoryReport;
-import com.gxwtech.rtdemo.MongoWrapper;
-import com.gxwtech.rtdemo.R;
 import com.gxwtech.rtdemo.services.pumpmanager.PumpManager;
 import com.gxwtech.rtdemo.services.pumpmanager.PumpSettingsParcel;
 import com.gxwtech.rtdemo.services.pumpmanager.TempBasalPairParcel;
@@ -47,6 +49,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -82,12 +85,12 @@ public class RTDemoService extends IntentService {
     // @TODO Move this to constants?
     private static final String MEDTRONIC_DEFAULT_SERIAL = "000000";
 
-    private static final String MONGO_DEFAULT_SERVER =  "localhost";
-    private static final String MONGO_DEFAULT_PORT =  "27015";
-    private static final String MONGO_DEFAULT_DATABASE =  "nightscout";
-    private static final String MONGO_DEFAULT_USERNAME =  "username";
-    private static final String MONGO_DEFAULT_PASSWORD =  "password";
-    private static final String MONGO_DEFAULT_COLLECTION =  "entries";
+    private static final String MONGO_DEFAULT_SERVER = "localhost";
+    private static final String MONGO_DEFAULT_PORT = "27015";
+    private static final String MONGO_DEFAULT_DATABASE = "nightscout";
+    private static final String MONGO_DEFAULT_USERNAME = "username";
+    private static final String MONGO_DEFAULT_PASSWORD = "password";
+    private static final String MONGO_DEFAULT_COLLECTION = "entries";
 
     private static final String WAKELOCKNAME = "com.gxwtech.RTDemo.RTDemoServiceWakeLock";
     private static volatile PowerManager.WakeLock lockStatic = null;
@@ -216,9 +219,38 @@ public class RTDemoService extends IntentService {
                 // this BLOCKS until we get permission!
                 // since it blocks, we can't do it in Create()
 
-            } else if (srq.equals(Constants.SRQ.VERIFY_PUMP_COMMUNICATIONS)) {
+            } else if (srq.equals(Constants.SRQ.VERIFY_USB_PUMP_COMMUNICATIONS)) {
                 getCarelinkPermission();
                 checkPumpCommunications();
+            } else if (srq.equals(Constants.SRQ.VERIFY_BLUETOOTH_PUMP_COMMUNICATIONS)) {
+                final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+                if (mBluetoothAdapter != null) {
+                    if (mBluetoothAdapter.isEnabled()) {
+                        final Set<BluetoothDevice> devices = mBluetoothAdapter.getBondedDevices();
+
+                        BluetoothDevice rileyLink = null;
+                        for (BluetoothDevice device : devices) {
+                            if (device.getName().equals(Constants.PrefName.Bluetooth_RileyLink_Name)) {
+                                rileyLink = device;
+                            }
+                        }
+
+                        if (rileyLink != null) {
+                            llog("RileyLink has been found.");
+
+                            // Found the rileylink, what now...
+
+
+                        } else {
+                            llog("Could not find RileyLink.");
+                        }
+
+                    } else {
+                        llog("Bluetooth is not enabled on device.");
+                    }
+                } else {
+                    llog("Bluetooth is not available on device.");
+                }
             } else if (srq.equals(Constants.SRQ.REPORT_PUMP_SETTINGS)) {
                 PumpSettingsParcel parcel = new PumpSettingsParcel();
                 parcel.initFromPumpSettings(mPumpManager.getPumpSettings());
@@ -541,8 +573,7 @@ public class RTDemoService extends IntentService {
         // check to see if our BGReading is old.
         BGReading latestBG = mStorage.getLatestBGReading();
         if ((latestBG.mTimestamp.isBefore(DateTime.now().minusMinutes(10)))
-                || (latestBG.mTimestamp.isAfter(DateTime.now().plusMinutes(5))))
-        {
+                || (latestBG.mTimestamp.isAfter(DateTime.now().plusMinutes(5)))) {
             mAPSLogic.broadcastAPSLogicStatusMessage("Accessing MongoDB for latest BG reading");
             MongoWrapper.BGReadingResponse bgResponse = mMongoWrapper.getBGReading();
             BGReading reading = bgResponse.reading;
@@ -583,28 +614,27 @@ public class RTDemoService extends IntentService {
         Log.d("Files", "Path: " + path);
         File f = new File(path);
         File file[] = f.listFiles();
-        Log.d("Files", "Size: "+ file.length);
-        for (int i=0; i < file.length; i++)
-        {
+        Log.d("Files", "Size: " + file.length);
+        for (int i = 0; i < file.length; i++) {
             Log.d("Files", "FileName:" + file[i].getName());
             fnames.add(file[i].getName());
         }
 
-        for (int i = 0; i<fnames.size(); i++) {
+        for (int i = 0; i < fnames.size(); i++) {
             Matcher m = namePattern.matcher(fnames.get(i));
             if (m.find()) {
                 String tstamp = m.group(1);
-                Log.w(TAG,"Found logfile with time: " + tstamp);
+                Log.w(TAG, "Found logfile with time: " + tstamp);
                 DateTime dt = DateTime.parse(tstamp);
                 if (dt.isBefore(DateTime.now().minusHours(keepHours))) {
-                    Log.w(TAG,"Deleting old file " + fnames.get(i));
+                    Log.w(TAG, "Deleting old file " + fnames.get(i));
                     //getApplicationContext().deleteFile(fnames.get(i));
-                    File fd = new File(path,fnames.get(i));
+                    File fd = new File(path, fnames.get(i));
                     boolean deleted = fd.delete();
-                    Log.v(TAG,"successfully deleted = " + (deleted ? "True" : "False"));
+                    Log.v(TAG, "successfully deleted = " + (deleted ? "True" : "False"));
                 }
             } else {
-                Log.w(TAG,"Not my logfile?: " + fnames.get(i));
+                Log.w(TAG, "Not my logfile?: " + fnames.get(i));
             }
         }
     }
