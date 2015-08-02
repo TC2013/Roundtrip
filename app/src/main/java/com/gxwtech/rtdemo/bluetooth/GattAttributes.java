@@ -2,6 +2,7 @@ package com.gxwtech.rtdemo.bluetooth;
 
 
 import java.util.HashMap;
+import java.util.UUID;
 
 /**
  * Created by Geoff on 7/10/15.
@@ -41,6 +42,14 @@ public class GattAttributes {
         attributes.put(GLUCOSELINK_RX_PACKET_UUID, "RileyLink RX Packet");
         attributes.put(GLUCOSELINK_TX_PACKET_UUID, "RileyLink TX Packet");
         attributes.put(GLUCOSELINK_TX_TRIGGER_UUID, "RileyLink TX Trigger");
+    }
+
+    public static String lookup(UUID uuid) {
+        return lookup(uuid.toString());
+    }
+
+    public static String lookup(String uuid) {
+        return lookup(uuid,uuid);
     }
 
     public static String lookup(String uuid, String defaultName) {

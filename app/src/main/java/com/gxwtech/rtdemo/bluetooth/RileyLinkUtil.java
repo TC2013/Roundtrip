@@ -1,7 +1,7 @@
 package com.gxwtech.rtdemo.bluetooth;
 
 /**
- * Created by Fokko on 2-8-15.
+ * Created by Geoff on 2-8-15.
  */
 public class RileyLinkUtil {
     private static final String TAG = "RileyLinkUtil";

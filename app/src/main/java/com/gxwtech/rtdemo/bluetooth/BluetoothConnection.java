@@ -22,7 +22,7 @@ import java.util.UUID;
  * Created by Fokko on 2-8-15.
  */
 public class BluetoothConnection {
-    private static final String LS =System.getProperty("line.separator");
+    private static final String LS = System.getProperty("line.separator");
     private static final String TAG = "BluetoothConnection";
 
     private BluetoothManager bluetoothManager = null;
@@ -93,10 +93,16 @@ public class BluetoothConnection {
         return message;
     }
 
-    public void sendCommand(byte[] data) {
+    public void sendCommand(byte[] data, String uuidService, String uuidCharacteristic) {
+        sendCommand(data, uuidService, uuidCharacteristic, false);
+    }
+
+    public void sendCommand(byte[] data, String uuidService, String uuidCharacteristic, boolean transform) {
         Log.d(TAG, "Sending packet");
 
-        final byte[] minimedRFData = RileyLinkUtil.composeRFStream(data);
+        if (transform) {
+            data = RileyLinkUtil.composeRFStream(data);
+        }
 
         if (this.bluetoothConnectionGatt == null) {
             Log.e(TAG, "GATT connection not available!");
@@ -104,7 +110,7 @@ public class BluetoothConnection {
         }
 
         final BluetoothGattService service = this.bluetoothConnectionGatt.
-                getService(UUID.fromString(GattAttributes.GLUCOSELINK_SERVICE_UUID));
+                getService(UUID.fromString(uuidService));
 
         if (service == null) {
             Log.e(TAG, "Service not found!");
@@ -112,14 +118,14 @@ public class BluetoothConnection {
         }
 
         final BluetoothGattCharacteristic characteristic = service.
-                getCharacteristic(UUID.fromString(GattAttributes.GLUCOSELINK_PACKET_COUNT));
+                getCharacteristic(UUID.fromString(uuidCharacteristic));
 
         if (characteristic == null) {
             Log.e(TAG, "Characteristic not found!");
             return;
         }
 
-        characteristic.setValue(minimedRFData);
+        characteristic.setValue(data);
         bluetoothConnectionGatt.writeCharacteristic(characteristic);
 
         Log.d(TAG, "Characteristic is being send.");
@@ -144,9 +150,18 @@ public class BluetoothConnection {
 
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            Log.w(TAG, String.format("onCharacteristicWrite " + characteristic + " status " + status));
 
+            final String statusMessage;
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                statusMessage = "SUCCESS";
+            } else if (status == BluetoothGatt.GATT_FAILURE) {
+                statusMessage = "FAILED";
+            } else {
+                statusMessage = "UNKNOWN (" + status + ")";
+            }
 
+            final String uuidString = GattAttributes.lookup(characteristic.getUuid());
+            Log.w(TAG, String.format("onCharacteristicWrite " + statusMessage + " " + uuidString));
         }
 
         @Override

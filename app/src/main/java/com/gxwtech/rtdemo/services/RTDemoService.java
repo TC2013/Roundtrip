@@ -5,15 +5,6 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCallback;
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattDescriptor;
-import android.bluetooth.BluetoothGattService;
-import android.bluetooth.BluetoothManager;
-import android.bluetooth.BluetoothProfile;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -42,7 +33,6 @@ import com.gxwtech.rtdemo.PreferenceBackedStorage;
 import com.gxwtech.rtdemo.R;
 import com.gxwtech.rtdemo.bluetooth.BluetoothConnection;
 import com.gxwtech.rtdemo.bluetooth.GattAttributes;
-import com.gxwtech.rtdemo.bluetooth.RileyLinkUtil;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfile;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileEntry;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileTypeEnum;
@@ -59,9 +49,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -92,9 +79,6 @@ import java.util.regex.Pattern;
 
 
 public class RTDemoService extends IntentService {
-
-    private static final String LS = System.lineSeparator();
-
     private static final String TAG = "RTDemoService";
 
     // @TODO Move this to constants?
@@ -242,7 +226,9 @@ public class RTDemoService extends IntentService {
 
                 byte[] pkt_pressdown = new byte[]{(byte) 0xa7, 0x01, 0x46, 0x73, 0x24,
                         (byte) 0x80, 0x01, 0x00, 0x01, 0x00, 0x00, 0x5b, (byte) 0x9e, 0x04, (byte) 0xc1};
-                BluetoothConnection.getInstance(this).sendCommand(pkt_pressdown);
+                BluetoothConnection conn = BluetoothConnection.getInstance(this);
+                conn.sendCommand(pkt_pressdown, GattAttributes.GLUCOSELINK_SERVICE_UUID, GattAttributes.GLUCOSELINK_TX_PACKET_UUID, true);
+                conn.sendCommand(new byte[]{0x01}, GattAttributes.GLUCOSELINK_SERVICE_UUID, GattAttributes.GLUCOSELINK_TX_TRIGGER_UUID);
 
             } else if (srq.equals(Constants.SRQ.VERIFY_BLUETOOTH_PUMP_COMMUNICATIONS)) {
                 String response = BluetoothConnection.getInstance(this).connect();
