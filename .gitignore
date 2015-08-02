@@ -3,9 +3,9 @@
 
 /local.properties
 
-/build/
-/app/build/
 /app/.idea/
+
+/build/
 /app/build/*
 
 /.idea/*
