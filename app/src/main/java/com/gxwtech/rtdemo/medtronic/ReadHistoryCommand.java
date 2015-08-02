@@ -17,6 +17,7 @@ import com.gxwtech.rtdemo.medtronic.PumpData.records.TempBasalRate;
  */
 public class ReadHistoryCommand extends MedtronicCommand {
     private static final String TAG = "ReadHistoryCommand";
+    private static final boolean DEBUG_READHISTORYCOMMAND = false;
     public boolean mParsedOK;
     // HistoryReport to collect the valuable things from the history (as we cannot yet parse all)
     public HistoryReport mHistoryReport;
@@ -26,11 +27,16 @@ public class ReadHistoryCommand extends MedtronicCommand {
         mNRetries = 2;
         mMaxRecords = 2;
         mSleepForPumpResponse = 100; // must adjust these numbers to get data from carelink?
-        mSleepForPumpRetry = 350;
-        mParams = new byte[] { 0x00 }; // 0x02? 0x03?
+        mSleepForPumpRetry = 500;
+        mParams = new byte[] { 0x00 }; // This is the page number
         mParsedOK = false;
 
     }
+
+    public void setPageNumber(int pageNumber) {
+        mParams[0] = (byte)pageNumber;
+    }
+
     private static void checkForRecordSequence(byte[] data, int index) {
         Record r;
         int seq = 0;
@@ -39,7 +45,9 @@ public class ReadHistoryCommand extends MedtronicCommand {
             seq++;
             if (seq > 1) {
                 // note sequential discoveries
-                //Log.w(TAG,String.format("SEQ: %d",seq));
+                if (DEBUG_READHISTORYCOMMAND) {
+                    Log.w(TAG, String.format("SEQ: %d", seq));
+                }
             }
             index = index + r.getSize();
             r = checkForRecord(data,index);
@@ -50,17 +58,20 @@ public class ReadHistoryCommand extends MedtronicCommand {
         Page page = new Page();
         Record record = page.attemptParseRecord(data,index); // CalBgForPh
         if (record!=null) {
-            /*
-            Log.d(TAG, String.format("Maybe found record %s at index %d, size %d",
-                    record.getClass().getSimpleName(), index, record.getSize()));
-                    */
+            if (DEBUG_READHISTORYCOMMAND) {
+                Log.d(TAG, String.format("Maybe found record %s at index %d, size %d",
+                        record.getClass().getSimpleName(), index, record.getSize()));
+            }
+
             int sublength = data.length - index;
             byte[] subset = new byte[sublength];
             System.arraycopy(data,index,subset,0,sublength);
             boolean correct = record.collectRawData(subset,PumpModel.MM522);
             if (correct) {
-                Log.e(TAG, String.format("FOUND RECORD %s at index %d, size %d",
-                        record.getClass().getSimpleName(), index, record.getSize()));
+                if (DEBUG_READHISTORYCOMMAND) {
+                    Log.v(TAG, String.format("FOUND RECORD %s at index %d, size %d",
+                            record.getClass().getSimpleName(), index, record.getSize()));
+                }
             } else {
                 /*
                 Log.e(TAG, String.format("Failed to load record %s at index %d, size %d",
@@ -68,7 +79,9 @@ public class ReadHistoryCommand extends MedtronicCommand {
                         */
             }
         } else {
-            //Log.d(TAG, String.format("NO RECORD FOUND at index %d, code 0x%02X",index, data[index]));
+            if (DEBUG_READHISTORYCOMMAND) {
+                Log.d(TAG, String.format("NO RECORD FOUND at index %d, code 0x%02X", index, data[index]));
+            }
 
         }
         return record;
@@ -76,7 +89,9 @@ public class ReadHistoryCommand extends MedtronicCommand {
 
     public void parse(byte[] receivedData) {
         if (receivedData != null) {
-            Log.w(TAG, "parse: " + HexDump.dumpHexString(receivedData));
+            if (DEBUG_READHISTORYCOMMAND) {
+                Log.w(TAG, "parse: " + HexDump.dumpHexString(receivedData));
+            }
             int d = receivedData.length;
             if (d == 1024) {
                 //Log.e(TAG, "******* Begin record discovery ******");
@@ -89,7 +104,9 @@ public class ReadHistoryCommand extends MedtronicCommand {
                 for (Record r : page.mRecordList) {
                     if (r.getRecordOp() == RecordTypeEnum.RECORD_TYPE_BOLUSWIZARD.opcode()) {
                         mHistoryReport.addBolusWizardEvent((BolusWizard) r);
-                        Log.d(TAG,"Adding BolusWizard event to HistoryReport");
+                        if (DEBUG_READHISTORYCOMMAND) {
+                            Log.d(TAG, "Adding BolusWizard event to HistoryReport");
+                        }
                     }
                     /* temp basal events are divided into two sub-events, which we have to re-compose.
                      * One half is a TempBasalRate, and the other half is TempBasalDuration
@@ -138,7 +155,8 @@ public class ReadHistoryCommand extends MedtronicCommand {
                     }
                 }
             } else {
-                Log.e(TAG, String.format("Cannot decode page of invalid size %d (should be 1024)",d));
+                Log.e(TAG, String.format("Cannot decode page of invalid size %d (should be 1024)", d));
+                mParsedOK = false;
             }
         }
     }
@@ -151,7 +169,7 @@ public class ReadHistoryCommand extends MedtronicCommand {
         while (!done) {
             RecordTypeEnum en = RecordTypeEnum.fromByte(data[i]);
             if (en != RecordTypeEnum.RECORD_TYPE_NULL) {
-                Log.w(TAG,String.format("Possible record of type %s found at index %d", en, i));
+                Log.v(TAG,String.format("Possible record of type %s found at index %d", en, i));
                 checkForRecordSequence(data,i);
             }
             i = i + 1;

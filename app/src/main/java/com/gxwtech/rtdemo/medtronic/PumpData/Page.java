@@ -29,6 +29,7 @@ import java.util.List;
 
 public class Page {
     private final static String TAG = "Page";
+    private static final boolean DEBUG_PAGE = false;
 
     private byte[] crc;
     private byte[] data;
@@ -47,15 +48,21 @@ public class Page {
             return false;
         }
         this.model = model;
-        Log.i(TAG,"Parsing page");
+        if (DEBUG_PAGE) {
+            Log.i(TAG, "Parsing page");
+        }
         this.data = Arrays.copyOfRange(rawPage, 0, 1022);
         this.crc = Arrays.copyOfRange(rawPage, 1022, 1024);
         byte[] expectedCrc = CRC.calculate16CCITT(this.data);
-        Log.i(TAG, String.format("Data length: %d", data.length));
+        if (DEBUG_PAGE) {
+            Log.i(TAG, String.format("Data length: %d", data.length));
+        }
         if (!Arrays.equals(crc, expectedCrc)) {
             Log.w(TAG, String.format("CRC does not match expected value. Expected: %s Was: %s", HexDump.toHexString(expectedCrc), HexDump.toHexString(crc)));
         } else {
-            Log.i(TAG, "CRC OK");
+            if (DEBUG_PAGE) {
+                Log.i(TAG, "CRC OK");
+            }
         }
 
         // Go through page, parsing what we can
@@ -154,13 +161,14 @@ public class Page {
                 done = true;
             }
         }
-
-        Log.i(TAG, String.format("Number of records: %d", mRecordList.size()));
-        int index = 1;
-        for (Record r : mRecordList) {
-            Log.i(TAG, String.format("Record #%d", index));
-            r.logRecord();
-            index += 1;
+        if (DEBUG_PAGE) {
+            Log.i(TAG, String.format("Number of records: %d", mRecordList.size()));
+            int index = 1;
+            for (Record r : mRecordList) {
+                Log.i(TAG, String.format("Record #%d", index));
+                r.logRecord();
+                index += 1;
+            }
         }
         return true;
     }
@@ -229,7 +237,7 @@ public class Page {
             RecordTypeEnum en = RecordTypeEnum.fromByte(data[i]);
             if (en != RecordTypeEnum.RECORD_TYPE_NULL) {
                 keyLocations.add(i);
-                Log.w(TAG,String.format("Possible record of type %s found at index %d", en, i));
+                Log.v(TAG,String.format("Possible record of type %s found at index %d", en, i));
             }
             /*
             DateTime ts = parseSimpleDate(data,i);

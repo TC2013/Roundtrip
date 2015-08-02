@@ -85,11 +85,19 @@
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Test Link"
-                    android:id="@+id/button_verifyPumpCommunications"
-                    android:onClick="verifyPumpCommunications"
+                    android:text="Test USB"
+                    android:id="@+id/button_verifyUsbPumpCommunications"
+                    android:onClick="verifyUsbPumpCommunications"
                     android:layout_alignTop="@+id/button_testlink"
-                    android:layout_toEndOf="@+id/button_testlink" />
+                    android:layout_toEndOf="@+id/button_testlink"
+                    android:nestedScrollingEnabled="true" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TEST BLUETOOTH"
+                    android:id="@+id/button_verifyBluetoothPumpCommunications"
+                    android:onClick="verifyBluetoothPumpCommunications" />
 
             </LinearLayout>
 

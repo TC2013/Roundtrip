@@ -2,6 +2,7 @@ package com.gxwtech.rtdemo.medtronic.PumpData;
 
 import com.gxwtech.rtdemo.medtronic.PumpData.records.BolusWizard;
 import com.gxwtech.rtdemo.medtronic.TempBasalEvent;
+import com.gxwtech.rtdemo.services.APSTempBasalEvent;
 
 import java.util.ArrayList;
 
@@ -14,6 +15,7 @@ import java.util.ArrayList;
  */
 public class HistoryReport {
     public ArrayList<BolusWizard> mBolusWizardEvents;
+    //public ArrayList<TempBasalEvent> mBasalEvents;
     public ArrayList<TempBasalEvent> mBasalEvents;
     public HistoryReport() {
         mBolusWizardEvents = new ArrayList<>();
@@ -22,7 +24,8 @@ public class HistoryReport {
     public void addBolusWizardEvent(BolusWizard event) {
         mBolusWizardEvents.add(event);
     }
-    public void addTempBasalEvent(TempBasalEvent event) {
+    public void addTempBasalEvent(TempBasalEvent event)
+    {
         mBasalEvents.add(event);
     }
 }

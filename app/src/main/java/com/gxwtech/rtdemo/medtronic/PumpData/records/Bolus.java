@@ -34,21 +34,20 @@ public class Bolus extends TimeStampedRecord {
         if (!super.decode(data)) {
             return false;
         }
-        programmedAmount = data[1] / 10.0f;
-        deliveredAmount = data[2] / 10.0f;
+        programmedAmount = readUnsignedByte(data[1]) / 10.0f;
+        deliveredAmount = readUnsignedByte(data[2]) / 10.0f;
         if (model == PumpModel.MM523) {
-            programmedAmount = data[2] / 40.0f;
-            deliveredAmount = data[4] / 40.0f;
-            unabsorbed = data[6] / 40.0f;
-            duration = data[7] * 30;
+            programmedAmount = readUnsignedByte(data[2]) / 40.0f;
+            deliveredAmount = readUnsignedByte(data[4]) / 40.0f;
+            unabsorbed = readUnsignedByte(data[6]) / 40.0f;
+            duration = readUnsignedByte(data[7]) * 30;
         } else {
-            programmedAmount = data[1] / 10.0f;
-            deliveredAmount = data[2] / 10.0f;
-            duration = data[3] * 30;
+            programmedAmount = readUnsignedByte(data[1]) / 10.0f;
+            deliveredAmount = readUnsignedByte(data[2]) / 10.0f;
+            duration = readUnsignedByte(data[3]) * 30;
         }
         bolusType = (duration > 0) ? BolusType.SQUARE : BolusType.NORMAL;
-        Log.e(TAG,"SUCCESS! Parsed Bolus Record");
-        logRecord();
+        //logRecord();
         return true;
     }
 

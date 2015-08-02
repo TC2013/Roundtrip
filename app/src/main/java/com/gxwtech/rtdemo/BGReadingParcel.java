@@ -23,7 +23,9 @@ public class BGReadingParcel extends BGReading implements Parcelable {
     }
 
     public BGReadingParcel(BGReading bgr) {
-        init(bgr.mTimestamp, bgr.mBg);
+        if (bgr != null) {
+            init(bgr.mTimestamp, bgr.mBg);
+        }
     }
 
     @Override
@@ -60,9 +62,6 @@ public class BGReadingParcel extends BGReading implements Parcelable {
 
     private BGReadingParcel(Parcel in) {
         String datestring = in.readString();
-        double bg = in.readDouble();
-        DateTime dt = new DateTime();
-        dt.parse(datestring);
-        init(dt,bg);
+        init(DateTime.parse(datestring),in.readDouble());
     }
 }

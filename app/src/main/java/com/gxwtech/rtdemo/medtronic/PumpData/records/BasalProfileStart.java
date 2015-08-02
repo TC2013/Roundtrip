@@ -27,12 +27,12 @@ public class BasalProfileStart extends TimeStampedRecord {
             return false;
         }
         int bodyOffset = headerSize + timestampSize;
-        offset = data[bodyOffset] * 1000 * 30 * 60;
+        offset = readUnsignedByte(data[bodyOffset]) * 1000 * 30 * 60;
         if (model == PumpModel.MM523) {
-            rate = data[bodyOffset + 1] * 0.025f;
+            rate = readUnsignedByte(data[bodyOffset + 1]) * 0.025f;
         }
-        index = data[bodyOffset + 2];
-        logRecord();
+        index = readUnsignedByte(data[bodyOffset + 2]);
+        //logRecord();
         return true;
     }
 

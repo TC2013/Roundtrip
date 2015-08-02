@@ -35,9 +35,10 @@ public class SetTempBasalCommand extends MedtronicCommand {
 
     public boolean setInsulinRate(double rate) {
         boolean rval = true;
-        // fixme: fix hardcoded maximum?
-        if (rate > 3.0) {
-            rate = 3.0;
+        // fixme: fix hardcoded maximum?//Trying to send temp basal commands over 6.375 causes the
+        //pump to set to the wrong rate. E.g. 6.4 temp = 0.0 on the pump, 6.5 = .1
+        if (rate > 6.35) {
+            rate = 6.35;
             rval = false;
         }
         if (rate < 0) {

@@ -5,6 +5,14 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
+import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothProfile;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +21,7 @@ import android.content.SharedPreferences;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Binder;
+import android.os.Environment;
 import android.os.IBinder;
 import android.os.Parcelable;
 import android.os.PowerManager;
@@ -27,12 +36,13 @@ import com.gxwtech.rtdemo.Constants;
 import com.gxwtech.rtdemo.HexDump;
 import com.gxwtech.rtdemo.Intents;
 import com.gxwtech.rtdemo.MainActivity;
+import com.gxwtech.rtdemo.MongoWrapper;
+import com.gxwtech.rtdemo.PreferenceBackedStorage;
+import com.gxwtech.rtdemo.R;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfile;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileEntry;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileTypeEnum;
 import com.gxwtech.rtdemo.medtronic.PumpData.HistoryReport;
-import com.gxwtech.rtdemo.MongoWrapper;
-import com.gxwtech.rtdemo.R;
 import com.gxwtech.rtdemo.services.pumpmanager.PumpManager;
 import com.gxwtech.rtdemo.services.pumpmanager.PumpSettingsParcel;
 import com.gxwtech.rtdemo.services.pumpmanager.TempBasalPairParcel;
@@ -40,9 +50,14 @@ import com.gxwtech.rtdemo.usb.CareLinkUsb;
 
 import org.joda.time.DateTime;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by geoff on 4/9/15.
@@ -76,12 +91,12 @@ public class RTDemoService extends IntentService {
     // @TODO Move this to constants?
     private static final String MEDTRONIC_DEFAULT_SERIAL = "000000";
 
-    private static final String MONGO_DEFAULT_SERVER =  "localhost";
-    private static final String MONGO_DEFAULT_PORT =  "27015";
-    private static final String MONGO_DEFAULT_DATABASE =  "nightscout";
-    private static final String MONGO_DEFAULT_USERNAME =  "username";
-    private static final String MONGO_DEFAULT_PASSWORD =  "password";
-    private static final String MONGO_DEFAULT_COLLECTION =  "entries";
+    private static final String MONGO_DEFAULT_SERVER = "localhost";
+    private static final String MONGO_DEFAULT_PORT = "27015";
+    private static final String MONGO_DEFAULT_DATABASE = "nightscout";
+    private static final String MONGO_DEFAULT_USERNAME = "username";
+    private static final String MONGO_DEFAULT_PASSWORD = "password";
+    private static final String MONGO_DEFAULT_COLLECTION = "entries";
 
     private static final String WAKELOCKNAME = "com.gxwtech.RTDemo.RTDemoServiceWakeLock";
     private static volatile PowerManager.WakeLock lockStatic = null;
@@ -93,6 +108,7 @@ public class RTDemoService extends IntentService {
     // It has significant connections with PumpManager which will have to be ironed out.
     APSLogic mAPSLogic;
     MongoWrapper mMongoWrapper;
+    PreferenceBackedStorage mStorage;
 
     //protected static RTDemoService mInstance = null;
     NotificationManager mNM;
@@ -192,6 +208,104 @@ public class RTDemoService extends IntentService {
         }
     };
 
+    private final BluetoothGattCallback mGattcallback = new BluetoothGattCallback() {
+
+        @Override
+        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+            Log.w(TAG, String.format("Bluetooth: onCharacteristicChanged " + characteristic));
+
+
+        }
+
+
+        @Override
+        public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            Log.w(TAG, String.format("Bluetooth: onCharacteristicRead " + characteristic + " status " + status));
+
+
+        }
+
+        @Override
+        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            Log.w(TAG, String.format("Bluetooth: onCharacteristicWrite " + characteristic + " status " + status));
+
+
+        }
+
+        @Override
+        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+
+            final String statusMessage;
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                statusMessage = "SUCCESS";
+            } else if (status == BluetoothGatt.GATT_FAILURE) {
+                statusMessage = "FAILED";
+            } else {
+                statusMessage = "UNKNOWN (" + status + ")";
+            }
+
+            final String stateMessage;
+            if (newState == BluetoothProfile.STATE_CONNECTED) {
+                stateMessage = "CONNECTED";
+            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                stateMessage = "DISCONNECTED";
+            } else {
+                stateMessage = "UNKOWN (" + newState + ")";
+            }
+
+            Log.w(TAG, String.format("Bluetooth: onCharacteristicWrite " + statusMessage + " " + stateMessage));
+        }
+
+        @Override
+        public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+            Log.w(TAG, String.format("Bluetooth: onDescriptorRead " + descriptor + " status " + status));
+
+
+        }
+
+        @Override
+        public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+            Log.w(TAG, String.format("Bluetooth: onDescriptorWrite " + descriptor + " status " + status));
+
+
+        }
+
+        @Override
+        public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
+            Log.w(TAG, String.format("Bluetooth: onMtuChanged " + mtu + " status " + status));
+
+
+        }
+
+        @Override
+        public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
+            Log.w(TAG, String.format("Bluetooth: onReadRemoteRssi " + rssi + " status " + status));
+
+
+        }
+
+        @Override
+        public void onReliableWriteCompleted(BluetoothGatt gatt, int status) {
+            Log.w(TAG, String.format("Bluetooth: onReliableWriteCompleted status " + status));
+
+
+        }
+
+
+        @Override
+        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+            Log.w(TAG, String.format("Bluetooth: onServicesDiscovered " + status));
+
+
+        }
+
+    };
+
+    BluetoothManager bluetoothManager = null;
+    BluetoothAdapter bluetoothAdapter = null;
+    BluetoothDevice bluetoothDeviceRileyLink = null;
+    BluetoothGatt bluetoothConnectionGatt = null;
+
     @Override
     protected void onHandleIntent(Intent intent) {
         try {
@@ -202,15 +316,6 @@ public class RTDemoService extends IntentService {
                 srq = "(null)";
             }
             Log.w(TAG, String.format("onHandleIntent: received request srq=%s", srq));
-
-            /*
-            if (srq == Constants.SRQ.SET_SERIAL_NUMBER) {
-                msg.obj = intent.getByteArrayExtra("serialNumber");
-                //Log.w(TAG,"gui thread wrote intent arg2=what=SRQ.SET_SERIAL_NUMBER, obj=serialNumber=" + ByteUtil.shortHexString((byte[])msg.obj));
-            } else if (msg.arg2 == Constants.SRQ.SET_TEMP_BASAL) {
-                msg.obj = intent.getParcelableExtra(Constants.ParcelName.TempBasalPairParcelName);
-            */
-
             if (srq.equals(Constants.SRQ.START_SERVICE)) {
 
                 // Set up permissions for carelink
@@ -218,22 +323,52 @@ public class RTDemoService extends IntentService {
                 // this BLOCKS until we get permission!
                 // since it blocks, we can't do it in Create()
 
-            } else if (srq.equals(Constants.SRQ.VERIFY_PUMP_COMMUNICATIONS)) {
+            } else if (srq.equals(Constants.SRQ.VERIFY_USB_PUMP_COMMUNICATIONS)) {
                 getCarelinkPermission();
                 checkPumpCommunications();
-                /*
-            } else if (srq.equals(Constants.SRQ.SET_SERIAL_NUMBER)) {
-                byte[] serialNumber = intent.getByteArrayExtra("serialNumber");
-                Log.w(TAG,"Service received set serial number, serialNumber=" + ByteUtil.shortHexString(serialNumber));
-                mPumpManager.setSerialNumber(serialNumber);
-                */
+            } else if (srq.equals(Constants.SRQ.VERIFY_BLUETOOTH_PUMP_COMMUNICATIONS)) {
+
+                // TODO: Currently there is only logic for connecting, reconnecting has yet to be written. Resources can be reused and some of them should be destroyed/closed explitly
+
+                bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+                bluetoothAdapter = bluetoothManager.getAdapter();
+
+                if (bluetoothAdapter != null) {
+                    if (bluetoothAdapter.isEnabled()) {
+                        final Set<BluetoothDevice> devices = bluetoothAdapter.getBondedDevices();
+
+                        bluetoothDeviceRileyLink = null;
+                        for (BluetoothDevice device : devices) {
+                            if (device.getName().equals(Constants.PrefName.Bluetooth_RileyLink_Name)) {
+                                bluetoothDeviceRileyLink = device;
+                            }
+                        }
+
+                        if (bluetoothDeviceRileyLink != null) {
+                            llog("RileyLink has been found.");
+
+                            // Connect using Gatt, any further communication will be done using asynchronous calls.
+                            bluetoothConnectionGatt = bluetoothDeviceRileyLink.connectGatt(this, false, mGattcallback);
+                        } else {
+                            llog("Could not find RileyLink.");
+                        }
+
+                    } else {
+                        llog("Bluetooth is not enabled on device.");
+                    }
+                } else {
+                    llog("Bluetooth is not available on device.");
+                }
             } else if (srq.equals(Constants.SRQ.REPORT_PUMP_SETTINGS)) {
                 PumpSettingsParcel parcel = new PumpSettingsParcel();
                 parcel.initFromPumpSettings(mPumpManager.getPumpSettings());
                 sendTaskResponseParcel(parcel, "PumpSettingsParcel");
             } else if (srq.equals(Constants.SRQ.REPORT_PUMP_HISTORY)) {
+
+                // this was just used for debugging the getting of history reports.
+                // TODO: Remove this and the pump history GUI, or fix them both to work properly
                 Log.d(TAG, "Received request for pump history");
-                HistoryReport report = mPumpManager.getPumpHistory();
+                HistoryReport report = mPumpManager.getPumpHistory(0);
 
             } else if (srq.equals(Constants.SRQ.SET_TEMP_BASAL)) {
                 TempBasalPairParcel pair = (TempBasalPairParcel) intent.getParcelableExtra(Constants.ParcelName.TempBasalPairParcelName);
@@ -244,12 +379,13 @@ public class RTDemoService extends IntentService {
                 // there are new settings in the preferences.
                 // Get them and give them to MongoWrapper
                 updateMongoWrapperFromPrefs();
-            } else if (srq.equals(Constants.SRQ.PERSONAL_PREFERENCE_CHANGE)) {
-                mAPSLogic.updateFromPersonalPrefs();
             } else if (srq.equals(Constants.SRQ.START_REPEAT_ALARM)) {
                 // MonitorActivity start button runs this.
                 Log.w(TAG, "onHandleIntent: starting repeating alarm");
-                startRepeatingAlarm(1000); // first run begins in 1 second
+                //startRepeatingAlarm(3 * 1000); // first run begins in 3 seconds
+                startRepeatingAlarm(secondsBetweenRuns * 1000); // first run begins 5 minutes from now
+                // and run it once right now.
+                serviceMain();
             } else if (srq.equals(Constants.SRQ.STOP_REPEAT_ALARM)) {
                 // MonitorActivity stop button runs this.
                 Log.w(TAG, "onHandleIntent: stopping repeating alarm");
@@ -272,20 +408,9 @@ public class RTDemoService extends IntentService {
                 // This should be sent from the timer, so that it happens in the right thread/right queue
             } else if (srq.equals(Constants.SRQ.APSLOGIC_STARTUP)) {
                 serviceMain();
-            } else {
-                // just wait half second
-                long endTime = System.currentTimeMillis() + 500;
-                while (System.currentTimeMillis() < endTime) {
-                    synchronized (this) {
-                        try {
-                            wait(endTime - System.currentTimeMillis());
-                            //llog("(Service has updated from data sources)");
-                        } catch (Exception e) {
-                            llog(e.getMessage());
-                        }
-                    }
-                }
+                // note: START_REPEAT_ALARM also calls serviceMain()
             }
+
         } finally {
             // The lock was grabbed in onStartCommand
             PowerManager.WakeLock lock = getLock(this.getApplicationContext());
@@ -311,27 +436,36 @@ public class RTDemoService extends IntentService {
             Intent wakeupServiceIntent = new Intent(getApplicationContext(), RTDemoService.class).
                     putExtra("srq", Constants.SRQ.APSLOGIC_STARTUP);
             mRepeatingAlarmPendingIntent = PendingIntent.getService(getApplicationContext(), privateRequestCode,
-                    wakeupServiceIntent, 0);
+                    wakeupServiceIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         }
         return mRepeatingAlarmPendingIntent;
     }
 
     public void startRepeatingAlarm(int delayToFirstRunMillis) {
         int repeatingAlarmInterval = secondsBetweenRuns * 1000; // millis
+        stopRepeatingAlarm();
 
-        getAlarmManager().setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime() + delayToFirstRunMillis,
-                repeatingAlarmInterval, getAlarmPendingIntent());
+        // TODO: Will always take the first branch of the if
+        boolean use_elapsed_clock = true;
+        if (use_elapsed_clock) {
+            getAlarmManager().setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    SystemClock.elapsedRealtime() + delayToFirstRunMillis,
+                    repeatingAlarmInterval, getAlarmPendingIntent());
+        } else {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(System.currentTimeMillis() + delayToFirstRunMillis);
+
+            getAlarmManager().setRepeating(AlarmManager.RTC_WAKEUP,
+                    calendar.getTimeInMillis(),
+                    repeatingAlarmInterval, getAlarmPendingIntent());
+        }
     }
 
     public void stopRepeatingAlarm() {
-
-
         getAlarmManager().cancel(getAlarmPendingIntent());
     }
 
     public void suspendRepeatingAlarm(int suspendMillis) {
-        stopRepeatingAlarm();
         startRepeatingAlarm(suspendMillis);
     }
 
@@ -359,7 +493,7 @@ public class RTDemoService extends IntentService {
             }
         } else {
             llog("Error accessing CareLink USB Stick.");
-            Log.e(TAG,"wakeUpCarelink failed");
+            Log.e(TAG, "wakeUpCarelink failed");
         }
     }
 
@@ -450,7 +584,7 @@ public class RTDemoService extends IntentService {
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
-    // this is done here, because I'm trying to keep the MongoWrapper from getting too much android stuff in it.
+    // These need to be moved into PreferenceBackedStorage and loaded directly from MongoWrapper
     private void updateMongoWrapperFromPrefs() {
         // open prefs
         SharedPreferences settings = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
@@ -473,6 +607,8 @@ public class RTDemoService extends IntentService {
         /* This function runs in the main thread (UI thread) */
         /* Here is where we do some initialization, but no work */
         Log.d(TAG, "onCreate()");
+
+        mStorage = new PreferenceBackedStorage(getApplicationContext());
 
         mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
@@ -512,11 +648,11 @@ public class RTDemoService extends IntentService {
         // convert to bytes
         byte[] sn_bytes = HexDump.hexStringToByteArray(serialNumber);
         mPumpManager.setSerialNumber(sn_bytes);
-
         mPumpManager.open();
-        mAPSLogic = new APSLogic(this, mPumpManager);
-        mMongoWrapper = new MongoWrapper();
+        mMongoWrapper = new MongoWrapper(getApplicationContext());
         updateMongoWrapperFromPrefs();
+
+        mAPSLogic = new APSLogic(this, mPumpManager, mMongoWrapper);
 
         //llog("End of onCreate()");
         llog("Roundtrip ready.");
@@ -541,38 +677,83 @@ public class RTDemoService extends IntentService {
         return (START_REDELIVER_INTENT | START_STICKY);
     }
 
-    protected void serviceMain() {
-        // APSLOGIC_STARTUP requests the APSLogic module to do the
-        // initial data collection, which can take a long time (MongoDB access, pump access)
-        // get latest BG reading from Mongo
-        mAPSLogic.broadcastAPSLogicStatusMessage("Accessing MongoDB for latest BG reading");
-        MongoWrapper.BGReadingResponse bgResponse = mMongoWrapper.getBGReading();
-        BGReading reading = bgResponse.reading;
-        if (bgResponse.error) {
-            mAPSLogic.broadcastAPSLogicStatusMessage("Error reading BG from mongo:" + bgResponse.errorMessage);
-            Log.e(TAG,
-                    String.format("Error reading BG from Mongo: %s, and BG reading reports %.2f at %s",
-                            bgResponse.errorMessage,
-                            reading.mBg, reading.mTimestamp.toLocalDateTime().toString()));
+    public void checkAndUpdateBGReading() {
+        // get latest BG reading from Mongo.  This can block, during internet access
+
+        // check to see if our BGReading is old.
+        BGReading latestBG = mStorage.getLatestBGReading();
+        if ((latestBG.mTimestamp.isBefore(DateTime.now().minusMinutes(10)))
+                || (latestBG.mTimestamp.isAfter(DateTime.now().plusMinutes(5)))) {
+            mAPSLogic.broadcastAPSLogicStatusMessage("Accessing MongoDB for latest BG reading");
+            MongoWrapper.BGReadingResponse bgResponse = mMongoWrapper.getBGReading();
+            BGReading reading = bgResponse.reading;
+            if (bgResponse.error) {
+                mAPSLogic.broadcastAPSLogicStatusMessage("Error reading BG from mongo: " + bgResponse.errorMessage);
+                if (reading != null) {
+                    Log.e(TAG,
+                            String.format("Error reading BG from Mongo: %s, and BG reading reports %.2f at %s",
+                                    bgResponse.errorMessage,
+                                    reading.mBg, reading.mTimestamp.toLocalDateTime().toString()));
+                }
+                // Are the contents of BGReading reading "ok to use", even with an error?
+                // how else to handle?
+            } else {
+                // Save the reading
+                mStorage.setLatestBGReading(reading);
+
+                // broadcast the reading to the world. (esp. to MonitorActivity)
+                Intent intent = new Intent(Intents.ROUNDTRIP_BG_READING);
+                intent.putExtra("name", Constants.ParcelName.BGReadingParcelName);
+                intent.putExtra(Constants.ParcelName.BGReadingParcelName, new BGReadingParcel(reading));
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+                Log.i(TAG, "Sending latest BG reading");
+                mAPSLogic.broadcastAPSLogicStatusMessage(String.format("Latest BG reading reports %.2f at %s",
+                        reading.mBg, reading.mTimestamp.toLocalDateTime().toString()));
+            }
         }
-        // Are the contents of BGReading reading "ok to use", even with an error?
-        // how else to handle?
+    }
 
-        // TODO: Need to make RTDemoService regularly hit the mongodb (every 5 min)
-        // For now, the testdb button gets a reading.
-        // broadcast the reading to the world. (esp. to MonitorActivity)
-        Intent intent = new Intent(Intents.ROUNDTRIP_BG_READING);
-        intent.putExtra("name", Constants.ParcelName.BGReadingParcelName);
-        intent.putExtra(Constants.ParcelName.BGReadingParcelName, new BGReadingParcel(reading));
-        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-        Log.i(TAG, "Sending latest BG reading");
-        mAPSLogic.broadcastAPSLogicStatusMessage(String.format("Latest BG reading reports %.2f at %s",
-                reading.mBg, reading.mTimestamp.toLocalDateTime().toString()));
+    protected void cleanupLogfiles() {
+        int keepHours = mStorage.keepLogsForHours.get();
+        // Check for logfiles older than 3 hours, delete them.
+        //String[] fnames = fileList();
+        ArrayList<String> fnames = new ArrayList<>();
+        Pattern namePattern = Pattern.compile("RTLog_(.*)$");
 
-        mAPSLogic.updateCachedLatestBGReading(reading);
+        String path = Environment.getExternalStorageDirectory().toString();
+        Log.d("Files", "Path: " + path);
+        File f = new File(path);
+        File file[] = f.listFiles();
+        Log.d("Files", "Size: " + file.length);
+        for (int i = 0; i < file.length; i++) {
+            Log.d("Files", "FileName:" + file[i].getName());
+            fnames.add(file[i].getName());
+        }
 
-        // the above should be (re)moved.
+        for (int i = 0; i < fnames.size(); i++) {
+            Matcher m = namePattern.matcher(fnames.get(i));
+            if (m.find()) {
+                String tstamp = m.group(1);
+                Log.w(TAG, "Found logfile with time: " + tstamp);
+                DateTime dt = DateTime.parse(tstamp);
+                if (dt.isBefore(DateTime.now().minusHours(keepHours))) {
+                    Log.w(TAG, "Deleting old file " + fnames.get(i));
+                    //getApplicationContext().deleteFile(fnames.get(i));
+                    File fd = new File(path, fnames.get(i));
+                    boolean deleted = fd.delete();
+                    Log.v(TAG, "successfully deleted = " + (deleted ? "True" : "False"));
+                }
+            } else {
+                Log.w(TAG, "Not my logfile?: " + fnames.get(i));
+            }
+        }
+    }
+
+
+    protected void serviceMain() {
+        checkAndUpdateBGReading();
         mAPSLogic.runAPSLogicOnce();
+        cleanupLogfiles();
     }
 
     private void showNotification() {
@@ -696,7 +877,8 @@ public class RTDemoService extends IntentService {
             if (deviceIsCarelink(device)) {
                 break;
             } else {
-                Log.e(TAG, "Found a device, but it is not a CareLink:" + device.getDeviceName() + ", " + device.getProductName() + " (ProductID: " + device.getProductId() + ", VendorID: " + device.getVendorId() + ")");
+                //Log.e(TAG, "Found a device, but it is not a CareLink:" + device.getDeviceName() + ", " + device.getProductName() + " (ProductID: " + device.getProductId() + ", VendorID: " + device.getVendorId() + ")");
+                Log.e(TAG, "Found a device, but it is not a CareLink");
                 device = null;
             }
         }

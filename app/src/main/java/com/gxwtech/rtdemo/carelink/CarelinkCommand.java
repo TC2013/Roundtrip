@@ -13,6 +13,7 @@ import com.gxwtech.rtdemo.usb.UsbException;
 
 public class CarelinkCommand {
     private static final String TAG = "CarelinkCommand";
+    private static final boolean DEBUG_CARELINKCOMMAND = false;
     protected CarelinkCommandEnum mCode;
     protected CarelinkCommandStatusEnum mAck;
     protected byte[] mRawPacket;
@@ -67,7 +68,9 @@ public class CarelinkCommand {
 
         // TODO: check for null cmd return from preparePacket()
         mRawPacket = cmd;
-        Log.i(TAG,getName());
+        if (DEBUG_CARELINKCOMMAND) {
+            Log.v(TAG, getName());
+        }
         /* Ordinarily, we use a read-size of 64 bytes.  This is fine for
          * most commands, as they return 14 bytes or 15 bytes.
          * Exception is ReadRadioCommand which needs 78 bytes

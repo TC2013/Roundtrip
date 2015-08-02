@@ -34,6 +34,10 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        int versionCode = BuildConfig.VERSION_CODE;
+        String versionName = BuildConfig.VERSION_NAME;
+        setTitle("Roundtrip " + versionName + "-" + versionCode);
+
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, msgList);
         ListView lv = (ListView) findViewById(R.id.listView_Log);
         lv.setAdapter(adapter);
@@ -41,7 +45,7 @@ public class MainActivity extends ActionBarActivity {
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (intent.getAction() == Intents.ROUNDTRIP_STATUS_MESSAGE) {
+                if (intent.getAction().equals(Intents.ROUNDTRIP_STATUS_MESSAGE)) {
                     Log.d(TAG, "Received Roundtrip_Status_message");
                     if (intent.hasExtra("messages")) {
                         ArrayList<String> newMsgList = intent.getStringArrayListExtra("messages");
@@ -55,7 +59,7 @@ public class MainActivity extends ActionBarActivity {
                         Log.w(TAG, "Found extra: one string:" + s);
                     }
 
-                } else if (intent.getAction() == Intents.ROUNDTRIP_TASK_RESPONSE) {
+                } else if (intent.getAction().equals(Intents.ROUNDTRIP_TASK_RESPONSE)) {
                     // pump settings viewer used to be here.
                     // I'm leaving it as an example of how to receive task_response
                     /*
@@ -78,9 +82,15 @@ public class MainActivity extends ActionBarActivity {
         this.startService(new Intent(this, RTDemoService.class).putExtra("srq", Constants.SRQ.START_SERVICE));
     }
 
-    public void verifyPumpCommunications(View view) {
+    public void verifyUsbPumpCommunications(View view) {
         Intent intent = new Intent(this, RTDemoService.class);
-        intent.putExtra("srq", Constants.SRQ.VERIFY_PUMP_COMMUNICATIONS);
+        intent.putExtra("srq", Constants.SRQ.VERIFY_USB_PUMP_COMMUNICATIONS);
+        this.startService(intent);
+    }
+
+    public void verifyBluetoothPumpCommunications(View view) {
+        Intent intent = new Intent(this, RTDemoService.class);
+        intent.putExtra("srq", Constants.SRQ.VERIFY_BLUETOOTH_PUMP_COMMUNICATIONS);
         this.startService(intent);
     }
 

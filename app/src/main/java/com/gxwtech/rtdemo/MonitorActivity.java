@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
@@ -20,6 +21,7 @@ import com.gxwtech.rtdemo.services.pumpmanager.TempBasalPairParcel;
 import com.gxwtech.rtdemo.services.RTDemoService;
 
 import org.joda.time.DateTime;
+import org.joda.time.Minutes;
 import org.joda.time.Seconds;
 
 import java.util.ArrayList;
@@ -28,20 +30,13 @@ import java.util.ArrayList;
 public class MonitorActivity extends ActionBarActivity {
     private static final String TAG = "MonitorActivity";
     BroadcastReceiver mBroadcastReceiver;
-    DateTime mLastBGUpdateTime = null;
+    PreferenceBackedStorage mStorage;
+
+//    DateTime mLastBGUpdateTime = null;
     DateTime mSleepNotificationStartTime = null;
     int mSleepNotificationDuration = 0;
     ArrayList<String> msgList = new ArrayList<>();
     ArrayAdapter<String> adapter = null;
-
-    double m_iob = -99.0;
-    double m_cob = -99.0;
-    double m_cb = -99.0;
-    double m_pbg = -99.0;
-    TempBasalPairParcel m_pair = new TempBasalPairParcel();
-    BGReadingParcel m_p = new BGReadingParcel();
-
-
 
     // for periodically updating gui
     Handler timerHandler;
@@ -50,6 +45,7 @@ public class MonitorActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         timerHandler = new Handler();
+        mStorage = new PreferenceBackedStorage(getApplicationContext());
         setContentView(R.layout.activity_monitor);
         adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, msgList);
         ListView lv = (ListView) findViewById(R.id.listView_MonitorMsgs);
@@ -59,54 +55,26 @@ public class MonitorActivity extends ActionBarActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction() == Intents.ROUNDTRIP_BG_READING) {
-                    Log.d(TAG, "Received BG Reading");
-                    if (intent.hasExtra("name")) {
-                        String name = intent.getStringExtra("name");
-                        if (intent.hasExtra(name)) {
-                            if (name == Constants.ParcelName.BGReadingParcelName) {
-                                Bundle data = intent.getExtras();
-                                BGReadingParcel p = data.getParcelable(name);
-                                m_p = p;
-                                // do something with it.
-                                UpdateBGReading();
-                            }
-                        }
-                    }
+                    // Used to be, this passed the whole thing to the gui.
+                    // Now we just get it from shared-prefs
+                    UpdateBGReading();
                 } else if (intent.getAction() == Intents.APSLOGIC_LOG_MESSAGE) {
                     String msg = intent.getStringExtra("message");
                     receiveLogMessage(msg);
                 } else if (intent.getAction() == Intents.ROUNDTRIP_SLEEP_MESSAGE) {
-                    int durationSeconds = intent.getIntExtra(Intents.ROUNDTRIP_SLEEP_MESSAGE_DURATION,0);
-                    Log.d(TAG,String.format("Received Sleep Notification: %d seconds",durationSeconds));
+                    int durationSeconds = intent.getIntExtra(Intents.ROUNDTRIP_SLEEP_MESSAGE_DURATION, 0);
+                    Log.d(TAG, String.format("Received Sleep Notification: %d seconds", durationSeconds));
                     mSleepNotificationDuration = durationSeconds;
                     setSleepNotification();
-                } else if (intent.getAction() == Intents.APSLOGIC_IOB_UPDATE) {
-                    double iob = intent.getDoubleExtra("value",-98.0);
-                    m_iob = iob;
-                    updateCurrentIOB_TextView();
-                } else if (intent.getAction() == Intents.APSLOGIC_COB_UPDATE) {
-                    double cob = intent.getDoubleExtra("value",-98.0);
-                    m_cob = cob;
-                    updateCurrentCOB_TextView();
-                } else if (intent.getAction() == Intents.APSLOGIC_CURRBASAL_UPDATE) {
-                    double cb = intent.getDoubleExtra("value",-98.0);
-                    m_cb = cb;
-                    updateCurrentBasal_TextView();
-                } else if (intent.getAction() == Intents.APSLOGIC_PREDBG_UPDATE) {
-                    double pbg = intent.getDoubleExtra("value",-98.0);
-                    m_pbg = pbg;
-                    updatePredictedBG_TextView();
-                } else if (intent.getAction() == Intents.APSLOGIC_TEMPBASAL_UPDATE) {
-                    Bundle data = intent.getExtras();
-                    TempBasalPairParcel pair = data.getParcelable(Constants.ParcelName.TempBasalPairParcelName);
-                    m_pair = pair;
-                    updateTempBasal_TextView();
+                } else if (intent.getAction().equals(Intents.MONITOR_DATA_CHANGED)) {
+                    updateGUIValues();
                 }
+
             }
         };
     }
 
-    private int MaxLogSize = 500;
+    private final int MaxLogSize = 500;
     public void receiveLogMessage(String msg) {
         // keep 50 messages?  make configurable?
         if (msg == null) {
@@ -115,60 +83,60 @@ public class MonitorActivity extends ActionBarActivity {
         if (msg.equals("")) {
             msg = "(empty message)";
         }
-        adapter.insert(msg,0);
+        adapter.insert(msg, 0);
         if (adapter.getCount() > MaxLogSize) {
             adapter.remove(adapter.getItem(adapter.getCount()-1));
         }
     }
 
+    public void UpdateTextViewInt(int textView_id, String format, int value) {
+        ((TextView)findViewById(textView_id)).setText(String.format(format, value));
+    }
+
+    public void UpdateTextViewDouble(int textView_id, String format, double value) {
+        ((TextView)findViewById(textView_id)).setText(String.format(format, value));
+    }
+
     public void UpdateBGReading() {
-        TextView viewBG = (TextView)findViewById(R.id.textView_LatestBG);
-        String bgtext = String.format("%d mg/dL",((int)m_p.mBg));
-        viewBG.setText(bgtext);
-        mLastBGUpdateTime = m_p.mTimestamp;
-        updateBGTimer();
+        UpdateTextViewInt(R.id.textView_LatestBG, "%d mg/dL", (int) mStorage.getLatestBGReading().mBg);
     }
 
     public void updateBGTimer() {
-        if (mLastBGUpdateTime != null) {
-            Seconds seconds = Seconds.secondsBetween(mLastBGUpdateTime, DateTime.now());
-            int elapsedMinutes = seconds.getSeconds() / 60;
-            TextView view = (TextView) findViewById(R.id.textView_LastBGReadTime);
-            view.setText(String.format("%d min ago", elapsedMinutes));
+        DateTime lastBGUpdateTime = mStorage.getLatestBGReading().mTimestamp;
+        int elapsedMinutes = Minutes.minutesBetween(lastBGUpdateTime,DateTime.now()).getMinutes();
+        String viewtext = "never";
+        int textColor = Color.rgb(200, 0, 0); // red
+        TextView view = (TextView) findViewById(R.id.textView_LastBGReadTime);
+        if (elapsedMinutes < 1000) {
+            viewtext = String.format("%d min ago", elapsedMinutes);
+            if ((elapsedMinutes > 10) || (elapsedMinutes < 1)) {
+                textColor = Color.rgb(200,0,0); // red
+            } else {
+                textColor = Color.rgb(0,0,0); // black
+            }
         }
+        view.setText(viewtext);
+        view.setTextColor(textColor);
     }
 
     public void updateCurrentIOB_TextView() {
-        TextView textView = (TextView) findViewById(R.id.textView_IOB);
-        String str = String.format("%.1f U",m_iob);
-        textView.setText(str);
+        UpdateTextViewDouble(R.id.textView_IOB, "%.1f U", mStorage.monitorIOB.get());
     }
 
     public void updateCurrentCOB_TextView() {
-        TextView textView = (TextView) findViewById(R.id.textView_COB);
-        String str = String.format("%.1f gm",m_cob);
-        textView.setText(str);
+        UpdateTextViewDouble(R.id.textView_COB,"%.1f gm",mStorage.monitorCOB.get());
     }
 
     public void updateCurrentBasal_TextView() {
-        TextView textView = (TextView) findViewById(R.id.textView_CurrentBasal);
-        String str = String.format("%.3f U/hr",m_cb);
-        textView.setText(str);
+        UpdateTextViewDouble(R.id.textView_CurrentBasal, "%.3f U/hr", mStorage.monitorCurrBasalRate.get());
     }
 
     public void updatePredictedBG_TextView() {
-        TextView textView = (TextView) findViewById(R.id.textView_PredBG);
-        String str = String.format("%.1f mg/dL",m_pbg);
-        textView.setText(str);
+        UpdateTextViewDouble(R.id.textView_PredBG, "%.1f mg/dL", mStorage.monitorPredictedBG.get());
     }
     public void updateTempBasal_TextView() {
-        TextView textView_rate = (TextView) findViewById(R.id.textView_TempBasalRate);
-        String rateString = String.format("%.3f U/hr",m_pair.mInsulinRate);
-        textView_rate.setText(rateString);
-
-        TextView textView_minRemaining = (TextView) findViewById(R.id.textView_TempBasalMinRemaining);
-        String minRemainingString = String.format("%d min",m_pair.mDurationMinutes);
-        textView_minRemaining.setText(minRemainingString);
+        UpdateTextViewDouble(R.id.textView_TempBasalRate,"%.3f U/hr",mStorage.monitorTempBasalRate.get());
+        UpdateTextViewInt(R.id.textView_TempBasalMinRemaining, "%d min", mStorage.monitorTempBasalDuration.get());
     }
 
     protected void setSleepNotification() {
@@ -234,6 +202,16 @@ public class MonitorActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    protected void updateGUIValues() {
+        UpdateBGReading();
+        updateBGTimer();
+        updateCurrentIOB_TextView();
+        updateCurrentCOB_TextView();
+        updateCurrentBasal_TextView();
+        updatePredictedBG_TextView();
+        updateTempBasal_TextView();
+    }
+
     protected void onResume() {
         super.onResume();
         // fixme: do we need to rebuild our display from a bundle?
@@ -243,21 +221,11 @@ public class MonitorActivity extends ActionBarActivity {
         intentFilter.addAction(Intents.ROUNDTRIP_BG_READING);
         intentFilter.addAction(Intents.APSLOGIC_LOG_MESSAGE);
         intentFilter.addAction(Intents.ROUNDTRIP_SLEEP_MESSAGE);
-        intentFilter.addAction(Intents.APSLOGIC_IOB_UPDATE);
-        intentFilter.addAction(Intents.APSLOGIC_COB_UPDATE);
-        intentFilter.addAction(Intents.APSLOGIC_CURRBASAL_UPDATE);
-        intentFilter.addAction(Intents.APSLOGIC_PREDBG_UPDATE);
-        intentFilter.addAction(Intents.APSLOGIC_TEMPBASAL_UPDATE);
+        intentFilter.addAction(Intents.MONITOR_DATA_CHANGED);
         // register our desire to receive broadcasts from RTDemoService
         LocalBroadcastManager.getInstance(getApplicationContext())
                 .registerReceiver(mBroadcastReceiver, intentFilter);
-        UpdateBGReading();
-        updateBGTimer();
-        updateCurrentIOB_TextView();
-        updateCurrentCOB_TextView();
-        updateCurrentBasal_TextView();
-        updatePredictedBG_TextView();
-        updateTempBasal_TextView();
+        updateGUIValues();
     }
 
     protected void onPause() {

@@ -20,7 +20,8 @@ import com.gxwtech.rtdemo.usb.UsbException;
  */
 
 public class ReadRadioCommand extends CarelinkCommand {
-    private static String TAG = "ReadRadioCommand";
+    private static final String TAG = "ReadRadioCommand";
+    private static final boolean DEBUG_READRADIOCOMMAND = false;
     byte[] mSerialNumber;
     int mFullSize;
     int mCurrentSize;
@@ -80,7 +81,7 @@ public class ReadRadioCommand extends CarelinkCommand {
                 if (crc != 0) {
                     int j = i + wl;
                     if (crc == data[i + wl]) {
-                        Log.i("CRC", String.format("CRC(0x%02x) of data[%d-%d] found at offset %d", crc, i, i + wl - 1, j));
+                        Log.v("CRC", String.format("CRC(0x%02x) of data[%d-%d] found at offset %d", crc, i, i + wl - 1, j));
                     }
                 }
             }
@@ -93,7 +94,9 @@ public class ReadRadioCommand extends CarelinkCommand {
     public CarelinkCommandStatusEnum run(Carelink stick) throws UsbException {
         byte[] response;
         byte[] packet;
-        Log.w("ReadRadioCommand", String.format("Requested size is %d",mFullSize));
+        if (DEBUG_READRADIOCOMMAND) {
+            Log.v("ReadRadioCommand", String.format("Requested size is %d", mFullSize));
+        }
         // typically, mFullSize is:
         // 15, for a 1 byte response from pump
         // 14, for a 0 byte response from pump or
@@ -104,7 +107,9 @@ public class ReadRadioCommand extends CarelinkCommand {
         packet = ByteUtil.concat(packet, CRC.crc8(packet));
 
         mRawPacket = packet;
-        Log.i("CARELINK COMMAND", getName());
+        if (DEBUG_READRADIOCOMMAND) {
+            Log.v("CARELINK COMMAND", getName());
+        }
 
         response = stick.doCommand(mRawPacket, 10, mFullSize);
         mRawResponse = response;
@@ -141,7 +146,9 @@ public class ReadRadioCommand extends CarelinkCommand {
         parseAck(); // sets status to ACK or NACK, if 0x55 or 0x66
 
         mResponse.parseFrom(mRawResponse);
-        Log.w(TAG,"Parsed response: " + mResponse.explain());
+        if (DEBUG_READRADIOCOMMAND) {
+            Log.v(TAG, "Parsed response: " + mResponse.explain());
+        }
         return mAck;
     }
 

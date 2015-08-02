@@ -10,5 +10,5 @@ public enum MedtronicCommandStatusEnum {
     NONE,
     ACK,
     NACK,
-    ERROR_USB; // used for UsbExceptions
+    ERROR_USB // used for UsbExceptions
 }

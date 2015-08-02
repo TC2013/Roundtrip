@@ -15,6 +15,7 @@ public class ReadBasalTempCommand extends MedtronicCommand {
         mMaxRecords = 1;
         mTempBasalPair = new TempBasalPair();
     }
+    protected static int readUnsignedByte(byte b) { return (b<0)?b+256:b; }
     protected void parse(byte[] receivedData) {
         //Log.e(TAG,"parse: here is the data:" + HexDump.dumpHexString(receivedData));
         // cache result in mTempBasalPair
@@ -33,15 +34,14 @@ public class ReadBasalTempCommand extends MedtronicCommand {
             return;
         }
 
-        int rateByte = receivedData[3];
-        int durationHighByte = receivedData[4];
-        int durationLowByte = receivedData[5];
-        if (durationLowByte < 0) durationLowByte += 256;
+        int rateByte = readUnsignedByte(receivedData[3]);
+        int durationHighByte = readUnsignedByte(receivedData[4]);
+        int durationLowByte = readUnsignedByte(receivedData[5]);
         int minutes = (durationHighByte * 256) + durationLowByte;
 
         mTempBasalPair.mInsulinRate = rateByte * 0.025;
         mTempBasalPair.mDurationMinutes = minutes;
-        Log.i(TAG,String.format("TempBasalPair read as: insulinRate: %.3f U, duration %d minutes",
+        Log.v(TAG,String.format("TempBasalPair read as: insulinRate: %.3f U, duration %d minutes",
                 mTempBasalPair.mInsulinRate, mTempBasalPair.mDurationMinutes));
     }
 

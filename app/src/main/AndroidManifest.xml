@@ -2,12 +2,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.gxwtech.rtdemo" >
 
+    <!--
+        Enable BLE and set it as mandatory
+    -->
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
+
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
     <!--
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -102,6 +108,14 @@
                 android:value="com.gxwtech.rtdemo.RTDemoSettingsActivity" />
         </activity>
         <activity
+            android:name=".LoggingSettingsActivity"
+            android:label="Logging Settings"
+            android:parentActivityName=".RTDemoSettingsActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.gxwtech.rtdemo.RTDemoSettingsActivity" />
+        </activity>
+        <activity
             android:name=".SuspendAPSActivity"
             android:label="@string/title_activity_suspend_aps"
             android:parentActivityName=".MonitorActivity" >
@@ -110,5 +124,4 @@
                 android:value="com.gxwtech.rtdemo.MonitorActivity" />
         </activity>
     </application>
-
 </manifest>

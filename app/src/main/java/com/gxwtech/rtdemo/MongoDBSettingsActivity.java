@@ -7,6 +7,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -38,6 +39,8 @@ public class MongoDBSettingsActivity extends ActionBarActivity {
         String mongoPassword = editText.getText().toString();
         editText = (EditText)findViewById(R.id.editText_MongoCollectionName);
         String mongoCollection = editText.getText().toString();
+        CheckBox cb = (CheckBox)findViewById(R.id.checkBox_allowWritingToDB);
+        boolean allowWritingtoDB = cb.isChecked();
 
         // open prefs for editing
         SharedPreferences preferences = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, MODE_PRIVATE);
@@ -49,6 +52,7 @@ public class MongoDBSettingsActivity extends ActionBarActivity {
         edit.putString(Constants.PrefName.MongoDBUsernamePrefName,mongoUsername);
         edit.putString(Constants.PrefName.MongoDBPasswordPrefName, mongoPassword);
         edit.putString(Constants.PrefName.MongoDBCollectionPrefName, mongoCollection);
+        edit.putBoolean(Constants.PrefName.MongoDBAllowWritingToDBPrefName,allowWritingtoDB);
         // save prefs
         edit.commit();
         // notify user that the settings were saved
@@ -71,6 +75,7 @@ public class MongoDBSettingsActivity extends ActionBarActivity {
         String mongoUsername = settings.getString(Constants.PrefName.MongoDBUsernamePrefName, "username");
         String mongoPassword = settings.getString(Constants.PrefName.MongoDBPasswordPrefName, "password");
         String mongoCollection = settings.getString(Constants.PrefName.MongoDBCollectionPrefName, "entries");
+        boolean allowWritingToDB = settings.getBoolean(Constants.PrefName.MongoDBAllowWritingToDBPrefName, true);
 
         // fill out fields from strings
         EditText editText;
@@ -86,6 +91,8 @@ public class MongoDBSettingsActivity extends ActionBarActivity {
         editText.setText(mongoPassword);
         editText = (EditText)findViewById(R.id.editText_MongoCollectionName);
         editText.setText(mongoCollection);
+        CheckBox cb = (CheckBox)findViewById(R.id.checkBox_allowWritingToDB);
+        cb.setChecked(allowWritingToDB);
         // clear "saved" message
         TextView settingsSavedMsg = (TextView)findViewById(R.id.textView_SaveStatusMsg);
         settingsSavedMsg.setVisibility(View.INVISIBLE);

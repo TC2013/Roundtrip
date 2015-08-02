@@ -6,6 +6,7 @@
 /build/
 /app/build/
 /app/.idea/
+/app/build/*
 
 /.idea/*
 *.iml

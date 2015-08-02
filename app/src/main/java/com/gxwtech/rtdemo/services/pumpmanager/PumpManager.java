@@ -18,18 +18,23 @@ import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileTypeEnum;
 import com.gxwtech.rtdemo.medtronic.PumpData.HistoryReport;
 import com.gxwtech.rtdemo.medtronic.PumpData.PumpSettings;
 import com.gxwtech.rtdemo.medtronic.PumpData.TempBasalPair;
+import com.gxwtech.rtdemo.medtronic.PumpData.records.BolusWizard;
 import com.gxwtech.rtdemo.medtronic.ReadBasalTempCommand;
 import com.gxwtech.rtdemo.medtronic.ReadHistoryCommand;
 import com.gxwtech.rtdemo.medtronic.ReadProfileCommand;
 import com.gxwtech.rtdemo.medtronic.ReadPumpRTCCommand;
 import com.gxwtech.rtdemo.medtronic.ReadPumpSettingsCommand;
 import com.gxwtech.rtdemo.medtronic.SetTempBasalCommand;
+import com.gxwtech.rtdemo.medtronic.TempBasalEvent;
 import com.gxwtech.rtdemo.usb.CareLinkUsb;
 import com.gxwtech.rtdemo.usb.UsbException;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Seconds;
 import org.joda.time.format.ISODateTimeFormat;
+
+import java.util.ArrayList;
 
 /**
  * Created by geoff on 5/8/15.
@@ -44,6 +49,7 @@ import org.joda.time.format.ISODateTimeFormat;
  */
 public class PumpManager {
     private static final String TAG = "PumpManager";
+    private static final boolean DEBUG_PUMPMANAGER = false;
     CareLinkUsb stick; // The USB connection
     Carelink mCarelink; // The CarelinkCommand runner, built from a CareLinkUsb
     byte[] mSerialNumber; // need a setter for this
@@ -62,18 +68,33 @@ public class PumpManager {
         SharedPreferences settings = mContext.getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
         // get strings from prefs
         String lastPower = settings.getString(Constants.PrefName.LastPowerControlRunTime, "never");
+        if (DEBUG_PUMPMANAGER) {
+            Log.d(TAG, "getLastPowerControlRunTime reports preference value: " + lastPower);
+        }
         if (lastPower==null) {
             lastPower = "never";
         }
         if ("never".equals(lastPower)) {
+            if (DEBUG_PUMPMANAGER) {
+                Log.d(TAG, "getLastPowerControlRunTime: returning invalid DateTime");
+            }
             return new DateTime(0);
         }
-        return ISODateTimeFormat.dateTime().parseDateTime(lastPower);
+        DateTime rval = ISODateTimeFormat.dateTime().parseDateTime(lastPower);
+        if (DEBUG_PUMPMANAGER) {
+            Log.d(TAG, "getLastPowerControlRunTime: returning (ISO) " + rval.toString());
+        }
+        return rval;
     }
 
     protected void setLastPowerControlRunTime(DateTime when_iso) {
+        if (DEBUG_PUMPMANAGER) {
+            Log.d(TAG, "setLastPowerControlRunTime: setting new run time: " + ISODateTimeFormat.dateTime().print(when_iso));
+        }
         mContext.getSharedPreferences(Constants.PreferenceID.MainActivityPrefName,0).
-                edit().putString(Constants.PrefName.LastPowerControlRunTime, ISODateTimeFormat.dateTime().print(when_iso));
+                edit().putString(Constants.PrefName.LastPowerControlRunTime, ISODateTimeFormat.dateTime().print(when_iso))
+                .commit();
+
     }
 
     public boolean setSerialNumber(byte[] serialNumber) {
@@ -84,7 +105,9 @@ public class PumpManager {
             return false;
         }
         System.arraycopy(serialNumber, 0, mSerialNumber, 0, 3);
-        Log.w(TAG, String.format("New serial number: %02X%02X%02X", mSerialNumber[0], mSerialNumber[1], mSerialNumber[2]));
+        if (DEBUG_PUMPMANAGER) {
+            Log.w(TAG, String.format("New serial number: %02X%02X%02X", mSerialNumber[0], mSerialNumber[1], mSerialNumber[2]));
+        }
         return true;
     }
 
@@ -170,14 +193,16 @@ public class PumpManager {
                 }
             } else {
                 canHearPump = true;
-                Log.w(TAG, "Stick can hear pump.");
+                if (DEBUG_PUMPMANAGER) {
+                    Log.i(TAG, "Stick can hear pump.");
+                }
             }
         }
         return canHearPump;
     }
 
     public void checkPowerControl() {
-        byte minutesOfRFPower = (byte) 10; // TODO can set this to 3, or 10, or ?
+        byte minutesOfRFPower = (byte) 3; // TODO can set this to 3, or 10, or ?
         boolean runPowerControlCommand = false;
 
         DateTime lastPowerControlRunTime = getLastPowerControlRunTime();
@@ -186,7 +211,9 @@ public class PumpManager {
 
         long secondsRemaining = (minutesOfRFPower * 60 /* seconds per minute*/)
                 - timeDifference;
-        Log.w(TAG, String.format("Seconds remaining on RF power: %d", secondsRemaining));
+        if (DEBUG_PUMPMANAGER) {
+            Log.i(TAG, String.format("Seconds remaining on RF power: %d", secondsRemaining));
+        }
         if (secondsRemaining < 60 /* seconds */) {
             runPowerControlCommand = true;
         }
@@ -198,9 +225,11 @@ public class PumpManager {
             // so get the new run time before running the command
 
             MedtronicCommandStatusEnum en = powerControlCommand.run(mCarelink, mSerialNumber);
-            Log.w(TAG, "PowerControlCommand returned status: " + en.name());
+            if (DEBUG_PUMPMANAGER) {
+                Log.i(TAG, "PowerControlCommand returned status: " + en.name());
+            }
             // Only set the new run time if the command succeeded?
-            setLastPowerControlRunTime(DateTime.now());
+            setLastPowerControlRunTime(DateTime.now(DateTimeZone.UTC));
         }
     }
 
@@ -211,11 +240,20 @@ public class PumpManager {
         return cmd.getPumpSettings();
     }
 
-    public HistoryReport getPumpHistory() {
+    public HistoryReport getPumpHistory(int pageNumber) {
+        // TODO: pass success or failure code back to caller
         checkPowerControl();
         ReadHistoryCommand rhcmd = new ReadHistoryCommand();
         //rhcmd.testParser();
-        rhcmd.run(mCarelink, mSerialNumber);
+        rhcmd.setPageNumber(pageNumber);
+        MedtronicCommandStatusEnum cmdStatus = rhcmd.run(mCarelink, mSerialNumber);
+        if (DEBUG_PUMPMANAGER) {
+            if ((cmdStatus == MedtronicCommandStatusEnum.ACK) && (rhcmd.mParsedOK)) {
+                Log.d(TAG, "ReadHistoryCommand reports success on page " + pageNumber);
+            } else {
+                Log.d(TAG, "ReadHistoryCommand reports failure on page " + pageNumber);
+            }
+        }
         return rhcmd.mHistoryReport;
     }
 

@@ -9,7 +9,10 @@ import android.util.Log;
 
 import com.gxwtech.rtdemo.BGReading;
 import com.gxwtech.rtdemo.Constants;
+import com.gxwtech.rtdemo.DBTempBasalEntry;
 import com.gxwtech.rtdemo.Intents;
+import com.gxwtech.rtdemo.MongoWrapper;
+import com.gxwtech.rtdemo.PreferenceBackedStorage;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfile;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileEntry;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileTypeEnum;
@@ -25,6 +28,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Instant;
 import org.joda.time.Minutes;
+import org.joda.time.Seconds;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -33,6 +37,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -86,38 +92,33 @@ import java.util.Comparator;
 public class APSLogic {
     /* BEGIN settable defaults */
     private static final String TAG = "APSLogic";
-    Context mContext;
-    PumpManager mPumpManager;
-    String mLogfileName;
+    private Context mContext;
+    private PumpManager mPumpManager;
+    private MongoWrapper mMongoWrapper;
+    private String mLogfileName;
+    private PreferenceBackedStorage mStorage;
 
     // our cache of the profile settings
     // Updated (at the minimum) at the start of each MakeADecision() run
-    PersonalProfile mPersonalProfile = new PersonalProfile();
+    // PersonalProfile mPersonalProfile = new PersonalProfile();
 
     // pump_high_temp_max is maximum units that the pump will produce for a temp basal (2 U/h for MM722)
     // +++ fixme: read this value from the pump
-    private static double pump_high_temp_max = 6.2;
+    // The pump may be able to do a higher high_temp_max, but is the highest 8 bit value we can send.
+    // Need to check if we can send a 16 bit value. (units of 0.025 U/h)
+    private static final double pump_high_temp_max = 6.35;
 
     // don't high-temp if IOB > max_IOB
-    double max_IOB = 15;
+    private static final double max_IOB = 15;
 
-    // Allow low glucose suspend?
-    //boolean enable_low_glucose_suspend = false;
-    boolean enable_low_glucose_suspend = true;
+    // don't use CGM reading, if it is below this number:
+    private static final double min_useable_bg_reading = 40.0;
 
-    double low_glucose_suspend_at = 85; //mg/dl
-
-    // choices here are: dia_0pt5_hour, dia_1pt5_hour, dia_1_hour, dia_2_hour, dia_2pt5_hour, dia_3_hour, dia_3pt5_hour,dia_4_hour, dia_4pt5_hour, dia_5_hour, dia_5pt5_hour
-    // Which Duration of Insulin Action table to use?
-    // TODO: change this to an enum
-    DIATables.DIATableEnum meal_bolus_dia_table = DIATables.DIATableEnum.DIA_4pt5_hour;
-    DIATables.DIATableEnum negative_insulin_dia_table = DIATables.DIATableEnum.DIA_2_hour;
-    DIATables.DIATableEnum default_dia_table = DIATables.DIATableEnum.DIA_3_hour;
     /* END settable defaults */
 
-    public double iobValueAtAbsTime(Instant startTime, double insulinUnits,
+    private double iobValueAtAbsTime(Instant startTime, double insulinUnits,
                                     Instant valueTime,
-                                    DIATables.DIATableEnum dia_table) {
+                                    DIATable dia_table) {
         boolean debug_iobValueAtAbsTime = false;
         if (debug_iobValueAtAbsTime) {
             log("startTime: " + startTime.toString());
@@ -131,7 +132,7 @@ public class APSLogic {
         if (debug_iobValueAtAbsTime) {
             log(String.format("elapsed minutes since insulin event began: %d",elapsed_minutes));
         }
-        double rval = insulinUnits * DIATables.insulinPercentRemaining(elapsed_minutes, dia_table) / 100;
+        double rval = insulinUnits * dia_table.insulinPercentRemaining(elapsed_minutes) / 100;
         if (debug_iobValueAtAbsTime) {
             log(String.format("IOB remaining from event: %.3f",rval));
         }
@@ -142,37 +143,37 @@ public class APSLogic {
     // Easier than IOB, as we assume it is a linear relationship rate=profile.carbs_hr,
     // 20 minutes delayed from consumption
     // Geoff, if possible make the minutes delayed from consumption and editable option in the profile UI. -Toby
-    public double cobValueAtAbsTime(Instant startTime,
+    private double cobValueAtAbsTime(Instant startTime,
                                     double carbGrams,
                                     Instant valueTime,
                                     double carbs_absorbed_per_hour) {
+        final int digestionDelay_minutes = 0; // this used to be configurable, but we no longer use it.
         // CAR is carbs absorbed per minute
         double CAR = carbs_absorbed_per_hour / 60.0;
         double rval = 0;
-        //int elapsed_minutes = (valueTime - startTime).total_seconds() / 60;
         Minutes minutes = Minutes.minutesBetween(startTime, valueTime); // todo: check this
         int elapsed_minutes = minutes.getMinutes();
         if (elapsed_minutes < 0) {
             //none ingested
             rval = 0;
-        } else if (elapsed_minutes < 20) {
+        } else if (elapsed_minutes < digestionDelay_minutes) {
             //ingested, but none yet absorbed
             rval = carbGrams;
         } else {
-            double carbs_absorbed = (CAR * (elapsed_minutes - 20));
+            double carbs_absorbed = (CAR * (elapsed_minutes - digestionDelay_minutes));
             rval = carbGrams - carbs_absorbed;
             // negative values do not make sense
             if (rval < 0) {
                 rval = 0;
             }
         }
-        dlog(String.format("COB remaining from event: %.1f",rval));
+        dlog(String.format("COB remaining from event: %.1f", rval));
         return rval;
     }
 
     //Now we define a function to calculate the basal rate at a give time:
     // todo: this should be fixed to handle all basal profiles, not a given profile.
-    public double basal_rate_at_abs_time(Instant when, BasalProfile basalProfile) {
+    private double basal_rate_at_abs_time(Instant when, BasalProfile basalProfile) {
         // From the pump's basal profiles, and the pump's idea of the time-of-day,
         // figure out which basal period is active and determine the rate.
         BasalProfileEntry entry = basalProfile.getEntryForTime(when);
@@ -194,21 +195,15 @@ public class APSLogic {
     // To fix: need to gather the rate profile from the pump's bolus wizard settings.
     public double isf(Instant when) {
         // TODO: given a time of day, return the insulin sensitivity factor
-        // In the RPi version, we retrieved this number (a single number) from MongoDB profile
-        // TODO: Must fix this
-        //return mPersonalProfile.isf;
-        return 40.0; // fixme: very broken.
+        return mStorage.ISF.get();
     }
 
     // use this to floor to nearest 0.025
-    public double mm_floor_rate(double x) {
+    private double mm_floor_rate(double x) {
         return (Math.floor(x * 40.0))/40.0;
     }
 
-
-
-    // This function is to be run after CollectData()
-    // Here we make a decision about TempBasals, based on all factors
+    // Here we make a decision about Temp Basals, based on all factors
     private void MakeADecision() {
         // get a recent blood-glucose (BG) reading from CGM or from Mongo (to start with)
         // make sure we have all the pump info we need, such as Basal Profiles,
@@ -221,18 +216,25 @@ public class APSLogic {
         // and user preferences such as algorithm options like
         // enable_low_glucose_suspend, AR Regression
 
-        // TODO: make each run of MakeADecision log to a text file locally.
-        // TODO: Delete log files older than xxx
 
-        // ensure that our settings from PersonalPreferences are up to date
-        updateFromPersonalPrefs();
+        // Cache this values for the remainder of this run
+
+        double CAR = mStorage.CAR.get();
+        double BGMax = mStorage.bgMax.get();
+        double TargetBG = mStorage.targetBG.get();
+        double BGMin = mStorage.bgMin.get();
+        double MaxTempBasalRate = mStorage.maxTempBasalRate.get();
+        double lowGlucoseSuspendPoint = mStorage.lowGlucoseSuspendPoint.get();
+        BGReading mCachedLatestBGReading = mStorage.getLatestBGReading();
+        // to keep Monitor in sync with APSLogic:
+        notifyMonitorDataChanged();
 
         log(String.format("CAR=%.1f, bgmax=%.1f, target=%.1f, bgmin=%.1f, max temp=%.3f",
-                mPersonalProfile.CAR,
-                mPersonalProfile.BGMax,
-                mPersonalProfile.TargetBG,
-                mPersonalProfile.BGMin,
-                mPersonalProfile.MaxTempBasalRate));
+                CAR,
+                BGMax,
+                TargetBG,
+                BGMin,
+                MaxTempBasalRate));
 
         log("Getting status of temp basal from pump.");
                 getCurrentTempBasalFromPump();
@@ -241,29 +243,55 @@ public class APSLogic {
         log("Getting RTC clock data from pump");
         DateTime rtcDateTime = getRTCTimestampFromPump();
         log("Pump RTC: " + rtcDateTime.toDateTimeISO().toString());
-        log("Pump RTC in local time: " + rtcDateTime.toLocalDateTime().toString());
+        //log("Pump RTC in local time: " + rtcDateTime.toLocalDateTime().toString());
         Instant now = new Instant(); // cache local system time
         log("Local System Time is " + now.toDateTime().toLocalDateTime().toString());
-        Minutes pumpTimeOffsetMinutes = Minutes.minutesBetween(now,rtcDateTime);
+        int pumpTimeOffsetMinutes = Minutes.minutesBetween(now, rtcDateTime).getMinutes();
         log(String.format("Pump Time is %d minutes %s system time.",
-                Math.abs(pumpTimeOffsetMinutes.getMinutes()),
-                (pumpTimeOffsetMinutes.getMinutes() < 0) ? "behind" : "ahead of"));
+                Math.abs(pumpTimeOffsetMinutes),
+                (pumpTimeOffsetMinutes < 0) ? "behind" : "ahead of"));
 
         log("Getting pump settings");
         // NOTE: get pump settings before getting basal profiles.
         getPumpSettingsFromPump();
+
+        log("Getting basal profiles from pump");
+        getBasalProfiles();
+        boolean debug_basal_profiles = true;
+        if (debug_basal_profiles) {
+            BasalProfile bp = getCurrentBasalProfile();
+            log("Using basal profile:");
+            ArrayList<BasalProfileEntry> entries = bp.getEntries();
+            for (int i = 0; i < entries.size(); i++) {
+                BasalProfileEntry entry = entries.get(i);
+                String startString = entry.startTime.toString("HH:mm");
+                log(String.format("Entry %d, rate=%.3f (0x%02X), start=%s (0x%02X)",
+                        i + 1, entry.rate, entry.rate_raw,
+                        startString, entry.startTime_raw));
+
+            }
+            Instant atTime = DateTime.now().withTime(13, 23, 0, 0).toInstant();
+            BasalProfileEntry anEntry = bp.getEntryForTime(atTime);
+            log(String.format("Example: rate at %s is %.3f", atTime.toDateTime().toString("HH:mm"), anEntry.rate));
+
+            atTime = DateTime.now().withTime(14, 23, 0, 0).toInstant();
+            anEntry = bp.getEntryForTime(atTime);
+            log(String.format("Example: rate at %s is %.3f", atTime.toDateTime().toString("HH:mm"), anEntry.rate));
+
+            atTime = DateTime.now().withTime(15, 23, 0, 0).toInstant();
+            anEntry = bp.getEntryForTime(atTime);
+            log(String.format("Example: rate at %s is %.3f", atTime.toDateTime().toString("HH:mm"), anEntry.rate));
+
+        }
+
+
         log(String.format("PumpSettings reports Max Basal Rate: %.2f",mPumpSettings.mMaxBasal));
 
-        // how often should we check for changes in pump settings?
-        // Make a button on UI to reset/reload settings from pump.
-        //if (!gotBasalProfiles) {
-            // NOTE: get pump settings before getting basal profiles
-            log("Getting basal profiles from pump");
-            getBasalProfiles();
-        //}
         double currentBasalRate = basal_rate_at_abs_time(now,
                 getCurrentBasalProfile());
-        sendCurrBasalToUI(currentBasalRate);
+        // save value for MonitorActivity
+        mStorage.monitorCurrBasalRate.set(currentBasalRate);
+        //notifyMonitorDataChanged();
 
         // Get total IOB and COB from pump bolus wizard events
         double iobTotal = 0; // insulin-on-board total, amount of unabsorbed insulin (in Units) in body
@@ -272,16 +300,63 @@ public class APSLogic {
         double remainingBGImpact_COBtotal = 0;
         // Go get the history report from the pump
         // NOTE! this command may take many seconds to return (around 6 seconds, 23 seconds if we have
-        // to renew the pump's wireless power control
-        HistoryReport historyReport = getPumpManager().getPumpHistory();
-        if (historyReport.mBolusWizardEvents.size() == 0) {
-            log("No Bolus Wizard events found in history");
-        } else {
+        // to renew the pump's wireless power control (for each report)
+        DateTime oldestBWTimestamp = DateTime.now();
+        DateTime oldestTempBasalTimestamp = DateTime.now();
+        HistoryReport collatedHistory = new HistoryReport();
+        ArrayList<APSTempBasalEvent> simplifiedBasalEvents = new ArrayList<>();
+        // endTimes is an array that parallels the (sorted) list collatedHistory.mBasalEvents,
+        // so we can see when a temp basal event ended.  We need this information for calculating iob,
+        // and also for noting when a temp-basal treatment ended and posting a log entry to MongoDB.
+        //ArrayList<Instant> endTimes = new ArrayList<>();
+
+        int historyPageCount = 0;
+        final int maxHistoryPageLookback = 10;
+        // seek pages until we have found sufficiently old records for both types,
+        // or until we've just looked too far back (maxHistoryPageLookback)
+        while (((oldestBWTimestamp.isAfter(now.toDateTime().minusMinutes(DIATable.insulinImpactMinutesMax)))
+                || (oldestTempBasalTimestamp.isAfter(now.toDateTime().minusMinutes(DIATable.insulinImpactMinutesMax))))
+                && (historyPageCount < maxHistoryPageLookback)) {
+
+            HistoryReport historyReport = getPumpManager().getPumpHistory(historyPageCount);
+            // first bolus wizard events
             for (BolusWizard bw : historyReport.mBolusWizardEvents) {
                 DateTime timestamp = bw.getTimeStamp();
-                if (timestamp.isBefore(now.toDateTime().minusMinutes(DIATables.insulinImpactMinutesMax))) {
+                if (timestamp.isBefore(oldestBWTimestamp)) {
+                    oldestBWTimestamp = timestamp;
+                }
+                collatedHistory.addBolusWizardEvent(bw);
+            }
+            // now TempBasalEvents
+            for (TempBasalEvent t : historyReport.mBasalEvents) {
+                // Look at the end of the temp basal event, not the start
+                DateTime timestamp = t.mTimestamp.minusMinutes(t.mBasalPair.mDurationMinutes);
+                if (timestamp.isBefore(oldestTempBasalTimestamp)) {
+                    oldestTempBasalTimestamp = timestamp;
+                }
+                collatedHistory.addTempBasalEvent(t);
+            }
+            historyPageCount++;
+        }
+        Log.i(TAG,"Read "+historyPageCount+" history pages with "+collatedHistory.mBasalEvents.size()
+                +" Temp Basal Events and "+collatedHistory.mBolusWizardEvents.size()+" Bolus Wizard events");
+        Log.i(TAG, "Oldest Bolus Wizard event is " + oldestBWTimestamp.toLocalDateTime().toString("(yyyy/MM/dd)HH:mm"));
+        Log.i(TAG, "Oldest Temp Basal event is " + oldestTempBasalTimestamp.toLocalDateTime().toString("(yyyy/MM/dd)HH:mm"));
+        DIATable normalDIATable = new DIATable(mStorage.normalDIATable.get());
+        DIATable negativeInsulinDIATable = new DIATable(mStorage.negativeInsulinDIATable.get());
+        if (collatedHistory.mBolusWizardEvents.size() == 0) {
+            log("No Bolus Wizard events found in history");
+        } else {
+            for (BolusWizard bw : collatedHistory.mBolusWizardEvents) {
+                DateTime timestamp = bw.getTimeStamp();
+                // sanity check the date on the bolus wizard event.
+                if ((timestamp.isBefore(now.toDateTime().minusMinutes(DIATable.insulinImpactMinutesMax)))
+                        || (timestamp.isAfter(now.toDateTime().plusMinutes(10)))) {
                     // The Bolus occurred a long time ago (insulinImpartMinutesMax (300 minutes))
+                    // (or is in the future, somehow)
                     // we can safely ignore it.
+                    Log.i(TAG,"Ignoring BolusWizard Event from " +
+                            timestamp.toDateTime().toLocalDateTime().toString("(MM/dd)HH:mm"));
                 } else {
                     double bolusAmount = bw.getBolusEstimate();
                     double carbInput = bw.getCarbInput();
@@ -292,9 +367,8 @@ public class APSLogic {
                             carbInput,
                             bolusAmount));
 
-                    //TODO: Use correct table, (from profile?)
                     double iob = iobValueAtAbsTime(timestamp.toInstant(), bolusAmount, now.toInstant(),
-                            DIATables.DIATableEnum.DIA_3_hour);
+                            normalDIATable);
                     double remainingBGImpact_IOBpartial = iob * isf;
                     log(String.format("Bolus wizard event (%s): IOB=%.1f U, isf=%.1f, bg impact remaining=%.1f mg/dL",
                             timestamp.toString("HH:mm"),
@@ -303,8 +377,8 @@ public class APSLogic {
                     remainingBGImpact_IOBtotal = remainingBGImpact_IOBtotal + remainingBGImpact_IOBpartial;
                     iobTotal = iobTotal + iob;
 
-                    double cob = cobValueAtAbsTime(timestamp.toInstant(), carbInput, now.toInstant(),
-                            mPersonalProfile.CAR);
+                    double cob = cobValueAtAbsTime(timestamp.toInstant(), carbInput, now.toInstant(),CAR);
+
                     double remainingBGImpact_COBpartial = cob * isf / icRatio;
                     log(String.format("Bolus wizard event (%s): COB=%.1f gm, carbRatio=%.1f, BG impact remaining=%.1f mg/dL",
                             timestamp.toString("HH:mm"),
@@ -316,16 +390,15 @@ public class APSLogic {
             }
         }
         // Now deal with any temp basal events reported:
-        if (historyReport.mBasalEvents.size() == 0) {
+        if (collatedHistory.mBasalEvents.size() == 0) {
             log("No Temp Basal events found in history.");
         } else
 
         {
-            ArrayList<Instant> endTimes = new ArrayList<>();
             //Sorting: create a sorter by date
             // process temp basal events in order, calculating IOB for each event.
             // Must process in order, so that we can see when one starts and stops
-            Collections.sort(historyReport.mBasalEvents, new Comparator<TempBasalEvent>() {
+            Collections.sort(collatedHistory.mBasalEvents, new Comparator<TempBasalEvent>() {
                 @Override
                 public int compare(TempBasalEvent ev1, TempBasalEvent ev2) {
                     return ev1.mTimestamp.compareTo(ev2.mTimestamp);
@@ -341,41 +414,63 @@ public class APSLogic {
             // if the rate and duration are zero, it is the end of a temp basal (or a cancellation)
             // Find start and end time for each event
             //   Find scheduled end-time
-            for (int i = 0; i < historyReport.mBasalEvents.size(); i++) {
-                TempBasalEvent tb = historyReport.mBasalEvents.get(i);
-                Instant endtime = tb.mTimestamp.plusMinutes(tb.mBasalPair.mDurationMinutes).toInstant();
-                if (i < historyReport.mBasalEvents.size() - 1) {
-                    // Not the last event, so next event may end this one.
-                    Instant nextStartTime = historyReport.mBasalEvents.get(i + 1).mTimestamp.toInstant();
-                    if (nextStartTime.isBefore(endtime)) {
-                        // next event does end this one.
-                        endtime = nextStartTime;
+            for (int i = 0; i < collatedHistory.mBasalEvents.size(); i++) {
+                TempBasalEvent tb = collatedHistory.mBasalEvents.get(i);
+                // if the duration was zero, it was a "cancellation event", not a delivery event.
+                if (tb.mBasalPair.mDurationMinutes > 0) {
+                    DateTime endtime = tb.mTimestamp.plusMinutes(tb.mBasalPair.mDurationMinutes);
+                    if (i < collatedHistory.mBasalEvents.size() - 1) {
+                        // Not the last event, so next event may end this one.
+                        DateTime nextStartTime = collatedHistory.mBasalEvents.get(i + 1).mTimestamp;
+                        if (nextStartTime.isBefore(endtime)) {
+                            // next event does end this one.
+                            endtime = nextStartTime.toDateTime();
+                        }
+                        // create a more complete record of what happened:
+                        APSTempBasalEvent apsTempBasalEvent = new APSTempBasalEvent(tb);
+                        apsTempBasalEvent.endtime = endtime;
+                        // only keep track of recent events in the simplified list
+                        if (apsTempBasalEvent.isRecent()) {
+                            simplifiedBasalEvents.add(apsTempBasalEvent);
+                        } else {
+                            // The temp basal ended a long time ago
+                            // (or will end in the future more than 30 minutes (shouldn't happen))
+                            // we can safely ignore it for calculating insulin delivered.
+                            Log.i(TAG, "Ignoring TempBasalEvent from " +
+                                    tb.mTimestamp.toDateTime().toLocalDateTime().toString("(MM/dd)HH:mm"));
+                        }
                     }
                 }
-                // Remember, one of them may not have ended yet.
-                if (DateTime.now().plus(pumpTimeOffsetMinutes).isBefore(endtime)) {
-                    endtime = DateTime.now().plus(pumpTimeOffsetMinutes).toInstant();
-                }
-                // Now record the endtime for the event (using parallel arrays)
-                endTimes.add(i, endtime);
             }
             /* Temp basals are delivered slowly. To estimate the IOB, we will
              * divide up the temp basal and treat it as a series of boluses delivered
              * once per minute.
              */
-            for (int i = 0; i < historyReport.mBasalEvents.size(); i++) {
-                TempBasalEvent tb = historyReport.mBasalEvents.get(i);
-                if (endTimes.get(i).isBefore(now.toDateTime().minusMinutes(DIATables.insulinImpactMinutesMax))) {
-                    // The temp basal ended a long time ago (insulinImpartMinutesMax (300 minutes))
-                    // we can safely ignore it.
+            //for (int i = 0; i < collatedHistory.mBasalEvents.size(); i++) {
+            for (APSTempBasalEvent tb : simplifiedBasalEvents) {
+                // sanity check timestamps on temp basal events
+                if ((tb.isRecent() == false)
+                        || (tb.endtime.isAfter(now.toDateTime().plusMinutes(30)))) {
+                    // The temp basal ended a long time ago
+                    // (or will end in the future more than 30 minutes (shouldn't happen))
+                    // we can safely ignore it for calculating insulin delivered.
+                    Log.i(TAG, "Ignoring APSTempBasalEvent from " +
+                            tb.mTimestamp.toDateTime().toLocalDateTime().toString("(MM/dd)HH:mm"));
+
                 } else {
-                    Minutes actualDuration = Minutes.minutesBetween(tb.mTimestamp.toInstant(), endTimes.get(i));
-                    double insulinDelivered = (tb.mBasalPair.mInsulinRate / 60) * actualDuration.getMinutes();
+                    DateTime thisEventEndTime = tb.endtime;
+                    // Remember, one of them may not have ended yet.
+                    if (DateTime.now().plus(pumpTimeOffsetMinutes).isBefore(thisEventEndTime)) {
+                        // use the "now" endtime for calculating delivered insulin (relative)
+                        thisEventEndTime = DateTime.now().plus(pumpTimeOffsetMinutes);
+                    }
+
+                    tb.actualDurationMinutes = Minutes.minutesBetween(tb.mTimestamp, thisEventEndTime).getMinutes();
 
                     double thisEventIOBRemaining = 0.0;
                     double thisEventIOBImpact = 0.0;
-                    ArrayList<DIATables.DIATableEnum> tablesUsed = new ArrayList<>();
-
+                    ArrayList<DIATable> tablesUsed = new ArrayList<>();
+                    /*
                     BasalProfileEntry bpEntry = getCurrentBasalProfile().getEntryForTime(tb.mTimestamp.toInstant());
                     log(String.format("At start of insulin event(%s), basal rate is %.3f (%d), start %s (%d)",
                             tb.mTimestamp.toLocalTime().toString("HH:mm"),
@@ -387,16 +482,16 @@ public class APSLogic {
                             endTimes.get(i).toDateTime().toLocalTime().toString("HH:mm"),
                             bpEntry.rate, bpEntry.rate_raw,
                             bpEntry.startTime.toString("HH:mm"),bpEntry.startTime_raw));
-
-                    for (int j = 0; j < actualDuration.getMinutes(); j++) {
-                        DIATables.DIATableEnum whichTable = default_dia_table;
+                    */
+                    for (int j = 0; j < tb.actualDurationMinutes; j++) {
+                        DIATable whichTable = normalDIATable;
 
                     /*
                      *  Temp basals that are below the current basal rate are handled by
                      *  using a rate that is relative to the basal at the time of insulin delivery.
                      *  i.e. We determine what the normal basal rate was at the time of the 1-minute interval
                      *  and subtract it from the temp basal rate.  This can give us a negative insulin
-                     *  rate.  When using negative relative rates, use the negative insulin table.
+                     *  rate.  When using negative relative rates, use the negative insulin table for IOB calc.
                      */
                         // FIXME: this means that we have to keep track of which basal profile was in use!
                         Instant insulinTime = tb.mTimestamp.plusMinutes(j).toInstant();
@@ -404,9 +499,11 @@ public class APSLogic {
                         double relativeRate = tb.mBasalPair.mInsulinRate - basal_rate_at_abs_time(insulinTime,
                                 getCurrentBasalProfile() // <--- fixme: basal profiles may have changed, current is not correct
                         );
+                        // accumulate the amount of relative insulin received *in this minute*
+                        tb.mTotalRelativeInsulin += relativeRate / 60.0;
 
                         if (relativeRate < 0) {
-                            whichTable = negative_insulin_dia_table;
+                            whichTable = negativeInsulinDIATable;
                         }
                         if (!tablesUsed.contains(whichTable)) {
                             tablesUsed.add(whichTable);
@@ -420,8 +517,8 @@ public class APSLogic {
                     remainingBGImpact_IOBtotal += thisEventIOBImpact;
                     iobTotal += thisEventIOBRemaining;
                     String tableString = "";
-                    for (DIATables.DIATableEnum en : tablesUsed) {
-                        tableString += en.name() + " ";
+                    for (DIATable en : tablesUsed) {
+                        tableString += en.toString() + " ";
                     }
                     if (tableString.equals("")) {
                         tableString = "none";
@@ -435,7 +532,7 @@ public class APSLogic {
                             tb.mBasalPair.mInsulinRate - basal_rate_at_abs_time(tb.mTimestamp.toInstant(),
                                     getCurrentBasalProfile()), // <-- fixme: use correct basal profile
                             tb.mTimestamp.toLocalTime().toString("HH:mm"),
-                            endTimes.get(i).toDateTime(DateTimeZone.getDefault()).toString("HH:mm"),
+                            thisEventEndTime.toDateTime(DateTimeZone.getDefault()).toString("HH:mm"),
                             thisEventIOBRemaining,
                             thisEventIOBImpact,
                             tableString));
@@ -443,30 +540,99 @@ public class APSLogic {
             }
         }
 
-
-        log(String.format("Totals: IOB=%.3f U, COB=%.1f gm",iobTotal,cobTotal));
+        log(String.format("Totals: IOB=%.3f U, COB=%.1f gm", iobTotal, cobTotal));
         log(String.format("BG impact remaining from IOB=%.1f mg/dL, COB=%.1f mg/dL",
                 remainingBGImpact_IOBtotal, remainingBGImpact_COBtotal));
-        sendIOBToUI(iobTotal);
-        sendCOBToUI(cobTotal);
 
-        // if most recent reading is more than ten minutes old, do nothing.
-        // If a temp basal is running, fine.  It will expire.
+        // save in prefs for Monitor activity
+        mStorage.monitorIOB.set(iobTotal);
+        mStorage.monitorCOB.set(cobTotal);
+        //notifyMonitorDataChanged();
+
+        // If we're not allowed to write to the MongoDB, skip this section
+        if (mMongoWrapper.allowWritingToDB.get()) {
+            // Get last (insulinImpactMinutesMax) minutes of TempBasal treatment entries from mongodb
+            log("Getting list of previous Temp Basal events from MongoDB");
+            List<DBTempBasalEntry> treatmentListFromDB =
+                    mMongoWrapper.downloadRecentTreatments(DIATable.insulinImpactMinutesMax + 30 /* minutes */);
+
+            // for each entry in our history, check to see if there is a corresponding db entry.
+            // if not, post an entry for the tempbasal event. (only if it has ended)
+            // Approx. max entries would be 36, so for-loop processing is 36x36 or 1296 iterations.
+            // typical should be much less.
+            for (APSTempBasalEvent localTB : simplifiedBasalEvents) {
+                // we only care about events within (DIATables.insulinImpactMinutesMax + 30) minutes
+                if (localTB.mTimestamp.isAfter(DateTime.now().minusMinutes(DIATable.insulinImpactMinutesMax + 30))) {
+                    boolean found = false;
+                    for (DBTempBasalEntry remoteTB : treatmentListFromDB) {
+                        int diffSeconds = Seconds.secondsBetween(remoteTB.mTimestamp, localTB.mTimestamp).getSeconds();
+                        if (Math.abs(diffSeconds) < 10) {
+                            // consider it a match
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        Log.d(TAG, String.format("Adding Temp Basal DB record: Rel. ins. %.3f, Act. dur: %d, start: %s",
+                                localTB.mTotalRelativeInsulin, localTB.actualDurationMinutes,
+                                localTB.mTimestamp.toString("(MM/dd) hh:mmaa")));
+                        DBTempBasalEntry dbEntry = new DBTempBasalEntry(
+                                localTB.mTimestamp,
+                                localTB.mTotalRelativeInsulin,
+                                localTB.actualDurationMinutes);
+                        mMongoWrapper.uploadTreatment(dbEntry);
+                    }
+                }
+            }
+        }
+
+        // We have collected all the data we need, now use it to make a decision
+
+
+        // Sanity check the BG reading.  Is it a reasonable value? is it too old? in the future?
         Minutes cgm_elapsed = Minutes.minutesBetween(mCachedLatestBGReading.mTimestamp,now);
-        if (cgm_elapsed.getMinutes() > 10) {
-            log(String.format("Most recent CGM reading is %d minutes old. Quitting.",
-                    cgm_elapsed.getMinutes()));
+        log(String.format("Using CGM reading %.1f, which is %d minutes old",
+                mCachedLatestBGReading.mBg,cgm_elapsed.getMinutes()));
+
+        // If the CGM reading is not a sane value, refuse to run.  How to define sane?
+        if (mCachedLatestBGReading.mBg < min_useable_bg_reading) {
+            log(String.format("Most recent CGM reading of %.1f mg/dL, at %s indicates CGM error.  Quitting.",
+                    mCachedLatestBGReading.mBg, mCachedLatestBGReading.mTimestamp.toString("(MM/dd)HH:mm")));
             return;
         }
 
-        log(String.format("Using CGM reading %.2f, which is %d minutes old",
-                mCachedLatestBGReading.mBg,cgm_elapsed.getMinutes()));
+        // if most recent reading is more than ten minutes old, do nothing.
+        // If a temp basal is running, fine.  It will expire.
+        cgm_elapsed = Minutes.minutesBetween(mCachedLatestBGReading.mTimestamp,DateTime.now());
+        Log.d(TAG,"BG timestamp: "+mCachedLatestBGReading.mTimestamp.toString("(MM/dd)HH:mm"));
+        Log.d(TAG, "NOW timestamp: " + DateTime.now().toString("(MM/dd)HH:mm"));
+        if (cgm_elapsed.getMinutes() > 10) {
+            log(String.format("Most recent CGM reading is %d minutes old. Quitting.",
+                    Math.abs(cgm_elapsed.getMinutes())));
+            return;
+        } else if (cgm_elapsed.getMinutes() < -10) {
+            log(String.format("Most recent CGM reading is %d minutes in the future. Quitting.",
+                    Math.abs(cgm_elapsed.getMinutes())));
+            return;
+        }
 
-        // todo: get these values from pump history, MongoDB, CGM, etc.
+        // LOW GLUCOSE SUSPEND
+        // if the low glucose suspend point is zero, it is effectively turned off.
+        // Note: you can set this in the gui to zero to turn it off.
+        if (lowGlucoseSuspendPoint > 0.0) {
+            if (mCachedLatestBGReading.mBg < lowGlucoseSuspendPoint) {
+                log(String.format("LOW GLUCOSE SUSPEND: CGM reading of %.1f is below set point of %.1f",
+                        mCachedLatestBGReading.mBg, lowGlucoseSuspendPoint));
+                log("LOW GLUCOSE SUSPEND: Setting pump for Temp Basal of 0.0 units for 30 minutes");
+                setTempBasal(0, 30, 0);
+                return;
+            }
+        }
+
+
+
+
         double bg = mCachedLatestBGReading.mBg; // for simplified reading of the algorithm below
-        /*
-        todo: sanity-check latest BG reading (is it less than 39? is it greater than 500?
-         */
 
         //calc desired BG adjustment
         // We then predict a value for the BG for "sometime in the future, when all IOB and COB are used up".
@@ -489,20 +655,32 @@ public class APSLogic {
             predictedBG = (bg + eventualBG) / 2;
         }
 
-        sendPredBGToUI(predictedBG);
+        mStorage.monitorPredictedBG.set(predictedBG);
+        //notifyMonitorDataChanged();
+
+        // APSLogic doesn't have enough information to handle COB yet.
+        // So, for now, if COB > 0, do nothing.
+        if (cobTotal > 0) {
+            log(String.format("Carbs on board (%.1f gm) -- insulin management suspended.",cobTotal));
+            if (mCurrentTempBasal.mDurationMinutes > 0) {
+                log(String.format("Carbs on board (%.1f gm) -- cancelling current temp basal",cobTotal));
+                setTempBasal(0, 0, currentBasalRate);
+            }
+            return;
+        }
 
         /*
         todo: many places below talk about "for %d more minutes" but reference a total, not remaining duration. fix.
          */
 
-        if (predictedBG < mPersonalProfile.BGMin) {
+        if (predictedBG < BGMin) {
             log(String.format("Predicting that BG will fall to %.1f which is less than %.1f. Can we do something about it?",
-                    predictedBG,mPersonalProfile.BGMin));
+                    predictedBG,BGMin));
             // we predict that the BG will go too low,
             // so lower the current basal rate with a temp-basal
             double newTempBasalRate; // our desired temp basal rate (Units/Hr)
-            log("Warning - using static isf value of 45.0");
-            newTempBasalRate = Math.max(0, currentBasalRate - 2 * (mPersonalProfile.BGMin - predictedBG)
+            log(String.format("Warning - using static isf value of %.1f",isf(now)));
+            newTempBasalRate = Math.max(0, currentBasalRate - 2 * (BGMin - predictedBG)
                     / isf(now));
             log(String.format("We would like to set temporary rate to %.3f U/h",newTempBasalRate));
             newTempBasalRate = mm_floor_rate(newTempBasalRate);
@@ -536,10 +714,10 @@ public class APSLogic {
                     log(String.format("Current basal rate is already at %.3f U/hr.  Nothing to do.",currentBasalRate));
                 }
             }
-        } else if (predictedBG < mPersonalProfile.TargetBG) {
+        } else if (predictedBG < TargetBG) {
             log(String.format("Predicting that BG will fall below %.1f, but will stay above %.1f",
-                    mPersonalProfile.TargetBG,
-                    mPersonalProfile.BGMin));
+                    TargetBG,
+                    BGMin));
             // we predict that bg will be lower than target, but within "normal" range
             // cancel any high-temp, let any low-temp run
             if (mCurrentTempBasal.mDurationMinutes > 0) {
@@ -554,19 +732,19 @@ public class APSLogic {
                     log("Current temp basal rate adjustment is lower than regular basal rate, so no action is necessary.");
                 }
             }
-        } else if (predictedBG > mPersonalProfile.BGMax) {
+        } else if (predictedBG > BGMax) {
             log(String.format("Predicting that BG will rise to %.1f which is above %.1f. Can we do something about it?",
-                    predictedBG,mPersonalProfile.BGMax));
+                    predictedBG,BGMax));
             // high-temp as required, to get predicted BG down to bg_max
             double fastInsulin;
-            log("Warning - using static isf of 45.0");
-            fastInsulin = 2 * (predictedBG - mPersonalProfile.BGMax) / isf(now);
-            if (fastInsulin > mPersonalProfile.MaxTempBasalRate) {
+            log(String.format("Warning - using static isf of %.1f",isf(now)));
+            fastInsulin = 2 * (predictedBG - BGMax) / isf(now);
+            if (fastInsulin > MaxTempBasalRate) {
                 log(String.format("Insulin delivery limited (by roundtrip) from %.3f U/h to %.3f U/h.",
-                        fastInsulin,mPersonalProfile.MaxTempBasalRate));
+                        fastInsulin,MaxTempBasalRate));
             }
             TempBasalPair newTempBasal = new TempBasalPair();
-            newTempBasal.mInsulinRate = currentBasalRate + Math.min(mPersonalProfile.MaxTempBasalRate, fastInsulin);
+            newTempBasal.mInsulinRate = currentBasalRate + Math.min(MaxTempBasalRate, fastInsulin);
             log(String.format("We would like to set temporary rate to %.3f U/h",newTempBasal.mInsulinRate));
             newTempBasal.mInsulinRate = mm_floor_rate(newTempBasal.mInsulinRate);
             log(String.format("New temporary rate rounded to %.3f U/h",newTempBasal.mInsulinRate));
@@ -591,7 +769,7 @@ public class APSLogic {
                     // Pump is not administering a temp basal currently.
                     if (newTempBasal.mInsulinRate > (currentBasalRate + 0.1)) {
                         log(String.format("If no action is taken, predicting BG will rise above %.1f, so recommending %.3f U/h for 30 min.",
-                                mPersonalProfile.BGMax,
+                                BGMax,
                                 newTempBasal.mInsulinRate));
                         setTempBasal(newTempBasal.mInsulinRate, 30, currentBasalRate);
                     } else {
@@ -600,10 +778,10 @@ public class APSLogic {
                     }
                 }
             }
-        } else if ((predictedBG > mPersonalProfile.TargetBG) || ((iobTotal > max_IOB) && (predictedBG > mPersonalProfile.BGMax))) {
+        } else if ((predictedBG > TargetBG) || ((iobTotal > max_IOB) && (predictedBG > BGMax))) {
             // cancel any low temp, let any high-temp run
             log(String.format("Predicting BG will rise to %.1f which is above %.1f but is below %.1f.",
-                    predictedBG,mPersonalProfile.TargetBG,mPersonalProfile.BGMax));
+                    predictedBG,TargetBG,BGMax));
             if (mCurrentTempBasal.mDurationMinutes > 0) {
                 log(String.format("Pump is currently administering a temp basal of %.3f U/h for %d more minutes.",
                         mCurrentTempBasal.mInsulinRate,mCurrentTempBasal.mDurationMinutes));
@@ -621,6 +799,7 @@ public class APSLogic {
         } else {
             log("how did we get here?");
         }
+        log("<Run complete>");
     }
 
     /*******************************************************
@@ -632,42 +811,23 @@ public class APSLogic {
      * Anything that isn't directly related to making decisions.
      *
      *******************************************************/
-    public APSLogic(Context context, PumpManager pumpManager) {
+    public APSLogic(Context context, PumpManager pumpManager, MongoWrapper mongoWrapper) {
         mContext = context;
+        mStorage = new PreferenceBackedStorage(context);
         mPumpManager = pumpManager;
-        mLogfileName = DateTime.now().toString();
-        init();
-    }
-    public void init() {
-        // initialize member vars to sane settings.
-    }
-
-    // This should be a real class, not an internal one:
-    public class PersonalProfile {
-        public double CAR = -10E6; // Carb Absorption Ratio - how fast the body absorbs carbs.
-        public double BGMax = 0.0;
-        public double TargetBG = 0.0;
-        public double BGMin = 0.0;
-        // MaxTempBasalRate is the maximum units for a temp basal (we ourselves choose this)
-        // (this is relative to the current temp-basal, so if current basal rate is 0.5, we will at most set
-        // the temp basal rate to 0.5 + MaxTempBasalRate)
-        public double MaxTempBasalRate = 0.0;
+        mMongoWrapper = mongoWrapper;
+        mLogfileName = "RTLog_" + DateTime.now().toString();
     }
 
     public void runAPSLogicOnce() {
         MakeADecision();
     }
 
-    public void updateCachedLatestBGReading(BGReading bgr) {
-        mCachedLatestBGReading = bgr;
-    }
+    private BasalProfile basalProfileSTD, basalProfileA, basalProfileB, mCurrentBasalProfile;
 
-    BasalProfile basalProfileSTD, basalProfileA, basalProfileB, mCurrentBasalProfile;
-
-    boolean gotBasalProfiles = false;
-    BGReading mCachedLatestBGReading = new BGReading();
-    TempBasalPair mCurrentTempBasal = new TempBasalPair();
-    PumpSettings mPumpSettings = new PumpSettings();
+    private boolean gotBasalProfiles = false;
+    private TempBasalPair mCurrentTempBasal = new TempBasalPair();
+    private PumpSettings mPumpSettings = new PumpSettings();
 
     private boolean getBasalProfiles() {
         basalProfileSTD = getPumpManager().getProfile(BasalProfileTypeEnum.STD);
@@ -709,96 +869,37 @@ public class APSLogic {
 
     // When this method succeeds, it also contacts the database to add the new treatment.
     // todo?: Need curr_basal to calculate if this is a negative insulin event
-    public void setTempBasal(double rateUnitsPerHour, int periodMinutes, double currBasalRate) {
+    private void setTempBasal(double rateUnitsPerHour, int periodMinutes, double currBasalRate) {
         log(String.format("Set Temp Basal: rate=%.3f, minutes=%d",rateUnitsPerHour,periodMinutes));
         getPumpManager().setTempBasal(rateUnitsPerHour,periodMinutes);
     }
 
     // Get currently used Basals Profile from the pump.
     // We want to fetch these once on startup, then used cached copies.
-    public BasalProfile getCurrentBasalProfile() {
+    private BasalProfile getCurrentBasalProfile() {
         return mCurrentBasalProfile;
-    }
-
-    // This function is run when we receive a reading from xDrip, broadcast as an Intent
-    public void receiveXDripBGReading(BGReading bgr) {
-        // sanity check and cache the latest reading, used only if xDrip samples are enabled.
-    }
-
-    public void updateFromPersonalPrefs() {
-        // get CAR value from prefs
-        SharedPreferences settings = mContext.getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
-        double car = (double)settings.getFloat(Constants.PrefName.CARPrefName, (float) 30.0);
-        // Notify APSLogic of new value
-        setCAR(car);
-        setMaxTempBasalRate((double) settings.getFloat(Constants.PrefName.PPMaxTempBasalRatePrefName, (float) 6.1));
-        setBGMin((double) settings.getFloat(Constants.PrefName.PPBGMinPrefName, (float) 95.0));
-        setTargetBG((double) settings.getFloat(Constants.PrefName.PPTargetBGPrefName, (float) 115.0));
-        setBGMax((double) settings.getFloat(Constants.PrefName.PPBGMaxPrefName, (float) 125.0));
-    }
-
-    public void setCAR(double car) {
-        mPersonalProfile.CAR = car;
-    }
-
-    public void setMaxTempBasalRate(double mtbr) {
-        mPersonalProfile.MaxTempBasalRate = mtbr;
-    }
-
-    public void setBGMin(double bgmin) {
-        mPersonalProfile.BGMin = bgmin;
-    }
-
-    public void setTargetBG(double target) {
-        mPersonalProfile.TargetBG = target;
-    }
-
-    public void setBGMax(double bgmax) {
-        mPersonalProfile.BGMax = bgmax;
     }
 
     // This command retrieves the CURRENTLY ACTIVE temp basal from the pump
     // This command can "sleep" for up to 20 seconds while running.
-    public void getCurrentTempBasalFromPump() {
+    private void getCurrentTempBasalFromPump() {
         TempBasalPair rval;
         rval = getPumpManager().getCurrentTempBasal();
+        // store value from pump in persistent storage for gui
+        mStorage.monitorTempBasalRate.set(rval.mInsulinRate);
+        mStorage.monitorTempBasalDuration.set(rval.mDurationMinutes);
+        //notifyMonitorDataChanged();
         mCurrentTempBasal = rval;
-        sendTempBasalToUI(mCurrentTempBasal);
     }
 
-    public DateTime getRTCTimestampFromPump() {
+    private DateTime getRTCTimestampFromPump() {
         DateTime dt = getPumpManager().getRTCTimestamp();
         return dt;
     }
 
-    public void getPumpSettingsFromPump() {
+    private void getPumpSettingsFromPump() {
         PumpSettings settings = getPumpManager().getPumpSettings();
         mPumpSettings = settings;
-    }
-
-    // Communications with the UI involve Android system classes and calls,
-    // Let RTDemoService be the interface for all that stuff
-    public void sendTempBasalToUI(TempBasalPair pair) {
-        Intent intent = new Intent(Intents.APSLOGIC_TEMPBASAL_UPDATE);
-        intent.putExtra("name", Constants.ParcelName.TempBasalPairParcelName);
-        intent.putExtra(Constants.ParcelName.TempBasalPairParcelName, new TempBasalPairParcel(pair));
-        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
-    }
-    public void sendCurrBasalToUI(double basalRate) {
-        Intent intent = new Intent(Intents.APSLOGIC_CURRBASAL_UPDATE).putExtra("value", basalRate);
-        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
-    }
-    public void sendPredBGToUI(double predictedBG) {
-        Intent intent = new Intent(Intents.APSLOGIC_PREDBG_UPDATE).putExtra("value",predictedBG);
-        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
-    }
-    public void sendIOBToUI(double iobTotal) {
-        Intent intent = new Intent(Intents.APSLOGIC_IOB_UPDATE).putExtra("value",iobTotal);
-        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
-    }
-    public void sendCOBToUI(double cobTotal) {
-        Intent intent = new Intent(Intents.APSLOGIC_COB_UPDATE).putExtra("value",cobTotal);
-        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }
 
     public void broadcastAPSLogicStatusMessage(String message) {
@@ -807,12 +908,17 @@ public class APSLogic {
         LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
     }
 
-    // This is used to send messages to the MonitorActivity about APSLogic's actions and decisions
+    private void notifyMonitorDataChanged() {
+        LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(Intents.MONITOR_DATA_CHANGED));
+    }
+
     // Those messages are displayed in the lower part of the MonitorActivity's window
-    public void log(String message) {
+    private void log(String message) {
         dlog(message);
         broadcastAPSLogicStatusMessage(message);
-        writeMessageToLogfile(message);
+        if (mStorage.loggingEnabled.get() == true) {
+            writeMessageToLogfile(message);
+        }
     }
 
     // This is same as above, but doesn't log to the window
