@@ -122,7 +122,7 @@ public class PumpManager {
         boolean awake = false;
 
         // Phase 1: see if the stick will respond with product info
-        while ((!awake) && (++wakeupRetries <= WAKE_UP_MAX_RETRIES)) {
+        while ((!awake) && (++wakeupRetries < WAKE_UP_MAX_RETRIES)) {
             Log.i(TAG, "ProductInfo");
             ProductInfoCommand picmd = new ProductInfoCommand();
             try {
@@ -152,7 +152,7 @@ public class PumpManager {
         boolean canHearPump = false;
         // phase 2: see if it can see the pump with decent signal strength
         int findPumpRetries = 0;
-        while ((!canHearPump) && (findPumpRetries < VERIFY_MAX_RETRIES)) {
+        while ((!canHearPump) && (++findPumpRetries < VERIFY_MAX_RETRIES)) {
             SignalStrengthCommand sscmd = new SignalStrengthCommand();
             try {
                 sscmd.run(mCarelink);
@@ -162,7 +162,6 @@ public class PumpManager {
             int signalStrength = sscmd.getSignalStrength();
             Log.i(TAG, String.format("SignalStrength reports %d", signalStrength));
             if (signalStrength < VERIFY_MIN_SIGNAL) {
-                findPumpRetries++;
                 if (findPumpRetries < VERIFY_MAX_RETRIES) {
                     Log.w(TAG, String.format("SignalStrength too low, try again (%d/%d)", findPumpRetries, VERIFY_MAX_RETRIES));
                     sleep(VERIFY_TIMEOUT_MS);

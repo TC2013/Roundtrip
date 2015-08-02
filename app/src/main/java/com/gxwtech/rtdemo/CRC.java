@@ -26,24 +26,24 @@ public class CRC {
             33, 186, 77, 214, 224, 123 };
 
 
-    public static byte crc8(byte[] data, int len) {
+    public static byte crc8(final byte[] data, int len) {
         byte result = 0;
+
         if (data == null) {
             return 0;
         }
+
         if (len > data.length) {
             len = data.length;
         }
+
         for (int i=0; i<len; i++) {
             int tmp = result;
             int tmp2 = tmp ^ data[i];
             int tmp3 = tmp2 & 0xFF;
             int idx = tmp3;
             result = (byte)crc8lookup[idx];
-//            log(String.format("iter=%d,tmp=0x%02x, tmp2=0x%02x, tmp3=0x%02x, lookup=0x%02x",i,tmp,tmp2,tmp3,result));
         }
-        // orig python:
-        //result = klass.lookup[ ( result ^ block[ i ] & 0xFF ) ]
         return result;
 
     }
@@ -52,9 +52,10 @@ public class CRC {
         return crc8(data, data.length);
     }
 
-    public static byte[] calculate16CCITT(byte[] data) {
+    public static byte[] calculate16CCITT(final byte[] data) {
         int crc = 0xFFFF;
-        int polynomial = 0x1021;
+        final int polynomial = 0x1021;
+
         if (data != null) {
             if (data.length > 0) {
                 for (int j=0; j<data.length; j++) {
@@ -63,11 +64,14 @@ public class CRC {
                         boolean bit = ((b >> (7 - i) & 1) == 1);
                         boolean c15 = ((crc >> 15 & 1) == 1);
                         crc <<= 1;
-                        if (c15 ^ bit) crc ^= polynomial;
+                        if (c15 ^ bit) {
+                            crc ^= polynomial;
+                        }
                     }
                 }
             }
         }
+
         crc &= 0xffff;
         return new byte[]{(byte) ((crc & 0xFF00) >> 8), (byte) (crc & 0xFF)};
     }
