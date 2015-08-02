@@ -40,6 +40,7 @@ import com.gxwtech.rtdemo.MainActivity;
 import com.gxwtech.rtdemo.MongoWrapper;
 import com.gxwtech.rtdemo.PreferenceBackedStorage;
 import com.gxwtech.rtdemo.R;
+import com.gxwtech.rtdemo.bluetooth.BluetoothConnection;
 import com.gxwtech.rtdemo.bluetooth.GattAttributes;
 import com.gxwtech.rtdemo.bluetooth.RileyLinkUtil;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfile;
@@ -93,11 +94,6 @@ import java.util.regex.Pattern;
 public class RTDemoService extends IntentService {
 
     private static final String LS = System.lineSeparator();
-
-    private static final int STATE_DISCONNECTED = 0;
-    private static final int STATE_CONNECTING = 1;
-    private static final int STATE_CONNECTED = 2;
-    private int bluetoothConnectionState = STATE_DISCONNECTED;
 
     private static final String TAG = "RTDemoService";
 
@@ -221,137 +217,6 @@ public class RTDemoService extends IntentService {
         }
     };
 
-    private final BluetoothGattCallback mGattcallback = new BluetoothGattCallback() {
-
-        @Override
-        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-            Log.w(TAG, String.format("Bluetooth: onCharacteristicChanged " + characteristic));
-
-
-        }
-
-
-        @Override
-        public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            Log.w(TAG, String.format("Bluetooth: onCharacteristicRead " + characteristic + " status " + status));
-
-
-        }
-
-        @Override
-        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            Log.w(TAG, String.format("Bluetooth: onCharacteristicWrite " + characteristic + " status " + status));
-
-
-        }
-
-        @Override
-        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-
-            final String statusMessage;
-            if (status == BluetoothGatt.GATT_SUCCESS) {
-                statusMessage = "SUCCESS";
-            } else if (status == BluetoothGatt.GATT_FAILURE) {
-                statusMessage = "FAILED";
-            } else {
-                statusMessage = "UNKNOWN (" + status + ")";
-            }
-
-            final String stateMessage;
-            if (newState == BluetoothProfile.STATE_CONNECTED) {
-                stateMessage = "CONNECTED";
-            } else if (newState == BluetoothProfile.STATE_CONNECTING) {
-                stateMessage = "CONNECTING";
-            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                stateMessage = "DISCONNECTED";
-            } else if (newState == BluetoothProfile.STATE_DISCONNECTING) {
-                stateMessage = "DISCONNECTING";
-            } else {
-                stateMessage = "UNKOWN (" + newState + ")";
-            }
-
-            Log.w(TAG, String.format("Bluetooth: onConnectionStateChange " + statusMessage + " " + stateMessage));
-
-
-            if (newState == BluetoothProfile.STATE_CONNECTED && status == BluetoothGatt.GATT_SUCCESS) {
-                if (gatt.discoverServices()) {
-                    Log.w(TAG, "Bluetooth: Starting to discover GATT Services.");
-                } else {
-                    Log.w(TAG, "Bluetooth: Cannot discover GATT Services.");
-                }
-            }
-
-        }
-
-        @Override
-        public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
-            Log.w(TAG, String.format("Bluetooth: onDescriptorRead " + descriptor + " status " + status));
-
-
-        }
-
-        @Override
-        public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
-            Log.w(TAG, String.format("Bluetooth: onDescriptorWrite " + descriptor + " status " + status));
-
-
-        }
-
-        @Override
-        public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
-            Log.w(TAG, String.format("Bluetooth: onMtuChanged " + mtu + " status " + status));
-
-
-        }
-
-        @Override
-        public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
-            Log.w(TAG, String.format("Bluetooth: onReadRemoteRssi " + rssi + " status " + status));
-
-
-        }
-
-        @Override
-        public void onReliableWriteCompleted(BluetoothGatt gatt, int status) {
-            Log.w(TAG, String.format("Bluetooth: onReliableWriteCompleted status " + status));
-
-
-        }
-
-
-        @Override
-        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-            final String message;
-            if (status == BluetoothGatt.GATT_SUCCESS) {
-                List<BluetoothGattService> services = gatt.getServices();
-                for (BluetoothGattService service : services) {
-                    List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
-
-                    final String uuidServiceString = service.getUuid().toString();
-
-                    String debugString = "Found service: " + GattAttributes.lookup(uuidServiceString, "Unknown device") + " (" + uuidServiceString + ")" + LS;
-                    for (BluetoothGattCharacteristic character : characteristics) {
-                        final String uuidCharacteristicString = character.getUuid().toString();
-                        debugString += "    - " + GattAttributes.lookup(uuidCharacteristicString, "Unknown device") + " (" + uuidCharacteristicString + ")" + LS;
-                    }
-                    Log.w(TAG, "Bluetooth: " + debugString);
-                }
-
-                message = "Got response, found: " + services.size() + " so far.";
-            } else if (status == BluetoothGatt.GATT_WRITE_NOT_PERMITTED) {
-                message = "WRITE NOT PERMITTED";
-            } else {
-                message = "UNKNOWN RESPONSE (" + status + ")";
-            }
-            Log.w(TAG, "Bluetooth: onServicesDiscovered " + message);
-        }
-
-    };
-
-    private BluetoothManager bluetoothManager = null;
-    private BluetoothAdapter bluetoothAdapter = null;
-    private BluetoothDevice bluetoothDeviceRileyLink = null;
-    private BluetoothGatt bluetoothConnectionGatt = null;
 
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -375,76 +240,14 @@ public class RTDemoService extends IntentService {
                 checkPumpCommunications();
             } else if (srq.equals(Constants.SRQ.SEND_BLUETOOTH_COMMAND)) {
 
-                try {
-
-                    byte[] pkt_pressdown = new byte[]{(byte) 0xa7, 0x01, 0x46, 0x73, 0x24,
-                            (byte) 0x80, 0x01, 0x00, 0x01, 0x00, 0x00, 0x5b, (byte) 0x9e, 0x04, (byte) 0xc1};
-
-                    final byte[] minimedRFData = RileyLinkUtil.composeRFStream(pkt_pressdown);
-
-                    if (this.bluetoothConnectionGatt == null) {
-                        Log.e(TAG, "Bluetooth: GATT Connection not established!");
-                        return;
-                    }
-
-                    final BluetoothGattService service = this.bluetoothConnectionGatt.
-                            getService(UUID.fromString(GattAttributes.GLUCOSELINK_SERVICE_UUID));
-
-                    if (service == null) {
-                        Log.e(TAG, "Bluetooth: Service not found!");
-                        return;
-                    }
-
-                    final BluetoothGattCharacteristic characteristic = service.
-                            getCharacteristic(UUID.fromString(GattAttributes.GLUCOSELINK_PACKET_COUNT));
-
-                    if (characteristic == null) {
-                        Log.e(TAG, "Bluetooth: Characteristic not found!");
-                        return;
-                    }
-
-                    characteristic.setValue(minimedRFData);
-                    bluetoothConnectionGatt.writeCharacteristic(characteristic);
-                } catch (Exception e) {
-                    Log.e(TAG, "Bluetooth: " + e.toString());
-                }
+                byte[] pkt_pressdown = new byte[]{(byte) 0xa7, 0x01, 0x46, 0x73, 0x24,
+                        (byte) 0x80, 0x01, 0x00, 0x01, 0x00, 0x00, 0x5b, (byte) 0x9e, 0x04, (byte) 0xc1};
+                BluetoothConnection.getInstance(this).sendCommand(pkt_pressdown);
 
             } else if (srq.equals(Constants.SRQ.VERIFY_BLUETOOTH_PUMP_COMMUNICATIONS)) {
+                String response = BluetoothConnection.getInstance(this).connect();
+                llog(response);
 
-                // TODO: Currently there is only logic for connecting, reconnecting has yet to be written. Resources can be reused and some of them should be destroyed/closed explitly
-
-                this.bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-                this.bluetoothAdapter = bluetoothManager.getAdapter();
-
-                if (this.bluetoothAdapter != null) {
-                    if (this.bluetoothAdapter.isEnabled()) {
-                        final Set<BluetoothDevice> devices = bluetoothAdapter.getBondedDevices();
-
-                        this.bluetoothDeviceRileyLink = null;
-                        for (BluetoothDevice device : devices) {
-                            if (device.getName().equals(Constants.PrefName.Bluetooth_RileyLink_Name)) {
-                                this.bluetoothDeviceRileyLink = device;
-                            }
-                        }
-
-                        if (this.bluetoothDeviceRileyLink != null) {
-                            Log.w(TAG, "Bluetooth: RileyLink has been found, staring to establish connection.");
-                            llog("RileyLink has been found.");
-
-                            //TODO: https://github.com/suzp1984/Light_BLE/blob/master/Light_BLE/ble/src/main/java/org/zpcat/ble/BluetoothLeService.java#L285
-                            // Connect using Gatt, any further communication will be done using asynchronous calls.
-                            this.bluetoothConnectionGatt = this.bluetoothDeviceRileyLink.connectGatt(this, true, mGattcallback);
-                        } else {
-                            Log.w(TAG, "Bluetooth: Could not find RileyLink.");
-                            llog("Could not find RileyLink.");
-                        }
-
-                    } else {
-                        llog("Bluetooth is not enabled on device.");
-                    }
-                } else {
-                    llog("Bluetooth is not available on device.");
-                }
             } else if (srq.equals(Constants.SRQ.REPORT_PUMP_SETTINGS)) {
                 PumpSettingsParcel parcel = new PumpSettingsParcel();
                 parcel.initFromPumpSettings(mPumpManager.getPumpSettings());
