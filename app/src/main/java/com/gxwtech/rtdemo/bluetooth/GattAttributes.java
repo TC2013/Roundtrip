@@ -12,6 +12,9 @@ public class GattAttributes {
     public static final String GLUCOSELINK_SERVICE_UUID = "d39f1890-17eb-11e4-8c21-0800200c9a66";
     //public static String GLUCOSELINK_BATTERY_SERVICE = "180f";
     public static final String GLUCOSELINK_BATTERY_SERVICE = "0000180f-0000-1000-8000-00805f9b34fb";
+
+
+
     public static final String GLUCOSELINK_RX_PACKET_UUID = "2fb1a490-1940-11e4-8c21-0800200c9a66";
     public static final String GLUCOSELINK_DBG_UUID = "2fb1a490-1949-11e4-8c21-0800200c9a66";
     public static final String GLUCOSELINK_CHANNEL_UUID = "d93b2af0-1ea8-11e4-8c21-0800200c9a66";

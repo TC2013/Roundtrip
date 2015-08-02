@@ -50,6 +50,7 @@ public interface Constants {
         public static final String START_REPEAT_ALARM = "StartRepeatingAlarm"; //314;
         // MonitorActivity stop button runs this.
         public static final String STOP_REPEAT_ALARM = "StopRepeatingAlarm"; //315;
+        public static final String SEND_BLUETOOTH_COMMAND = "SendBluetoothCommand";
     }
 
     class ParcelName {

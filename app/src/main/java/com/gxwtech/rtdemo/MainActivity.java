@@ -94,6 +94,12 @@ public class MainActivity extends ActionBarActivity {
         this.startService(intent);
     }
 
+    public void sendBluetoothCommand(View view) {
+        Intent intent = new Intent(this, RTDemoService.class);
+        intent.putExtra("srq", Constants.SRQ.SEND_BLUETOOTH_COMMAND);
+        this.startService(intent);
+    }
+
     public void launchRTDemoSettingsActivity(View view) {
         Intent intent = new Intent(this, RTDemoSettingsActivity.class);
         this.startActivity(intent);

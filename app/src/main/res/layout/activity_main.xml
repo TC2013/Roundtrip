@@ -99,6 +99,13 @@
                     android:id="@+id/button_verifyBluetoothPumpCommunications"
                     android:onClick="verifyBluetoothPumpCommunications" />
 
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Click!"
+                    android:id="@+id/button_bluetoothSendCommand"
+                    android:onClick="sendBluetoothCommand"/>
+
             </LinearLayout>
 
             <ListView

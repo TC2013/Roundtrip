@@ -11,6 +11,7 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
+import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.BroadcastReceiver;
@@ -39,6 +40,8 @@ import com.gxwtech.rtdemo.MainActivity;
 import com.gxwtech.rtdemo.MongoWrapper;
 import com.gxwtech.rtdemo.PreferenceBackedStorage;
 import com.gxwtech.rtdemo.R;
+import com.gxwtech.rtdemo.bluetooth.GattAttributes;
+import com.gxwtech.rtdemo.bluetooth.RileyLinkUtil;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfile;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileEntry;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileTypeEnum;
@@ -55,7 +58,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -86,6 +91,14 @@ import java.util.regex.Pattern;
 
 
 public class RTDemoService extends IntentService {
+
+    private static final String LS = System.lineSeparator();
+
+    private static final int STATE_DISCONNECTED = 0;
+    private static final int STATE_CONNECTING = 1;
+    private static final int STATE_CONNECTED = 2;
+    private int bluetoothConnectionState = STATE_DISCONNECTED;
+
     private static final String TAG = "RTDemoService";
 
     // @TODO Move this to constants?
@@ -202,7 +215,7 @@ public class RTDemoService extends IntentService {
                     }
 
                 } else {
-                    //llog("Other USB device attached:" + device.toString());
+                    llog("Other USB device attached:" + device.toString());
                 }
             }
         }
@@ -247,13 +260,27 @@ public class RTDemoService extends IntentService {
             final String stateMessage;
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 stateMessage = "CONNECTED";
+            } else if (newState == BluetoothProfile.STATE_CONNECTING) {
+                stateMessage = "CONNECTING";
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 stateMessage = "DISCONNECTED";
+            } else if (newState == BluetoothProfile.STATE_DISCONNECTING) {
+                stateMessage = "DISCONNECTING";
             } else {
                 stateMessage = "UNKOWN (" + newState + ")";
             }
 
-            Log.w(TAG, String.format("Bluetooth: onCharacteristicWrite " + statusMessage + " " + stateMessage));
+            Log.w(TAG, String.format("Bluetooth: onConnectionStateChange " + statusMessage + " " + stateMessage));
+
+
+            if (newState == BluetoothProfile.STATE_CONNECTED && status == BluetoothGatt.GATT_SUCCESS) {
+                if (gatt.discoverServices()) {
+                    Log.w(TAG, "Bluetooth: Starting to discover GATT Services.");
+                } else {
+                    Log.w(TAG, "Bluetooth: Cannot discover GATT Services.");
+                }
+            }
+
         }
 
         @Override
@@ -294,17 +321,37 @@ public class RTDemoService extends IntentService {
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-            Log.w(TAG, String.format("Bluetooth: onServicesDiscovered " + status));
+            final String message;
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                List<BluetoothGattService> services = gatt.getServices();
+                for (BluetoothGattService service : services) {
+                    List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
 
+                    final String uuidServiceString = service.getUuid().toString();
 
+                    String debugString = "Found service: " + GattAttributes.lookup(uuidServiceString, "Unknown device") + " (" + uuidServiceString + ")" + LS;
+                    for (BluetoothGattCharacteristic character : characteristics) {
+                        final String uuidCharacteristicString = character.getUuid().toString();
+                        debugString += "    - " + GattAttributes.lookup(uuidCharacteristicString, "Unknown device") + " (" + uuidCharacteristicString + ")" + LS;
+                    }
+                    Log.w(TAG, "Bluetooth: " + debugString);
+                }
+
+                message = "Got response, found: " + services.size() + " so far.";
+            } else if (status == BluetoothGatt.GATT_WRITE_NOT_PERMITTED) {
+                message = "WRITE NOT PERMITTED";
+            } else {
+                message = "UNKNOWN RESPONSE (" + status + ")";
+            }
+            Log.w(TAG, "Bluetooth: onServicesDiscovered " + message);
         }
 
     };
 
-    BluetoothManager bluetoothManager = null;
-    BluetoothAdapter bluetoothAdapter = null;
-    BluetoothDevice bluetoothDeviceRileyLink = null;
-    BluetoothGatt bluetoothConnectionGatt = null;
+    private BluetoothManager bluetoothManager = null;
+    private BluetoothAdapter bluetoothAdapter = null;
+    private BluetoothDevice bluetoothDeviceRileyLink = null;
+    private BluetoothGatt bluetoothConnectionGatt = null;
 
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -326,30 +373,69 @@ public class RTDemoService extends IntentService {
             } else if (srq.equals(Constants.SRQ.VERIFY_USB_PUMP_COMMUNICATIONS)) {
                 getCarelinkPermission();
                 checkPumpCommunications();
+            } else if (srq.equals(Constants.SRQ.SEND_BLUETOOTH_COMMAND)) {
+
+                try {
+
+                    byte[] pkt_pressdown = new byte[]{(byte) 0xa7, 0x01, 0x46, 0x73, 0x24,
+                            (byte) 0x80, 0x01, 0x00, 0x01, 0x00, 0x00, 0x5b, (byte) 0x9e, 0x04, (byte) 0xc1};
+
+                    final byte[] minimedRFData = RileyLinkUtil.composeRFStream(pkt_pressdown);
+
+                    if (this.bluetoothConnectionGatt == null) {
+                        Log.e(TAG, "Bluetooth: GATT Connection not established!");
+                        return;
+                    }
+
+                    final BluetoothGattService service = this.bluetoothConnectionGatt.
+                            getService(UUID.fromString(GattAttributes.GLUCOSELINK_SERVICE_UUID));
+
+                    if (service == null) {
+                        Log.e(TAG, "Bluetooth: Service not found!");
+                        return;
+                    }
+
+                    final BluetoothGattCharacteristic characteristic = service.
+                            getCharacteristic(UUID.fromString(GattAttributes.GLUCOSELINK_PACKET_COUNT));
+
+                    if (characteristic == null) {
+                        Log.e(TAG, "Bluetooth: Characteristic not found!");
+                        return;
+                    }
+
+                    characteristic.setValue(minimedRFData);
+                    bluetoothConnectionGatt.writeCharacteristic(characteristic);
+                } catch (Exception e) {
+                    Log.e(TAG, "Bluetooth: " + e.toString());
+                }
+
             } else if (srq.equals(Constants.SRQ.VERIFY_BLUETOOTH_PUMP_COMMUNICATIONS)) {
 
                 // TODO: Currently there is only logic for connecting, reconnecting has yet to be written. Resources can be reused and some of them should be destroyed/closed explitly
 
-                bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-                bluetoothAdapter = bluetoothManager.getAdapter();
+                this.bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+                this.bluetoothAdapter = bluetoothManager.getAdapter();
 
-                if (bluetoothAdapter != null) {
-                    if (bluetoothAdapter.isEnabled()) {
+                if (this.bluetoothAdapter != null) {
+                    if (this.bluetoothAdapter.isEnabled()) {
                         final Set<BluetoothDevice> devices = bluetoothAdapter.getBondedDevices();
 
-                        bluetoothDeviceRileyLink = null;
+                        this.bluetoothDeviceRileyLink = null;
                         for (BluetoothDevice device : devices) {
                             if (device.getName().equals(Constants.PrefName.Bluetooth_RileyLink_Name)) {
-                                bluetoothDeviceRileyLink = device;
+                                this.bluetoothDeviceRileyLink = device;
                             }
                         }
 
-                        if (bluetoothDeviceRileyLink != null) {
+                        if (this.bluetoothDeviceRileyLink != null) {
+                            Log.w(TAG, "Bluetooth: RileyLink has been found, staring to establish connection.");
                             llog("RileyLink has been found.");
 
+                            //TODO: https://github.com/suzp1984/Light_BLE/blob/master/Light_BLE/ble/src/main/java/org/zpcat/ble/BluetoothLeService.java#L285
                             // Connect using Gatt, any further communication will be done using asynchronous calls.
-                            bluetoothConnectionGatt = bluetoothDeviceRileyLink.connectGatt(this, false, mGattcallback);
+                            this.bluetoothConnectionGatt = this.bluetoothDeviceRileyLink.connectGatt(this, true, mGattcallback);
                         } else {
+                            Log.w(TAG, "Bluetooth: Could not find RileyLink.");
                             llog("Could not find RileyLink.");
                         }
 
