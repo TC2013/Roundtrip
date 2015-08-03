@@ -162,7 +162,7 @@ public class BluetoothConnection {
             }
 
             final String uuidString = GattAttributes.lookup(characteristic.getUuid());
-            Log.w(TAG, "onCharacteristicWrite " + statusMessage + " " + uuidString + " "+ toHexString(characteristic.getValue()));
+            Log.w(TAG, "onCharacteristicWrite " + statusMessage + " " + uuidString + " " + toHexString(characteristic.getValue()));
         }
 
         @Override
@@ -187,11 +187,10 @@ public class BluetoothConnection {
             } else if (newState == BluetoothProfile.STATE_DISCONNECTING) {
                 stateMessage = "DISCONNECTING";
             } else {
-                stateMessage = "UNKOWN (" + newState + ")";
+                stateMessage = "UNKNOWN (" + newState + ")";
             }
 
             Log.w(TAG, "onConnectionStateChange " + statusMessage + " " + stateMessage);
-
 
             if (newState == BluetoothProfile.STATE_CONNECTED && status == BluetoothGatt.GATT_SUCCESS) {
                 if (gatt.discoverServices()) {
@@ -212,9 +211,16 @@ public class BluetoothConnection {
 
         @Override
         public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
-            Log.w(TAG, "onDescriptorWrite " + descriptor + " status " + status + " written: " + toHexString(descriptor.getValue()));
+            final String statusMessage;
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                statusMessage = "SUCCESS";
+            } else if (status == BluetoothGatt.GATT_FAILURE) {
+                statusMessage = "FAILED";
+            } else {
+                statusMessage = "UNKNOWN (" + status + ")";
+            }
 
-
+            Log.w(TAG, "onDescriptorWrite " + GattAttributes.lookup(descriptor.getUuid()) + " " + statusMessage + " written: " + toHexString(descriptor.getValue()));
         }
 
         @Override
@@ -241,20 +247,47 @@ public class BluetoothConnection {
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+            super.onServicesDiscovered(gatt, status);
+
             final String message;
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 List<BluetoothGattService> services = gatt.getServices();
                 for (BluetoothGattService service : services) {
                     List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
 
-                    final String uuidServiceString = service.getUuid().toString();
+                    final UUID uuidService = service.getUuid();
+                    final String uuidServiceString = uuidService.toString();
 
                     String debugString = "Found service: " + GattAttributes.lookup(uuidServiceString, "Unknown device") + " (" + uuidServiceString + ")" + LS;
                     for (BluetoothGattCharacteristic character : characteristics) {
+                        final String descriptorType;
+                        if (character.getUuid().equals(UUID.fromString(GattAttributes.GLUCOSELINK_PACKET_COUNT))) {
+                            BluetoothGattCharacteristic characteristic = gatt.
+                                    getService(UUID.fromString(GattAttributes.GLUCOSELINK_SERVICE_UUID)).
+                                    getCharacteristic(UUID.fromString(GattAttributes.GLUCOSELINK_PACKET_COUNT));
+
+                            BluetoothGattDescriptor descriptor = character.getDescriptors().get(0);
+                            if (descriptor != null) {
+                                if (0 != (characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_INDICATE)) {
+                                    descriptor.setValue(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+                                    descriptorType = " Indicate";
+                                } else {
+                                    descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                                    descriptorType = " Notify";
+                                }
+                                gatt.writeDescriptor(descriptor);
+                            } else {
+                                descriptorType = " Empty descriptor";
+                            }
+                        } else {
+                            descriptorType = "";
+                        }
+
                         final String uuidCharacteristicString = character.getUuid().toString();
-                        debugString += "    - " + GattAttributes.lookup(uuidCharacteristicString, "Unknown device") + " (" + uuidCharacteristicString + ")" + LS;
+                        debugString += "    - " + GattAttributes.lookup(uuidCharacteristicString) + descriptorType + LS;
                     }
-                    Log.w(TAG, "" + debugString);
+                    Log.w(TAG, debugString);
+
                 }
 
                 message = "Got response, found: " + services.size() + " so far.";
@@ -263,6 +296,7 @@ public class BluetoothConnection {
             } else {
                 message = "UNKNOWN RESPONSE (" + status + ")";
             }
+
             Log.w(TAG, "onServicesDiscovered " + message);
         }
 
@@ -281,8 +315,8 @@ public class BluetoothConnection {
         char[] buf = new char[length * 2];
         for (int i = offset; i < offset + length; i++) {
             int b = array[i] & 0xFF;
-            buf[i*2] = HEX_DIGITS[b >>> 4];
-            buf[i*2+1] = HEX_DIGITS[b & 0x0F];
+            buf[i * 2] = HEX_DIGITS[b >>> 4];
+            buf[i * 2 + 1] = HEX_DIGITS[b & 0x0F];
         }
 
         return new String(buf);
