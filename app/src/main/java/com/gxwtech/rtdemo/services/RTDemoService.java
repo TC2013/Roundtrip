@@ -224,8 +224,7 @@ public class RTDemoService extends IntentService {
                 checkPumpCommunications();
             } else if (srq.equals(Constants.SRQ.SEND_BLUETOOTH_COMMAND)) {
 
-                byte[] pkt_pressdown = new byte[]{(byte) 0xa7, 0x01, 0x46, 0x73, 0x24,
-                        (byte) 0x80, 0x01, 0x00, 0x01, 0x00, 0x00, 0x5b, (byte) 0x9e, 0x04, (byte) 0xc1};
+                byte[] pkt_pressdown = new byte[]{(byte) 0xa7, 0x41, 0x75, 0x40, (byte) 0x8d};
                 BluetoothConnection conn = BluetoothConnection.getInstance(this);
                 conn.sendCommand(pkt_pressdown, GattAttributes.GLUCOSELINK_SERVICE_UUID, GattAttributes.GLUCOSELINK_TX_PACKET_UUID, true);
                 conn.sendCommand(new byte[]{0x01}, GattAttributes.GLUCOSELINK_SERVICE_UUID, GattAttributes.GLUCOSELINK_TX_TRIGGER_UUID);

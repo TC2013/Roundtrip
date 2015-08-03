@@ -66,18 +66,19 @@ public class BluetoothConnection {
 
                 this.bluetoothDeviceRileyLink = null;
                 for (BluetoothDevice device : devices) {
-                    if (device.getName().equals(Constants.PrefName.Bluetooth_RileyLink_Name)) {
+                    Log.w(TAG, "Found: " + device.getAddress());
+                    if (device.getAddress().equals(Constants.PrefName.Bluetooth_RileyLink_Address)) {
                         this.bluetoothDeviceRileyLink = device;
                     }
                 }
 
                 if (this.bluetoothDeviceRileyLink != null) {
-                    message = "RileyLink has been found.";
-
                     //TODO: https://github.com/suzp1984/Light_BLE/blob/master/Light_BLE/ble/src/main/java/org/zpcat/ble/BluetoothLeService.java#L285
                     // Connect using Gatt, any further communication will be done using asynchronous calls.
                     this.bluetoothConnectionGatt = this.bluetoothDeviceRileyLink.connectGatt(context, true, mGattcallback);
-                    Log.w(TAG, "RileyLink has been found, staring to establish connection: " + this.bluetoothConnectionGatt);
+                    Log.w(TAG, "RileyLink has been found, staring to establish connection.");
+
+                    message = "RileyLink has been found.";
                 } else {
                     Log.w(TAG, "Could not find RileyLink.");
                     message = "Could not find RileyLink.";
@@ -98,10 +99,10 @@ public class BluetoothConnection {
     }
 
     public void sendCommand(byte[] data, String uuidService, String uuidCharacteristic, boolean transform) {
-        Log.d(TAG, "Sending packet");
-
+        Log.d(TAG, "Sending package, pre-transform: " + BluetoothConnection.toHexString(data));
         if (transform) {
             data = RileyLinkUtil.composeRFStream(data);
+            Log.d(TAG, "Sending, post-transform: " + BluetoothConnection.toHexString(data));
         }
 
         if (this.bluetoothConnectionGatt == null) {
@@ -135,7 +136,7 @@ public class BluetoothConnection {
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-            Log.w(TAG, String.format("onCharacteristicChanged " + characteristic));
+            Log.w(TAG, "onCharacteristicChanged " + characteristic);
 
 
         }
@@ -143,7 +144,7 @@ public class BluetoothConnection {
 
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            Log.w(TAG, String.format("onCharacteristicRead " + characteristic + " status " + status));
+            Log.w(TAG, "onCharacteristicRead " + characteristic + " status " + status);
 
 
         }
@@ -161,7 +162,7 @@ public class BluetoothConnection {
             }
 
             final String uuidString = GattAttributes.lookup(characteristic.getUuid());
-            Log.w(TAG, String.format("onCharacteristicWrite " + statusMessage + " " + uuidString));
+            Log.w(TAG, "onCharacteristicWrite " + statusMessage + " " + uuidString + " "+ toHexString(characteristic.getValue()));
         }
 
         @Override
@@ -189,7 +190,7 @@ public class BluetoothConnection {
                 stateMessage = "UNKOWN (" + newState + ")";
             }
 
-            Log.w(TAG, String.format("onConnectionStateChange " + statusMessage + " " + stateMessage));
+            Log.w(TAG, "onConnectionStateChange " + statusMessage + " " + stateMessage);
 
 
             if (newState == BluetoothProfile.STATE_CONNECTED && status == BluetoothGatt.GATT_SUCCESS) {
@@ -204,35 +205,35 @@ public class BluetoothConnection {
 
         @Override
         public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
-            Log.w(TAG, String.format("onDescriptorRead " + descriptor + " status " + status));
+            Log.w(TAG, "onDescriptorRead " + descriptor + " status " + status);
 
 
         }
 
         @Override
         public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
-            Log.w(TAG, String.format("onDescriptorWrite " + descriptor + " status " + status));
+            Log.w(TAG, "onDescriptorWrite " + descriptor + " status " + status + " written: " + toHexString(descriptor.getValue()));
 
 
         }
 
         @Override
         public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
-            Log.w(TAG, String.format("onMtuChanged " + mtu + " status " + status));
+            Log.w(TAG, "onMtuChanged " + mtu + " status " + status);
 
 
         }
 
         @Override
         public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
-            Log.w(TAG, String.format("onReadRemoteRssi " + rssi + " status " + status));
+            Log.w(TAG, "onReadRemoteRssi " + rssi + " status " + status);
 
 
         }
 
         @Override
         public void onReliableWriteCompleted(BluetoothGatt gatt, int status) {
-            Log.w(TAG, String.format("onReliableWriteCompleted status " + status));
+            Log.w(TAG, "onReliableWriteCompleted status " + status);
 
 
         }
@@ -266,4 +267,24 @@ public class BluetoothConnection {
         }
 
     };
+
+
+    public static String toHexString(byte[] array) {
+        return toHexString(array, 0, array.length);
+    }
+
+    private final static char[] HEX_DIGITS = {
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
+    };
+
+    public static String toHexString(byte[] array, int offset, int length) {
+        char[] buf = new char[length * 2];
+        for (int i = offset; i < offset + length; i++) {
+            int b = array[i] & 0xFF;
+            buf[i*2] = HEX_DIGITS[b >>> 4];
+            buf[i*2+1] = HEX_DIGITS[b & 0x0F];
+        }
+
+        return new String(buf);
+    }
 }

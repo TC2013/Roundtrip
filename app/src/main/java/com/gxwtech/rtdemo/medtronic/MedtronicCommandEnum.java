@@ -41,7 +41,7 @@ public enum MedtronicCommandEnum {
     CMD_M_SET_STD_PROFILE ((byte)111),
     CMD_M_SET_A_PROFILE ((byte)48),
     CMD_M_SET_B_PROFILE ((byte)49),
-    CMD_M_SET_MAX_BASAL ((byte)110),
+    CMD_M_SET_MAX_BASAL ((byte)112),
     CMD_M_READ_BG_ALARM_CLOCKS ((byte)142),
     CMD_M_READ_BG_ALARM_ENABLE ((byte)151),
     CMD_M_READ_BG_REMINDER_ENABLE ((byte)144),

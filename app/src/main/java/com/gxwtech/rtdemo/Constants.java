@@ -102,6 +102,6 @@ public interface Constants {
         public static final String Monitor_IOB = "Monitor_IOB";
         public static final String Monitor_COB = "Monitor_COB";
 
-        public static final String Bluetooth_RileyLink_Name = "GlucoseLink";
+        public static final String Bluetooth_RileyLink_Address = "00:07:80:39:4C:B5";
     }
 }
