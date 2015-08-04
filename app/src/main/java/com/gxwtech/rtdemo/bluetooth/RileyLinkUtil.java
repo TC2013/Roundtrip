@@ -15,29 +15,29 @@ public class RileyLinkUtil {
      but we have to construct the 6 bit codes when sending.
      */
     public static final byte[] CodeSymbols = {
-            0x15,
-            0x31,
-            0x32,
-            0x23,
-            0x34,
-            0x25,
-            0x26,
-            0x16,
-            0x1a,
-            0x19,
-            0x2a,
-            0x0b,
-            0x2c,
-            0x0d,
-            0x0e,
-            0x1c
+            0b010101,
+            0b110001,
+            0b110010,
+            0b100011,
+            0b110100,
+            0b100101,
+            0b100110,
+            0b010110,
+            0b011010,
+            0b011001,
+            0b101010,
+            0b001011,
+            0b101100,
+            0b001101,
+            0b001110,
+            0b011100
     };
 
-    public static int computeNewSize(int inputSize){
+    public static int computeNewSize(final int inputSize){
         return (int)(Math.ceil((inputSize * 3.0) / 2.0));
     }
 
-    public static byte[] composeRFStream(byte[] input) {
+    public static byte[] composeRFStream(final byte[] input) {
         /*
          0xa7 -> (0xa -> 0x2a == 101010) + (0x7 -> 0x16 == 010110) == 1010 1001 0110 = 0xa96
          0x12 -> (0x1 -> 0x31 == 110001) + (0x2 -> 0x32 == 110010) == 1100 0111 0010 = 0xc72
@@ -51,11 +51,11 @@ public class RileyLinkUtil {
             return null;
         }
 
-        int outSize = computeNewSize(input.length);
+        final int outSize = computeNewSize(input.length);
         final byte[] rval = new byte[outSize];
         for (int i=0; i< input.length; i++) {
-            int rfBytes = composeRFBytes(input[i]);
-            int outIndex = ((i/2) * 3) + (i%2);
+            final int rfBytes = composeRFBytes(input[i]);
+            final int outIndex = ((i/2) * 3) + (i%2);
             // outIndex: 0->0, 1->1, 2->3, 3->4, 4->6, 5->7, 6->9, 7->10
             if ((i % 2)==0) {
                 rval[outIndex] = (byte)(rfBytes >> 8);

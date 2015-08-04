@@ -1,7 +1,7 @@
 package com.gxwtech.rtdemo.medtronic;
 
 /**
- * Created by geoff on 4/28/15.
+ * Created by Geoff on 4/28/15.
  */
 public enum MedtronicCommandEnum {
     CMD_M_INVALID_CMD ((byte)255),  // ggw: I just made this one up...

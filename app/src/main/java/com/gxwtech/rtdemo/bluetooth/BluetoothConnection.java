@@ -94,15 +94,16 @@ public class BluetoothConnection {
         return message;
     }
 
-    public void sendCommand(byte[] data, String uuidService, String uuidCharacteristic) {
-        sendCommand(data, uuidService, uuidCharacteristic, false);
-    }
+    public void sendCommand(byte[] data,final String uuidService, final String uuidCharacteristic, final boolean transform, final boolean addCRC) {
 
-    public void sendCommand(byte[] data, String uuidService, String uuidCharacteristic, boolean transform) {
         Log.d(TAG, "Sending package, pre-transform: " + BluetoothConnection.toHexString(data));
         if (transform) {
             data = RileyLinkUtil.composeRFStream(data);
             Log.d(TAG, "Sending, post-transform: " + BluetoothConnection.toHexString(data));
+        }
+
+        if(addCRC) {
+            data = CRC.appendCRC(data);
         }
 
         if (this.bluetoothConnectionGatt == null) {
