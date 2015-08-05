@@ -14,7 +14,7 @@ public class CRCTest extends TestCase {
     public void testComputeCRC() throws Exception {
         byte[] input = new byte[]{0x00, (byte) 0xFF, 0x00};
 
-        assertEquals(CRC.computeCRC(input), (byte) 0xB1);
+        assertEquals(CRC.computeCRC(input), (byte) 0xB1); // 0xB1 == 177
     }
 
     @Test

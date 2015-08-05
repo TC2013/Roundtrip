@@ -150,16 +150,15 @@ public class BluetoothConnection {
         final UUID uuidService = UUID.fromString(uuidServiceString);
         final UUID uuidCharacteristic = UUID.fromString(uuidCharacteristicString);
 
+        if (addCRC) {
+            data = CRC.appendCRC(data);
+        }
+
         Log.d(TAG, "Sending package, pre-transform: " + BluetoothConnection.toHexString(data));
         if (transform) {
             data = RileyLinkUtil.composeRFStream(data);
             Log.d(TAG, "Sending, post-transform: " + BluetoothConnection.toHexString(data));
         }
-
-        if (addCRC) {
-            data = CRC.appendCRC(data);
-        }
-
         final BluetoothGattCharacteristic characteristic = getCharasteristic(uuidService, uuidCharacteristic);
 
         if (characteristic != null) {

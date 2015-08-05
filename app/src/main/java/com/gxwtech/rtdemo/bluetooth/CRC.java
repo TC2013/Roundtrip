@@ -266,10 +266,13 @@ public class CRC {
         (byte) 224,
         (byte) 123
     };
-
     public static byte computeCRC(final byte[] data) {
+        return computeCRC(data, data.length);
+    }
+
+    public static byte computeCRC(final byte[] data, final int length) {
         byte crc = 0;
-        for (int i = 0; i < data.length; i++) {
+        for (int i = 0; i < length; i++) {
             crc = CRC8_TABLE[(crc ^ data[i]) & 0xFF];
         }
         return crc;

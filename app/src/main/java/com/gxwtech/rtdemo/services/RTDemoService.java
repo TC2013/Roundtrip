@@ -230,7 +230,7 @@ public class RTDemoService extends IntentService {
 
                 BluetoothConnection conn = BluetoothConnection.getInstance(this);
 
-                conn.sendCommand(new byte[]{(byte) 0xa7, 0x41, 0x75, 0x40, (byte) (byte) 141},
+                conn.sendCommand(new byte[]{(byte) 0xA7, 0x41, 0x75, 0x40, (byte) 141},
                         GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE, GattAttributes.GLUCOSELINK_TX_PACKET_UUID, true, true);
 
                 try {
