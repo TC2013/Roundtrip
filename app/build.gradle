@@ -34,7 +34,7 @@ android {
 
     defaultConfig {
         applicationId "com.gxwtech.rtdemo"
-        minSdkVersion 18
+        minSdkVersion 21
         targetSdkVersion 21
         versionCode getVersionCode()
         versionName getVersionName()

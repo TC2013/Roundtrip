@@ -9,11 +9,17 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanFilter;
+import android.bluetooth.le.ScanResult;
+import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.util.Log;
 
 import com.gxwtech.rtdemo.Constants;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -25,10 +31,7 @@ public class BluetoothConnection {
     private static final String LS = System.getProperty("line.separator");
     private static final String TAG = "BluetoothConnection";
 
-    private BluetoothManager bluetoothManager = null;
-    private BluetoothAdapter bluetoothAdapter = null;
-    private BluetoothDevice bluetoothDeviceRileyLink = null;
-    private BluetoothGatt bluetoothConnectionGatt = null;
+    private static BluetoothGatt bluetoothConnectionGatt = null;
 
     private final Context context;
 
@@ -54,36 +57,58 @@ public class BluetoothConnection {
     }
 
     public String connect() {
+        // Close old conenction
+        if(bluetoothConnectionGatt != null) {
+            bluetoothConnectionGatt.close();
+        }
 
         String message;
 
-        this.bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
-        this.bluetoothAdapter = bluetoothManager.getAdapter();
+        BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
 
-        if (this.bluetoothAdapter != null) {
-            if (this.bluetoothAdapter.isEnabled()) {
-                final Set<BluetoothDevice> devices = bluetoothAdapter.getBondedDevices();
+        if (bluetoothManager != null) {
+            if (bluetoothAdapter.isEnabled()) {
+                //TODO: Look into Scanmode settings
+                ScanSettings settings = new ScanSettings.Builder().build();
 
-                this.bluetoothDeviceRileyLink = null;
-                for (BluetoothDevice device : devices) {
-                    Log.w(TAG, "Found: " + device.getAddress());
-                    if (device.getAddress().equals(Constants.PrefName.Bluetooth_RileyLink_Address)) {
-                        this.bluetoothDeviceRileyLink = device;
+                // This comes in handy when using a BLE smartwatch :)
+                ArrayList<ScanFilter> filters = new ArrayList<>();
+                ScanFilter filter = new ScanFilter.Builder().setDeviceAddress(Constants.PrefName.Bluetooth_RileyLink_Address).build();
+                filters.add(filter);
+
+                final BluetoothLeScanner scanner = bluetoothAdapter.getBluetoothLeScanner();
+
+                scanner.startScan(filters, settings, new ScanCallback() {
+                    @Override
+                    public void onBatchScanResults(List<ScanResult> results) {
+                        Log.w(TAG, "Batch results: " + results.size());
                     }
-                }
 
-                if (this.bluetoothDeviceRileyLink != null) {
-                    //TODO: https://github.com/suzp1984/Light_BLE/blob/master/Light_BLE/ble/src/main/java/org/zpcat/ble/BluetoothLeService.java#L285
-                    // Connect using Gatt, any further communication will be done using asynchronous calls.
-                    this.bluetoothConnectionGatt = this.bluetoothDeviceRileyLink.connectGatt(context, true, mGattcallback);
-                    Log.w(TAG, "RileyLink has been found, staring to establish connection.");
+                    @Override
+                    public void onScanFailed(int errorCode) {
+                        Log.w(TAG, "Scan failed: " + errorCode);
+                    }
 
-                    message = "RileyLink has been found.";
-                } else {
-                    Log.w(TAG, "Could not find RileyLink.");
-                    message = "Could not find RileyLink.";
-                }
+                    @Override
+                    public void onScanResult(int callbackType, ScanResult result) {
+                        Log.w(TAG, "Found device: " + result.getDevice().getAddress());
 
+                        if(callbackType == ScanSettings.CALLBACK_TYPE_ALL_MATCHES) {
+                            Log.w(TAG, "Found a suitable device, stopping the scan.");
+                            scanner.stopScan(this);
+
+                            //TODO: https://github.com/suzp1984/Light_BLE/blob/master/Light_BLE/ble/src/main/java/org/zpcat/ble/BluetoothLeService.java#L285
+                            // Connect using Gatt, any further communication will be done using asynchronous calls.
+
+                            bluetoothConnectionGatt = result.getDevice().connectGatt(context, true, mGattcallback);
+                            Log.w(TAG, "RileyLink has been found, staring to establish connection.");
+
+                        }
+                    }
+                });
+
+                message = "Started scanning.";
             } else {
                 message = "Bluetooth is not enabled on device.";
             }
@@ -94,7 +119,7 @@ public class BluetoothConnection {
         return message;
     }
 
-    public void sendCommand(byte[] data,final String uuidService, final String uuidCharacteristic, final boolean transform, final boolean addCRC) {
+    public void sendCommand(byte[] data, final String uuidService, final String uuidCharacteristic, final boolean transform, final boolean addCRC) {
 
         Log.d(TAG, "Sending package, pre-transform: " + BluetoothConnection.toHexString(data));
         if (transform) {
@@ -102,16 +127,16 @@ public class BluetoothConnection {
             Log.d(TAG, "Sending, post-transform: " + BluetoothConnection.toHexString(data));
         }
 
-        if(addCRC) {
+        if (addCRC) {
             data = CRC.appendCRC(data);
         }
 
-        if (this.bluetoothConnectionGatt == null) {
+        if (bluetoothConnectionGatt == null) {
             Log.e(TAG, "GATT connection not available!");
             return;
         }
 
-        final BluetoothGattService service = this.bluetoothConnectionGatt.
+        final BluetoothGattService service = bluetoothConnectionGatt.
                 getService(UUID.fromString(uuidService));
 
         if (service == null) {
@@ -262,33 +287,27 @@ public class BluetoothConnection {
                     String debugString = "Found service: " + GattAttributes.lookup(uuidServiceString, "Unknown device") + " (" + uuidServiceString + ")" + LS;
                     for (BluetoothGattCharacteristic character : characteristics) {
                         final String descriptorType;
-                        if (character.getUuid().equals(UUID.fromString(GattAttributes.GLUCOSELINK_PACKET_COUNT))) {
-                            BluetoothGattCharacteristic characteristic = gatt.
-                                    getService(UUID.fromString(GattAttributes.GLUCOSELINK_SERVICE_UUID)).
-                                    getCharacteristic(UUID.fromString(GattAttributes.GLUCOSELINK_PACKET_COUNT));
 
-                            BluetoothGattDescriptor descriptor = character.getDescriptors().get(0);
-                            if (descriptor != null) {
-                                if (0 != (characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_INDICATE)) {
-                                    descriptor.setValue(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
-                                    descriptorType = " Indicate";
-                                } else {
-                                    descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                                    descriptorType = " Notify";
-                                }
+                        if (character.getUuid().equals(UUID.fromString(GattAttributes.GLUCOSELINK_PACKET_COUNT))) {
+                            for (BluetoothGattDescriptor descriptor : character.getDescriptors()) {
+                                descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
                                 gatt.writeDescriptor(descriptor);
-                            } else {
-                                descriptorType = " Empty descriptor";
                             }
+                            descriptorType = "Notification";
+                        } else if (character.getUuid().equals(UUID.fromString(GattAttributes.GLUCOSELINK_TX_PACKET_UUID))) {
+                            for (BluetoothGattDescriptor descriptor : character.getDescriptors()) {
+                                descriptor.setValue(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+                                gatt.writeDescriptor(descriptor);
+                            }
+                            descriptorType = "Indication";
                         } else {
-                            descriptorType = "";
+                            descriptorType = "None";
                         }
 
                         final String uuidCharacteristicString = character.getUuid().toString();
-                        debugString += "    - " + GattAttributes.lookup(uuidCharacteristicString) + descriptorType + LS;
+                        debugString += "    - " + GattAttributes.lookup(uuidCharacteristicString) + " " + descriptorType + LS;
                     }
                     Log.w(TAG, debugString);
-
                 }
 
                 message = "Got response, found: " + services.size() + " so far.";
