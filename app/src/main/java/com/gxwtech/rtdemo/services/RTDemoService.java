@@ -33,6 +33,7 @@ import com.gxwtech.rtdemo.MongoWrapper;
 import com.gxwtech.rtdemo.PreferenceBackedStorage;
 import com.gxwtech.rtdemo.R;
 import com.gxwtech.rtdemo.bluetooth.BluetoothConnection;
+import com.gxwtech.rtdemo.bluetooth.Commands;
 import com.gxwtech.rtdemo.bluetooth.GattAttributes;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfile;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileEntry;
@@ -230,11 +231,12 @@ public class RTDemoService extends IntentService {
 
                 BluetoothConnection conn = BluetoothConnection.getInstance(this);
 
-                conn.sendCommand(new byte[]{(byte) 0xA7, 0x41, 0x75, 0x40, (byte) 141},
-                        GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE, GattAttributes.GLUCOSELINK_TX_PACKET_UUID, true, true);
+                byte[] serial = Commands.getReadPumpCommand(new byte[] { 0x41, 0x75, 0x40 });
+
+                conn.sendCommand(serial, GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE, GattAttributes.GLUCOSELINK_TX_PACKET_UUID, false, false);
 
                 try {
-                    Thread.sleep(100);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

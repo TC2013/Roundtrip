@@ -6,7 +6,7 @@ package com.gxwtech.rtdemo.bluetooth;
 public class Commands {
 
     /*
-     _test_ok = bytearray([  ])
+     Based on: https://github.com/bewest/decoding-carelink/blob/master/decocare/commands.py#L1441-L1461
      */
     public static byte[] getReadPumpCommand(byte[] serial) {
         byte[] data = new byte[] {
