@@ -59,7 +59,9 @@ public class BluetoothConnection {
     public String connect() {
         // Close old conenction
         if(bluetoothConnectionGatt != null) {
+            bluetoothConnectionGatt.disconnect();
             bluetoothConnectionGatt.close();
+            bluetoothConnectionGatt = null;
         }
 
         String message;
@@ -98,12 +100,11 @@ public class BluetoothConnection {
                             Log.w(TAG, "Found a suitable device, stopping the scan.");
                             scanner.stopScan(this);
 
-                            //TODO: https://github.com/suzp1984/Light_BLE/blob/master/Light_BLE/ble/src/main/java/org/zpcat/ble/BluetoothLeService.java#L285
+                            // TODO: https://github.com/suzp1984/Light_BLE/blob/master/Light_BLE/ble/src/main/java/org/zpcat/ble/BluetoothLeService.java#L285
                             // Connect using Gatt, any further communication will be done using asynchronous calls.
-
                             bluetoothConnectionGatt = result.getDevice().connectGatt(context, true, mGattcallback);
-                            Log.w(TAG, "RileyLink has been found, staring to establish connection.");
 
+                            Log.w(TAG, "RileyLink has been found, staring to establish connection.");
                         }
                     }
                 });
@@ -161,7 +162,7 @@ public class BluetoothConnection {
     private final BluetoothGattCallback mGattcallback = new BluetoothGattCallback() {
 
         @Override
-        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+        public void onCharacteristicChanged(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
             Log.w(TAG, "onCharacteristicChanged " + characteristic);
 
 
@@ -169,14 +170,14 @@ public class BluetoothConnection {
 
 
         @Override
-        public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+        public void onCharacteristicRead(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic, int status) {
             Log.w(TAG, "onCharacteristicRead " + characteristic + " status " + status);
 
 
         }
 
         @Override
-        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+        public void onCharacteristicWrite(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic, int status) {
 
             final String statusMessage;
             if (status == BluetoothGatt.GATT_SUCCESS) {

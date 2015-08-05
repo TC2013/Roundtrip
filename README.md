@@ -4,4 +4,18 @@ Roundtrip is a limited port of OpenAPS (author Ben West) into an Android applica
 
 For a current list of capability, goals, and progress please ask to join our Trello board.  Email me at toby@canning.us
 
+### Bluetooth TODO
+
+Connecting Roundtrip to RileyLink to send the data to Nightscout.
+
+- Led indicators on RileyLink
+  - BLE113
+    - Blue: Packets received and ready for a phone to pick up
+    - Green: Connected to a phone
+  - CC1110
+  	- Blue: Timer based on/off
+  	- Green: Incomming package
+  - Battery
+    - Red: Charging the battery
+- To communicate with the pump, a CRC checksum must be appended to the bytestream.
 
