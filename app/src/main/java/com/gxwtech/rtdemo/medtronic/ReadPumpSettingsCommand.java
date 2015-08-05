@@ -7,6 +7,7 @@ import com.gxwtech.rtdemo.medtronic.PumpData.PumpSettings;
  */
 public class ReadPumpSettingsCommand extends MedtronicCommand {
     protected PumpSettings mPumpSettings;
+
     public ReadPumpSettingsCommand() {
         init(MedtronicCommandEnum.CMD_M_READ_PUMP_SETTINGS);
         // settings for running the command
@@ -17,9 +18,11 @@ public class ReadPumpSettingsCommand extends MedtronicCommand {
         // member variable initialization
         mPumpSettings = new PumpSettings();
     }
+
     protected void parse(byte[] receivedData) {
         mPumpSettings.parseFrom(receivedData);
     }
+
     public PumpSettings getPumpSettings() {
         return mPumpSettings;
     }

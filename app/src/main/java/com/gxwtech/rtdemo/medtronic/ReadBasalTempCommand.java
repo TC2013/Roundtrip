@@ -10,12 +10,17 @@ import com.gxwtech.rtdemo.medtronic.PumpData.TempBasalPair;
 public class ReadBasalTempCommand extends MedtronicCommand {
     private static final String TAG = "ReadBasalTempCommand";
     protected TempBasalPair mTempBasalPair;
+
     public ReadBasalTempCommand() {
         init(MedtronicCommandEnum.CMD_M_READ_TEMP_BASAL);
         mMaxRecords = 1;
         mTempBasalPair = new TempBasalPair();
     }
-    protected static int readUnsignedByte(byte b) { return (b<0)?b+256:b; }
+
+    protected static int readUnsignedByte(byte b) {
+        return (b < 0) ? b + 256 : b;
+    }
+
     protected void parse(byte[] receivedData) {
         //Log.e(TAG,"parse: here is the data:" + HexDump.dumpHexString(receivedData));
         // cache result in mTempBasalPair
@@ -26,11 +31,11 @@ public class ReadBasalTempCommand extends MedtronicCommand {
         // 1 hour, 0.35 U:     00 00 00 0E 00 3C
         // 24 hours, 0.40 U:   00 00 00 10 05 A0
         if (receivedData == null) {
-            Log.e(TAG,"parse: null data");
+            Log.e(TAG, "parse: null data");
             return;
         }
         if (receivedData.length < 6) {
-            Log.e(TAG,"parse: receivedData buffer too small");
+            Log.e(TAG, "parse: receivedData buffer too small");
             return;
         }
 
@@ -41,7 +46,7 @@ public class ReadBasalTempCommand extends MedtronicCommand {
 
         mTempBasalPair.mInsulinRate = rateByte * 0.025;
         mTempBasalPair.mDurationMinutes = minutes;
-        Log.v(TAG,String.format("TempBasalPair read as: insulinRate: %.3f U, duration %d minutes",
+        Log.v(TAG, String.format("TempBasalPair read as: insulinRate: %.3f U, duration %d minutes",
                 mTempBasalPair.mInsulinRate, mTempBasalPair.mDurationMinutes));
     }
 

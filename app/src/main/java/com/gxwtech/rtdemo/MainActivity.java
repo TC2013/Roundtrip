@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.gxwtech.rtdemo.bluetooth.BluetoothConnection;
 import com.gxwtech.rtdemo.services.RTDemoService;
 
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ public class MainActivity extends ActionBarActivity {
     int nRecentMessages = 50;
     List<String> msgList = new ArrayList<>();
     ArrayAdapter<String> adapter = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,5 +154,10 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+
     }
 }

@@ -8,36 +8,43 @@ import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileTypeEnum;
 /**
  * Created by geoff on 5/5/15.
  * There are three profiles: Standard (STD), A and B.  They are the same format, different data.
- *
  */
 public class ReadProfileCommand extends MedtronicCommand {
-  private static final String TAG = "ReadProfileCommand";
-  protected BasalProfile mProfile;
-  public ReadProfileCommand() {
-    mProfile = new BasalProfile();
-    init(MedtronicCommandEnum.CMD_M_READ_STD_PROFILES);
-  }
-  protected void parse(byte[] receivedData) {
-    if (receivedData == null) {
-      Log.e(TAG,"Passed null data ?!");
-    } else {
-      mProfile.setRawData(receivedData);
+    private static final String TAG = "ReadProfileCommand";
+    protected BasalProfile mProfile;
+
+    public ReadProfileCommand() {
+        mProfile = new BasalProfile();
+        init(MedtronicCommandEnum.CMD_M_READ_STD_PROFILES);
     }
-  }
-  public BasalProfile getProfile() {
-    return mProfile;
-  }
-  public boolean setProfileType(BasalProfileTypeEnum which) {
-    switch(which) {
-      case STD: init(MedtronicCommandEnum.CMD_M_READ_STD_PROFILES);
-        return true;
-      case A: init(MedtronicCommandEnum.CMD_M_READ_A_PROFILES);
-        return true;
-      case B: init(MedtronicCommandEnum.CMD_M_READ_B_PROFILES);
-        return true;
-      default: return false;
+
+    protected void parse(byte[] receivedData) {
+        if (receivedData == null) {
+            Log.e(TAG, "Passed null data ?!");
+        } else {
+            mProfile.setRawData(receivedData);
+        }
     }
-  }
+
+    public BasalProfile getProfile() {
+        return mProfile;
+    }
+
+    public boolean setProfileType(BasalProfileTypeEnum which) {
+        switch (which) {
+            case STD:
+                init(MedtronicCommandEnum.CMD_M_READ_STD_PROFILES);
+                return true;
+            case A:
+                init(MedtronicCommandEnum.CMD_M_READ_A_PROFILES);
+                return true;
+            case B:
+                init(MedtronicCommandEnum.CMD_M_READ_B_PROFILES);
+                return true;
+            default:
+                return false;
+        }
+    }
 }
 
 /* from decocare:

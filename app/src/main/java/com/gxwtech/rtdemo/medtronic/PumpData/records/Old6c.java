@@ -7,6 +7,7 @@ public class Old6c extends Record {
         bodySize = 38;
         calcSize();
     }
+
     public boolean collectRawData(byte[] data, PumpModel model) {
         if (!super.collectRawData(data, model)) {
             return false;

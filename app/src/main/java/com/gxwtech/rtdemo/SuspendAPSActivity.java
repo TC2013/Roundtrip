@@ -22,16 +22,16 @@ public class SuspendAPSActivity extends ActionBarActivity {
     }
 
     protected void updateSuspendMinutesField(int minutes) {
-        EditText editText = (EditText)findViewById(R.id.editText_SuspendMinutes);
+        EditText editText = (EditText) findViewById(R.id.editText_SuspendMinutes);
         int remainder = minutes % 60;
-        String remainderText = String.format("%d",remainder);
+        String remainderText = String.format("%d", remainder);
         editText.setText(remainderText);
     }
 
     protected void updateSuspendHoursField(int minutes) {
-        EditText editText = (EditText)findViewById(R.id.editText_SuspendHours);
+        EditText editText = (EditText) findViewById(R.id.editText_SuspendHours);
         int hrs = minutes / 60;
-        String hrsText = String.format("%d",hrs);
+        String hrsText = String.format("%d", hrs);
         editText.setText(hrsText);
     }
 
@@ -51,7 +51,7 @@ public class SuspendAPSActivity extends ActionBarActivity {
         mMinutes = 0;
 
         EditText minutesText = (EditText) findViewById(R.id.editText_SuspendMinutes);
-        String minutesString =  minutesText.getText().toString();
+        String minutesString = minutesText.getText().toString();
         int minutes = Integer.parseInt(minutesString);
         if (minutes < 0) {
             minutes = 0;
@@ -59,7 +59,7 @@ public class SuspendAPSActivity extends ActionBarActivity {
         mMinutes += minutes;
 
         EditText hoursText = (EditText) findViewById(R.id.editText_SuspendHours);
-        String hoursString =  hoursText.getText().toString();
+        String hoursString = hoursText.getText().toString();
         int hours = Integer.parseInt(hoursString);
         if (hours < 0) {
             hours = 0;
@@ -68,7 +68,7 @@ public class SuspendAPSActivity extends ActionBarActivity {
 
         // save in SharedPreferences
         SharedPreferences preferences = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, MODE_PRIVATE);
-        SharedPreferences.Editor edit= preferences.edit();
+        SharedPreferences.Editor edit = preferences.edit();
         edit.putInt(Constants.PrefName.SuspendMinutesPrefName, mMinutes);
         edit.commit();
     }
@@ -85,9 +85,9 @@ public class SuspendAPSActivity extends ActionBarActivity {
     protected void doSuspend(int minutes) {
         saveSettingsToPreferences();
         // tell the background service to suspend
-        Intent intent = new Intent(this,RTDemoService.class);
+        Intent intent = new Intent(this, RTDemoService.class);
         // background service will pull the delay amount from the saved preferences.
-        intent.putExtra("srq",Constants.SRQ.DO_SUSPEND_MINUTES);
+        intent.putExtra("srq", Constants.SRQ.DO_SUSPEND_MINUTES);
         startService(intent);
         finish();
     }

@@ -6,7 +6,7 @@ import com.gxwtech.rtdemo.usb.UsbException;
 
 /**
  * Created by geoff on 4/27/15.
- *
+ * <p/>
  * This class will also be a place to record the hardware interaction, for later playback
  * Do not reuse commands that have already been run.  Make a new one.
  */
@@ -40,9 +40,17 @@ public class CarelinkCommand {
         return (mAck != CarelinkCommandStatusEnum.NONE);
     }
 
-    public byte[] getRawPacket() { return mRawPacket; }
-    protected byte[] getRawResponse() { return mRawResponse; }
-    public String getName() { return mCode.toString();}
+    public byte[] getRawPacket() {
+        return mRawPacket;
+    }
+
+    protected byte[] getRawResponse() {
+        return mRawResponse;
+    }
+
+    public String getName() {
+        return mCode.toString();
+    }
 
     // this is a hook for subclasses to do what they need to do to the packet
     // This is called in run(), before sending the packet to the stick.
@@ -75,7 +83,7 @@ public class CarelinkCommand {
          * most commands, as they return 14 bytes or 15 bytes.
          * Exception is ReadRadioCommand which needs 78 bytes
          */
-        response = stick.doCommand(mRawPacket,10, 64);
+        response = stick.doCommand(mRawPacket, 10, 64);
         mRawResponse = response;
         parseAck(); // checks first bytes of mRawResponse for proper code
         // (proper code is 0x01, 0x55 for normal commands
@@ -83,9 +91,9 @@ public class CarelinkCommand {
         // We get out of sync with the carelink so easily,
         // I'm putting a retry in for every command.
         if (mAck != CarelinkCommandStatusEnum.ACK) {
-            Log.w(TAG,"Invalid ACK from Carelink, resetting stick, trying again.");
+            Log.w(TAG, "Invalid ACK from Carelink, resetting stick, trying again.");
             stick.reset();
-            response = stick.doCommand(mRawPacket,10,64);
+            response = stick.doCommand(mRawPacket, 10, 64);
             mRawResponse = response;
             parseAck(); // looks at mRawResponse, sets mAck
         }
@@ -95,7 +103,7 @@ public class CarelinkCommand {
 
     // ReadRadioCommand has to override this method. Others shouldn't.
     protected void parseAck() {
-        if (mRawResponse!=null) {
+        if (mRawResponse != null) {
             if (mRawResponse.length > 2) {
                 if (mRawResponse[0] == 1) {
                     if (mRawResponse[1] == 0x55) {
@@ -104,7 +112,7 @@ public class CarelinkCommand {
                         mAck = CarelinkCommandStatusEnum.NACK;
                     }
                 }
-             }
+            }
         }
     }
 

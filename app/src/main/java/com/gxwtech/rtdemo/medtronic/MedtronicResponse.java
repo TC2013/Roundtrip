@@ -27,32 +27,59 @@ public class MedtronicResponse {
     protected byte[] mPumpData; // unknown length, often 1 for simple responses (power_control, e.g.)
     protected byte mPumpDataChecksum; //1 byte, last byte of packet, checksum of mPumpData, or zero if no pump data.
 
-    public MedtronicResponse() { init(); }
+    public MedtronicResponse() {
+        init();
+    }
 
     public void init() {
         // initialize to unusable values, where possible.
         mIsRadioResponse = false;
-        mRadioResponseStatus = (byte)0xFF;
+        mRadioResponseStatus = (byte) 0xFF;
         mEOD = true;
         mResponseSize = -1;
-        mSerialNumber = new byte[] {(byte)0xFF, (byte)0xFF, (byte)0xFF};
-        mReceivedChecksum = (byte)0xFF;
-        mPumpData = new byte[] {};
-        mPumpDataChecksum = (byte)0xFF;
+        mSerialNumber = new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF};
+        mReceivedChecksum = (byte) 0xFF;
+        mPumpData = new byte[]{};
+        mPumpDataChecksum = (byte) 0xFF;
     }
 
-    public boolean isRadioResponse() { return mIsRadioResponse; }
-//    public boolean radioResponseOK() { return (mRadioResponseStatus == 0x01); }
-    public boolean radioResponseOK() { return true; } // TODO: error check
-    public boolean isEOD() { return mEOD; }
-    public int getResponseSize() { return mResponseSize; } //how much the pump said it sent
-    public byte[] getSerialNumber() { return mSerialNumber; }
-    public byte getFrameChecksum() { return mReceivedChecksum; }
+    public boolean isRadioResponse() {
+        return mIsRadioResponse;
+    }
+
+    //    public boolean radioResponseOK() { return (mRadioResponseStatus == 0x01); }
+    public boolean radioResponseOK() {
+        return true;
+    } // TODO: error check
+
+    public boolean isEOD() {
+        return mEOD;
+    }
+
+    public int getResponseSize() {
+        return mResponseSize;
+    } //how much the pump said it sent
+
+    public byte[] getSerialNumber() {
+        return mSerialNumber;
+    }
+
+    public byte getFrameChecksum() {
+        return mReceivedChecksum;
+    }
+
     public boolean frameChecksumOK() {
         return (mReceivedChecksum == CRC.crc8(raw, 12));
     }
-    public byte[] getPumpData() { return mPumpData; }
-    public byte getPumpDataChecksum() { return mPumpDataChecksum; }
+
+    public byte[] getPumpData() {
+        return mPumpData;
+    }
+
+    public byte getPumpDataChecksum() {
+        return mPumpDataChecksum;
+    }
+
     public boolean pumpDataChecksumOK() {
         if (mPumpData.length == 0) {
             return true;
@@ -71,7 +98,7 @@ public class MedtronicResponse {
         }
         // copy raw radio buffer, just for safe keeping
         raw = new byte[rawRadioBuffer.length];
-        System.arraycopy(rawRadioBuffer,0,raw,0,rawRadioBuffer.length);
+        System.arraycopy(rawRadioBuffer, 0, raw, 0, rawRadioBuffer.length);
         // continue parsing
         if (rawRadioBuffer.length > 2) {
             mUnknown1 = rawRadioBuffer[1];
@@ -88,7 +115,7 @@ public class MedtronicResponse {
             mUnknown4 = rawRadioBuffer[7]; // should be 0xA7?
             mUnknown5 = rawRadioBuffer[8]; // should be 0x01?
             mSerialNumber = new byte[3];
-            System.arraycopy(rawRadioBuffer,9,mSerialNumber,0,3);
+            System.arraycopy(rawRadioBuffer, 9, mSerialNumber, 0, 3);
         }
         if (rawRadioBuffer.length > 12) {
             mReceivedChecksum = rawRadioBuffer[12];
@@ -110,28 +137,29 @@ public class MedtronicResponse {
             }
             if (pumpDataLength > 0) {
                 mPumpData = new byte[pumpDataLength];
-                System.arraycopy(rawRadioBuffer,13,mPumpData,0,pumpDataLength);
+                System.arraycopy(rawRadioBuffer, 13, mPumpData, 0, pumpDataLength);
             } else {
-                mPumpData = new byte[] {};
+                mPumpData = new byte[]{};
             }
             mPumpDataChecksum = rawRadioBuffer[13 + pumpDataLength];
         }
         // now do sanity checks on what we've got.
         byte calculatedChecksum = CRC.crc8(mPumpData);
-        if (calculatedChecksum!=mPumpDataChecksum) {
+        if (calculatedChecksum != mPumpDataChecksum) {
             //Log.e(TAG,String.format("Pump Data Checksum mismatch (0x%02X/0x%02X",calculatedChecksum,mPumpDataChecksum));
         }
     }
+
     public String explain() {
         String rval = "RadioResponse:";
         if (raw == null) {
             rval = rval + "(null)";
         } else if (raw.length == 0) {
             rval = rval + "(zero length)";
-        } else rval = rval + String.format("(frame %d bytes)",raw.length);
+        } else rval = rval + String.format("(frame %d bytes)", raw.length);
         rval = rval + String.format("{%02X,SN%02X%02X%02X,Checksum %s,EOD=%s,%d bytes:%s}",
                 mRadioResponseStatus,
-                mSerialNumber[0],mSerialNumber[1],mSerialNumber[2],
+                mSerialNumber[0], mSerialNumber[1], mSerialNumber[2],
                 pumpDataChecksumOK() ? "OK" : "BAD",
                 isEOD() ? "true" : "false",
                 mPumpData == null ? 0 : mPumpData.length,

@@ -8,6 +8,7 @@ public class ToggleRemote extends TimeStampedRecord {
         bodySize = 14;
         calcSize();
     }
+
     public boolean collectRawData(byte[] data, PumpModel model) {
         if (!super.collectRawData(data, model)) {
             return false;

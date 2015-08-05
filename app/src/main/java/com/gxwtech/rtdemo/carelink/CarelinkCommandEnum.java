@@ -5,14 +5,14 @@ package com.gxwtech.rtdemo.carelink;
  */
 public enum CarelinkCommandEnum {
     // Add others as needed
-    CMD_C_INVALID((byte)0),  // GGW: I just made this one up...
-    CMD_C_TRANSMIT_PACKET((byte)1),
-    CMD_C_READ_CONTINUE((byte)2), // GGW: I just made this one up...
-    CMD_C_LINK_STATUS((byte)3),
-    CMD_C_PRODUCT_INFO((byte)4),
-    CMD_C_LINK_STATS((byte)5),
-    CMD_C_SIGNAL_STRENGTH((byte)6),
-    CMD_C_READ_RADIO((byte)0x0c);
+    CMD_C_INVALID((byte) 0),  // GGW: I just made this one up...
+    CMD_C_TRANSMIT_PACKET((byte) 1),
+    CMD_C_READ_CONTINUE((byte) 2), // GGW: I just made this one up...
+    CMD_C_LINK_STATUS((byte) 3),
+    CMD_C_PRODUCT_INFO((byte) 4),
+    CMD_C_LINK_STATS((byte) 5),
+    CMD_C_SIGNAL_STRENGTH((byte) 6),
+    CMD_C_READ_RADIO((byte) 0x0c);
 
     // The following are all wrong.  Need new ones.
     /*
@@ -32,6 +32,7 @@ public enum CarelinkCommandEnum {
     public byte opcode() {
         return opcode;
     }
+
     CarelinkCommandEnum(byte b) {
         opcode = b;
     }

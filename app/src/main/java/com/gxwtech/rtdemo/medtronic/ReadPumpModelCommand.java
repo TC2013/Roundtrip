@@ -6,6 +6,7 @@ package com.gxwtech.rtdemo.medtronic;
 public class ReadPumpModelCommand extends MedtronicCommand {
     static String TAG = "ReadPumpModelCommand";
     String mModel = "(empty model number)";
+
     public ReadPumpModelCommand() {
         init(MedtronicCommandEnum.CMD_M_READ_PUMP_MODEL_NUMBER);
         mMaxRecords = 1; // one 64 byte record from pump

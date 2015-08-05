@@ -2,6 +2,7 @@ package com.gxwtech.rtdemo.medtronic.PumpData.records;
 
 
 //import com.google.common.primitives.UnsignedBytes;
+
 import android.util.Log;
 
 import com.gxwtech.rtdemo.medtronic.PumpModel;
@@ -21,7 +22,7 @@ public class BolusWizard extends TimeStampedRecord {
     private double unabsorbedInsulinTotal;
 
     public BolusWizard() {
-        correction = (double)0.0;
+        correction = (double) 0.0;
         bg = 0;
         carbInput = 0;
         icRatio = 0.0;
@@ -33,15 +34,41 @@ public class BolusWizard extends TimeStampedRecord {
         unabsorbedInsulinTotal = 0.0;
     }
 
-    public double getCorrection() { return correction; }
-    public long getBG() { return bg; }
-    public int getCarbInput() { return carbInput; }
-    public double getICRatio() { return icRatio; }
-    public int getSensitivity() { return sensitivity; }
-    public int getBgTargetLow() { return bgTargetLow; }
-    public double getBolusEstimate() { return bolusEstimate; }
-    public double getFoodEstimate() { return foodEstimate; }
-    public double getUnabsorbedInsulinTotal() { return unabsorbedInsulinTotal; }
+    public double getCorrection() {
+        return correction;
+    }
+
+    public long getBG() {
+        return bg;
+    }
+
+    public int getCarbInput() {
+        return carbInput;
+    }
+
+    public double getICRatio() {
+        return icRatio;
+    }
+
+    public int getSensitivity() {
+        return sensitivity;
+    }
+
+    public int getBgTargetLow() {
+        return bgTargetLow;
+    }
+
+    public double getBolusEstimate() {
+        return bolusEstimate;
+    }
+
+    public double getFoodEstimate() {
+        return foodEstimate;
+    }
+
+    public double getUnabsorbedInsulinTotal() {
+        return unabsorbedInsulinTotal;
+    }
 
     public boolean collectRawData(byte[] data, PumpModel model) {
         super.collectRawData(data, model);
@@ -88,7 +115,7 @@ public class BolusWizard extends TimeStampedRecord {
 
     @Override
     public void logRecord() {
-        Log.i(TAG,String.format("Time: %s RecordType: %s Bg: %d Carb Input: %d Correction: %.2f icRatio: %.2f Sensitivity: %d BG Target High: %d BG Target Low: %d Bolus Estimate: %.2f Food Estimate: %.2f Unabsorbed Insulin Total: %.2f",
+        Log.i(TAG, String.format("Time: %s RecordType: %s Bg: %d Carb Input: %d Correction: %.2f icRatio: %.2f Sensitivity: %d BG Target High: %d BG Target Low: %d Bolus Estimate: %.2f Food Estimate: %.2f Unabsorbed Insulin Total: %.2f",
                 timeStamp.toString(), recordTypeName, bg, carbInput, correction, icRatio, sensitivity, bgTargetHigh, bgTargetLow, bolusEstimate, foodEstimate, unabsorbedInsulinTotal));
     }
 }

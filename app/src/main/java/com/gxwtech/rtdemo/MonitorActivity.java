@@ -17,7 +17,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.gxwtech.rtdemo.services.pumpmanager.TempBasalPairParcel;
 import com.gxwtech.rtdemo.services.RTDemoService;
 
 import org.joda.time.DateTime;
@@ -32,7 +31,7 @@ public class MonitorActivity extends ActionBarActivity {
     BroadcastReceiver mBroadcastReceiver;
     PreferenceBackedStorage mStorage;
 
-//    DateTime mLastBGUpdateTime = null;
+    //    DateTime mLastBGUpdateTime = null;
     DateTime mSleepNotificationStartTime = null;
     int mSleepNotificationDuration = 0;
     ArrayList<String> msgList = new ArrayList<>();
@@ -75,6 +74,7 @@ public class MonitorActivity extends ActionBarActivity {
     }
 
     private final int MaxLogSize = 500;
+
     public void receiveLogMessage(String msg) {
         // keep 50 messages?  make configurable?
         if (msg == null) {
@@ -85,16 +85,16 @@ public class MonitorActivity extends ActionBarActivity {
         }
         adapter.insert(msg, 0);
         if (adapter.getCount() > MaxLogSize) {
-            adapter.remove(adapter.getItem(adapter.getCount()-1));
+            adapter.remove(adapter.getItem(adapter.getCount() - 1));
         }
     }
 
     public void UpdateTextViewInt(int textView_id, String format, int value) {
-        ((TextView)findViewById(textView_id)).setText(String.format(format, value));
+        ((TextView) findViewById(textView_id)).setText(String.format(format, value));
     }
 
     public void UpdateTextViewDouble(int textView_id, String format, double value) {
-        ((TextView)findViewById(textView_id)).setText(String.format(format, value));
+        ((TextView) findViewById(textView_id)).setText(String.format(format, value));
     }
 
     public void UpdateBGReading() {
@@ -103,16 +103,16 @@ public class MonitorActivity extends ActionBarActivity {
 
     public void updateBGTimer() {
         DateTime lastBGUpdateTime = mStorage.getLatestBGReading().mTimestamp;
-        int elapsedMinutes = Minutes.minutesBetween(lastBGUpdateTime,DateTime.now()).getMinutes();
+        int elapsedMinutes = Minutes.minutesBetween(lastBGUpdateTime, DateTime.now()).getMinutes();
         String viewtext = "never";
         int textColor = Color.rgb(200, 0, 0); // red
         TextView view = (TextView) findViewById(R.id.textView_LastBGReadTime);
         if (elapsedMinutes < 1000) {
             viewtext = String.format("%d min ago", elapsedMinutes);
             if ((elapsedMinutes > 10) || (elapsedMinutes < 1)) {
-                textColor = Color.rgb(200,0,0); // red
+                textColor = Color.rgb(200, 0, 0); // red
             } else {
-                textColor = Color.rgb(0,0,0); // black
+                textColor = Color.rgb(0, 0, 0); // black
             }
         }
         view.setText(viewtext);
@@ -124,7 +124,7 @@ public class MonitorActivity extends ActionBarActivity {
     }
 
     public void updateCurrentCOB_TextView() {
-        UpdateTextViewDouble(R.id.textView_COB,"%.1f gm",mStorage.monitorCOB.get());
+        UpdateTextViewDouble(R.id.textView_COB, "%.1f gm", mStorage.monitorCOB.get());
     }
 
     public void updateCurrentBasal_TextView() {
@@ -134,14 +134,15 @@ public class MonitorActivity extends ActionBarActivity {
     public void updatePredictedBG_TextView() {
         UpdateTextViewDouble(R.id.textView_PredBG, "%.1f mg/dL", mStorage.monitorPredictedBG.get());
     }
+
     public void updateTempBasal_TextView() {
-        UpdateTextViewDouble(R.id.textView_TempBasalRate,"%.3f U/hr",mStorage.monitorTempBasalRate.get());
+        UpdateTextViewDouble(R.id.textView_TempBasalRate, "%.3f U/hr", mStorage.monitorTempBasalRate.get());
         UpdateTextViewInt(R.id.textView_TempBasalMinRemaining, "%d min", mStorage.monitorTempBasalDuration.get());
     }
 
     protected void setSleepNotification() {
         mSleepNotificationStartTime = DateTime.now();
-        TextView tv = (TextView)findViewById(R.id.textView_SleepNotification);
+        TextView tv = (TextView) findViewById(R.id.textView_SleepNotification);
         updateSleepNotification();
     }
 
@@ -163,19 +164,19 @@ public class MonitorActivity extends ActionBarActivity {
 
     public void startupButtonClicked(View view) {
         Log.d(TAG, "startupButtonClicked");
-        Intent intent = new Intent(this,RTDemoService.class);
+        Intent intent = new Intent(this, RTDemoService.class);
         intent.putExtra("srq", Constants.SRQ.START_REPEAT_ALARM);
         startService(intent);
     }
 
     public void buttonSuspendClicked(View view) {
         // need a dialog for the options:
-        Intent intent = new Intent(this,SuspendAPSActivity.class);
+        Intent intent = new Intent(this, SuspendAPSActivity.class);
         startActivity(intent);
     }
 
     public void buttonStopClicked(View view) {
-        Intent intent = new Intent(this,RTDemoService.class);
+        Intent intent = new Intent(this, RTDemoService.class);
         intent.putExtra("srq", Constants.SRQ.STOP_REPEAT_ALARM);
         startService(intent);
     }

@@ -36,10 +36,10 @@ public class DBTempBasalEntry {
     }
 
     public BasicDBObject formatDBObject() {
-        return new BasicDBObject("enteredBy",enteredBy)
-                .append("eventType",eventType)
-                .append("date",mTimestamp.getMillis())
-                //.append("date", String.format("%d", mTimestamp.getMillis()))
+        return new BasicDBObject("enteredBy", enteredBy)
+                .append("eventType", eventType)
+                .append("date", mTimestamp.getMillis())
+                        //.append("date", String.format("%d", mTimestamp.getMillis()))
                 .append("insulin", String.format("%.3f", mRelativeInsulin))
                 .append("durationMin", String.format("%d", mDurationMinutes))
                 .append("created_at", mTimestamp.toDateTime(DateTimeZone.UTC).toString())
@@ -50,9 +50,9 @@ public class DBTempBasalEntry {
         Long millisecondsSince1970 = (Long) (obj.get("date"));
         //mTimestamp = new DateTime(millisecondsSince1970);
         // Note: we still need the millisecondsSince1970 "date" object in the db because we key times off it.
-        mTimestamp = DateTime.parse((String)obj.get("created_at"));
-        mDurationMinutes = Integer.parseInt((String)(obj.get("durationMin")));
-        mRelativeInsulin = Double.parseDouble((String)(obj.get("insulin")));
+        mTimestamp = DateTime.parse((String) obj.get("created_at"));
+        mDurationMinutes = Integer.parseInt((String) (obj.get("durationMin")));
+        mRelativeInsulin = Double.parseDouble((String) (obj.get("insulin")));
         calcStartEndTimes();
     }
 

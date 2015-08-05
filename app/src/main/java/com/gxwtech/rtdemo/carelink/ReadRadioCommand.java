@@ -9,12 +9,12 @@ import com.gxwtech.rtdemo.usb.UsbException;
 
 /**
  * Created by geoff on 4/28/15.
- *
+ * <p/>
  * This command tells the carelink to put its radio buffer
  * on the USB connection.  The response may be 14 bytes from the
  * stick, plus 64 bytes of data BUT, we have to read them in
  * 64 byte chunks.
- *
+ * <p/>
  * So this command is different from others as it will
  * have to make two USB read requests.
  */
@@ -44,8 +44,13 @@ public class ReadRadioCommand extends CarelinkCommand {
 
     //public byte[] getRadioRecord() { return mResponse.getPumpData(); }
     //public boolean isEOD() { return mResponse.isEOD();}
-    public CarelinkCommandStatusEnum getCarelinkAck() {return mAck;}
-    public MedtronicResponse getResponse() { return mResponse; }
+    public CarelinkCommandStatusEnum getCarelinkAck() {
+        return mAck;
+    }
+
+    public MedtronicResponse getResponse() {
+        return mResponse;
+    }
 
     public int calcRecordsNeeded() {
         int rval = 1;
@@ -73,10 +78,10 @@ public class ReadRadioCommand extends CarelinkCommand {
         }
         // i is start index
         // wl is word length;
-        for (int wl = data.length-1; wl > 0; wl--) {
-            for (int i = 0; i< data.length - wl; i++) {
+        for (int wl = data.length - 1; wl > 0; wl--) {
+            for (int i = 0; i < data.length - wl; i++) {
                 byte[] word = new byte[wl];
-                System.arraycopy(data,i,word,0,wl);
+                System.arraycopy(data, i, word, 0, wl);
                 byte crc = CRC.crc8(word);
                 if (crc != 0) {
                     int j = i + wl;
@@ -103,7 +108,7 @@ public class ReadRadioCommand extends CarelinkCommand {
         // 78, for a 64 byte response from pump
 
         //packet = new byte[] {0x0c, 0, ByteUtil.highByte(mFullSize), ByteUtil.lowByte(mFullSize)};
-        packet = new byte[] {0x0c, 0, (byte)((mFullSize & 0xFF00) >> 8), (byte)(mFullSize & 0xFF)};
+        packet = new byte[]{0x0c, 0, (byte) ((mFullSize & 0xFF00) >> 8), (byte) (mFullSize & 0xFF)};
         packet = ByteUtil.concat(packet, CRC.crc8(packet));
 
         mRawPacket = packet;
@@ -116,15 +121,15 @@ public class ReadRadioCommand extends CarelinkCommand {
         parseAck(); // checks first bytes of mRawResponse for proper code
 
         if (mAck != CarelinkCommandStatusEnum.ACK) {
-            Log.w(TAG,"Invalid ACK from Carelink, resetting stick, trying again.");
+            Log.w(TAG, "Invalid ACK from Carelink, resetting stick, trying again.");
             stick.reset();
-            response = stick.doCommand(mRawPacket,10, mFullSize);
+            response = stick.doCommand(mRawPacket, 10, mFullSize);
             mRawResponse = response;
             parseAck(); // looks at mRawResponse, sets mAck
         }
 
         if (mAck != CarelinkCommandStatusEnum.ACK) {
-            Log.w(TAG,"Invalid ACK -- failed twice. Quitting.");
+            Log.w(TAG, "Invalid ACK -- failed twice. Quitting.");
         } else {
             // sometimes we get a valid ACK, but the radio buffer has nothing (yet?)
             // handle this situation in MedtronicCommand.downloadIdeal.
@@ -166,7 +171,7 @@ public class ReadRadioCommand extends CarelinkCommand {
 
     protected boolean dlAckd(byte[] response) {
         boolean rval = false;
-        if (response!=null) {
+        if (response != null) {
             if (response.length > 0) {
                 if (response[0] == 0x02) {
                     rval = true;

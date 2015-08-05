@@ -23,44 +23,44 @@ public class MongoDBSettingsActivity extends ActionBarActivity {
         setContentView(R.layout.activity_mongo_dbsettings);
     }
 
-     // this is run when the SET button is clicked.
+    // this is run when the SET button is clicked.
     public void saveMongoDBPrefs(View view) {
         EditText editText;
         // gather values from fields
-        editText = (EditText)findViewById(R.id.editText_Server);
+        editText = (EditText) findViewById(R.id.editText_Server);
         String server = editText.getText().toString();
-        editText = (EditText)findViewById(R.id.editText_ServerPort);
+        editText = (EditText) findViewById(R.id.editText_ServerPort);
         String serverPort = editText.getText().toString();
         editText = (EditText) findViewById(R.id.editText_DatabaseName);
         String dbname = editText.getText().toString();
-        editText = (EditText)findViewById(R.id.editText_MongoUsername);
+        editText = (EditText) findViewById(R.id.editText_MongoUsername);
         String mongoUsername = editText.getText().toString();
-        editText = (EditText)findViewById(R.id.editText_MongoPassword);
+        editText = (EditText) findViewById(R.id.editText_MongoPassword);
         String mongoPassword = editText.getText().toString();
-        editText = (EditText)findViewById(R.id.editText_MongoCollectionName);
+        editText = (EditText) findViewById(R.id.editText_MongoCollectionName);
         String mongoCollection = editText.getText().toString();
-        CheckBox cb = (CheckBox)findViewById(R.id.checkBox_allowWritingToDB);
+        CheckBox cb = (CheckBox) findViewById(R.id.checkBox_allowWritingToDB);
         boolean allowWritingtoDB = cb.isChecked();
 
         // open prefs for editing
         SharedPreferences preferences = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, MODE_PRIVATE);
-        SharedPreferences.Editor edit= preferences.edit();
+        SharedPreferences.Editor edit = preferences.edit();
         // write prefs
         edit.putString(Constants.PrefName.MongoDBServerPrefName, server);
-        edit.putString(Constants.PrefName.MongoDBServerPortPrefName,serverPort);
-        edit.putString(Constants.PrefName.MongoDBDatabasePrefName,dbname);
-        edit.putString(Constants.PrefName.MongoDBUsernamePrefName,mongoUsername);
+        edit.putString(Constants.PrefName.MongoDBServerPortPrefName, serverPort);
+        edit.putString(Constants.PrefName.MongoDBDatabasePrefName, dbname);
+        edit.putString(Constants.PrefName.MongoDBUsernamePrefName, mongoUsername);
         edit.putString(Constants.PrefName.MongoDBPasswordPrefName, mongoPassword);
         edit.putString(Constants.PrefName.MongoDBCollectionPrefName, mongoCollection);
-        edit.putBoolean(Constants.PrefName.MongoDBAllowWritingToDBPrefName,allowWritingtoDB);
+        edit.putBoolean(Constants.PrefName.MongoDBAllowWritingToDBPrefName, allowWritingtoDB);
         // save prefs
         edit.commit();
         // notify user that the settings were saved
-        TextView settingsSavedMsg = (TextView)findViewById(R.id.textView_SaveStatusMsg);
+        TextView settingsSavedMsg = (TextView) findViewById(R.id.textView_SaveStatusMsg);
         settingsSavedMsg.setVisibility(View.VISIBLE);
         // tell the background service that the URI has changed.
-        Intent intent = new Intent(this,RTDemoService.class);
-        intent.putExtra("srq",Constants.SRQ.MONGO_SETTINGS_CHANGED);
+        Intent intent = new Intent(this, RTDemoService.class);
+        intent.putExtra("srq", Constants.SRQ.MONGO_SETTINGS_CHANGED);
         startService(intent);
     }
 
@@ -79,22 +79,22 @@ public class MongoDBSettingsActivity extends ActionBarActivity {
 
         // fill out fields from strings
         EditText editText;
-        editText = (EditText)findViewById(R.id.editText_Server);
+        editText = (EditText) findViewById(R.id.editText_Server);
         editText.setText(server);
-        editText = (EditText)findViewById(R.id.editText_ServerPort);
+        editText = (EditText) findViewById(R.id.editText_ServerPort);
         editText.setText(serverPort);
         editText = (EditText) findViewById(R.id.editText_DatabaseName);
         editText.setText(dbname);
-        editText = (EditText)findViewById(R.id.editText_MongoUsername);
+        editText = (EditText) findViewById(R.id.editText_MongoUsername);
         editText.setText(mongoUsername);
-        editText = (EditText)findViewById(R.id.editText_MongoPassword);
+        editText = (EditText) findViewById(R.id.editText_MongoPassword);
         editText.setText(mongoPassword);
-        editText = (EditText)findViewById(R.id.editText_MongoCollectionName);
+        editText = (EditText) findViewById(R.id.editText_MongoCollectionName);
         editText.setText(mongoCollection);
-        CheckBox cb = (CheckBox)findViewById(R.id.checkBox_allowWritingToDB);
+        CheckBox cb = (CheckBox) findViewById(R.id.checkBox_allowWritingToDB);
         cb.setChecked(allowWritingToDB);
         // clear "saved" message
-        TextView settingsSavedMsg = (TextView)findViewById(R.id.textView_SaveStatusMsg);
+        TextView settingsSavedMsg = (TextView) findViewById(R.id.textView_SaveStatusMsg);
         settingsSavedMsg.setVisibility(View.INVISIBLE);
     }
 

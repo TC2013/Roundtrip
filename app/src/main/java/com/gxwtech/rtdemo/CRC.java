@@ -5,7 +5,7 @@ package com.gxwtech.rtdemo;
  */
 public class CRC {
 
-    static final int[] crc8lookup = new int[] { 0, 155, 173, 54, 193, 90, 108, 247, 25, 130, 180, 47,
+    static final int[] crc8lookup = new int[]{0, 155, 173, 54, 193, 90, 108, 247, 25, 130, 180, 47,
             216, 67, 117, 238, 50, 169, 159, 4, 243, 104, 94, 197, 43, 176,
             134, 29, 234, 113, 71, 220, 100, 255, 201, 82, 165, 62, 8, 147,
             125, 230, 208, 75, 188, 39, 17, 138, 86, 205, 251, 96, 151, 12,
@@ -23,7 +23,7 @@ public class CRC {
             241, 106, 92, 199, 48, 171, 157, 6, 232, 115, 69, 222, 41, 178,
             132, 31, 167, 60, 10, 145, 102, 253, 203, 80, 190, 37, 19, 136,
             127, 228, 210, 73, 149, 14, 56, 163, 84, 207, 249, 98, 140, 23,
-            33, 186, 77, 214, 224, 123 };
+            33, 186, 77, 214, 224, 123};
 
 
     public static byte crc8(final byte[] data, int len) {
@@ -37,12 +37,12 @@ public class CRC {
             len = data.length;
         }
 
-        for (int i=0; i<len; i++) {
+        for (int i = 0; i < len; i++) {
             int tmp = result;
             int tmp2 = tmp ^ data[i];
             int tmp3 = tmp2 & 0xFF;
             int idx = tmp3;
-            result = (byte)crc8lookup[idx];
+            result = (byte) crc8lookup[idx];
         }
         return result;
 
@@ -58,7 +58,7 @@ public class CRC {
 
         if (data != null) {
             if (data.length > 0) {
-                for (int j=0; j<data.length; j++) {
+                for (int j = 0; j < data.length; j++) {
                     byte b = data[j];
                     for (int i = 0; i < 8; i++) {
                         boolean bit = ((b >> (7 - i) & 1) == 1);

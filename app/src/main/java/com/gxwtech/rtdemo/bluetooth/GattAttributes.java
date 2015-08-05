@@ -10,10 +10,9 @@ import java.util.UUID;
 public class GattAttributes {
     private static HashMap<String, String> attributes = new HashMap();
     // NOTE: these uuid strings must be lower case!
-    public static final String GLUCOSELINK_SERVICE_UUID = "d39f1890-17eb-11e4-8c21-0800200c9a66";
+    public static final String GLUCOSELINK_RILEYLINK_SERVICE = "d39f1890-17eb-11e4-8c21-0800200c9a66";
     //public static String GLUCOSELINK_BATTERY_SERVICE = "180f";
     public static final String GLUCOSELINK_BATTERY_SERVICE = "0000180f-0000-1000-8000-00805f9b34fb";
-
 
 
     public static final String GLUCOSELINK_RX_PACKET_UUID = "2fb1a490-1940-11e4-8c21-0800200c9a66";
@@ -24,7 +23,6 @@ public class GattAttributes {
     public static final String GLUCOSELINK_BUF_LEN_RD = "41825a20-7409-11e4-8c21-0800200c9a66";
     public static final String GLUCOSELINK_TX_PACKET_UUID = "2fb1a490-1941-11e4-8c21-0800200c9a66";
     public static final String GLUCOSELINK_TX_TRIGGER_UUID = "2fb1a490-1942-11e4-8c21-0800200c9a66";
-    //public static String GLUCOSELINK_BATTERY_UUID = "2A19";
     public static final String GLUCOSELINK_BATTERY_UUID = "00002a19-0000-1000-8000-00805f9b34fb";
 
 
@@ -36,7 +34,7 @@ public class GattAttributes {
         attributes.put(GLUCOSELINK_BATTERY_SERVICE, "RileyLink Battery Service");
         attributes.put(GLUCOSELINK_BATTERY_UUID, "RileyLink Battery Level");
 
-        attributes.put(GLUCOSELINK_SERVICE_UUID, "RileyLink Service");
+        attributes.put(GLUCOSELINK_RILEYLINK_SERVICE, "RileyLink Service");
         attributes.put(GLUCOSELINK_CHANNEL_UUID, "RileyLink Channel");
         attributes.put(GLUCOSELINK_PACKET_COUNT, "RileyLink Packet Count");
         attributes.put(GLUCOSELINK_RX_PACKET_UUID, "RileyLink RX Packet");
@@ -49,7 +47,7 @@ public class GattAttributes {
     }
 
     public static String lookup(String uuid) {
-        return lookup(uuid,uuid);
+        return lookup(uuid, uuid);
     }
 
     public static String lookup(String uuid, String defaultName) {

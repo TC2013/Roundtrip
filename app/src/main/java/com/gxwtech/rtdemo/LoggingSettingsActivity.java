@@ -6,17 +6,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.Spinner;
-import android.widget.Switch;
 import android.widget.ToggleButton;
-
-import com.gxwtech.rtdemo.services.DIATable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class LoggingSettingsActivity extends ActionBarActivity {
@@ -36,15 +27,15 @@ public class LoggingSettingsActivity extends ActionBarActivity {
     }
 
     public void setLoggingEnableClicked(View view) {
-        ToggleButton sw = (ToggleButton)findViewById(R.id.toggleButton_loggingEnable);
+        ToggleButton sw = (ToggleButton) findViewById(R.id.toggleButton_loggingEnable);
         boolean newSetting = sw.isChecked();
         mStorage.loggingEnabled.set(newSetting);
     }
 
     public void editKLFHClicked(View view) {
-        EditText editText = (EditText)findViewById(R.id.editText_KeepLogsForHours);
+        EditText editText = (EditText) findViewById(R.id.editText_KeepLogsForHours);
         int newHours = Integer.parseInt(editText.getText().toString());
-        if ((newHours < 0)||(newHours > 200)) {
+        if ((newHours < 0) || (newHours > 200)) {
             newHours = mStorage.keepLogsForHours.mDefaultValue;
         }
         mStorage.keepLogsForHours.set(newHours);
@@ -54,15 +45,15 @@ public class LoggingSettingsActivity extends ActionBarActivity {
     // get from preferences, load it into proper field
     public void updateFromPreferences() {
         boolean loggingEnabled = mStorage.loggingEnabled.get();
-        ToggleButton tb = (ToggleButton)findViewById(R.id.toggleButton_loggingEnable);
-        if (tb!=null) {
+        ToggleButton tb = (ToggleButton) findViewById(R.id.toggleButton_loggingEnable);
+        if (tb != null) {
             tb.setChecked(loggingEnabled);
         } else {
-            Log.e(TAG,"toggle button is null(?)");
+            Log.e(TAG, "toggle button is null(?)");
         }
         int keepLogHours = mStorage.keepLogsForHours.get();
-        EditText editText = (EditText)findViewById(R.id.editText_KeepLogsForHours);
-        editText.setText(String.format("%d",keepLogHours));
+        EditText editText = (EditText) findViewById(R.id.editText_KeepLogsForHours);
+        editText.setText(String.format("%d", keepLogHours));
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {

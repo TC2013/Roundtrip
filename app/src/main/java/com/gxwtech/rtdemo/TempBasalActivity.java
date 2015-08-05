@@ -9,8 +9,8 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.gxwtech.rtdemo.medtronic.PumpData.TempBasalPair;
-import com.gxwtech.rtdemo.services.pumpmanager.TempBasalPairParcel;
 import com.gxwtech.rtdemo.services.RTDemoService;
+import com.gxwtech.rtdemo.services.pumpmanager.TempBasalPairParcel;
 
 
 public class TempBasalActivity extends ActionBarActivity {
@@ -24,19 +24,19 @@ public class TempBasalActivity extends ActionBarActivity {
 
     public void tempBasalZero30Clicked(View view) {
         Log.d(TAG, "tempBasalZero30Clicked");
-        SendSetTempBasalRequest(new TempBasalPair(0.0,30));
+        SendSetTempBasalRequest(new TempBasalPair(0.0, 30));
     }
 
     public void CancelTempBasalClicked(View view) {
         Log.d(TAG, "cancelTempBasalClicked");
-        SendSetTempBasalRequest(new TempBasalPair(0.0,0));
+        SendSetTempBasalRequest(new TempBasalPair(0.0, 0));
     }
 
     protected void SendSetTempBasalRequest(TempBasalPair pair) {
         Intent intent = new Intent(this, RTDemoService.class);
         intent.putExtra("srq", Constants.SRQ.SET_TEMP_BASAL);
         intent.putExtra("name", Constants.ParcelName.TempBasalPairParcelName);
-        intent.putExtra(Constants.ParcelName.TempBasalPairParcelName,new TempBasalPairParcel(pair));
+        intent.putExtra(Constants.ParcelName.TempBasalPairParcelName, new TempBasalPairParcel(pair));
         startService(intent);
     }
 

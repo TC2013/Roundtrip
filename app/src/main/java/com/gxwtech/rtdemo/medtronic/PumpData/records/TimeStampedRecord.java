@@ -19,14 +19,14 @@ abstract public class TimeStampedRecord extends Record {
     }
 
     public boolean collectRawData(byte[] data, PumpModel model) {
-        if (!super.collectRawData(data,model)) {
+        if (!super.collectRawData(data, model)) {
             return false;
         }
         return true; // don't decode yet. Subclass does that.
     }
 
     protected boolean decode(byte[] data) {
-        return parseDate(data,headerSize);
+        return parseDate(data, headerSize);
     }
 
     /*
@@ -56,7 +56,7 @@ abstract public class TimeStampedRecord extends Record {
         try {
             timeStamp = new DateTime(year + 2000, month, dayOfMonth, hour, minutes, seconds);
         } catch (org.joda.time.IllegalFieldValueException e) {
-            Log.e(TAG,"Illegal DateTime field");
+            Log.e(TAG, "Illegal DateTime field");
             //e.printStackTrace();
             return false;
         }
@@ -64,7 +64,7 @@ abstract public class TimeStampedRecord extends Record {
     }
 
     // for relation to old code, replace offset with headerSize
-    protected boolean parseDate(byte[] data, int offset){
+    protected boolean parseDate(byte[] data, int offset) {
         //offset = headerSize;
         if (DEBUG_TIMESTAMPEDRECORD) {
             Log.w(TAG, String.format("bytes to parse: 0x%02X, 0x%02X, 0x%02X, 0x%02X, 0x%02X",
@@ -99,6 +99,6 @@ abstract public class TimeStampedRecord extends Record {
 
     @Override
     public void logRecord() {
-        Log.i(TAG,String.format("Time stamped record (%s): %s", recordTypeName, timeStamp.toString()));
+        Log.i(TAG, String.format("Time stamped record (%s): %s", recordTypeName, timeStamp.toString()));
     }
 }

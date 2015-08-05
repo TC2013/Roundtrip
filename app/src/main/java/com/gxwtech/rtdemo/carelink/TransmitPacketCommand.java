@@ -51,17 +51,17 @@ public class TransmitPacketCommand extends CarelinkCommand {
         byte[] rval;
         // We completely override preparePacket for this command
         // Refactor to fix?
-        byte[] head = {1,0,(byte)167, 1};
+        byte[] head = {1, 0, (byte) 167, 1};
         rval = ByteUtil.concat(head, mSerialNumber);
         // ugly...
         short nParams = 0;
         if (mParams != null) {
-            nParams = (short)mParams.length;
+            nParams = (short) mParams.length;
         }
         // change them to bytes
-        byte lb = (byte)((nParams % 256) & 0xFF);
+        byte lb = (byte) ((nParams % 256) & 0xFF);
         // why set high bit? cause that's what Carelink wants...
-        byte hb = (byte)((nParams / 256) | 0x80);
+        byte hb = (byte) ((nParams / 256) | 0x80);
         byte[] payload = new byte[7];
         payload[0] = hb;
         payload[1] = lb;
@@ -72,11 +72,11 @@ public class TransmitPacketCommand extends CarelinkCommand {
         payload[5] = 0;
         payload[6] = mCode;
         // add the payload to the packet
-        rval = ByteUtil.concat(rval,payload);
+        rval = ByteUtil.concat(rval, payload);
         // compute CRC for what we've got so far
         byte payloadCRC = CRC.crc8(rval);
         // add it to the packet
-        rval = ByteUtil.concat(rval,payloadCRC);
+        rval = ByteUtil.concat(rval, payloadCRC);
         if (nParams > 0) {
             // add the parameters
             rval = ByteUtil.concat(rval, mParams);

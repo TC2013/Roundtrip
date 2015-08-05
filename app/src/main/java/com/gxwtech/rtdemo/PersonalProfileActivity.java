@@ -28,8 +28,8 @@ public class PersonalProfileActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_personal_profile);
         mStorage = new PreferenceBackedStorage(getApplicationContext());
-        Spinner normalDIATableSpinner = (Spinner)findViewById(R.id.spinner_NormalDIATable);
-        Spinner negativeDIATableSpinner = (Spinner)findViewById(R.id.spinner_NegativeDIATable);
+        Spinner normalDIATableSpinner = (Spinner) findViewById(R.id.spinner_NormalDIATable);
+        Spinner negativeDIATableSpinner = (Spinner) findViewById(R.id.spinner_NegativeDIATable);
         List<DIATable> list = new ArrayList<>();
         list.add(new DIATable(DIATable.DIA_0pt5_hour));
         list.add(new DIATable(DIATable.DIA_1_hour));
@@ -43,7 +43,7 @@ public class PersonalProfileActivity extends ActionBarActivity {
         list.add(new DIATable(DIATable.DIA_5_hour));
         list.add(new DIATable(DIATable.DIA_5pt5_hour));
 
-        ArrayAdapter<DIATable> adapter1 = new ArrayAdapter<DIATable>(this, android.R.layout.simple_spinner_item,list);
+        ArrayAdapter<DIATable> adapter1 = new ArrayAdapter<DIATable>(this, android.R.layout.simple_spinner_item, list);
         adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
         normalDIATableSpinner.setAdapter(adapter1);
@@ -51,16 +51,17 @@ public class PersonalProfileActivity extends ActionBarActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view,
                                        int position, long id) {
-                DIATable t = (DIATable)parent.getItemAtPosition(position);
+                DIATable t = (DIATable) parent.getItemAtPosition(position);
                 mStorage.normalDIATable.set(t.mFlavor);
             }
+
             @Override
             public void onNothingSelected(AdapterView<?> arg0) {
             }
         });
 
         // duplicated code from above.  Should be combined, but I have no patience for it at the moment.
-        ArrayAdapter<DIATable> adapter2 = new ArrayAdapter<DIATable>(this, android.R.layout.simple_spinner_item,list);
+        ArrayAdapter<DIATable> adapter2 = new ArrayAdapter<DIATable>(this, android.R.layout.simple_spinner_item, list);
         adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
         negativeDIATableSpinner.setAdapter(adapter2);
@@ -80,8 +81,8 @@ public class PersonalProfileActivity extends ActionBarActivity {
 
     protected void onResume() {
         super.onResume();
-        mNormDIATableSpinner = (Spinner)findViewById(R.id.spinner_NormalDIATable);
-        mNegDIATableSpinner = (Spinner)findViewById(R.id.spinner_NegativeDIATable);
+        mNormDIATableSpinner = (Spinner) findViewById(R.id.spinner_NormalDIATable);
+        mNegDIATableSpinner = (Spinner) findViewById(R.id.spinner_NegativeDIATable);
         updateFromPreferences();
     }
 
@@ -106,14 +107,14 @@ public class PersonalProfileActivity extends ActionBarActivity {
     public void setBGMinClicked(View view) {
         EditText editText = (EditText) findViewById(R.id.editText_BGMin);
         double newBGMin = Double.parseDouble(editText.getText().toString());
-        if ((newBGMin > 500) || (newBGMin< 40)) {
+        if ((newBGMin > 500) || (newBGMin < 40)) {
             return;
         }
         mStorage.bgMin.set(newBGMin);
     }
 
     public void setMaxTmpBasalRateClicked(View view) {
-        EditText editText = (EditText)findViewById(R.id.editText_MaxTmpBasalRate);
+        EditText editText = (EditText) findViewById(R.id.editText_MaxTmpBasalRate);
         double newMaxTmpBasalRate = Double.parseDouble(editText.getText().toString());
         if (newMaxTmpBasalRate < 0) {
             newMaxTmpBasalRate = 0.0;
@@ -130,10 +131,11 @@ public class PersonalProfileActivity extends ActionBarActivity {
         }
         mStorage.CAR.set(newCAR);
     }
+
     public void editISFClicked(View view) {
-        EditText editText = (EditText)findViewById(R.id.editText_ISF);
+        EditText editText = (EditText) findViewById(R.id.editText_ISF);
         double newISF = Double.parseDouble(editText.getText().toString());
-        if ((newISF < 0)||(newISF > 200)) {
+        if ((newISF < 0) || (newISF > 200)) {
             newISF = mStorage.ISF.mDefaultValue;
         }
         mStorage.ISF.set(newISF);
@@ -141,7 +143,7 @@ public class PersonalProfileActivity extends ActionBarActivity {
     }
 
     public void editLowBGSuspendClicked(View view) {
-        EditText editText = (EditText)findViewById(R.id.editText_LowBGSuspend);
+        EditText editText = (EditText) findViewById(R.id.editText_LowBGSuspend);
         double newLowBGSuspend = Double.parseDouble(editText.getText().toString());
         if (newLowBGSuspend < 0) {
             newLowBGSuspend = 0.0;
@@ -163,25 +165,25 @@ public class PersonalProfileActivity extends ActionBarActivity {
 
     // get from preferences, load it into proper field
     public void updateFromPreferences() {
-        ((EditText)findViewById(R.id.editText_CAR)).setText(String.format("%.1f", mStorage.CAR.get()));
-        ((EditText)findViewById(R.id.editText_ISF)).setText(String.format("%.1f", mStorage.ISF.get()));
-        ((EditText)findViewById(R.id.editText_MaxTmpBasalRate)).
+        ((EditText) findViewById(R.id.editText_CAR)).setText(String.format("%.1f", mStorage.CAR.get()));
+        ((EditText) findViewById(R.id.editText_ISF)).setText(String.format("%.1f", mStorage.ISF.get()));
+        ((EditText) findViewById(R.id.editText_MaxTmpBasalRate)).
                 setText(String.format("%.3f", mStorage.maxTempBasalRate.get()));
-        ((EditText)findViewById(R.id.editText_BGMin)).setText(String.format("%.1f", mStorage.bgMin.get()));
-        ((EditText)findViewById(R.id.editText_TargetBG)).setText(String.format("%.1f", mStorage.targetBG.get()));
-        ((EditText)findViewById(R.id.editText_BGMax)).setText(String.format("%.1f", mStorage.bgMax.get()));
-        ((EditText)findViewById(R.id.editText_LowBGSuspend))
+        ((EditText) findViewById(R.id.editText_BGMin)).setText(String.format("%.1f", mStorage.bgMin.get()));
+        ((EditText) findViewById(R.id.editText_TargetBG)).setText(String.format("%.1f", mStorage.targetBG.get()));
+        ((EditText) findViewById(R.id.editText_BGMax)).setText(String.format("%.1f", mStorage.bgMax.get()));
+        ((EditText) findViewById(R.id.editText_LowBGSuspend))
                 .setText(String.format("%.1f", mStorage.lowGlucoseSuspendPoint.get()));
         mNormDIATableSpinner.post(new Runnable() {
             @Override
             public void run() {
-                mNormDIATableSpinner.setSelection(mStorage.normalDIATable.get() -1);
+                mNormDIATableSpinner.setSelection(mStorage.normalDIATable.get() - 1);
             }
         });
         mNegDIATableSpinner.post(new Runnable() {
             @Override
             public void run() {
-                mNegDIATableSpinner.setSelection(mStorage.negativeInsulinDIATable.get()-1);
+                mNegDIATableSpinner.setSelection(mStorage.negativeInsulinDIATable.get() - 1);
             }
         });
 

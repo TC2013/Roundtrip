@@ -44,11 +44,14 @@ abstract public class Record {
     }
 
     public void logRecord() {
-        Log.i(TAG, String.format("Unparsed %s, size = %d",recordTypeName,getSize()));
+        Log.i(TAG, String.format("Unparsed %s, size = %d", recordTypeName, getSize()));
     }
 
     protected boolean decode(byte[] data) {
         return true;
     }
-    protected static int readUnsignedByte(byte b) { return (b<0)?b+256:b;}
+
+    protected static int readUnsignedByte(byte b) {
+        return (b < 0) ? b + 256 : b;
+    }
 }

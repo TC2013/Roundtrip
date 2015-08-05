@@ -225,15 +225,38 @@ public class RTDemoService extends IntentService {
             } else if (srq.equals(Constants.SRQ.SEND_BLUETOOTH_COMMAND)) {
 
                 BluetoothConnection conn = BluetoothConnection.getInstance(this);
-                conn.sendCommand(new byte[]{(byte) 0xa7, 0x41, 0x75, 0x40, (byte)(byte)141 },
-                        GattAttributes.GLUCOSELINK_SERVICE_UUID, GattAttributes.GLUCOSELINK_TX_PACKET_UUID, true, true);
+
+                conn.performReadCharacteristic(GattAttributes.GLUCOSELINK_BATTERY_SERVICE, GattAttributes.GLUCOSELINK_BATTERY_UUID);
+
+
+                try {
+                    Thread.sleep(1000);
+                } catch (java.lang.InterruptedException e) {
+                    // whatever
+                    Log.i("gapp", "Exception(?):" + e.getMessage());
+                }
+
+
+                conn.performReadCharacteristic(GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE, GattAttributes.GLUCOSELINK_PACKET_COUNT);
+
+
+                try {
+                    Thread.sleep(1000);
+                } catch (java.lang.InterruptedException e) {
+                    // whatever
+                    Log.i("gapp", "Exception(?):" + e.getMessage());
+                }
+
+
+                conn.sendCommand(new byte[]{(byte) 0xa7, 0x41, 0x75, 0x40, (byte) (byte) 141},
+                        GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE, GattAttributes.GLUCOSELINK_TX_PACKET_UUID, true, true);
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
 
-                conn.sendCommand(new byte[]{0x01}, GattAttributes.GLUCOSELINK_SERVICE_UUID, GattAttributes.GLUCOSELINK_TX_TRIGGER_UUID, false, false);
+                conn.sendCommand(new byte[]{0x01}, GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE, GattAttributes.GLUCOSELINK_TX_TRIGGER_UUID, false, false);
 
             } else if (srq.equals(Constants.SRQ.VERIFY_BLUETOOTH_PUMP_COMMUNICATIONS)) {
                 String response = BluetoothConnection.getInstance(this).connect();
@@ -417,20 +440,6 @@ public class RTDemoService extends IntentService {
 
     }
 
-    // TODO: UGLY can we please find a way to do this asynchronously? i.e. no sleep!
-    // For now, make all sleeps use this sleep, so that we can notify the UI.
-    public void sleep(int millis) {
-        if (millis > 1000) {
-            // If we sleep for more than 1 second, notify the UI
-            sendSleepNotification(DateTime.now(), millis / 1000);
-        }
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            Log.e(TAG, "Sleep interrupted: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
 
     // Let the UI know that we're sleeping (for pump communication delays)
     public void sendSleepNotification(DateTime starttime, int durationSeconds) {

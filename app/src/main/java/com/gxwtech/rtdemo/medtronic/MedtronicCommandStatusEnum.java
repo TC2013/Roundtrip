@@ -1,11 +1,11 @@
 package com.gxwtech.rtdemo.medtronic;
 
 /**
- * Created by geoff on 4/28/15.
+ * Created by Geoff on 4/28/15.
  */
 
 // don't know what we're really doing with this one yet.
-    // for now, copy the CarelinkCommandStatusEnum
+// for now, copy the CarelinkCommandStatusEnum
 public enum MedtronicCommandStatusEnum {
     NONE,
     ACK,

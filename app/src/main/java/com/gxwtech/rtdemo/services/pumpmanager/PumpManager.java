@@ -6,11 +6,11 @@ import android.content.SharedPreferences;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.gxwtech.rtdemo.Constants;
+import com.gxwtech.rtdemo.Intents;
 import com.gxwtech.rtdemo.carelink.Carelink;
 import com.gxwtech.rtdemo.carelink.ProductInfoCommand;
 import com.gxwtech.rtdemo.carelink.SignalStrengthCommand;
-import com.gxwtech.rtdemo.Constants;
-import com.gxwtech.rtdemo.Intents;
 import com.gxwtech.rtdemo.medtronic.MedtronicCommandStatusEnum;
 import com.gxwtech.rtdemo.medtronic.PowerControlCommand;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfile;
@@ -18,14 +18,12 @@ import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileTypeEnum;
 import com.gxwtech.rtdemo.medtronic.PumpData.HistoryReport;
 import com.gxwtech.rtdemo.medtronic.PumpData.PumpSettings;
 import com.gxwtech.rtdemo.medtronic.PumpData.TempBasalPair;
-import com.gxwtech.rtdemo.medtronic.PumpData.records.BolusWizard;
 import com.gxwtech.rtdemo.medtronic.ReadBasalTempCommand;
 import com.gxwtech.rtdemo.medtronic.ReadHistoryCommand;
 import com.gxwtech.rtdemo.medtronic.ReadProfileCommand;
 import com.gxwtech.rtdemo.medtronic.ReadPumpRTCCommand;
 import com.gxwtech.rtdemo.medtronic.ReadPumpSettingsCommand;
 import com.gxwtech.rtdemo.medtronic.SetTempBasalCommand;
-import com.gxwtech.rtdemo.medtronic.TempBasalEvent;
 import com.gxwtech.rtdemo.usb.CareLinkUsb;
 import com.gxwtech.rtdemo.usb.UsbException;
 
@@ -34,15 +32,13 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.Seconds;
 import org.joda.time.format.ISODateTimeFormat;
 
-import java.util.ArrayList;
-
 /**
  * Created by geoff on 5/8/15.
- *
+ * <p/>
  * Another layer of separation!
  * This serves to separate the background thread from the
  * pump management operations.
- *
+ * <p/>
  * The pump-manager is re-instantiated when the Carelink is plugged/unplugged.
  * Be careful if you're trying to cache data in the pump manager, or
  * if you're caching a reference to the pump manager anywhere (esp. APSLogic)
@@ -71,7 +67,7 @@ public class PumpManager {
         if (DEBUG_PUMPMANAGER) {
             Log.d(TAG, "getLastPowerControlRunTime reports preference value: " + lastPower);
         }
-        if (lastPower==null) {
+        if (lastPower == null) {
             lastPower = "never";
         }
         if ("never".equals(lastPower)) {
@@ -91,7 +87,7 @@ public class PumpManager {
         if (DEBUG_PUMPMANAGER) {
             Log.d(TAG, "setLastPowerControlRunTime: setting new run time: " + ISODateTimeFormat.dateTime().print(when_iso));
         }
-        mContext.getSharedPreferences(Constants.PreferenceID.MainActivityPrefName,0).
+        mContext.getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0).
                 edit().putString(Constants.PrefName.LastPowerControlRunTime, ISODateTimeFormat.dateTime().print(when_iso))
                 .commit();
 
@@ -121,9 +117,9 @@ public class PumpManager {
         try {
             stick = new CareLinkUsb();
             stick.open(mContext);
-            mCarelink = new Carelink(mContext,stick);
+            mCarelink = new Carelink(mContext, stick);
         } catch (UsbException e) {
-            Log.e(TAG,"Error on USB open: " + e.toString());
+            Log.e(TAG, "Error on USB open: " + e.toString());
             openedOK = false;
         }
         return openedOK;
@@ -134,12 +130,13 @@ public class PumpManager {
         try {
             stick.close();
         } catch (UsbException e) {
-            Log.e(TAG,"Error on USB close: " + e.toString());
+            Log.e(TAG, "Error on USB close: " + e.toString());
         }
     }
 
     public static int WAKE_UP_TIMEOUT_MS = 200;
     public static int WAKE_UP_MAX_RETRIES = 5;
+
     public boolean wakeUpCarelink() {
         int wakeupRetries = 0;
         boolean awake = false;
@@ -171,6 +168,7 @@ public class PumpManager {
     public static int VERIFY_TIMEOUT_MS = 500;
     public static int VERIFY_MAX_RETRIES = 5;
     public static int VERIFY_MIN_SIGNAL = 100; // TODO totally arbitrary.
+
     public boolean verifyPumpCommunications() {
         boolean canHearPump = false;
         // phase 2: see if it can see the pump with decent signal strength
@@ -207,7 +205,7 @@ public class PumpManager {
 
         DateTime lastPowerControlRunTime = getLastPowerControlRunTime();
 
-        long timeDifference = Seconds.secondsBetween(lastPowerControlRunTime,DateTime.now()).getSeconds();
+        long timeDifference = Seconds.secondsBetween(lastPowerControlRunTime, DateTime.now()).getSeconds();
 
         long secondsRemaining = (minutesOfRFPower * 60 /* seconds per minute*/)
                 - timeDifference;
@@ -302,7 +300,7 @@ public class PumpManager {
             // Let the UI know that we're sleeping (for pump communication delays)
             // send the log message to anyone who cares to listen (e.g. a UI component!)
             Intent intent = new Intent(Intents.ROUNDTRIP_SLEEP_MESSAGE)
-                    .putExtra(Intents.ROUNDTRIP_SLEEP_MESSAGE_DURATION,millis/1000);
+                    .putExtra(Intents.ROUNDTRIP_SLEEP_MESSAGE_DURATION, millis / 1000);
             LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
         }
         try {

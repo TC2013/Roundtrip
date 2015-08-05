@@ -41,27 +41,30 @@ public class MongoWrapper {
     MongoClientURI mUri = null;
     public static MongoClient mongoClientInstance = null;
     DB mDB = null;
+
     public static synchronized MongoClient getMongoClientInstance(MongoClientURI uri) {
-    if (mongoClientInstance == null) {
-        try {
-            mongoClientInstance = new MongoClient(uri);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
+        if (mongoClientInstance == null) {
+            try {
+                mongoClientInstance = new MongoClient(uri);
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
         }
+        return mongoClientInstance;
     }
-    return mongoClientInstance;
-}
 
     // todo: I don't like inner classes.  Move to a new class
     public class BGReadingResponse {
         public BGReading reading = new BGReading();
         public boolean error = false;
         public String errorMessage = "";
+
         public BGReadingResponse() {
             reading = new BGReading();
             error = false;
             errorMessage = "";
         }
+
         public void setError(String message) {
             error = true;
             errorMessage = message;
@@ -70,7 +73,7 @@ public class MongoWrapper {
 
     public MongoWrapper(Context ctx) {
         allowWritingToDB = new PersistentBoolean(ctx.getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0),
-                Constants.PrefName.MongoDBAllowWritingToDBPrefName,true);
+                Constants.PrefName.MongoDBAllowWritingToDBPrefName, true);
 
     }
 
@@ -80,7 +83,7 @@ public class MongoWrapper {
         The format of the URI is:
         mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]
         */
-        Log.i(TAG,"Mongo Client URI is:" + mURIString);
+        Log.i(TAG, "Mongo Client URI is:" + mURIString);
         //mUri = new MongoClientURI(mURIString);
 
         mDB = getMongoClientInstance(new MongoClientURI(mURIString)).getDB(mDBName);
@@ -90,7 +93,7 @@ public class MongoWrapper {
 
     public void updateURI(String serverAddress, String serverPort, String dbname, String username,
                           String password, String collection) {
-        mURIString = "mongodb://"+username+":"+password+"@"+serverAddress+":"+serverPort+"/"+dbname;
+        mURIString = "mongodb://" + username + ":" + password + "@" + serverAddress + ":" + serverPort + "/" + dbname;
         mDBName = dbname;
         mCollection = collection;
     }
@@ -109,10 +112,10 @@ public class MongoWrapper {
 
         DBCollection coll = mDB.getCollection("treatments");
         // remember to use mongoClient.close()...
-        Log.d(TAG,"Getting TempBasal records from MongoDB");
+        Log.d(TAG, "Getting TempBasal records from MongoDB");
         int recordCount = 0;
         Long recordSearchStartTime = Instant.now().getMillis() - (maxAgeMinutes * 60 * 1000);
-        BasicDBObject query = new BasicDBObject("date", new BasicDBObject("$gt",recordSearchStartTime));
+        BasicDBObject query = new BasicDBObject("date", new BasicDBObject("$gt", recordSearchStartTime));
         DBCursor cursor = coll.find(query);
         try {
             while (cursor.hasNext()) {
@@ -128,7 +131,7 @@ public class MongoWrapper {
                         treatmentList.add(newEntry);
                     }
                 } else {
-                    Log.d(TAG,"Unknown entry in MongoDB collection '" + mTreatmentsCollectionName + "'");
+                    Log.d(TAG, "Unknown entry in MongoDB collection '" + mTreatmentsCollectionName + "'");
                 }
             }
         } catch (MongoCommandException e) {
@@ -146,8 +149,7 @@ public class MongoWrapper {
         coll.insert(entry.formatDBObject());
     }
 
-    public BGReadingResponse getBGReading() throws com.mongodb.MongoTimeoutException
-    {
+    public BGReadingResponse getBGReading() throws com.mongodb.MongoTimeoutException {
         BGReadingResponse response = new BGReadingResponse();
         try {
             checkSetup(); // if we haven't set up the DB connection, do so.
@@ -164,10 +166,10 @@ public class MongoWrapper {
 
         DBCollection coll = mDB.getCollection(mCollection);
         // remember to use mongoClient.close()...
-        Log.d(TAG,"Getting BG reading from MongoDB");
+        Log.d(TAG, "Getting BG reading from MongoDB");
         int recordCount = 0;
         Long millisecondsAtTwentyMinutesAgo = Instant.now().getMillis() - (20 * 60 * 1000);
-        BasicDBObject query = new BasicDBObject("date", new BasicDBObject("$gt",millisecondsAtTwentyMinutesAgo));
+        BasicDBObject query = new BasicDBObject("date", new BasicDBObject("$gt", millisecondsAtTwentyMinutesAgo));
         DBCursor cursor = coll.find(query);
         BGReading latestBGReading = null;
         Duration latestDiff = null;
@@ -182,8 +184,8 @@ public class MongoWrapper {
                 // for now, grab last one.
                 DBObject obj = cursor.next();
                 if (obj.containsField("sgv")) {
-                    Long millisecondsSince1970 = (Long)(obj.get("date"));
-                    String dateString = (String)(obj.get("dateString"));
+                    Long millisecondsSince1970 = (Long) (obj.get("date"));
+                    String dateString = (String) (obj.get("dateString"));
                     // When reading the DB, I see two formats of dateString:
                     //dateString:2015-05-30T18:23:07.272-05:00
                     //dateString:05/30/2015 18:38:06 PM
@@ -205,7 +207,7 @@ public class MongoWrapper {
                     if (bgTimestamp != null) {
                         int bg = Integer.parseInt(obj.get("sgv").toString());
                         BGReading reading;
-                        reading = new BGReading(bgTimestamp,(double)bg);
+                        reading = new BGReading(bgTimestamp, (double) bg);
 
                         Log.i(TAG, String.format("Found record: Timestamp %s, bg: %.2f",
                                 reading.mTimestamp.toString(), reading.mBg));
@@ -227,7 +229,7 @@ public class MongoWrapper {
                 recordCount += 1;
             }
             response.reading = latestBGReading;
-            Log.i(TAG,"Total MongoDB entries read: " + recordCount);
+            Log.i(TAG, "Total MongoDB entries read: " + recordCount);
             // android says commandFailureException is deprecated, but it's what's thrown...
         } catch (MongoCommandException e) {
             response.setError(e.toString());

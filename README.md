@@ -18,4 +18,7 @@ Connecting Roundtrip to RileyLink to send the data to Nightscout.
   - Battery
     - Red: Charging the battery
 - To communicate with the pump, a CRC checksum must be appended to the bytestream.
+- TODO: Queue all GATT operations and execute them one at a time. Evidence suggests the lower layer GATT operations are not being queued and some will get dropped if you don’t handle this yourself.
+- TODO: After the initial device discovery, save the device’s MAC address. See BluetoothDevice.getAddress(). Then, next time the user wants to connect, use that address to construct the BluetoothDevice object. See BluetoothAdapter.getRemoteDevice(). This will bypass device discovery which can create a smoother user experience.
+
 

@@ -33,8 +33,8 @@ public class RileyLinkUtil {
             0b011100
     };
 
-    public static int computeNewSize(final int inputSize){
-        return (int)(Math.ceil((inputSize * 3.0) / 2.0));
+    public static int computeNewSize(final int inputSize) {
+        return (int) (Math.ceil((inputSize * 3.0) / 2.0));
     }
 
     public static byte[] composeRFStream(final byte[] input) {
@@ -53,16 +53,16 @@ public class RileyLinkUtil {
 
         final int outSize = computeNewSize(input.length);
         final byte[] rval = new byte[outSize];
-        for (int i=0; i< input.length; i++) {
+        for (int i = 0; i < input.length; i++) {
             final int rfBytes = composeRFBytes(input[i]);
-            final int outIndex = ((i/2) * 3) + (i%2);
+            final int outIndex = ((i / 2) * 3) + (i % 2);
             // outIndex: 0->0, 1->1, 2->3, 3->4, 4->6, 5->7, 6->9, 7->10
-            if ((i % 2)==0) {
-                rval[outIndex] = (byte)(rfBytes >> 8);
-                rval[outIndex+1] = (byte)(rfBytes & 0xF0);
+            if ((i % 2) == 0) {
+                rval[outIndex] = (byte) (rfBytes >> 8);
+                rval[outIndex + 1] = (byte) (rfBytes & 0xF0);
             } else {
-                rval[outIndex] = (byte)((rval[outIndex] & 0xF0) | ((rfBytes >> 12) & 0x0F));
-                rval[outIndex+1] = (byte)(rfBytes >> 4);
+                rval[outIndex] = (byte) ((rval[outIndex] & 0xF0) | ((rfBytes >> 12) & 0x0F));
+                rval[outIndex + 1] = (byte) (rfBytes >> 4);
             }
         }
         return rval;
@@ -79,8 +79,8 @@ public class RileyLinkUtil {
         int highNibble = (b & 0xF0) >> 4;
         byte highCode = CodeSymbols[highNibble];
 
-        byte highByte = (byte)(((highCode << 2) & 0xFC) | ((lowCode & 0x30) >> 4));
-        byte lowByte = (byte)((lowCode & 0x0f) << 4);
+        byte highByte = (byte) (((highCode << 2) & 0xFC) | ((lowCode & 0x30) >> 4));
+        byte lowByte = (byte) ((lowCode & 0x0f) << 4);
         int rval = highByte;
         rval = rval << 8;
         rval = rval | (lowByte & 0xFF);

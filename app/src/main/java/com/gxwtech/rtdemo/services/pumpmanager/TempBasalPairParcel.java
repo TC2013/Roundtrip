@@ -11,7 +11,9 @@ import java.util.ArrayList;
  * Created by geoff on 5/29/15.
  */
 public class TempBasalPairParcel extends TempBasalPair implements Parcelable {
-    public TempBasalPairParcel() { init(0.0,0); }
+    public TempBasalPairParcel() {
+        init(0.0, 0);
+    }
 
     public void init(double insulinRate, int durationMinutes) {
         mInsulinRate = insulinRate;
@@ -20,7 +22,7 @@ public class TempBasalPairParcel extends TempBasalPair implements Parcelable {
 
     // copy constructor
     public TempBasalPairParcel(TempBasalPairParcel parcel) {
-        init(parcel.mInsulinRate,parcel.mDurationMinutes);
+        init(parcel.mInsulinRate, parcel.mDurationMinutes);
     }
 
     public TempBasalPairParcel(TempBasalPair pair) {
@@ -34,8 +36,8 @@ public class TempBasalPairParcel extends TempBasalPair implements Parcelable {
 
     public String[] getContentsAsStringArray() {
         ArrayList<String> ra = new ArrayList<>();
-        ra.add(String.format("Insulin Rate: %.3fU",mInsulinRate));
-        ra.add(String.format("Duration: %d minutes",mDurationMinutes));
+        ra.add(String.format("Insulin Rate: %.3fU", mInsulinRate));
+        ra.add(String.format("Duration: %d minutes", mDurationMinutes));
         String[] rval = new String[ra.size()];
         // toArray will allocate space if necessary.
         rval = ra.toArray(rval);
@@ -60,6 +62,6 @@ public class TempBasalPairParcel extends TempBasalPair implements Parcelable {
     };
 
     private TempBasalPairParcel(Parcel in) {
-        init(in.readDouble(),in.readInt());
+        init(in.readDouble(), in.readInt());
     }
 }

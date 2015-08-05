@@ -2,8 +2,8 @@ package com.gxwtech.rtdemo.carelink;
 
 import android.util.Log;
 
-import com.gxwtech.rtdemo.carelink.util.ByteUtil;
 import com.gxwtech.rtdemo.HexDump;
+import com.gxwtech.rtdemo.carelink.util.ByteUtil;
 
 
 /**
@@ -17,9 +17,11 @@ public class ProductInfoCommand extends CarelinkCommand {
     byte[] mDescription;
     byte[] mSoftwareVersion;
     byte[] mInterfaces;
+
     public ProductInfoCommand() {
         init(CarelinkCommandEnum.CMD_C_PRODUCT_INFO);
     }
+
     public boolean respondedOK() {
         boolean ok = false;
         if (mRawResponse != null) {
@@ -29,6 +31,7 @@ public class ProductInfoCommand extends CarelinkCommand {
         }
         return ok;
     }
+
     public void parse() {
         if (respondedOK()) {
             mSerial = ByteUtil.substring(mRawResponse, 3, 3);
@@ -39,6 +42,7 @@ public class ProductInfoCommand extends CarelinkCommand {
             mInterfaces = ByteUtil.substring(mRawResponse, 21, mRawResponse.length - 22);
         }
     }
+
     public boolean isOK() {
         boolean rval = false; // assume false
         final byte[] good = {0x43, 0x6F, 0x6D, 0x4C, 0x69, 0x6E, 0x6B, 0x20, 0x49, 0x49};

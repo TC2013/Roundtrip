@@ -8,6 +8,7 @@ public class BolusWizardChange extends TimeStampedRecord {
     public BolusWizardChange() {
 
     }
+
     public boolean collectRawData(byte[] data, PumpModel model) {
         if (!super.collectRawData(data, model)) {
             return false;

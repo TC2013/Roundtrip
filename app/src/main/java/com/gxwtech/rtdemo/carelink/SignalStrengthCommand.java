@@ -7,9 +7,11 @@ package com.gxwtech.rtdemo.carelink;
 // This reads the signal strength
 public class SignalStrengthCommand extends CarelinkCommand {
     protected byte mSignalStrength = 0;
+
     public SignalStrengthCommand() {
         init(CarelinkCommandEnum.CMD_C_SIGNAL_STRENGTH);
     }
+
     // promote mSignalStrength to int, makes it positive again for values > 127
     public int getSignalStrength() {
         int rval = mSignalStrength;

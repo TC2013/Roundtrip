@@ -12,10 +12,10 @@ import java.util.Date;
  * Used by XDripDataReceiver to store new estimates from DexDrip.
  *
  * @see XDripDataReceiver
- *
+ * <p/>
  * Cribbed from Stephen Black's Nightwatch project
  * GGW: unfortunately, our BG (blood glucose) classes are different, so I've munged this to use Roundtrip's simplified BG.
-  */
+ */
 public class XDripIntentService extends android.app.IntentService {
     public static final String ACTION_NEW_DATA = "com.dexdrip.stephenblack.nightwatch.action.NEW_DATA";
 
@@ -39,8 +39,8 @@ public class XDripIntentService extends android.app.IntentService {
                 // cram it in the preferences, with everything else.
                 SharedPreferences settings = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
                 SharedPreferences.Editor edit = settings.edit();
-                edit.putLong(Constants.PrefName.LatestBGTimestamp,ts);
-                edit.putFloat(Constants.PrefName.LatestBGReading,(float)bg);
+                edit.putLong(Constants.PrefName.LatestBGTimestamp, ts);
+                edit.putFloat(Constants.PrefName.LatestBGReading, (float) bg);
                 edit.commit();
             }
         } finally {

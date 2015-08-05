@@ -8,6 +8,7 @@ import org.joda.time.DateTime;
 public class ReadPumpRTCCommand extends MedtronicCommand {
     private static final String TAG = "ReadPumpRTCCommand";
     DateTime mTimestamp;
+
     public ReadPumpRTCCommand() {
         init(MedtronicCommandEnum.CMD_M_READ_RTC);
         mTimestamp = new DateTime(0); // a clearly wrong date, to initialize.
@@ -36,7 +37,7 @@ public class ReadPumpRTCCommand extends MedtronicCommand {
         Log.d(TAG,String.format("Raw pump bytes report: %04d-%02d-%02d %02d:%02d:%02d",
                         year,month,day,hours,minutes,seconds));
         */
-        mTimestamp = new DateTime().withDate(year,month,day).withTime(hours,minutes,seconds,0);
+        mTimestamp = new DateTime().withDate(year, month, day).withTime(hours, minutes, seconds, 0);
         //Log.d(TAG,"DateTime reports " + mTimestamp.toDateTimeISO().toString());
     }
 

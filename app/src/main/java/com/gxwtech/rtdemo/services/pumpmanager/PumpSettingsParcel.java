@@ -9,24 +9,25 @@ import java.util.ArrayList;
 
 /**
  * Created by geoff on 5/9/15.
- *
+ * <p/>
  * See header notes for PumpSettings.  Also, note this:
- *
+ * <p/>
  * https://developer.android.com/reference/android/os/Parcel.html
- *
+ * <p/>
  * "Parcel is *not* a general-purpose serialization mechanism. This class
  * (and the corresponding Parcelable API for placing arbitrary objects
  * into a Parcel) is designed as a high-performance IPC transport.
  * As such, it is not appropriate to place any Parcel data in to persistent
  * storage: changes in the underlying implementation of any of the data in
  * the Parcel can render older data unreadable."
- *
+ * <p/>
  * This is intended to be passed between the background (RTDemoService) thread
  * and the foreground UI thread(s).
  */
 public class PumpSettingsParcel extends PumpSettings implements Parcelable {
 
-    public PumpSettingsParcel() { }
+    public PumpSettingsParcel() {
+    }
 
     public boolean initFromPumpSettings(PumpSettings p) {
         return parseFrom(p.getRawData());
@@ -53,19 +54,23 @@ public class PumpSettingsParcel extends PumpSettings implements Parcelable {
         ra.add(String.format("Audio Bolus Size: %.2f", mAudioBolusSize));
         ra.add(String.format("Variable Bolus Enable: %s", mVariableBolusEnable ? "true" : "false"));
         ra.add(String.format("Max Bolus Size(U): %.2f", mMaxBolus));
-        ra.add(String.format("Max Basal Rate (U/h): %.2f",mMaxBasal));
+        ra.add(String.format("Max Basal Rate (U/h): %.2f", mMaxBasal));
         ra.add(String.format("Time Format: %d", mTimeFormat));
         ra.add(String.format("Insulin Concentration(%%): %s", (mInsulinConcentration == 0) ? "50" : "100"));
-        ra.add(String.format("Patterns Enabled: %s",mPatternsEnabled ? "true":"false"));
+        ra.add(String.format("Patterns Enabled: %s", mPatternsEnabled ? "true" : "false"));
         String id;
         switch (mSelectedPattern) {
-            case STD: id = "STD";
-            break;
-            case A: id = "A";
-            break;
-            case B: id = "B";
-            break;
-            default: id = "???";
+            case STD:
+                id = "STD";
+                break;
+            case A:
+                id = "A";
+                break;
+            case B:
+                id = "B";
+                break;
+            default:
+                id = "???";
         }
         ra.add(String.format("Selected Pattern: %s", id));
         ra.add(String.format("RF Enable: %s", mRFEnable ? "true" : "false"));

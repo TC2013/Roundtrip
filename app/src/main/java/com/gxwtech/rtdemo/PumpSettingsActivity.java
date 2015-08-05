@@ -19,8 +19,8 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.gxwtech.rtdemo.services.pumpmanager.PumpSettingsParcel;
 import com.gxwtech.rtdemo.services.RTDemoService;
+import com.gxwtech.rtdemo.services.pumpmanager.PumpSettingsParcel;
 
 
 public class PumpSettingsActivity extends ActionBarActivity {
@@ -37,12 +37,12 @@ public class PumpSettingsActivity extends ActionBarActivity {
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                Log.d(TAG,"Received broadcast: intent action is " + intent.getAction().toString());
+                Log.d(TAG, "Received broadcast: intent action is " + intent.getAction().toString());
                 if (intent.getAction() == Intents.ROUNDTRIP_TASK_RESPONSE) {
-                    Log.d(TAG,"Received task response");
+                    Log.d(TAG, "Received task response");
                     if (intent.hasExtra("name")) {
                         String name = intent.getStringExtra("name");
-                        Log.d(TAG,"Field 'name' is " + name);
+                        Log.d(TAG, "Field 'name' is " + name);
                         if (intent.hasExtra(name)) {
                             if (name == Constants.ParcelName.PumpSettingsParcelName) {
                                 Bundle data = intent.getExtras();
@@ -57,7 +57,7 @@ public class PumpSettingsActivity extends ActionBarActivity {
         };
         // If the pumpSerialNumber EditText is the first focused item,
         // it brings up the number entry keyboard.  So focus somewhere else.
-        Button myBtn = (Button)findViewById(R.id.button_getPumpSettings);
+        Button myBtn = (Button) findViewById(R.id.button_getPumpSettings);
         myBtn.setFocusableInTouchMode(true);
         myBtn.requestFocus();
     }
@@ -66,10 +66,10 @@ public class PumpSettingsActivity extends ActionBarActivity {
     public void editSerialNumberChanged(View view) {
         EditText esn = (EditText) findViewById(R.id.editText_pumpSerialNumber);
         String sn = esn.getText().toString();
-        Log.w(TAG,"editSerialNumberChanged:" + sn);
+        Log.w(TAG, "editSerialNumberChanged:" + sn);
         // save serial number in SharedPreferences
         SharedPreferences preferences = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, MODE_PRIVATE);
-        SharedPreferences.Editor edit= preferences.edit();
+        SharedPreferences.Editor edit = preferences.edit();
         edit.putString(Constants.PrefName.SerialNumberPrefName, sn);
         edit.commit();
     }
@@ -90,7 +90,7 @@ public class PumpSettingsActivity extends ActionBarActivity {
     public String updateSerialNumberFromPreferences() {
         SharedPreferences settings = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
         String serialNumber = settings.getString(Constants.PrefName.SerialNumberPrefName, "000000");
-        EditText editText = (EditText)findViewById(R.id.editText_pumpSerialNumber);
+        EditText editText = (EditText) findViewById(R.id.editText_pumpSerialNumber);
         editText.setText(serialNumber);
         return serialNumber;
     }
@@ -104,9 +104,8 @@ public class PumpSettingsActivity extends ActionBarActivity {
     }
 
 
-
     public void updatePumpSettingsView() {
-        Log.d(TAG,"Updating pumpSettingsView from parcel");
+        Log.d(TAG, "Updating pumpSettingsView from parcel");
         String[] msgList = mPumpSettings.getContentsAsStringArray();
         mAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, msgList);
         ListView lv = (ListView) findViewById(R.id.listView_pumpSettings);

@@ -11,15 +11,17 @@ import java.util.ArrayList;
  * Created by geoff on 5/29/15.
  */
 public class BGReadingParcel extends BGReading implements Parcelable {
-    public BGReadingParcel() { init(new DateTime(0),0.0); }
+    public BGReadingParcel() {
+        init(new DateTime(0), 0.0);
+    }
 
     public void init(DateTime dt, double bg) {
-        super.init(dt,bg);
+        super.init(dt, bg);
     }
 
     // copy constructor
     public BGReadingParcel(BGReadingParcel parcel) {
-        init(parcel.mTimestamp,parcel.mBg);
+        init(parcel.mTimestamp, parcel.mBg);
     }
 
     public BGReadingParcel(BGReading bgr) {
@@ -36,7 +38,7 @@ public class BGReadingParcel extends BGReading implements Parcelable {
     public String[] getContentsAsStringArray() {
         ArrayList<String> ra = new ArrayList<>();
         ra.add(mTimestamp.toString()); // fixme: formatting?
-        ra.add(String.format("%d mg/dL",((int)mBg)));
+        ra.add(String.format("%d mg/dL", ((int) mBg)));
         String[] rval = new String[ra.size()];
         // toArray will allocate space if necessary.
         rval = ra.toArray(rval);
@@ -62,6 +64,6 @@ public class BGReadingParcel extends BGReading implements Parcelable {
 
     private BGReadingParcel(Parcel in) {
         String datestring = in.readString();
-        init(DateTime.parse(datestring),in.readDouble());
+        init(DateTime.parse(datestring), in.readDouble());
     }
 }

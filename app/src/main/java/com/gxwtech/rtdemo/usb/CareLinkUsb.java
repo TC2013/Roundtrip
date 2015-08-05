@@ -86,7 +86,7 @@ public class CareLinkUsb {
     }
 
     public void close() throws UsbException {
-        Log.v(TAG,"CarelinkUSB close()");
+        Log.v(TAG, "CarelinkUSB close()");
         if (mUsbDeviceConnection == null) {
             throw new UsbException("no connection available");
         }
@@ -123,22 +123,25 @@ public class CareLinkUsb {
 
     /**
      * Gets the response from the connected device.
+     *
      * @param outRequest UsbRequest referencing the request.
      * @return Returns the response in a byte[].
      * @throws UsbException
      */
-    public byte[] read(UsbRequest outRequest,int readSize) throws UsbException {
+    public byte[] read(UsbRequest outRequest, int readSize) throws UsbException {
         byte[] rval;
         if (mUsbDeviceConnection == null) {
             throw new UsbException("no connection available");
         }
 
-        boolean enqueued = (boolean)outRequest.getClientData();
+        boolean enqueued = (boolean) outRequest.getClientData();
         if (!enqueued) {
             throw new UsbException("Original request was not enqueued -- cannot receive.");
         }
 
-        if (readSize < 64) { readSize = 64; }
+        if (readSize < 64) {
+            readSize = 64;
+        }
 
         //ByteBuffer buffer = ByteBuffer.allocate(MAX_PACKAGE_SIZE);
         ByteBuffer buffer = ByteBuffer.allocate(readSize);
@@ -152,7 +155,7 @@ public class CareLinkUsb {
                 mUsbDeviceConnection.requestWait();
                 rval = new byte[buffer.array().length];
                 byte[] src = buffer.array();
-                System.arraycopy(src,0,rval,0,src.length);
+                System.arraycopy(src, 0, rval, 0, src.length);
                 inRequest.close();
                 outRequest.close();
                 return rval;
@@ -165,6 +168,7 @@ public class CareLinkUsb {
 
     /**
      * Write a command to the connected device.
+     *
      * @param command Byte[] containing the opcode for the command.
      * @return Returns the response in a byte[].
      * @throws UsbException
@@ -187,14 +191,15 @@ public class CareLinkUsb {
 
     /**
      * http://stackoverflow.com/questions/12345953/android-usb-host-asynchronous-interrupt-transfer
-     *
+     * <p/>
      * Wrapper for CareLinkUsb.write() and CareLinkUsb.read()
+     *
      * @param command Byte[] containing the opcode for the command.
      * @return Returns a reference to the UsbRequest put in the output queue.
      * @throws UsbException
      */
 
-    public byte[] sendCommand(byte[] command, int delayMillis, int readSize)  throws UsbException {
+    public byte[] sendCommand(byte[] command, int delayMillis, int readSize) throws UsbException {
 //        if (mUsbDeviceConnection == null) {
 //            throw new UsbException("no connection available");
 //        }
@@ -228,7 +233,7 @@ public class CareLinkUsb {
 //        }
 //        return null;
         UsbRequest request = write(command);
-        if ((boolean)request.getClientData() == false) {
+        if ((boolean) request.getClientData() == false) {
             Log.e(TAG, "Error writing USB data");
             request.close();
             return null;
@@ -243,8 +248,8 @@ public class CareLinkUsb {
                 Log.i(TAG, "Sleep Interrupted: " + e.getMessage());
             }
         }
-        byte[] rval = read(request,readSize);
-        if ((boolean)request.getClientData() == false) {
+        byte[] rval = read(request, readSize);
+        if ((boolean) request.getClientData() == false) {
             Log.v(TAG, "Error reading USB data");
         }
         request.close();
@@ -252,7 +257,7 @@ public class CareLinkUsb {
     }
 
     public byte[] sendCommand(byte[] command) throws UsbException {
-        return sendCommand(command,0,MAX_PACKAGE_SIZE);
+        return sendCommand(command, 0, MAX_PACKAGE_SIZE);
     }
 
     // Use this function if your request will send back multiple 64 byte frames.
@@ -263,7 +268,7 @@ public class CareLinkUsb {
         if ((fullSize % MAX_PACKAGE_SIZE) > 0) {
             recordsNeeded++;
         }
-        Log.v("CareLinkUsb",String.format("Expecting to receive %d bytes in %d frames",fullSize,recordsNeeded));
+        Log.v("CareLinkUsb", String.format("Expecting to receive %d bytes in %d frames", fullSize, recordsNeeded));
         byte[] fullResponse = new byte[0];
         UsbRequest request = write(command);
         if (delayMillis > 0) {
@@ -276,7 +281,7 @@ public class CareLinkUsb {
         }
         fullResponse = read(request, fullSize);
 
-        Log.v(TAG,String.format("Received full response in %d frames:",recordsNeeded)
+        Log.v(TAG, String.format("Received full response in %d frames:", recordsNeeded)
                 + HexDump.dumpHexString(fullResponse));
         return fullResponse;
     }

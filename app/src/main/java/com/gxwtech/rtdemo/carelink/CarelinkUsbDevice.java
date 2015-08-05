@@ -35,7 +35,7 @@ public class CarelinkUsbDevice {
         Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
 
         UsbDevice device = null;
-        while(deviceIterator.hasNext()){
+        while (deviceIterator.hasNext()) {
             device = deviceIterator.next();
             if (deviceIsCarelink(device)) {
                 break;
@@ -46,9 +46,9 @@ public class CarelinkUsbDevice {
 
         carelinkDevice = device;
         if (carelinkDevice == null) {
-            Log.e(TAG,"Failed to find suitable carelink device");
+            Log.e(TAG, "Failed to find suitable carelink device");
         } else {
-            Log.e(TAG,"Found new carelink device");
+            Log.e(TAG, "Found new carelink device");
         }
     }
 

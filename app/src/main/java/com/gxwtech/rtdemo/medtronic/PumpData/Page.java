@@ -2,12 +2,11 @@ package com.gxwtech.rtdemo.medtronic.PumpData;
 
 /**
  * Created by geoff on 5/13/15.
- *
+ * <p/>
  * This class was taken from medtronic-android-uploader.
  * This class was written such that the constructors did all the work, which resulted
  * in annoyances such as exceptions during constructors.  I've partially re-written it
  * to do the work in sane fashion.
- *
  */
 
 import android.util.Log;
@@ -44,7 +43,7 @@ public class Page {
     public boolean parseFrom(byte[] rawPage, PumpModel model) {
         mRecordList = new ArrayList<>(); // wipe old contents each time when parsing.
         if (rawPage.length != 1024) {
-            Log.e(TAG,"Unexpected page size. Expected: 1024 Was: " + rawPage.length);
+            Log.e(TAG, "Unexpected page size. Expected: 1024 Was: " + rawPage.length);
             return false;
         }
         this.model = model;
@@ -109,12 +108,12 @@ public class Page {
                 Log.d(TAG,String.format("Attempting to parse record at offset %d, OpCode is 0x%02X",
                         dataIndex,data[dataIndex]));
                         */
-                record = attemptParseRecord(data,dataIndex);
+                record = attemptParseRecord(data, dataIndex);
             }
             if (record != null) {
                 // found something.  Is it something we trust or care about?
                 if (record.getRecordOp() == RecordTypeEnum.RECORD_TYPE_BOLUSWIZARD.opcode()) {
-                    BolusWizard bw = (BolusWizard)record;
+                    BolusWizard bw = (BolusWizard) record;
                     mRecordList.add(record);
                     /*
                     Log.d(TAG,String.format("Found BolusWizard record (time:%s) at offset %d",
@@ -123,7 +122,7 @@ public class Page {
                     if (record.getSize() > 0) {
                         dataIndex += record.getSize();
                     } else {
-                        dataIndex +=1;
+                        dataIndex += 1;
                     }
                 } else if (record.getRecordOp() == RecordTypeEnum.RECORD_TYPE_TEMPBASALDURATION.opcode()) {
                     TempBasalDuration tbd = (TempBasalDuration) record;
@@ -135,7 +134,7 @@ public class Page {
                     if (record.getSize() > 0) {
                         dataIndex += record.getSize();
                     } else {
-                        dataIndex +=1;
+                        dataIndex += 1;
                     }
                 } else if (record.getRecordOp() == RecordTypeEnum.RECORD_TYPE_TEMPBASALRATE.opcode()) {
                     TempBasalRate tbr = (TempBasalRate) record;
@@ -147,15 +146,15 @@ public class Page {
                     if (record.getSize() > 0) {
                         dataIndex += record.getSize();
                     } else {
-                        dataIndex +=1;
+                        dataIndex += 1;
                     }
                 } else {
                     // else, it's a record we don't trust the size of, or aren't interested in,
                     // so only increment by one, hoping to run into another record we can use
-                    dataIndex +=1;
+                    dataIndex += 1;
                 }
             } else {
-                dataIndex +=1;
+                dataIndex += 1;
             }
             if (dataIndex >= data.length - 2) {
                 done = true;
@@ -232,12 +231,12 @@ public class Page {
         int i = 0;
         boolean done = false;
 
-        ArrayList<Integer> keyLocations= new ArrayList();
+        ArrayList<Integer> keyLocations = new ArrayList();
         while (!done) {
             RecordTypeEnum en = RecordTypeEnum.fromByte(data[i]);
             if (en != RecordTypeEnum.RECORD_TYPE_NULL) {
                 keyLocations.add(i);
-                Log.v(TAG,String.format("Possible record of type %s found at index %d", en, i));
+                Log.v(TAG, String.format("Possible record of type %s found at index %d", en, i));
             }
             /*
             DateTime ts = parseSimpleDate(data,i);
@@ -248,10 +247,10 @@ public class Page {
             }
             */
             i = i + 1;
-            done = (i >= data.length-2);
+            done = (i >= data.length - 2);
         }
         // for each of the discovered key locations, attempt to parse a sequence of records
-        for(RecordTypeEnum en : RecordTypeEnum.values()) {
+        for (RecordTypeEnum en : RecordTypeEnum.values()) {
 
         }
         for (int ix = 0; ix < keyLocations.size(); ix++) {

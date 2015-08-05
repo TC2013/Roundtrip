@@ -6,7 +6,7 @@ import org.joda.time.DateTime;
 
 /**
  * Created by geoff on 6/30/15.
- *
+ * <p/>
  * This class holds the extra data we need, above what the Minimed temp basal event holds.
  */
 public class APSTempBasalEvent extends TempBasalEvent {

@@ -11,18 +11,20 @@ public class BasalProfileEntry {
     public double rate;
     public byte startTime_raw;
     public LocalTime startTime; // Just a "time of day"
+
     public BasalProfileEntry() {
         rate = -9.999E6;
-        rate_raw = (byte)0xFF;
+        rate_raw = (byte) 0xFF;
         startTime = new LocalTime(0);
-        startTime_raw = (byte)0xFF;
+        startTime_raw = (byte) 0xFF;
     }
+
     public BasalProfileEntry(int rateByte, int startTimeByte) {
         // rateByte is insulin delivery rate, U/hr, in 0.025 U increments
         // startTimeByte is time-of-day, in 30 minute increments
-        rate_raw = (byte)rateByte;
+        rate_raw = (byte) rateByte;
         rate = rateByte * 0.025;
-        startTime_raw = (byte)startTimeByte;
+        startTime_raw = (byte) startTimeByte;
         startTime = new LocalTime(startTimeByte / 2, (startTimeByte % 2) * 30);
     }
 }

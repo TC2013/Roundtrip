@@ -2,8 +2,8 @@ package com.gxwtech.rtdemo.carelink;
 
 import android.util.Log;
 
-import com.gxwtech.rtdemo.carelink.util.StringUtil;
 import com.gxwtech.rtdemo.HexDump;
+import com.gxwtech.rtdemo.carelink.util.StringUtil;
 
 import java.util.ArrayList;
 
@@ -20,8 +20,13 @@ public class CheckStatusCommand extends CarelinkCommand {
         mReadSize = -1;
     }
 
-    public byte getStatusByte() { return mStatusByte; }
-    public int getReadSize() { return mReadSize; }
+    public byte getStatusByte() {
+        return mStatusByte;
+    }
+
+    public int getReadSize() {
+        return mReadSize;
+    }
 
     protected void parse() {
         byte[] response = getRawResponse();
@@ -40,7 +45,7 @@ public class CheckStatusCommand extends CarelinkCommand {
             // response is null! has command been run yet?
         }
 
-            // got back: (01 55) 00 00 02 00 00 00 05 04 00
+        // got back: (01 55) 00 00 02 00 00 00 05 04 00
 //        0000   0x01 0x55 0x00 0x00 0x02 0x01 0x00 0x0f    .U......
 //        0008   0x05 0x04 0x00 0x00 0x00 0x00 0x1b 0x00    ........
     }

@@ -1,6 +1,5 @@
 package com.gxwtech.rtdemo;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 
 import org.joda.time.DateTime;
@@ -13,13 +12,14 @@ public class PersistentValue {
     protected String mName;
     protected static final String ts_suffix = "_PVTimestamp";
     SharedPreferences mp;
+
     public PersistentValue(SharedPreferences p, String name) {
         mName = name;
         mp = p;
     }
 
     public DateTime getTimestamp() {
-        return DateTime.parse(mp.getString(mName + ts_suffix,""));
+        return DateTime.parse(mp.getString(mName + ts_suffix, ""));
     }
 
 }

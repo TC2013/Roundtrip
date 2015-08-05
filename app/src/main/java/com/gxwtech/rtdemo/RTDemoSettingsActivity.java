@@ -23,27 +23,27 @@ public class RTDemoSettingsActivity extends ActionBarActivity {
     }
 
     public void launchPersonalProfileActivity(View view) {
-        Intent intent = new Intent(this,PersonalProfileActivity.class);
+        Intent intent = new Intent(this, PersonalProfileActivity.class);
         startActivity(intent);
     }
 
     public void launchPumpSettingsActivity(View view) {
-        Intent intent = new Intent(this,PumpSettingsActivity.class);
+        Intent intent = new Intent(this, PumpSettingsActivity.class);
         startActivity(intent);
     }
 
     public void launchMongoDBSettingsActivity(View view) {
-        Intent intent = new Intent(this,MongoDBSettingsActivity.class);
+        Intent intent = new Intent(this, MongoDBSettingsActivity.class);
         startActivity(intent);
     }
 
     public void launchLoggingSettingsActivity(View view) {
-        Intent intent = new Intent(this,LoggingSettingsActivity.class);
+        Intent intent = new Intent(this, LoggingSettingsActivity.class);
         startActivity(intent);
     }
 
     public void launchUtilityActivity(View view) {
-        Intent intent = new Intent(this,UtilityActivity.class);
+        Intent intent = new Intent(this, UtilityActivity.class);
         startActivity(intent);
     }
 

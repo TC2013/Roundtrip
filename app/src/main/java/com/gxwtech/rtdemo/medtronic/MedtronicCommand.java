@@ -2,14 +2,13 @@ package com.gxwtech.rtdemo.medtronic;
 
 import android.util.Log;
 
-import com.gxwtech.rtdemo.CRC;
+import com.gxwtech.rtdemo.HexDump;
 import com.gxwtech.rtdemo.carelink.Carelink;
 import com.gxwtech.rtdemo.carelink.CarelinkCommandStatusEnum;
 import com.gxwtech.rtdemo.carelink.CheckStatusCommand;
 import com.gxwtech.rtdemo.carelink.ReadRadioCommand;
 import com.gxwtech.rtdemo.carelink.TransmitPacketCommand;
 import com.gxwtech.rtdemo.carelink.util.ByteUtil;
-import com.gxwtech.rtdemo.HexDump;
 import com.gxwtech.rtdemo.usb.UsbException;
 
 /**
@@ -51,18 +50,23 @@ public class MedtronicCommand {
         mCode = which;
     }
 
-    public MedtronicCommandEnum getCode() { return mCode; }
-    public String getName() { return mCode.toString(); }
+    public MedtronicCommandEnum getCode() {
+        return mCode;
+    }
+
+    public String getName() {
+        return mCode.toString();
+    }
 
     public byte calcRecordsRequired() {
         byte rval;
         int len = mBytesPerRecord * mMaxRecords;
         int i = len / 64;
         int j = len % 64;
-        if (j>0) {
-            rval = (byte)(i+1);
+        if (j > 0) {
+            rval = (byte) (i + 1);
         } else {
-            rval = (byte)i;
+            rval = (byte) i;
         }
         return rval;
     }
@@ -79,7 +83,7 @@ public class MedtronicCommand {
 
     // subclasses should override parse() and get data from mMResponse
     protected void parse(byte[] receivedData) {
-        Log.w(TAG,"Base class parse called on command " + getName());
+        Log.w(TAG, "Base class parse called on command " + getName());
     }
 
     public MedtronicCommandStatusEnum run(Carelink carelink, byte[] serialNumber) {
@@ -147,18 +151,18 @@ public class MedtronicCommand {
                         resendDownloadRetries++;
                         if (resendDownloadRetries > resendDownloadRetriesMax) {
                             // failed too many times.  Give up.
-                            Log.e(TAG,String.format("Too many retries in reading radio buffer, giving up."));
+                            Log.e(TAG, String.format("Too many retries in reading radio buffer, giving up."));
                             resendDownloadRequest = false;
                         } else {
                             Log.w(TAG, String.format("Radio buffer gave us zero bytes.  Trying again %d/%d",
-                                    resendDownloadRetries,resendDownloadRetriesMax));
+                                    resendDownloadRetries, resendDownloadRetriesMax));
                         }
                     }
                 }
             } catch (UsbException e) {
                 mStatus = MedtronicCommandStatusEnum.ERROR_USB;
                 resendDownloadRequest = false;
-                Log.e(TAG,"USB Exception: " + e.toString());
+                Log.e(TAG, "USB Exception: " + e.toString());
             }
         }
         mRawReceivedData = receivedData;
@@ -195,8 +199,8 @@ public class MedtronicCommand {
         }
         boolean moreDataToGet = true;
         int tries = 0;
-        byte[] mDataReceived = new byte[] {};
-        byte[] rval = new byte[] {};
+        byte[] mDataReceived = new byte[]{};
+        byte[] rval = new byte[]{};
         while (moreDataToGet) {
             int bytesAvailable = 0;
             boolean keepTrying = true;
@@ -207,12 +211,12 @@ public class MedtronicCommand {
                     // error in checking for data
                     keepTrying = false;
                     moreDataToGet = false;
-                    Log.e(TAG,"Error in checkForData");
-                } else if ((bytesAvailable == 0)||(bytesAvailable == 14)) {
+                    Log.e(TAG, "Error in checkForData");
+                } else if ((bytesAvailable == 0) || (bytesAvailable == 14)) {
                     if (tries > mNRetries) {
                         moreDataToGet = false;
                         keepTrying = false;
-                        Log.e(TAG, String.format("Download attempt %d/%d failed, giving up.",tries,mNRetries+1));
+                        Log.e(TAG, String.format("Download attempt %d/%d failed, giving up.", tries, mNRetries + 1));
                     } else {
                         Log.w(TAG, String.format("Download attempt %d/%d failed, sleeping %d millis to try again.", tries, mNRetries + 1, mSleepForPumpRetry));
                         if (bytesAvailable == 14) {
@@ -223,9 +227,9 @@ public class MedtronicCommand {
                             bytesAvailable = 0; // didn't really get anything from pump
                             // todo: fix hack?
                             mSleepForPumpResponse /= 2;
-                            mSleepForPumpRetry /=2;
-                            Log.w(TAG,String.format("Carelink returned zero bytes. Trying shorter wait times: %dms/%dms",
-                                    mSleepForPumpResponse,mSleepForPumpRetry));
+                            mSleepForPumpRetry /= 2;
+                            Log.w(TAG, String.format("Carelink returned zero bytes. Trying shorter wait times: %dms/%dms",
+                                    mSleepForPumpResponse, mSleepForPumpRetry));
                         } else {
                             sleep(mSleepForPumpRetry);
                         }
@@ -245,7 +249,7 @@ public class MedtronicCommand {
                 } else if (rrcmd.getResponse().getPumpData().length == 0) {
                     // sometimes we get an ACK from the stick, but the radio buffer
                     // has nothing (yet?).
-                    Log.e(TAG,String.format("ReadRadio: zero bytes from radio"));
+                    Log.e(TAG, String.format("ReadRadio: zero bytes from radio"));
                     moreDataToGet = false;
                 } else {
                     // Add new data to our collection:
@@ -254,7 +258,7 @@ public class MedtronicCommand {
                     //mDataReceived = ByteUtil.concat(rrcmd.getResponse().getPumpData(),mDataReceived);
                     recordsReceived++;
                     if (DEBUG_MEDTRONICCOMMAND) {
-                        Log.v(TAG,"Adding newly downloaded data. Now we have:\n"
+                        Log.v(TAG, "Adding newly downloaded data. Now we have:\n"
                                 + HexDump.dumpHexString(mDataReceived));
                     }
                     // If we've started to receive something, reset the tries

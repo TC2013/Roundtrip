@@ -2,24 +2,25 @@ package com.gxwtech.rtdemo.medtronic;
 
 /**
  * Created by Geoff on 5/2/2015.
- *
+ * <p/>
  * double insulinRate: insulin in units (granularity 0.025 U)
  * int durationMinutes: duration in minutes (granularity 30min)
- *
+ * <p/>
  * Can Cancel a running temp basal with a delivery of 0 units, 0 duration.
  * Can run a temp of zero units for a given period of time to temporarily
- *   decrease insulin delivery from a normal basal.
- *
+ * decrease insulin delivery from a normal basal.
+ * <p/>
  * from mm-tempbasals.py:
- *def format_params (args):
- *   duration = args.duration / 30
- *   rate = int(args.rate / 0.025)
- *   params = [0x00, rate, duration]
- *   return params
+ * def format_params (args):
+ * duration = args.duration / 30
+ * rate = int(args.rate / 0.025)
+ * params = [0x00, rate, duration]
+ * return params
  */
 
 public class SetTempBasalCommand extends MedtronicCommand {
     protected boolean mParamsOk = false;
+
     public SetTempBasalCommand(double insulinRate, int durationMinutes) {
         init(MedtronicCommandEnum.CMD_M_TEMP_BASAL_RATE);
         mNRetries = 1;
@@ -45,13 +46,13 @@ public class SetTempBasalCommand extends MedtronicCommand {
             rate = 0;
             rval = false;
         }
-        byte insulinRateByte = (byte)(Math.floor(rate / 0.025));
+        byte insulinRateByte = (byte) (Math.floor(rate / 0.025));
         mParams[1] = insulinRateByte;
         return rval;
     }
 
     public double getInsulinRate() {
-        return ((int)(mParams[1])) * 0.025;
+        return ((int) (mParams[1])) * 0.025;
     }
 
     public boolean setDurationMinutes(int minutes) {
@@ -66,7 +67,7 @@ public class SetTempBasalCommand extends MedtronicCommand {
             minutes = minutes_max;
             rval = false;
         }
-        byte durationByte = (byte)(Math.floor(minutes / 30));
+        byte durationByte = (byte) (Math.floor(minutes / 30));
         mParams[2] = durationByte;
         return rval;
     }

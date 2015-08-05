@@ -2,20 +2,19 @@ package com.gxwtech.rtdemo.medtronic.PumpData;
 
 /**
  * Created by geoff on 5/7/15.
- *
+ * <p/>
  * This class is intended to be very basic, and only hold the simple data.
  * That way it will be portable, reusable.
- *
+ * <p/>
  * For instance, for the android UI, there is a parcelable version of this class
  * (PumpSettingsParcel) but I don't want the pump implementation to be dependent
  * on Android.Parcelable.
- *
+ * <p/>
  * For marshalling the data into other forms, I'm keeping the original
  * byte array (mRawData) around.  So if we have to save/reload this data object
  * we can just write the raw data array, and reload from it.  We already have to
  * parse our values from it, so just keep it handy.  Makes the Parcelable
  * implementation very simple.
- *
  */
 public class PumpSettings {
     private static final String TAG = "PumpSettings";
@@ -62,10 +61,14 @@ public class PumpSettings {
         /* fill in default values */
     }
 
-    public byte[] getRawData() { return mRawData; }
+    public byte[] getRawData() {
+        return mRawData;
+    }
 
     public boolean parseFrom(byte[] data) {
-        if (!setRawData(data)) { return false; }
+        if (!setRawData(data)) {
+            return false;
+        }
         return parseFromRaw();
     }
 
@@ -74,8 +77,8 @@ public class PumpSettings {
         if (data == null) {
             return false;
         }
-        int len = Math.min(MAXIMUM_DATA_LENGTH,data.length);
-        System.arraycopy(data,0,mRawData,0,len);
+        int len = Math.min(MAXIMUM_DATA_LENGTH, data.length);
+        System.arraycopy(data, 0, mRawData, 0, len);
         return true;
     }
 
@@ -95,7 +98,9 @@ public class PumpSettings {
         mVariableBolusEnable = (mRawData[4] == 1);
         // MM23 is different
         int maxBolusByte = mRawData[5];
-        if (maxBolusByte < 0) { maxBolusByte += 256; }
+        if (maxBolusByte < 0) {
+            maxBolusByte += 256;
+        }
         mMaxBolus = (maxBolusByte) / 10.0;
         // MM512 and up
         // TODO: check mMaxBasal calculation
@@ -108,7 +113,7 @@ public class PumpSettings {
         if (maxBasalLowByte < 0) {
             maxBasalLowByte += 256;
         }
-        mMaxBasal = ((maxBasalHighByte * 256) + maxBasalLowByte)/40.0;
+        mMaxBasal = ((maxBasalHighByte * 256) + maxBasalLowByte) / 40.0;
         mTimeFormat = mRawData[8];
         // mInsulinConcentration: 0 is 100%, 1 is 50%
         mInsulinConcentration = 100;
@@ -134,32 +139,33 @@ public class PumpSettings {
         mKeypadLockStatus = mRawData[20];
         return true;
     }
+
     public String explain() {
         String rval = "";
         // write out a string describing the current contents
-        rval += String.format("Auto-Off Duration (hours): %d\n",mAutoOffDuration_hours);
-        rval += String.format("Alarm (Volume: %d, Mode: %d)\n",mAlarmVolume,mAlarmMode);
-        rval += String.format("Audio Bolus (enabled=%s, size=%g)\n",mAudioBolusEnable,mAudioBolusSize);
+        rval += String.format("Auto-Off Duration (hours): %d\n", mAutoOffDuration_hours);
+        rval += String.format("Alarm (Volume: %d, Mode: %d)\n", mAlarmVolume, mAlarmMode);
+        rval += String.format("Audio Bolus (enabled=%s, size=%g)\n", mAudioBolusEnable, mAudioBolusSize);
         rval += String.format("Variable Bolus Enable: %s\n", mVariableBolusEnable);
-        rval += String.format("Max Bolus: %g\n",mMaxBolus);
-        rval += String.format("Max Basal: %g\n",mMaxBasal);
+        rval += String.format("Max Bolus: %g\n", mMaxBolus);
+        rval += String.format("Max Basal: %g\n", mMaxBasal);
         rval += String.format("Time Format 0x%02X\n", mTimeFormat);
-        rval += String.format("Insulin Concentration %d%%\n",mInsulinConcentration);
-        rval += String.format("Patterns Enabled: %s\n",mPatternsEnabled);
-        rval += String.format("Selected Pattern: %d\n",mSelectedPattern);
-        rval += String.format("RF Enabled: %s\n",mRFEnable);
-        rval += String.format("Block Enabled: %s\n",mBlockEnable);
-        rval += String.format("Temp Basal Type: %s\n",(mTempBasalType == 1)?"Percent":"Units/Hr");
+        rval += String.format("Insulin Concentration %d%%\n", mInsulinConcentration);
+        rval += String.format("Patterns Enabled: %s\n", mPatternsEnabled);
+        rval += String.format("Selected Pattern: %d\n", mSelectedPattern);
+        rval += String.format("RF Enabled: %s\n", mRFEnable);
+        rval += String.format("Block Enabled: %s\n", mBlockEnable);
+        rval += String.format("Temp Basal Type: %s\n", (mTempBasalType == 1) ? "Percent" : "Units/Hr");
         if (mTempBasalType == 1) {
-            rval += String.format("Temp Basal Rate: %d%%\n",mTempBasalRate);
+            rval += String.format("Temp Basal Rate: %d%%\n", mTempBasalRate);
         } else {
-            rval += String.format("Temp Basal Rate: %d U/h\n",mTempBasalRate);
+            rval += String.format("Temp Basal Rate: %d U/h\n", mTempBasalRate);
         }
         rval += String.format("Paradigm Enabled: %s\n", mParadigmEnable);
-        rval += String.format("Insulin Action Type: 0x%02X\n",mInsulinActionType);
-        rval += String.format("Low Reservoir Warn Type: 0x%02X\n",mLowReservoirWarnType);
-        rval += String.format("Low Reservoir Warn Point: 0x%02X\n",mLowReservoirWarnPoint);
-        rval += String.format("Keypad Lock Status: 0x%02X\n",mKeypadLockStatus);
+        rval += String.format("Insulin Action Type: 0x%02X\n", mInsulinActionType);
+        rval += String.format("Low Reservoir Warn Type: 0x%02X\n", mLowReservoirWarnType);
+        rval += String.format("Low Reservoir Warn Point: 0x%02X\n", mLowReservoirWarnPoint);
+        rval += String.format("Keypad Lock Status: 0x%02X\n", mKeypadLockStatus);
         return rval;
     }
 

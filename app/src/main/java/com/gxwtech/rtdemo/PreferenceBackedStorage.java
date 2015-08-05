@@ -9,19 +9,18 @@ import org.joda.time.DateTime;
 
 /**
  * Created by geoff on 6/23/15.
- *
+ * <p/>
  * Right now this is a simple pass-through class.  Can be changed to cache values in future.
  * Be sure to instantiate this class with the correct context (use getApplicationContext)
  * so that all instances use the same backing store.
- *
+ * <p/>
  * The old method was individually storing all preferences items.
  * I want to move all those into here, so that we can have common get/set for each.
- *
+ * <p/>
  * This could be broken into subclasses (extends, implements, whichever) for different areas.
- *
+ * <p/>
  * All of these could be changed into extensions of basic types (Int, Double) and set to persist,
  * along with default values and key names
- *
  */
 public class PreferenceBackedStorage {
     Context mContext; // be careful, can leak contexts
@@ -43,9 +42,10 @@ public class PreferenceBackedStorage {
     public PersistentInt negativeInsulinDIATable;
     public PersistentBoolean loggingEnabled;
     public PersistentInt keepLogsForHours;
+
     public PreferenceBackedStorage(Context ctx) {
         mContext = ctx;
-        p = mContext.getSharedPreferences(Constants.PreferenceID.MainActivityPrefName,0);
+        p = mContext.getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
 
     /*
      * Low Glucose Suspend Point
@@ -58,28 +58,29 @@ public class PreferenceBackedStorage {
      *
      */
 
-        lowGlucoseSuspendPoint = new PersistentDouble(p,Constants.PrefName.LowGlucoseSuspendPoint,85.0f);
-        CAR = new PersistentDouble(p,Constants.PrefName.CARPrefName,30.0f);
-        ISF = new PersistentDouble(p,Constants.PrefName.ISFPrefName,40.0f);
-        maxTempBasalRate = new PersistentDouble(p,Constants.PrefName.PPMaxTempBasalRatePrefName,6.1f);
-        bgMin = new PersistentDouble(p,Constants.PrefName.PPBGMinPrefName,95.0f);
-        targetBG = new PersistentDouble(p,Constants.PrefName.PPTargetBGPrefName,115.0f);
-        bgMax = new PersistentDouble(p,Constants.PrefName.PPBGMaxPrefName,125.0f);
+        lowGlucoseSuspendPoint = new PersistentDouble(p, Constants.PrefName.LowGlucoseSuspendPoint, 85.0f);
+        CAR = new PersistentDouble(p, Constants.PrefName.CARPrefName, 30.0f);
+        ISF = new PersistentDouble(p, Constants.PrefName.ISFPrefName, 40.0f);
+        maxTempBasalRate = new PersistentDouble(p, Constants.PrefName.PPMaxTempBasalRatePrefName, 6.1f);
+        bgMin = new PersistentDouble(p, Constants.PrefName.PPBGMinPrefName, 95.0f);
+        targetBG = new PersistentDouble(p, Constants.PrefName.PPTargetBGPrefName, 115.0f);
+        bgMax = new PersistentDouble(p, Constants.PrefName.PPBGMaxPrefName, 125.0f);
 
-        monitorTempBasalRate = new PersistentDouble(p,Constants.PrefName.Monitor_TempBasalRate,-99.0f);
-        monitorTempBasalDuration = new PersistentInt(p,Constants.PrefName.Monitor_TempBasalDuration,-99);
-        monitorCurrBasalRate = new PersistentDouble(p,Constants.PrefName.Monitor_CurrBasalRate,-99.0f);
-        monitorPredictedBG = new PersistentDouble(p,Constants.PrefName.Monitor_PredBG,-99.0f);
-        monitorIOB = new PersistentDouble(p,Constants.PrefName.Monitor_IOB, -99.0f);
-        monitorCOB = new PersistentDouble(p,Constants.PrefName.Monitor_COB,-99.0f);
+        monitorTempBasalRate = new PersistentDouble(p, Constants.PrefName.Monitor_TempBasalRate, -99.0f);
+        monitorTempBasalDuration = new PersistentInt(p, Constants.PrefName.Monitor_TempBasalDuration, -99);
+        monitorCurrBasalRate = new PersistentDouble(p, Constants.PrefName.Monitor_CurrBasalRate, -99.0f);
+        monitorPredictedBG = new PersistentDouble(p, Constants.PrefName.Monitor_PredBG, -99.0f);
+        monitorIOB = new PersistentDouble(p, Constants.PrefName.Monitor_IOB, -99.0f);
+        monitorCOB = new PersistentDouble(p, Constants.PrefName.Monitor_COB, -99.0f);
 
-        normalDIATable = new PersistentInt(p,Constants.PrefName.PPNormalDIATable, DIATable.DIA_3_hour);
-        negativeInsulinDIATable = new PersistentInt(p,Constants.PrefName.PPNegativeInsulinDIATable,DIATable.DIA_2_hour);
-        loggingEnabled = new PersistentBoolean(p,Constants.PrefName.LoggingEnabled,false);
-        keepLogsForHours = new PersistentInt(p,Constants.PrefName.KeepLogsForHours,24);
+        normalDIATable = new PersistentInt(p, Constants.PrefName.PPNormalDIATable, DIATable.DIA_3_hour);
+        negativeInsulinDIATable = new PersistentInt(p, Constants.PrefName.PPNegativeInsulinDIATable, DIATable.DIA_2_hour);
+        loggingEnabled = new PersistentBoolean(p, Constants.PrefName.LoggingEnabled, false);
+        keepLogsForHours = new PersistentInt(p, Constants.PrefName.KeepLogsForHours, 24);
 
 
     }
+
     /*
      *
      * Latest BG Reading
@@ -104,11 +105,11 @@ public class PreferenceBackedStorage {
         }
         DateTime timestamp = DateTime.parse(ts);
 
-        float bgr = p.getFloat(Constants.PrefName.LatestBGReading,bad_bg_value);
+        float bgr = p.getFloat(Constants.PrefName.LatestBGReading, bad_bg_value);
         if (bgr == bad_bg_value) {
             return rval;
         }
-        rval = new BGReading(timestamp,bgr);
+        rval = new BGReading(timestamp, bgr);
         return rval;
     }
 
@@ -118,8 +119,8 @@ public class PreferenceBackedStorage {
             return;
         }
         SharedPreferences.Editor edit = p.edit();
-        edit.putString(Constants.PrefName.LatestBGTimestamp,r.mTimestamp.toString());
-        edit.putFloat(Constants.PrefName.LatestBGReading,(float)r.mBg);
+        edit.putString(Constants.PrefName.LatestBGTimestamp, r.mTimestamp.toString());
+        edit.putFloat(Constants.PrefName.LatestBGReading, (float) r.mBg);
         edit.commit();
     }
 
