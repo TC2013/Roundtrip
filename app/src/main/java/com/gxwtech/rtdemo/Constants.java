@@ -1,7 +1,7 @@
 package com.gxwtech.rtdemo;
 
 /**
- * Created by geoff on 4/10/15.
+ * Created by Geoff on 4/10/15.
  */
 public interface Constants {
     class ACTION {
@@ -20,9 +20,11 @@ public interface Constants {
     class SRQ {
         public static final String START_SERVICE = "StartService"; // 301
         public static final String SRQ_UNUSED = "UNUSED-302"; // 302;
-        public static final String VERIFY_USB_PUMP_COMMUNICATIONS = "VerifyUsbPumpCommunications"; //303;
 
-        public static final String VERIFY_BLUETOOTH_PUMP_COMMUNICATIONS = "VerifyBluetoothPumpCommunications"; //303;
+
+        public static final String BLUETOOTH_CONNECT = "bluetoothConnect"; //303;
+        public static final String BLUETOOTH_READ = "bluetoothWrite"; //303;
+        public static final String BLUETOOTH_WRITE  = "bluetoothRead"; //303;
 
         public static final String VERIFY_DB_ACCESS = "VerifyDBAccess"; //304;
         // report_pump_settings sends back a PumpSettingsParcel
@@ -50,7 +52,6 @@ public interface Constants {
         public static final String START_REPEAT_ALARM = "StartRepeatingAlarm"; //314;
         // MonitorActivity stop button runs this.
         public static final String STOP_REPEAT_ALARM = "StopRepeatingAlarm"; //315;
-        public static final String SEND_BLUETOOTH_COMMAND = "SendBluetoothCommand";
     }
 
     class ParcelName {

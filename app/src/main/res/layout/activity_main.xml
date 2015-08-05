@@ -40,7 +40,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:text="Roundtrip ready."
+                        android:text="Ready"
                         android:id="@+id/textView_StatusNote"
                         android:layout_gravity="left|bottom" />
 
@@ -85,9 +85,9 @@
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Test USB"
+                    android:text="Bluetooth Connect"
                     android:id="@+id/button_verifyUsbPumpCommunications"
-                    android:onClick="verifyUsbPumpCommunications"
+                    android:onClick="bluetoothConnect"
                     android:layout_alignTop="@+id/button_testlink"
                     android:layout_toEndOf="@+id/button_testlink"
                     android:nestedScrollingEnabled="true" />
@@ -95,16 +95,16 @@
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="TEST BLUETOOTH"
+                    android:text="Write"
                     android:id="@+id/button_verifyBluetoothPumpCommunications"
-                    android:onClick="verifyBluetoothPumpCommunications" />
+                    android:onClick="bluetoothWrite" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Click!"
+                    android:text="Read"
                     android:id="@+id/button_bluetoothSendCommand"
-                    android:onClick="sendBluetoothCommand"/>
+                    android:onClick="bluetoothRead"/>
 
             </LinearLayout>
 

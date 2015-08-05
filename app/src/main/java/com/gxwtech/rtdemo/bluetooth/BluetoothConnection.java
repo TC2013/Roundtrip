@@ -20,8 +20,6 @@ import com.gxwtech.rtdemo.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
 
 /**
@@ -173,6 +171,7 @@ public class BluetoothConnection {
                 Log.d(TAG, "Cannot send characteristic.");
             }
         }
+
     }
 
     private final BluetoothGattCallback mGattcallback = new BluetoothGattCallback() {
@@ -181,9 +180,6 @@ public class BluetoothConnection {
         public void onCharacteristicChanged(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
             Log.w(TAG, "onCharacteristicChanged " + GattAttributes.lookup(characteristic.getUuid()) + " " + toHexString(characteristic.getValue()));
 
-            if(characteristic.getUuid().equals(UUID.fromString(GattAttributes.GLUCOSELINK_PACKET_COUNT))){
-                performReadCharacteristic(GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE, GattAttributes.GLUCOSELINK_RX_PACKET_UUID);
-            }
         }
 
 
@@ -194,6 +190,14 @@ public class BluetoothConnection {
 
             if (characteristic.getUuid().toString().equals(GattAttributes.GLUCOSELINK_BATTERY_UUID)) {
                 Log.w(TAG, statusMessage + " Battery level: " + (int) characteristic.getValue()[0]);
+            } else if (characteristic.getUuid().toString().equals(GattAttributes.GLUCOSELINK_RX_PACKET_UUID)) {
+                Log.w(TAG, "onCharacteristicRead: " + toHexString(characteristic.getValue()));
+
+
+            } else if (characteristic.getUuid().toString().equals(GattAttributes.GLUCOSELINK_PACKET_COUNT)) {
+                Log.w(TAG, "Found number of packets: " + toHexString(characteristic.getValue()));
+
+                performReadCharacteristic(GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE, GattAttributes.GLUCOSELINK_RX_PACKET_UUID);
             } else {
                 Log.w(TAG, "onCharacteristicRead (" + GattAttributes.lookup(characteristic.getUuid()) + ") "
                         + statusMessage + ":" + toHexString(characteristic.getValue()));
@@ -232,18 +236,9 @@ public class BluetoothConnection {
                         Log.w(TAG, "Cannot discover GATT Services.");
                     }
 
-                    // Poll the RSSI
-                    mRssiTimer = new Timer();
-                    mRssiTimer.schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            gatt.readRemoteRssi();
-                        }
-                    }, 10000, 10000);
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
 
                     // Disconnected, so the RSSI is not relevant anymore.
-                    mRssiTimer.cancel();
                 }
             }
         }
@@ -277,8 +272,6 @@ public class BluetoothConnection {
 
 
         }
-
-        private Timer mRssiTimer;
 
         @Override
         public void onServicesDiscovered(final BluetoothGatt gatt, int status) {
@@ -390,7 +383,7 @@ public class BluetoothConnection {
                 getCharacteristic(uuidCharacteristic);
 
         if (characteristic == null) {
-            Log.e(TAG, "Characteristic not found!");
+            Log.e(TAG, "Characteristic not found: " + GattAttributes.lookup(uuidCharacteristic));
             return null;
         }
 

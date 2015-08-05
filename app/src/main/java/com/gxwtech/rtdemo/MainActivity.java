@@ -84,21 +84,21 @@ public class MainActivity extends ActionBarActivity {
         this.startService(new Intent(this, RTDemoService.class).putExtra("srq", Constants.SRQ.START_SERVICE));
     }
 
-    public void verifyUsbPumpCommunications(View view) {
+    public void bluetoothConnect(View view) {
         Intent intent = new Intent(this, RTDemoService.class);
-        intent.putExtra("srq", Constants.SRQ.VERIFY_USB_PUMP_COMMUNICATIONS);
+        intent.putExtra("srq", Constants.SRQ.BLUETOOTH_CONNECT);
         this.startService(intent);
     }
 
-    public void verifyBluetoothPumpCommunications(View view) {
+    public void bluetoothWrite(View view) {
         Intent intent = new Intent(this, RTDemoService.class);
-        intent.putExtra("srq", Constants.SRQ.VERIFY_BLUETOOTH_PUMP_COMMUNICATIONS);
+        intent.putExtra("srq", Constants.SRQ.BLUETOOTH_WRITE);
         this.startService(intent);
     }
 
-    public void sendBluetoothCommand(View view) {
+    public void bluetoothRead(View view) {
         Intent intent = new Intent(this, RTDemoService.class);
-        intent.putExtra("srq", Constants.SRQ.SEND_BLUETOOTH_COMMAND);
+        intent.putExtra("srq", Constants.SRQ.BLUETOOTH_READ);
         this.startService(intent);
     }
 

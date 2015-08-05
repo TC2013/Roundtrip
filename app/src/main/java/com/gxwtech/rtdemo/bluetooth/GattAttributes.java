@@ -18,7 +18,6 @@ public class GattAttributes {
     public static final String GLUCOSELINK_RX_PACKET_UUID = "2fb1a490-1940-11e4-8c21-0800200c9a66";
     public static final String GLUCOSELINK_DBG_UUID = "2fb1a490-1949-11e4-8c21-0800200c9a66";
     public static final String GLUCOSELINK_CHANNEL_UUID = "d93b2af0-1ea8-11e4-8c21-0800200c9a66";
-    public static final String GLUCOSELINK_RX_PACKET_TRIGGER_UUID = "d93b2af0-1ea9-11e4-8c21-0800200c9a66";
     public static final String GLUCOSELINK_PACKET_COUNT = "41825a20-7402-11e4-8c21-0800200c9a66";
     public static final String GLUCOSELINK_BUF_LEN_RD = "41825a20-7409-11e4-8c21-0800200c9a66";
     public static final String GLUCOSELINK_TX_PACKET_UUID = "2fb1a490-1941-11e4-8c21-0800200c9a66";

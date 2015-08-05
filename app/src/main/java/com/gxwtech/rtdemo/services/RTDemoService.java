@@ -21,6 +21,7 @@ import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.gxwtech.rtdemo.BGReading;
 import com.gxwtech.rtdemo.BGReadingParcel;
@@ -219,37 +220,19 @@ public class RTDemoService extends IntentService {
                 // this BLOCKS until we get permission!
                 // since it blocks, we can't do it in Create()
 
-            } else if (srq.equals(Constants.SRQ.VERIFY_USB_PUMP_COMMUNICATIONS)) {
-                getCarelinkPermission();
-                checkPumpCommunications();
-            } else if (srq.equals(Constants.SRQ.SEND_BLUETOOTH_COMMAND)) {
+            } else if (srq.equals(Constants.SRQ.BLUETOOTH_CONNECT)) {
+
+                String response = BluetoothConnection.getInstance(this).connect();
+                llog(response);
+
+            } else if (srq.equals(Constants.SRQ.BLUETOOTH_WRITE)) {
+
 
                 BluetoothConnection conn = BluetoothConnection.getInstance(this);
 
-                conn.performReadCharacteristic(GattAttributes.GLUCOSELINK_BATTERY_SERVICE, GattAttributes.GLUCOSELINK_BATTERY_UUID);
-
-
-                try {
-                    Thread.sleep(1000);
-                } catch (java.lang.InterruptedException e) {
-                    // whatever
-                    Log.i("gapp", "Exception(?):" + e.getMessage());
-                }
-
-
-                conn.performReadCharacteristic(GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE, GattAttributes.GLUCOSELINK_PACKET_COUNT);
-
-
-                try {
-                    Thread.sleep(1000);
-                } catch (java.lang.InterruptedException e) {
-                    // whatever
-                    Log.i("gapp", "Exception(?):" + e.getMessage());
-                }
-
-
                 conn.sendCommand(new byte[]{(byte) 0xa7, 0x41, 0x75, 0x40, (byte) (byte) 141},
                         GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE, GattAttributes.GLUCOSELINK_TX_PACKET_UUID, true, true);
+
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
@@ -258,9 +241,30 @@ public class RTDemoService extends IntentService {
 
                 conn.sendCommand(new byte[]{0x01}, GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE, GattAttributes.GLUCOSELINK_TX_TRIGGER_UUID, false, false);
 
-            } else if (srq.equals(Constants.SRQ.VERIFY_BLUETOOTH_PUMP_COMMUNICATIONS)) {
-                String response = BluetoothConnection.getInstance(this).connect();
-                llog(response);
+            } else if (srq.equals(Constants.SRQ.BLUETOOTH_READ)) {
+
+
+                BluetoothConnection conn = BluetoothConnection.getInstance(this);
+
+                conn.performReadCharacteristic(GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE, GattAttributes.GLUCOSELINK_PACKET_COUNT);
+
+                try {
+                    Thread.sleep(1000);
+                } catch (java.lang.InterruptedException e) {
+                    // whatever
+                    Log.i(TAG, "Exception(?):" + e.getMessage());
+                }
+
+
+                conn.performReadCharacteristic(GattAttributes.GLUCOSELINK_BATTERY_SERVICE, GattAttributes.GLUCOSELINK_BATTERY_UUID);
+
+                try {
+                    Thread.sleep(1000);
+                } catch (java.lang.InterruptedException e) {
+                    // whatever
+                    Log.i(TAG, "Exception(?):" + e.getMessage());
+                }
+
 
             } else if (srq.equals(Constants.SRQ.REPORT_PUMP_SETTINGS)) {
                 PumpSettingsParcel parcel = new PumpSettingsParcel();
@@ -437,9 +441,7 @@ public class RTDemoService extends IntentService {
                         entry.rate, entry.startTime.getHourOfDay(), entry.startTime.getMinuteOfHour()));
             }
         }
-
     }
-
 
     // Let the UI know that we're sleeping (for pump communication delays)
     public void sendSleepNotification(DateTime starttime, int durationSeconds) {
