@@ -1,5 +1,7 @@
 package com.gxwtech.rtdemo.bluetooth;
 
+import java.nio.ByteBuffer;
+
 /**
  * Created by Fokko on 3-8-15.
  */
@@ -269,10 +271,13 @@ public class CRC {
     public static byte computeCRC(final byte[] data) {
         return computeCRC(data, data.length);
     }
-
     public static byte computeCRC(final byte[] data, final int length) {
+        return computeCRC(data, 0, length);
+    }
+
+    public static byte computeCRC(final byte[] data, final int start, final int length) {
         byte crc = 0;
-        for (int i = 0; i < length; i++) {
+        for (int i = start; i < length; i++) {
             crc = CRC8_TABLE[(crc ^ data[i]) & 0xFF];
         }
         return crc;

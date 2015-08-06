@@ -257,6 +257,7 @@ public class RTDemoService extends IntentService {
                     Log.i(TAG, "Exception(?):" + e.getMessage());
                 }
 
+                /*
 
                 conn.performReadCharacteristic(GattAttributes.GLUCOSELINK_BATTERY_SERVICE, GattAttributes.GLUCOSELINK_BATTERY_UUID);
 
@@ -267,7 +268,7 @@ public class RTDemoService extends IntentService {
                     Log.i(TAG, "Exception(?):" + e.getMessage());
                 }
 
-
+*/
             } else if (srq.equals(Constants.SRQ.REPORT_PUMP_SETTINGS)) {
                 PumpSettingsParcel parcel = new PumpSettingsParcel();
                 parcel.initFromPumpSettings(mPumpManager.getPumpSettings());

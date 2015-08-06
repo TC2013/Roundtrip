@@ -17,6 +17,10 @@ import android.content.Context;
 import android.util.Log;
 
 import com.gxwtech.rtdemo.Constants;
+import com.gxwtech.rtdemo.HexDump;
+import com.gxwtech.rtdemo.decoding.DataPackage;
+import com.gxwtech.rtdemo.decoding.Decoder;
+import com.gxwtech.rtdemo.medtronic.MedtronicConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -190,8 +194,15 @@ public class BluetoothConnection {
             if (characteristic.getUuid().toString().equals(GattAttributes.GLUCOSELINK_BATTERY_UUID)) {
                 Log.w(TAG, statusMessage + " Battery level: " + (int) characteristic.getValue()[0]);
             } else if (characteristic.getUuid().toString().equals(GattAttributes.GLUCOSELINK_RX_PACKET_UUID)) {
-                Log.w(TAG, "onCharacteristicRead: " + toHexString(characteristic.getValue()));
+                byte[] data = characteristic.getValue();
 
+                final DataPackage pack = Decoder.DeterminePackage(data);
+
+                if( pack != null) {
+                    Log.w(TAG, "Got valid package: " + pack.toString() + " raw dat: " + toHexString(data));
+                } else {
+                    Log.w(TAG, "Could not determine package from bytes " + toHexString(data));
+                }
 
             } else if (characteristic.getUuid().toString().equals(GattAttributes.GLUCOSELINK_PACKET_COUNT)) {
 
