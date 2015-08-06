@@ -1,7 +1,7 @@
 package com.gxwtech.rtdemo.bluetooth;
 
 /**
- * Created by fokko on 5-8-15.
+ * Created by Fokko on 5-8-15.
  */
 public class Commands {
 
@@ -24,8 +24,8 @@ public class Commands {
                 0x01, // 1 Pages
                 0x00, // 0 Dont know
                 (byte) 0x8D, // 141 // Command
-                0x5B, // 91 // CRC
-                0x00 // 0
+                0x00, // CRC
+                0x00  // 0
         };
 
         // Serial

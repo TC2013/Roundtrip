@@ -7,34 +7,31 @@ public class RileyLinkUtil {
     private static final String TAG = "RileyLinkUtil";
 
     /*
-     CodeSymbols is an ordered list of translations
-     6bits -> 4 bits, in order from 0x0 to 0xF
-     The 6 bit codes are what is used on the RF side of the RileyLink
-     to communicate with a Medtronic pump.
-     The RileyLink translates the 6 bit codes into bytes when receiving,
-     but we have to construct the 6 bit codes when sending.
+     CodeSymbols is an ordered list of translations 6bits -> 4 bits, in order from 0x0 to 0xF
+     The 6 bit codes are what is used on the RF side of the RileyLink to communicate with a Medtronic pump.
+     The RileyLink translates the 6 bit codes into bytes when receiving, but we have to construct the 6 bit codes when sending.
      */
     public static final byte[] CodeSymbols = {
-            0b010101,
-            0b110001,
-            0b110010,
-            0b100011,
-            0b110100,
-            0b100101,
-            0b100110,
-            0b010110,
-            0b011010,
-            0b011001,
-            0b101010,
-            0b001011,
-            0b101100,
-            0b001101,
-            0b001110,
-            0b011100
+            0b010101, // 21
+            0b110001, // 49
+            0b110010, // 50
+            0b100011, // 35
+            0b110100, // 52
+            0b100101, // 37
+            0b100110, // 38
+            0b010110, // 22
+            0b011010, // 26
+            0b011001, // 25
+            0b101010, // 42
+            0b001011, // 11
+            0b101100, // 44
+            0b001101, // 13
+            0b001110, // 14
+            0b011100 // 28
     };
 
     public static int computeNewSize(final int inputSize) {
-        return (int) (Math.ceil((inputSize * 3.0) / 2.0));
+        return (int) Math.ceil((inputSize * 3.0) / 2.0);
     }
 
     public static byte[] composeRFStream(final byte[] input) {
@@ -53,6 +50,7 @@ public class RileyLinkUtil {
 
         final int outSize = computeNewSize(input.length);
         final byte[] rval = new byte[outSize];
+
         for (int i = 0; i < input.length; i++) {
             final int rfBytes = composeRFBytes(input[i]);
             final int outIndex = ((i / 2) * 3) + (i % 2);
@@ -72,7 +70,7 @@ public class RileyLinkUtil {
     // return a 12 bit binary number representing outgoing RF code for byte
     // 0xa7 -> (0xa -> 0x2a == 101010) + (0x7 -> 0x16 == 010110) == 1010 1001 0110 = 0xa96
     // zero extend low bits to achieve 2 bytes: 0xa960
-    public static int composeRFBytes(byte b) {
+    public static int composeRFBytes(final byte b) {
         // bit translations are per nibble
         int lowNibble = b & 0x0F;
         byte lowCode = CodeSymbols[lowNibble];

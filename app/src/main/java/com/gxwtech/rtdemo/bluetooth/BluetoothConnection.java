@@ -194,9 +194,12 @@ public class BluetoothConnection {
 
 
             } else if (characteristic.getUuid().toString().equals(GattAttributes.GLUCOSELINK_PACKET_COUNT)) {
+
                 Log.w(TAG, "Found number of packets: " + toHexString(characteristic.getValue()));
 
-                performReadCharacteristic(GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE, GattAttributes.GLUCOSELINK_RX_PACKET_UUID);
+                if(characteristic.getValue()[0] > 0) {
+                    performReadCharacteristic(GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE, GattAttributes.GLUCOSELINK_RX_PACKET_UUID);
+                }
             } else {
                 Log.w(TAG, "onCharacteristicRead (" + GattAttributes.lookup(characteristic.getUuid()) + ") "
                         + statusMessage + ":" + toHexString(characteristic.getValue()));
