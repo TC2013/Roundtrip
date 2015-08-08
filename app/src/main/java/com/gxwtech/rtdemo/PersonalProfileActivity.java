@@ -92,7 +92,7 @@ public class PersonalProfileActivity extends ActionBarActivity {
         if ((newBGMax > 500) || (newBGMax < 40)) {
             return;
         }
-        mStorage.bgMin.set(newBGMax);
+        mStorage.bgMax.set(newBGMax);
     }
 
     public void setTargetBGClicked(View view) {
