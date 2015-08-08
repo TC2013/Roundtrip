@@ -13,6 +13,10 @@ public class Decoder {
                 newDataPackage = new MedtronicGlucose();
                 newDataPackage.decode(data);
                 break;
+            case MedtronicConstants.MEDTRONIC_SENSOR:
+                newDataPackage = new MedtronicSensor();
+                newDataPackage.decode(data);
+                break;
             default:
                 newDataPackage = null;
         }

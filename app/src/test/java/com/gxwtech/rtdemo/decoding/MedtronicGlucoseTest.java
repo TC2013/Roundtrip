@@ -2,11 +2,14 @@ package com.gxwtech.rtdemo.decoding;
 
 import junit.framework.TestCase;
 
+import org.junit.Test;
+
 /**
  * Created by fokko on 7-8-15.
  */
 public class MedtronicGlucoseTest extends TestCase {
 
+    @Test
     public void testDecode() throws Exception {
         MedtronicGlucose gluc = new MedtronicGlucose();
 
