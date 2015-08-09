@@ -135,75 +135,6 @@ public class RTDemoService extends IntentService {
         return ((device.getVendorId() == CareLinkUsb.CARELINK_VENDOR_ID) && (device.getProductId() == CareLinkUsb.CARELINK_PRODUCT_ID));
     }
 
-    // When the system broadcasts USB events, we'd like to know:
-    private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (ACTION_USB_PERMISSION.equals(action)) {
-                Log.w(TAG, "RTDemoService: ACTION_USB_PERMISSION");
-                synchronized (this) {
-                    UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-                    if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-                        if (device != null) {
-                            //call method to set up device communication
-                            Log.i("GGW", "Received Permission for device! (Carelink) (rebuild PumpManager?)");
-
-                            mPumpManager = new PumpManager(getApplicationContext());
-                            // needs application context to access USB manager
-                            if (!mPumpManager.open()) {
-                                Log.e(TAG, "Failed to open mPumpManager");
-                                llog("Error opening Pump Manager");
-                            }
-
-                        }
-                    } else {
-                        Log.d(TAG, "Permission denied for device " + device.toString());
-                    }
-                }
-            } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
-                Log.w(TAG, "RTDemoService: ACTION_USB_DEVICE_DETACHED");
-                UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-                if (device != null) {
-                    // call your method that cleans up and closes communication with the device
-                    if (deviceIsCarelink(device)) {
-                        llog("Carelink device lost");
-                        // todo: need to detach cleanly
-                        // this crashes MainActivity:
-                        /*
-                        mPumpManager.close();
-                        mCarelinkDevice = null; // whack it, to force reloading
-                        mUsbManager = null;  // whack it, to force reloading
-                        */
-                    } else {
-                        //llog("USB device disconnected (not carelink):" + device.toString());
-                    }
-                }
-            } else if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
-                Log.w(TAG, "RTDemoService: ACTION_USB_DEVICE_ATTACHED");
-                UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-                if (deviceIsCarelink(device)) {
-                    if (!getUsbManager().hasPermission(device)) {
-                        llog("Carelink device attached, permission OK. (rebuild pumpManager?");
-                    } else {
-                        llog("Carelink device attached, permission NOT GRANTED. (rebuild pumpManager?)");
-                    }
-                    // TODO: need to re-attach cleanly.
-
-                    mPumpManager = new PumpManager(getApplicationContext());
-                    // needs application context to access USB manager
-                    if (!mPumpManager.open()) {
-                        Log.e(TAG, "Failed to open mPumpManager");
-                        llog("Error opening Pump Manager");
-                    }
-
-                } else {
-                    llog("Other USB device attached:" + device.toString());
-                }
-            }
-        }
-    };
-
-
     @Override
     protected void onHandleIntent(Intent intent) {
         try {
@@ -533,20 +464,8 @@ public class RTDemoService extends IntentService {
         filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
 
-        // set up the receiver with our filter
-        registerReceiver(mUsbReceiver, filter);
-        // still can't figure out where to do the creation/open properly:
-        mPumpManager = new PumpManager(this);
-        String serialNumber = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0).
-                getString(Constants.PrefName.SerialNumberPrefName, MEDTRONIC_DEFAULT_SERIAL);
-        // convert to bytes
-        byte[] sn_bytes = HexDump.hexStringToByteArray(serialNumber);
-        mPumpManager.setSerialNumber(sn_bytes);
-        mPumpManager.open();
-        mMongoWrapper = new MongoWrapper(getApplicationContext());
-        updateMongoWrapperFromPrefs();
 
-        mAPSLogic = new APSLogic(this, mPumpManager, mMongoWrapper);
+
 
         //llog("End of onCreate()");
         llog("Roundtrip ready.");

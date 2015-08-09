@@ -12,7 +12,7 @@ import java.util.Arrays;
 /**
  * Created by Fokko on 6-8-15.
  */
-public class MedtronicGlucose implements DataPackage {
+public class MedtronicGlucose extends DataPackage {
     private static final String TAG = "MedtronicGlucose";
 
     private int mgdl = -1;
@@ -21,14 +21,10 @@ public class MedtronicGlucose implements DataPackage {
         return this.mgdl;
     }
 
-    public MedtronicGlucose() {
-
-    }
-
     @Override
-    public void decode(byte[] readData) {
+    public void decode(final byte[] readData) {
 
-        if(readData.length == 8) {
+        if(readData.length != packageLength()) {
             Log.w(TAG, "Unknown length of data.");
             return;
         }
@@ -41,6 +37,11 @@ public class MedtronicGlucose implements DataPackage {
         }
 
         mgdl = ByteBuffer.wrap(new byte[]{0x00, 0x00, readData[6], readData[7]}).getInt();
+    }
+
+    @Override
+    protected int packageLength() {
+        return 9;
     }
 
     @Override

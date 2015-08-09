@@ -1,7 +1,7 @@
 package com.gxwtech.rtdemo.medtronic;
 
 import com.gxwtech.rtdemo.CRC;
-import com.gxwtech.rtdemo.carelink.util.ByteUtil;
+import com.gxwtech.rtdemo.bluetooth.BluetoothConnection;
 
 /**
  * Created by geoff on 5/5/15.
@@ -163,7 +163,7 @@ public class MedtronicResponse {
                 pumpDataChecksumOK() ? "OK" : "BAD",
                 isEOD() ? "true" : "false",
                 mPumpData == null ? 0 : mPumpData.length,
-                ByteUtil.shortHexString(mPumpData));
+                BluetoothConnection.toHexString(mPumpData));
         return rval;
     }
 
