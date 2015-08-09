@@ -145,14 +145,8 @@ public class RTDemoService extends IntentService {
                 srq = "(null)";
             }
             Log.w(TAG, String.format("onHandleIntent: received request srq=%s", srq));
-            if (srq.equals(Constants.SRQ.START_SERVICE)) {
 
-                // Set up permissions for carelink
-                getCarelinkPermission();
-                // this BLOCKS until we get permission!
-                // since it blocks, we can't do it in Create()
-
-            } else if (srq.equals(Constants.SRQ.BLUETOOTH_CONNECT)) {
+            if (srq.equals(Constants.SRQ.BLUETOOTH_CONNECT)) {
 
                 String response = BluetoothConnection.getInstance(this).connect();
                 llog(response);
@@ -612,59 +606,8 @@ public class RTDemoService extends IntentService {
     @Override
     public void onDestroy() {
         Log.e(TAG, "onDestroy()");
-        /* This function runs in the Foreground */
-        /* release resources */
-        mPumpManager.close();
-        mNM.cancel(NOTIFICATION);
-        unregisterReceiver(mUsbReceiver);
+
         super.onDestroy();
-    }
-
-    // getting permission for the device is necessarily an asynchronous action
-    private boolean getCarelinkPermission() {
-        UsbDevice device = getCarelinkDevice();
-
-        // If the device cannot be found, then the permissions are not given.
-        if (device == null) {
-            return false;
-        }
-
-        UsbManager manager = getUsbManager();
-        if (manager.hasPermission(device)) {
-            return true;
-        }
-        // create a PendingIntent to give to the USB Manager, to call us back with the result.
-        mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
-
-        // set up a filter for what broadcasts we wish to catch with mUsbReceiver
-        IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
-        // see EXTRA_DEVICE too
-        filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
-        filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
-
-        // set up the receiver with our filter
-        registerReceiver(mUsbReceiver, filter);
-
-        // ask for permission
-        getUsbManager().requestPermission(device, mPermissionIntent);
-
-        int loopcount = 0;
-        // wait for permission (BLOCKING!)
-        while (!getUsbManager().hasPermission(device)) {
-            if (loopcount++ % 100 == 0) {
-                Log.i("gapp", "Waiting for Carelink Permission");
-            }
-            // sleep for milliseconds
-            try {
-                Thread.sleep(100);
-            } catch (java.lang.InterruptedException e) {
-                // whatever
-                Log.i("gapp", "Exception(?):" + e.getMessage());
-            }
-        }
-        // receiver no longer needed?
-        //unregisterReceiver(mUsbReceiver);
-        return true;
     }
 
     private UsbManager getUsbManager() {
