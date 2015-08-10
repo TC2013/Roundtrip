@@ -4,10 +4,13 @@ package com.gxwtech.rtdemo.uploader;
 // source: DataDefinition.proto
 
 public final class DataDefinition {
-    private DataDefinition() {}
+    private DataDefinition() {
+    }
+
     public static void registerAllExtensions(
             com.google.protobuf.ExtensionRegistry registry) {
     }
+
     /**
      * Protobuf enum {@code GlucoseUnit}
      */
@@ -20,8 +23,7 @@ public final class DataDefinition {
         /**
          * <code>MMOL = 1;</code>
          */
-        MMOL(1, 1),
-        ;
+        MMOL(1, 1),;
 
         /**
          * <code>MGDL = 0;</code>
@@ -33,13 +35,18 @@ public final class DataDefinition {
         public static final int MMOL_VALUE = 1;
 
 
-        public final int getNumber() { return value; }
+        public final int getNumber() {
+            return value;
+        }
 
         public static GlucoseUnit valueOf(int value) {
             switch (value) {
-                case 0: return MGDL;
-                case 1: return MMOL;
-                default: return null;
+                case 0:
+                    return MGDL;
+                case 1:
+                    return MMOL;
+                default:
+                    return null;
             }
         }
 
@@ -47,6 +54,7 @@ public final class DataDefinition {
         internalGetValueMap() {
             return internalValueMap;
         }
+
         private static com.google.protobuf.Internal.EnumLiteMap<GlucoseUnit>
                 internalValueMap =
                 new com.google.protobuf.Internal.EnumLiteMap<GlucoseUnit>() {
@@ -59,10 +67,12 @@ public final class DataDefinition {
         getValueDescriptor() {
             return getDescriptor().getValues().get(index);
         }
+
         public final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptorForType() {
             return getDescriptor();
         }
+
         public static final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptor() {
             return DataDefinition.getDescriptor().getEnumTypes().get(0);
@@ -122,8 +132,7 @@ public final class DataDefinition {
         /**
          * <code>NOT_APPLICABLE = 6;</code>
          */
-        NOT_APPLICABLE(6, 6),
-        ;
+        NOT_APPLICABLE(6, 6),;
 
         /**
          * <code>SUCCESS = 0;</code>
@@ -155,18 +164,28 @@ public final class DataDefinition {
         public static final int NOT_APPLICABLE_VALUE = 6;
 
 
-        public final int getNumber() { return value; }
+        public final int getNumber() {
+            return value;
+        }
 
         public static DownloadStatus valueOf(int value) {
             switch (value) {
-                case 0: return SUCCESS;
-                case 1: return NO_DATA;
-                case 2: return DEVICE_NOT_FOUND;
-                case 3: return IO_ERROR;
-                case 4: return APPLICATION_ERROR;
-                case 5: return UNKNOWN;
-                case 6: return NOT_APPLICABLE;
-                default: return null;
+                case 0:
+                    return SUCCESS;
+                case 1:
+                    return NO_DATA;
+                case 2:
+                    return DEVICE_NOT_FOUND;
+                case 3:
+                    return IO_ERROR;
+                case 4:
+                    return APPLICATION_ERROR;
+                case 5:
+                    return UNKNOWN;
+                case 6:
+                    return NOT_APPLICABLE;
+                default:
+                    return null;
             }
         }
 
@@ -174,6 +193,7 @@ public final class DataDefinition {
         internalGetValueMap() {
             return internalValueMap;
         }
+
         private static com.google.protobuf.Internal.EnumLiteMap<DownloadStatus>
                 internalValueMap =
                 new com.google.protobuf.Internal.EnumLiteMap<DownloadStatus>() {
@@ -186,10 +206,12 @@ public final class DataDefinition {
         getValueDescriptor() {
             return getDescriptor().getValues().get(index);
         }
+
         public final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptorForType() {
             return getDescriptor();
         }
+
         public static final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptor() {
             return DataDefinition.getDescriptor().getEnumTypes().get(1);
@@ -228,7 +250,7 @@ public final class DataDefinition {
         TREND_NONE(0, 0),
         /**
          * <code>DOUBLE_UP = 1;</code>
-         *
+         * <p/>
          * <pre>
          * More than 3 mg/dL per minute
          * </pre>
@@ -236,7 +258,7 @@ public final class DataDefinition {
         DOUBLE_UP(1, 1),
         /**
          * <code>SINGLE_UP = 2;</code>
-         *
+         * <p/>
          * <pre>
          * +2 to +3 mg/dL per minute
          * </pre>
@@ -244,7 +266,7 @@ public final class DataDefinition {
         SINGLE_UP(2, 2),
         /**
          * <code>FORTY_FIVE_UP = 3;</code>
-         *
+         * <p/>
          * <pre>
          * +1 to +2 mg/dL per minute
          * </pre>
@@ -252,7 +274,7 @@ public final class DataDefinition {
         FORTY_FIVE_UP(3, 3),
         /**
          * <code>FLAT = 4;</code>
-         *
+         * <p/>
          * <pre>
          * +/- 1 mg/dL per minute
          * </pre>
@@ -260,7 +282,7 @@ public final class DataDefinition {
         FLAT(4, 4),
         /**
          * <code>FORTY_FIVE_DOWN = 5;</code>
-         *
+         * <p/>
          * <pre>
          * -1 to -2 mg/dL per minute
          * </pre>
@@ -268,7 +290,7 @@ public final class DataDefinition {
         FORTY_FIVE_DOWN(5, 5),
         /**
          * <code>SINGLE_DOWN = 6;</code>
-         *
+         * <p/>
          * <pre>
          * -2 to -3 mg/dL per minute
          * </pre>
@@ -276,7 +298,7 @@ public final class DataDefinition {
         SINGLE_DOWN(6, 6),
         /**
          * <code>DOUBLE_DOWN = 7;</code>
-         *
+         * <p/>
          * <pre>
          * more than -3 mg/dL per minute
          * </pre>
@@ -289,8 +311,7 @@ public final class DataDefinition {
         /**
          * <code>RATE_OUT_OF_RANGE = 9;</code>
          */
-        RATE_OUT_OF_RANGE(9, 9),
-        ;
+        RATE_OUT_OF_RANGE(9, 9),;
 
         /**
          * <code>TREND_NONE = 0;</code>
@@ -298,7 +319,7 @@ public final class DataDefinition {
         public static final int TREND_NONE_VALUE = 0;
         /**
          * <code>DOUBLE_UP = 1;</code>
-         *
+         * <p/>
          * <pre>
          * More than 3 mg/dL per minute
          * </pre>
@@ -306,7 +327,7 @@ public final class DataDefinition {
         public static final int DOUBLE_UP_VALUE = 1;
         /**
          * <code>SINGLE_UP = 2;</code>
-         *
+         * <p/>
          * <pre>
          * +2 to +3 mg/dL per minute
          * </pre>
@@ -314,7 +335,7 @@ public final class DataDefinition {
         public static final int SINGLE_UP_VALUE = 2;
         /**
          * <code>FORTY_FIVE_UP = 3;</code>
-         *
+         * <p/>
          * <pre>
          * +1 to +2 mg/dL per minute
          * </pre>
@@ -322,7 +343,7 @@ public final class DataDefinition {
         public static final int FORTY_FIVE_UP_VALUE = 3;
         /**
          * <code>FLAT = 4;</code>
-         *
+         * <p/>
          * <pre>
          * +/- 1 mg/dL per minute
          * </pre>
@@ -330,7 +351,7 @@ public final class DataDefinition {
         public static final int FLAT_VALUE = 4;
         /**
          * <code>FORTY_FIVE_DOWN = 5;</code>
-         *
+         * <p/>
          * <pre>
          * -1 to -2 mg/dL per minute
          * </pre>
@@ -338,7 +359,7 @@ public final class DataDefinition {
         public static final int FORTY_FIVE_DOWN_VALUE = 5;
         /**
          * <code>SINGLE_DOWN = 6;</code>
-         *
+         * <p/>
          * <pre>
          * -2 to -3 mg/dL per minute
          * </pre>
@@ -346,7 +367,7 @@ public final class DataDefinition {
         public static final int SINGLE_DOWN_VALUE = 6;
         /**
          * <code>DOUBLE_DOWN = 7;</code>
-         *
+         * <p/>
          * <pre>
          * more than -3 mg/dL per minute
          * </pre>
@@ -362,21 +383,34 @@ public final class DataDefinition {
         public static final int RATE_OUT_OF_RANGE_VALUE = 9;
 
 
-        public final int getNumber() { return value; }
+        public final int getNumber() {
+            return value;
+        }
 
         public static G4Trend valueOf(int value) {
             switch (value) {
-                case 0: return TREND_NONE;
-                case 1: return DOUBLE_UP;
-                case 2: return SINGLE_UP;
-                case 3: return FORTY_FIVE_UP;
-                case 4: return FLAT;
-                case 5: return FORTY_FIVE_DOWN;
-                case 6: return SINGLE_DOWN;
-                case 7: return DOUBLE_DOWN;
-                case 8: return NOT_COMPUTABLE;
-                case 9: return RATE_OUT_OF_RANGE;
-                default: return null;
+                case 0:
+                    return TREND_NONE;
+                case 1:
+                    return DOUBLE_UP;
+                case 2:
+                    return SINGLE_UP;
+                case 3:
+                    return FORTY_FIVE_UP;
+                case 4:
+                    return FLAT;
+                case 5:
+                    return FORTY_FIVE_DOWN;
+                case 6:
+                    return SINGLE_DOWN;
+                case 7:
+                    return DOUBLE_DOWN;
+                case 8:
+                    return NOT_COMPUTABLE;
+                case 9:
+                    return RATE_OUT_OF_RANGE;
+                default:
+                    return null;
             }
         }
 
@@ -384,6 +418,7 @@ public final class DataDefinition {
         internalGetValueMap() {
             return internalValueMap;
         }
+
         private static com.google.protobuf.Internal.EnumLiteMap<G4Trend>
                 internalValueMap =
                 new com.google.protobuf.Internal.EnumLiteMap<G4Trend>() {
@@ -396,10 +431,12 @@ public final class DataDefinition {
         getValueDescriptor() {
             return getDescriptor().getValues().get(index);
         }
+
         public final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptorForType() {
             return getDescriptor();
         }
+
         public static final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptor() {
             return DataDefinition.getDescriptor().getEnumTypes().get(2);
@@ -459,8 +496,7 @@ public final class DataDefinition {
         /**
          * <code>MAX = 6;</code>
          */
-        MAX(6, 6),
-        ;
+        MAX(6, 6),;
 
         /**
          * <code>NOISE_NONE = 0;</code>
@@ -492,18 +528,28 @@ public final class DataDefinition {
         public static final int MAX_VALUE = 6;
 
 
-        public final int getNumber() { return value; }
+        public final int getNumber() {
+            return value;
+        }
 
         public static G4Noise valueOf(int value) {
             switch (value) {
-                case 0: return NOISE_NONE;
-                case 1: return CLEAN;
-                case 2: return LIGHT;
-                case 3: return MEDIUM;
-                case 4: return HEAVY;
-                case 5: return NOT_COMPUTED;
-                case 6: return MAX;
-                default: return null;
+                case 0:
+                    return NOISE_NONE;
+                case 1:
+                    return CLEAN;
+                case 2:
+                    return LIGHT;
+                case 3:
+                    return MEDIUM;
+                case 4:
+                    return HEAVY;
+                case 5:
+                    return NOT_COMPUTED;
+                case 6:
+                    return MAX;
+                default:
+                    return null;
             }
         }
 
@@ -511,6 +557,7 @@ public final class DataDefinition {
         internalGetValueMap() {
             return internalValueMap;
         }
+
         private static com.google.protobuf.Internal.EnumLiteMap<G4Noise>
                 internalValueMap =
                 new com.google.protobuf.Internal.EnumLiteMap<G4Noise>() {
@@ -523,10 +570,12 @@ public final class DataDefinition {
         getValueDescriptor() {
             return getDescriptor().getValues().get(index);
         }
+
         public final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptorForType() {
             return getDescriptor();
         }
+
         public static final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptor() {
             return DataDefinition.getDescriptor().getEnumTypes().get(3);
@@ -602,8 +651,7 @@ public final class DataDefinition {
         /**
          * <code>MAX_VALUE = 10;</code>
          */
-        MAX_VALUE(10, 10),
-        ;
+        MAX_VALUE(10, 10),;
 
         /**
          * <code>INSERTION_NONE = 0;</code>
@@ -651,22 +699,36 @@ public final class DataDefinition {
         public static final int MAX_VALUE_VALUE = 10;
 
 
-        public final int getNumber() { return value; }
+        public final int getNumber() {
+            return value;
+        }
 
         public static G4Insertion valueOf(int value) {
             switch (value) {
-                case 0: return INSERTION_NONE;
-                case 1: return REMOVED;
-                case 2: return EXPIRED;
-                case 3: return RESIDUAL_DEVIATION;
-                case 4: return COUNTS_DEVIATION;
-                case 5: return SECOND_SESSION;
-                case 6: return OFF_TIME_LOSS;
-                case 7: return STARTED;
-                case 8: return BAD_TRANSMITTER;
-                case 9: return MANUFACTURING_MODE;
-                case 10: return MAX_VALUE;
-                default: return null;
+                case 0:
+                    return INSERTION_NONE;
+                case 1:
+                    return REMOVED;
+                case 2:
+                    return EXPIRED;
+                case 3:
+                    return RESIDUAL_DEVIATION;
+                case 4:
+                    return COUNTS_DEVIATION;
+                case 5:
+                    return SECOND_SESSION;
+                case 6:
+                    return OFF_TIME_LOSS;
+                case 7:
+                    return STARTED;
+                case 8:
+                    return BAD_TRANSMITTER;
+                case 9:
+                    return MANUFACTURING_MODE;
+                case 10:
+                    return MAX_VALUE;
+                default:
+                    return null;
             }
         }
 
@@ -674,6 +736,7 @@ public final class DataDefinition {
         internalGetValueMap() {
             return internalValueMap;
         }
+
         private static com.google.protobuf.Internal.EnumLiteMap<G4Insertion>
                 internalValueMap =
                 new com.google.protobuf.Internal.EnumLiteMap<G4Insertion>() {
@@ -686,10 +749,12 @@ public final class DataDefinition {
         getValueDescriptor() {
             return getDescriptor().getValues().get(index);
         }
+
         public final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptorForType() {
             return getDescriptor();
         }
+
         public static final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptor() {
             return DataDefinition.getDescriptor().getEnumTypes().get(4);
@@ -724,7 +789,7 @@ public final class DataDefinition {
             implements com.google.protobuf.ProtocolMessageEnum {
         /**
          * <code>RECEIVER_CONNECTED = 0;</code>
-         *
+         * <p/>
          * <pre>
          * The receiver is connected to the uploader
          * </pre>
@@ -732,17 +797,16 @@ public final class DataDefinition {
         RECEIVER_CONNECTED(0, 0),
         /**
          * <code>RECEIVER_DISCONNECTED = 1;</code>
-         *
+         * <p/>
          * <pre>
          * The receiver is not connected to the uploader
          * </pre>
          */
-        RECEIVER_DISCONNECTED(1, 1),
-        ;
+        RECEIVER_DISCONNECTED(1, 1),;
 
         /**
          * <code>RECEIVER_CONNECTED = 0;</code>
-         *
+         * <p/>
          * <pre>
          * The receiver is connected to the uploader
          * </pre>
@@ -750,7 +814,7 @@ public final class DataDefinition {
         public static final int RECEIVER_CONNECTED_VALUE = 0;
         /**
          * <code>RECEIVER_DISCONNECTED = 1;</code>
-         *
+         * <p/>
          * <pre>
          * The receiver is not connected to the uploader
          * </pre>
@@ -758,13 +822,18 @@ public final class DataDefinition {
         public static final int RECEIVER_DISCONNECTED_VALUE = 1;
 
 
-        public final int getNumber() { return value; }
+        public final int getNumber() {
+            return value;
+        }
 
         public static ReceiverStatus valueOf(int value) {
             switch (value) {
-                case 0: return RECEIVER_CONNECTED;
-                case 1: return RECEIVER_DISCONNECTED;
-                default: return null;
+                case 0:
+                    return RECEIVER_CONNECTED;
+                case 1:
+                    return RECEIVER_DISCONNECTED;
+                default:
+                    return null;
             }
         }
 
@@ -772,6 +841,7 @@ public final class DataDefinition {
         internalGetValueMap() {
             return internalValueMap;
         }
+
         private static com.google.protobuf.Internal.EnumLiteMap<ReceiverStatus>
                 internalValueMap =
                 new com.google.protobuf.Internal.EnumLiteMap<ReceiverStatus>() {
@@ -784,10 +854,12 @@ public final class DataDefinition {
         getValueDescriptor() {
             return getDescriptor().getValues().get(index);
         }
+
         public final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptorForType() {
             return getDescriptor();
         }
+
         public static final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptor() {
             return DataDefinition.getDescriptor().getEnumTypes().get(5);
@@ -819,43 +891,48 @@ public final class DataDefinition {
             extends com.google.protobuf.MessageOrBuilder {
 
         // repeated .SensorGlucoseValueEntry sgv = 1;
+
         /**
          * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
-         *
+         * <p/>
          * <pre>
          * Glucose records as reported by the G4
          * </pre>
          */
         java.util.List<DataDefinition.SensorGlucoseValueEntry>
         getSgvList();
+
         /**
          * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
-         *
+         * <p/>
          * <pre>
          * Glucose records as reported by the G4
          * </pre>
          */
         DataDefinition.SensorGlucoseValueEntry getSgv(int index);
+
         /**
          * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
-         *
+         * <p/>
          * <pre>
          * Glucose records as reported by the G4
          * </pre>
          */
         int getSgvCount();
+
         /**
          * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
-         *
+         * <p/>
          * <pre>
          * Glucose records as reported by the G4
          * </pre>
          */
         java.util.List<? extends DataDefinition.SensorGlucoseValueEntryOrBuilder>
         getSgvOrBuilderList();
+
         /**
          * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
-         *
+         * <p/>
          * <pre>
          * Glucose records as reported by the G4
          * </pre>
@@ -864,17 +941,19 @@ public final class DataDefinition {
                 int index);
 
         // optional .GlucoseUnit units = 2;
+
         /**
          * <code>optional .GlucoseUnit units = 2;</code>
-         *
+         * <p/>
          * <pre>
          * Units reported by the device
          * </pre>
          */
         boolean hasUnits();
+
         /**
          * <code>optional .GlucoseUnit units = 2;</code>
-         *
+         * <p/>
          * <pre>
          * Units reported by the device
          * </pre>
@@ -882,25 +961,28 @@ public final class DataDefinition {
         DataDefinition.GlucoseUnit getUnits();
 
         // required string download_timestamp = 3;
+
         /**
          * <code>required string download_timestamp = 3;</code>
-         *
+         * <p/>
          * <pre>
          * ISO8601 timestamp reported by uploader
          * </pre>
          */
         boolean hasDownloadTimestamp();
+
         /**
          * <code>required string download_timestamp = 3;</code>
-         *
+         * <p/>
          * <pre>
          * ISO8601 timestamp reported by uploader
          * </pre>
          */
         java.lang.String getDownloadTimestamp();
+
         /**
          * <code>required string download_timestamp = 3;</code>
-         *
+         * <p/>
          * <pre>
          * ISO8601 timestamp reported by uploader
          * </pre>
@@ -909,17 +991,19 @@ public final class DataDefinition {
         getDownloadTimestampBytes();
 
         // optional uint64 receiver_system_time_sec = 4;
+
         /**
          * <code>optional uint64 receiver_system_time_sec = 4;</code>
-         *
+         * <p/>
          * <pre>
          * Raw value of the receiver's system time
          * </pre>
          */
         boolean hasReceiverSystemTimeSec();
+
         /**
          * <code>optional uint64 receiver_system_time_sec = 4;</code>
-         *
+         * <p/>
          * <pre>
          * Raw value of the receiver's system time
          * </pre>
@@ -927,17 +1011,19 @@ public final class DataDefinition {
         long getReceiverSystemTimeSec();
 
         // optional .DownloadStatus download_status = 5 [default = NOT_APPLICABLE];
+
         /**
          * <code>optional .DownloadStatus download_status = 5 [default = NOT_APPLICABLE];</code>
-         *
+         * <p/>
          * <pre>
          * Status of the download
          * </pre>
          */
         boolean hasDownloadStatus();
+
         /**
          * <code>optional .DownloadStatus download_status = 5 [default = NOT_APPLICABLE];</code>
-         *
+         * <p/>
          * <pre>
          * Status of the download
          * </pre>
@@ -945,17 +1031,19 @@ public final class DataDefinition {
         DataDefinition.DownloadStatus getDownloadStatus();
 
         // optional uint32 receiver_battery = 6;
+
         /**
          * <code>optional uint32 receiver_battery = 6;</code>
-         *
+         * <p/>
          * <pre>
          * Battery level as reported by the receiver
          * </pre>
          */
         boolean hasReceiverBattery();
+
         /**
          * <code>optional uint32 receiver_battery = 6;</code>
-         *
+         * <p/>
          * <pre>
          * Battery level as reported by the receiver
          * </pre>
@@ -963,17 +1051,19 @@ public final class DataDefinition {
         int getReceiverBattery();
 
         // optional uint32 uploader_battery = 7;
+
         /**
          * <code>optional uint32 uploader_battery = 7;</code>
-         *
+         * <p/>
          * <pre>
          * Battery level as reported by the uploader
          * </pre>
          */
         boolean hasUploaderBattery();
+
         /**
          * <code>optional uint32 uploader_battery = 7;</code>
-         *
+         * <p/>
          * <pre>
          * Battery level as reported by the uploader
          * </pre>
@@ -981,24 +1071,29 @@ public final class DataDefinition {
         int getUploaderBattery();
 
         // repeated .MeterEntry meter = 8;
+
         /**
          * <code>repeated .MeterEntry meter = 8;</code>
          */
         java.util.List<DataDefinition.MeterEntry>
         getMeterList();
+
         /**
          * <code>repeated .MeterEntry meter = 8;</code>
          */
         DataDefinition.MeterEntry getMeter(int index);
+
         /**
          * <code>repeated .MeterEntry meter = 8;</code>
          */
         int getMeterCount();
+
         /**
          * <code>repeated .MeterEntry meter = 8;</code>
          */
         java.util.List<? extends DataDefinition.MeterEntryOrBuilder>
         getMeterOrBuilderList();
+
         /**
          * <code>repeated .MeterEntry meter = 8;</code>
          */
@@ -1006,24 +1101,29 @@ public final class DataDefinition {
                 int index);
 
         // repeated .SensorEntry sensor = 9;
+
         /**
          * <code>repeated .SensorEntry sensor = 9;</code>
          */
         java.util.List<DataDefinition.SensorEntry>
         getSensorList();
+
         /**
          * <code>repeated .SensorEntry sensor = 9;</code>
          */
         DataDefinition.SensorEntry getSensor(int index);
+
         /**
          * <code>repeated .SensorEntry sensor = 9;</code>
          */
         int getSensorCount();
+
         /**
          * <code>repeated .SensorEntry sensor = 9;</code>
          */
         java.util.List<? extends DataDefinition.SensorEntryOrBuilder>
         getSensorOrBuilderList();
+
         /**
          * <code>repeated .SensorEntry sensor = 9;</code>
          */
@@ -1031,24 +1131,29 @@ public final class DataDefinition {
                 int index);
 
         // repeated .CalibrationEntry cal = 10;
+
         /**
          * <code>repeated .CalibrationEntry cal = 10;</code>
          */
         java.util.List<DataDefinition.CalibrationEntry>
         getCalList();
+
         /**
          * <code>repeated .CalibrationEntry cal = 10;</code>
          */
         DataDefinition.CalibrationEntry getCal(int index);
+
         /**
          * <code>repeated .CalibrationEntry cal = 10;</code>
          */
         int getCalCount();
+
         /**
          * <code>repeated .CalibrationEntry cal = 10;</code>
          */
         java.util.List<? extends DataDefinition.CalibrationEntryOrBuilder>
         getCalOrBuilderList();
+
         /**
          * <code>repeated .CalibrationEntry cal = 10;</code>
          */
@@ -1056,24 +1161,29 @@ public final class DataDefinition {
                 int index);
 
         // repeated .InsertionEntry insert = 11;
+
         /**
          * <code>repeated .InsertionEntry insert = 11;</code>
          */
         java.util.List<DataDefinition.InsertionEntry>
         getInsertList();
+
         /**
          * <code>repeated .InsertionEntry insert = 11;</code>
          */
         DataDefinition.InsertionEntry getInsert(int index);
+
         /**
          * <code>repeated .InsertionEntry insert = 11;</code>
          */
         int getInsertCount();
+
         /**
          * <code>repeated .InsertionEntry insert = 11;</code>
          */
         java.util.List<? extends DataDefinition.InsertionEntryOrBuilder>
         getInsertOrBuilderList();
+
         /**
          * <code>repeated .InsertionEntry insert = 11;</code>
          */
@@ -1081,14 +1191,17 @@ public final class DataDefinition {
                 int index);
 
         // optional string receiver_id = 12;
+
         /**
          * <code>optional string receiver_id = 12;</code>
          */
         boolean hasReceiverId();
+
         /**
          * <code>optional string receiver_id = 12;</code>
          */
         java.lang.String getReceiverId();
+
         /**
          * <code>optional string receiver_id = 12;</code>
          */
@@ -1096,20 +1209,24 @@ public final class DataDefinition {
         getReceiverIdBytes();
 
         // optional string transmitter_id = 13;
+
         /**
          * <code>optional string transmitter_id = 13;</code>
          */
         boolean hasTransmitterId();
+
         /**
          * <code>optional string transmitter_id = 13;</code>
          */
         java.lang.String getTransmitterId();
+
         /**
          * <code>optional string transmitter_id = 13;</code>
          */
         com.google.protobuf.ByteString
         getTransmitterIdBytes();
     }
+
     /**
      * Protobuf type {@code G4Download}
      */
@@ -1121,9 +1238,13 @@ public final class DataDefinition {
             super(builder);
             this.unknownFields = builder.getUnknownFields();
         }
-        private G4Download(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+        private G4Download(boolean noInit) {
+            this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+        }
 
         private static final G4Download defaultInstance;
+
         public static G4Download getDefaultInstance() {
             return defaultInstance;
         }
@@ -1133,11 +1254,13 @@ public final class DataDefinition {
         }
 
         private final com.google.protobuf.UnknownFieldSet unknownFields;
+
         @java.lang.Override
         public final com.google.protobuf.UnknownFieldSet
         getUnknownFields() {
             return this.unknownFields;
         }
+
         private G4Download(
                 com.google.protobuf.CodedInputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -1280,6 +1403,7 @@ public final class DataDefinition {
                 makeExtensionsImmutable();
             }
         }
+
         public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
             return DataDefinition.internal_static_G4Download_descriptor;
@@ -1311,9 +1435,10 @@ public final class DataDefinition {
         // repeated .SensorGlucoseValueEntry sgv = 1;
         public static final int SGV_FIELD_NUMBER = 1;
         private java.util.List<DataDefinition.SensorGlucoseValueEntry> sgv_;
+
         /**
          * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
-         *
+         * <p/>
          * <pre>
          * Glucose records as reported by the G4
          * </pre>
@@ -1321,9 +1446,10 @@ public final class DataDefinition {
         public java.util.List<DataDefinition.SensorGlucoseValueEntry> getSgvList() {
             return sgv_;
         }
+
         /**
          * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
-         *
+         * <p/>
          * <pre>
          * Glucose records as reported by the G4
          * </pre>
@@ -1332,9 +1458,10 @@ public final class DataDefinition {
         getSgvOrBuilderList() {
             return sgv_;
         }
+
         /**
          * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
-         *
+         * <p/>
          * <pre>
          * Glucose records as reported by the G4
          * </pre>
@@ -1342,9 +1469,10 @@ public final class DataDefinition {
         public int getSgvCount() {
             return sgv_.size();
         }
+
         /**
          * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
-         *
+         * <p/>
          * <pre>
          * Glucose records as reported by the G4
          * </pre>
@@ -1352,9 +1480,10 @@ public final class DataDefinition {
         public DataDefinition.SensorGlucoseValueEntry getSgv(int index) {
             return sgv_.get(index);
         }
+
         /**
          * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
-         *
+         * <p/>
          * <pre>
          * Glucose records as reported by the G4
          * </pre>
@@ -1367,9 +1496,10 @@ public final class DataDefinition {
         // optional .GlucoseUnit units = 2;
         public static final int UNITS_FIELD_NUMBER = 2;
         private DataDefinition.GlucoseUnit units_;
+
         /**
          * <code>optional .GlucoseUnit units = 2;</code>
-         *
+         * <p/>
          * <pre>
          * Units reported by the device
          * </pre>
@@ -1377,9 +1507,10 @@ public final class DataDefinition {
         public boolean hasUnits() {
             return ((bitField0_ & 0x00000001) == 0x00000001);
         }
+
         /**
          * <code>optional .GlucoseUnit units = 2;</code>
-         *
+         * <p/>
          * <pre>
          * Units reported by the device
          * </pre>
@@ -1391,9 +1522,10 @@ public final class DataDefinition {
         // required string download_timestamp = 3;
         public static final int DOWNLOAD_TIMESTAMP_FIELD_NUMBER = 3;
         private java.lang.Object downloadTimestamp_;
+
         /**
          * <code>required string download_timestamp = 3;</code>
-         *
+         * <p/>
          * <pre>
          * ISO8601 timestamp reported by uploader
          * </pre>
@@ -1401,9 +1533,10 @@ public final class DataDefinition {
         public boolean hasDownloadTimestamp() {
             return ((bitField0_ & 0x00000002) == 0x00000002);
         }
+
         /**
          * <code>required string download_timestamp = 3;</code>
-         *
+         * <p/>
          * <pre>
          * ISO8601 timestamp reported by uploader
          * </pre>
@@ -1422,9 +1555,10 @@ public final class DataDefinition {
                 return s;
             }
         }
+
         /**
          * <code>required string download_timestamp = 3;</code>
-         *
+         * <p/>
          * <pre>
          * ISO8601 timestamp reported by uploader
          * </pre>
@@ -1446,9 +1580,10 @@ public final class DataDefinition {
         // optional uint64 receiver_system_time_sec = 4;
         public static final int RECEIVER_SYSTEM_TIME_SEC_FIELD_NUMBER = 4;
         private long receiverSystemTimeSec_;
+
         /**
          * <code>optional uint64 receiver_system_time_sec = 4;</code>
-         *
+         * <p/>
          * <pre>
          * Raw value of the receiver's system time
          * </pre>
@@ -1456,9 +1591,10 @@ public final class DataDefinition {
         public boolean hasReceiverSystemTimeSec() {
             return ((bitField0_ & 0x00000004) == 0x00000004);
         }
+
         /**
          * <code>optional uint64 receiver_system_time_sec = 4;</code>
-         *
+         * <p/>
          * <pre>
          * Raw value of the receiver's system time
          * </pre>
@@ -1470,9 +1606,10 @@ public final class DataDefinition {
         // optional .DownloadStatus download_status = 5 [default = NOT_APPLICABLE];
         public static final int DOWNLOAD_STATUS_FIELD_NUMBER = 5;
         private DataDefinition.DownloadStatus downloadStatus_;
+
         /**
          * <code>optional .DownloadStatus download_status = 5 [default = NOT_APPLICABLE];</code>
-         *
+         * <p/>
          * <pre>
          * Status of the download
          * </pre>
@@ -1480,9 +1617,10 @@ public final class DataDefinition {
         public boolean hasDownloadStatus() {
             return ((bitField0_ & 0x00000008) == 0x00000008);
         }
+
         /**
          * <code>optional .DownloadStatus download_status = 5 [default = NOT_APPLICABLE];</code>
-         *
+         * <p/>
          * <pre>
          * Status of the download
          * </pre>
@@ -1494,9 +1632,10 @@ public final class DataDefinition {
         // optional uint32 receiver_battery = 6;
         public static final int RECEIVER_BATTERY_FIELD_NUMBER = 6;
         private int receiverBattery_;
+
         /**
          * <code>optional uint32 receiver_battery = 6;</code>
-         *
+         * <p/>
          * <pre>
          * Battery level as reported by the receiver
          * </pre>
@@ -1504,9 +1643,10 @@ public final class DataDefinition {
         public boolean hasReceiverBattery() {
             return ((bitField0_ & 0x00000010) == 0x00000010);
         }
+
         /**
          * <code>optional uint32 receiver_battery = 6;</code>
-         *
+         * <p/>
          * <pre>
          * Battery level as reported by the receiver
          * </pre>
@@ -1518,9 +1658,10 @@ public final class DataDefinition {
         // optional uint32 uploader_battery = 7;
         public static final int UPLOADER_BATTERY_FIELD_NUMBER = 7;
         private int uploaderBattery_;
+
         /**
          * <code>optional uint32 uploader_battery = 7;</code>
-         *
+         * <p/>
          * <pre>
          * Battery level as reported by the uploader
          * </pre>
@@ -1528,9 +1669,10 @@ public final class DataDefinition {
         public boolean hasUploaderBattery() {
             return ((bitField0_ & 0x00000020) == 0x00000020);
         }
+
         /**
          * <code>optional uint32 uploader_battery = 7;</code>
-         *
+         * <p/>
          * <pre>
          * Battery level as reported by the uploader
          * </pre>
@@ -1542,12 +1684,14 @@ public final class DataDefinition {
         // repeated .MeterEntry meter = 8;
         public static final int METER_FIELD_NUMBER = 8;
         private java.util.List<DataDefinition.MeterEntry> meter_;
+
         /**
          * <code>repeated .MeterEntry meter = 8;</code>
          */
         public java.util.List<DataDefinition.MeterEntry> getMeterList() {
             return meter_;
         }
+
         /**
          * <code>repeated .MeterEntry meter = 8;</code>
          */
@@ -1555,18 +1699,21 @@ public final class DataDefinition {
         getMeterOrBuilderList() {
             return meter_;
         }
+
         /**
          * <code>repeated .MeterEntry meter = 8;</code>
          */
         public int getMeterCount() {
             return meter_.size();
         }
+
         /**
          * <code>repeated .MeterEntry meter = 8;</code>
          */
         public DataDefinition.MeterEntry getMeter(int index) {
             return meter_.get(index);
         }
+
         /**
          * <code>repeated .MeterEntry meter = 8;</code>
          */
@@ -1578,12 +1725,14 @@ public final class DataDefinition {
         // repeated .SensorEntry sensor = 9;
         public static final int SENSOR_FIELD_NUMBER = 9;
         private java.util.List<DataDefinition.SensorEntry> sensor_;
+
         /**
          * <code>repeated .SensorEntry sensor = 9;</code>
          */
         public java.util.List<DataDefinition.SensorEntry> getSensorList() {
             return sensor_;
         }
+
         /**
          * <code>repeated .SensorEntry sensor = 9;</code>
          */
@@ -1591,18 +1740,21 @@ public final class DataDefinition {
         getSensorOrBuilderList() {
             return sensor_;
         }
+
         /**
          * <code>repeated .SensorEntry sensor = 9;</code>
          */
         public int getSensorCount() {
             return sensor_.size();
         }
+
         /**
          * <code>repeated .SensorEntry sensor = 9;</code>
          */
         public DataDefinition.SensorEntry getSensor(int index) {
             return sensor_.get(index);
         }
+
         /**
          * <code>repeated .SensorEntry sensor = 9;</code>
          */
@@ -1614,12 +1766,14 @@ public final class DataDefinition {
         // repeated .CalibrationEntry cal = 10;
         public static final int CAL_FIELD_NUMBER = 10;
         private java.util.List<DataDefinition.CalibrationEntry> cal_;
+
         /**
          * <code>repeated .CalibrationEntry cal = 10;</code>
          */
         public java.util.List<DataDefinition.CalibrationEntry> getCalList() {
             return cal_;
         }
+
         /**
          * <code>repeated .CalibrationEntry cal = 10;</code>
          */
@@ -1627,18 +1781,21 @@ public final class DataDefinition {
         getCalOrBuilderList() {
             return cal_;
         }
+
         /**
          * <code>repeated .CalibrationEntry cal = 10;</code>
          */
         public int getCalCount() {
             return cal_.size();
         }
+
         /**
          * <code>repeated .CalibrationEntry cal = 10;</code>
          */
         public DataDefinition.CalibrationEntry getCal(int index) {
             return cal_.get(index);
         }
+
         /**
          * <code>repeated .CalibrationEntry cal = 10;</code>
          */
@@ -1650,12 +1807,14 @@ public final class DataDefinition {
         // repeated .InsertionEntry insert = 11;
         public static final int INSERT_FIELD_NUMBER = 11;
         private java.util.List<DataDefinition.InsertionEntry> insert_;
+
         /**
          * <code>repeated .InsertionEntry insert = 11;</code>
          */
         public java.util.List<DataDefinition.InsertionEntry> getInsertList() {
             return insert_;
         }
+
         /**
          * <code>repeated .InsertionEntry insert = 11;</code>
          */
@@ -1663,18 +1822,21 @@ public final class DataDefinition {
         getInsertOrBuilderList() {
             return insert_;
         }
+
         /**
          * <code>repeated .InsertionEntry insert = 11;</code>
          */
         public int getInsertCount() {
             return insert_.size();
         }
+
         /**
          * <code>repeated .InsertionEntry insert = 11;</code>
          */
         public DataDefinition.InsertionEntry getInsert(int index) {
             return insert_.get(index);
         }
+
         /**
          * <code>repeated .InsertionEntry insert = 11;</code>
          */
@@ -1686,12 +1848,14 @@ public final class DataDefinition {
         // optional string receiver_id = 12;
         public static final int RECEIVER_ID_FIELD_NUMBER = 12;
         private java.lang.Object receiverId_;
+
         /**
          * <code>optional string receiver_id = 12;</code>
          */
         public boolean hasReceiverId() {
             return ((bitField0_ & 0x00000040) == 0x00000040);
         }
+
         /**
          * <code>optional string receiver_id = 12;</code>
          */
@@ -1709,6 +1873,7 @@ public final class DataDefinition {
                 return s;
             }
         }
+
         /**
          * <code>optional string receiver_id = 12;</code>
          */
@@ -1729,12 +1894,14 @@ public final class DataDefinition {
         // optional string transmitter_id = 13;
         public static final int TRANSMITTER_ID_FIELD_NUMBER = 13;
         private java.lang.Object transmitterId_;
+
         /**
          * <code>optional string transmitter_id = 13;</code>
          */
         public boolean hasTransmitterId() {
             return ((bitField0_ & 0x00000080) == 0x00000080);
         }
+
         /**
          * <code>optional string transmitter_id = 13;</code>
          */
@@ -1752,6 +1919,7 @@ public final class DataDefinition {
                 return s;
             }
         }
+
         /**
          * <code>optional string transmitter_id = 13;</code>
          */
@@ -1784,7 +1952,9 @@ public final class DataDefinition {
             receiverId_ = "";
             transmitterId_ = "";
         }
+
         private byte memoizedIsInitialized = -1;
+
         public final boolean isInitialized() {
             byte isInitialized = memoizedIsInitialized;
             if (isInitialized != -1) return isInitialized == 1;
@@ -1873,6 +2043,7 @@ public final class DataDefinition {
         }
 
         private int memoizedSerializedSize = -1;
+
         public int getSerializedSize() {
             int size = memoizedSerializedSize;
             if (size != -1) return size;
@@ -1936,6 +2107,7 @@ public final class DataDefinition {
         }
 
         private static final long serialVersionUID = 0L;
+
         @java.lang.Override
         protected java.lang.Object writeReplace()
                 throws java.io.ObjectStreamException {
@@ -1947,47 +2119,56 @@ public final class DataDefinition {
                 throws com.google.protobuf.InvalidProtocolBufferException {
             return PARSER.parseFrom(data);
         }
+
         public static DataDefinition.G4Download parseFrom(
                 com.google.protobuf.ByteString data,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws com.google.protobuf.InvalidProtocolBufferException {
             return PARSER.parseFrom(data, extensionRegistry);
         }
+
         public static DataDefinition.G4Download parseFrom(byte[] data)
                 throws com.google.protobuf.InvalidProtocolBufferException {
             return PARSER.parseFrom(data);
         }
+
         public static DataDefinition.G4Download parseFrom(
                 byte[] data,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws com.google.protobuf.InvalidProtocolBufferException {
             return PARSER.parseFrom(data, extensionRegistry);
         }
+
         public static DataDefinition.G4Download parseFrom(java.io.InputStream input)
                 throws java.io.IOException {
             return PARSER.parseFrom(input);
         }
+
         public static DataDefinition.G4Download parseFrom(
                 java.io.InputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws java.io.IOException {
             return PARSER.parseFrom(input, extensionRegistry);
         }
+
         public static DataDefinition.G4Download parseDelimitedFrom(java.io.InputStream input)
                 throws java.io.IOException {
             return PARSER.parseDelimitedFrom(input);
         }
+
         public static DataDefinition.G4Download parseDelimitedFrom(
                 java.io.InputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws java.io.IOException {
             return PARSER.parseDelimitedFrom(input, extensionRegistry);
         }
+
         public static DataDefinition.G4Download parseFrom(
                 com.google.protobuf.CodedInputStream input)
                 throws java.io.IOException {
             return PARSER.parseFrom(input);
         }
+
         public static DataDefinition.G4Download parseFrom(
                 com.google.protobuf.CodedInputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -1995,12 +2176,21 @@ public final class DataDefinition {
             return PARSER.parseFrom(input, extensionRegistry);
         }
 
-        public static Builder newBuilder() { return Builder.create(); }
-        public Builder newBuilderForType() { return newBuilder(); }
+        public static Builder newBuilder() {
+            return Builder.create();
+        }
+
+        public Builder newBuilderForType() {
+            return newBuilder();
+        }
+
         public static Builder newBuilder(DataDefinition.G4Download prototype) {
             return newBuilder().mergeFrom(prototype);
         }
-        public Builder toBuilder() { return newBuilder(this); }
+
+        public Builder toBuilder() {
+            return newBuilder(this);
+        }
 
         @java.lang.Override
         protected Builder newBuilderForType(
@@ -2008,6 +2198,7 @@ public final class DataDefinition {
             Builder builder = new Builder(parent);
             return builder;
         }
+
         /**
          * Protobuf type {@code G4Download}
          */
@@ -2036,6 +2227,7 @@ public final class DataDefinition {
                 super(parent);
                 maybeForceBuilderInitialization();
             }
+
             private void maybeForceBuilderInitialization() {
                 if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
                     getSgvFieldBuilder();
@@ -2045,6 +2237,7 @@ public final class DataDefinition {
                     getInsertFieldBuilder();
                 }
             }
+
             private static Builder create() {
                 return new Builder();
             }
@@ -2209,7 +2402,7 @@ public final class DataDefinition {
 
             public Builder mergeFrom(com.google.protobuf.Message other) {
                 if (other instanceof DataDefinition.G4Download) {
-                    return mergeFrom((DataDefinition.G4Download)other);
+                    return mergeFrom((DataDefinition.G4Download) other);
                 } else {
                     super.mergeFrom(other);
                     return this;
@@ -2437,11 +2630,13 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             private int bitField0_;
 
             // repeated .SensorGlucoseValueEntry sgv = 1;
             private java.util.List<DataDefinition.SensorGlucoseValueEntry> sgv_ =
                     java.util.Collections.emptyList();
+
             private void ensureSgvIsMutable() {
                 if (!((bitField0_ & 0x00000001) == 0x00000001)) {
                     sgv_ = new java.util.ArrayList<DataDefinition.SensorGlucoseValueEntry>(sgv_);
@@ -2454,7 +2649,7 @@ public final class DataDefinition {
 
             /**
              * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
-             *
+             * <p/>
              * <pre>
              * Glucose records as reported by the G4
              * </pre>
@@ -2466,9 +2661,10 @@ public final class DataDefinition {
                     return sgvBuilder_.getMessageList();
                 }
             }
+
             /**
              * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
-             *
+             * <p/>
              * <pre>
              * Glucose records as reported by the G4
              * </pre>
@@ -2480,9 +2676,10 @@ public final class DataDefinition {
                     return sgvBuilder_.getCount();
                 }
             }
+
             /**
              * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
-             *
+             * <p/>
              * <pre>
              * Glucose records as reported by the G4
              * </pre>
@@ -2494,9 +2691,10 @@ public final class DataDefinition {
                     return sgvBuilder_.getMessage(index);
                 }
             }
+
             /**
              * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
-             *
+             * <p/>
              * <pre>
              * Glucose records as reported by the G4
              * </pre>
@@ -2515,9 +2713,10 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
-             *
+             * <p/>
              * <pre>
              * Glucose records as reported by the G4
              * </pre>
@@ -2533,9 +2732,10 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
-             *
+             * <p/>
              * <pre>
              * Glucose records as reported by the G4
              * </pre>
@@ -2553,9 +2753,10 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
-             *
+             * <p/>
              * <pre>
              * Glucose records as reported by the G4
              * </pre>
@@ -2574,9 +2775,10 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
-             *
+             * <p/>
              * <pre>
              * Glucose records as reported by the G4
              * </pre>
@@ -2592,9 +2794,10 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
-             *
+             * <p/>
              * <pre>
              * Glucose records as reported by the G4
              * </pre>
@@ -2610,9 +2813,10 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
-             *
+             * <p/>
              * <pre>
              * Glucose records as reported by the G4
              * </pre>
@@ -2628,9 +2832,10 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
-             *
+             * <p/>
              * <pre>
              * Glucose records as reported by the G4
              * </pre>
@@ -2645,9 +2850,10 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
-             *
+             * <p/>
              * <pre>
              * Glucose records as reported by the G4
              * </pre>
@@ -2662,9 +2868,10 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
-             *
+             * <p/>
              * <pre>
              * Glucose records as reported by the G4
              * </pre>
@@ -2673,9 +2880,10 @@ public final class DataDefinition {
                     int index) {
                 return getSgvFieldBuilder().getBuilder(index);
             }
+
             /**
              * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
-             *
+             * <p/>
              * <pre>
              * Glucose records as reported by the G4
              * </pre>
@@ -2683,13 +2891,15 @@ public final class DataDefinition {
             public DataDefinition.SensorGlucoseValueEntryOrBuilder getSgvOrBuilder(
                     int index) {
                 if (sgvBuilder_ == null) {
-                    return sgv_.get(index);  } else {
+                    return sgv_.get(index);
+                } else {
                     return sgvBuilder_.getMessageOrBuilder(index);
                 }
             }
+
             /**
              * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
-             *
+             * <p/>
              * <pre>
              * Glucose records as reported by the G4
              * </pre>
@@ -2702,9 +2912,10 @@ public final class DataDefinition {
                     return java.util.Collections.unmodifiableList(sgv_);
                 }
             }
+
             /**
              * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
-             *
+             * <p/>
              * <pre>
              * Glucose records as reported by the G4
              * </pre>
@@ -2713,9 +2924,10 @@ public final class DataDefinition {
                 return getSgvFieldBuilder().addBuilder(
                         DataDefinition.SensorGlucoseValueEntry.getDefaultInstance());
             }
+
             /**
              * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
-             *
+             * <p/>
              * <pre>
              * Glucose records as reported by the G4
              * </pre>
@@ -2725,9 +2937,10 @@ public final class DataDefinition {
                 return getSgvFieldBuilder().addBuilder(
                         index, DataDefinition.SensorGlucoseValueEntry.getDefaultInstance());
             }
+
             /**
              * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
-             *
+             * <p/>
              * <pre>
              * Glucose records as reported by the G4
              * </pre>
@@ -2736,6 +2949,7 @@ public final class DataDefinition {
             getSgvBuilderList() {
                 return getSgvFieldBuilder().getBuilderList();
             }
+
             private com.google.protobuf.RepeatedFieldBuilder<
                     DataDefinition.SensorGlucoseValueEntry, DataDefinition.SensorGlucoseValueEntry.Builder, DataDefinition.SensorGlucoseValueEntryOrBuilder>
             getSgvFieldBuilder() {
@@ -2753,9 +2967,10 @@ public final class DataDefinition {
 
             // optional .GlucoseUnit units = 2;
             private DataDefinition.GlucoseUnit units_ = DataDefinition.GlucoseUnit.MGDL;
+
             /**
              * <code>optional .GlucoseUnit units = 2;</code>
-             *
+             * <p/>
              * <pre>
              * Units reported by the device
              * </pre>
@@ -2763,9 +2978,10 @@ public final class DataDefinition {
             public boolean hasUnits() {
                 return ((bitField0_ & 0x00000002) == 0x00000002);
             }
+
             /**
              * <code>optional .GlucoseUnit units = 2;</code>
-             *
+             * <p/>
              * <pre>
              * Units reported by the device
              * </pre>
@@ -2773,9 +2989,10 @@ public final class DataDefinition {
             public DataDefinition.GlucoseUnit getUnits() {
                 return units_;
             }
+
             /**
              * <code>optional .GlucoseUnit units = 2;</code>
-             *
+             * <p/>
              * <pre>
              * Units reported by the device
              * </pre>
@@ -2789,9 +3006,10 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>optional .GlucoseUnit units = 2;</code>
-             *
+             * <p/>
              * <pre>
              * Units reported by the device
              * </pre>
@@ -2805,9 +3023,10 @@ public final class DataDefinition {
 
             // required string download_timestamp = 3;
             private java.lang.Object downloadTimestamp_ = "";
+
             /**
              * <code>required string download_timestamp = 3;</code>
-             *
+             * <p/>
              * <pre>
              * ISO8601 timestamp reported by uploader
              * </pre>
@@ -2815,9 +3034,10 @@ public final class DataDefinition {
             public boolean hasDownloadTimestamp() {
                 return ((bitField0_ & 0x00000004) == 0x00000004);
             }
+
             /**
              * <code>required string download_timestamp = 3;</code>
-             *
+             * <p/>
              * <pre>
              * ISO8601 timestamp reported by uploader
              * </pre>
@@ -2833,9 +3053,10 @@ public final class DataDefinition {
                     return (java.lang.String) ref;
                 }
             }
+
             /**
              * <code>required string download_timestamp = 3;</code>
-             *
+             * <p/>
              * <pre>
              * ISO8601 timestamp reported by uploader
              * </pre>
@@ -2853,9 +3074,10 @@ public final class DataDefinition {
                     return (com.google.protobuf.ByteString) ref;
                 }
             }
+
             /**
              * <code>required string download_timestamp = 3;</code>
-             *
+             * <p/>
              * <pre>
              * ISO8601 timestamp reported by uploader
              * </pre>
@@ -2870,9 +3092,10 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>required string download_timestamp = 3;</code>
-             *
+             * <p/>
              * <pre>
              * ISO8601 timestamp reported by uploader
              * </pre>
@@ -2883,9 +3106,10 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>required string download_timestamp = 3;</code>
-             *
+             * <p/>
              * <pre>
              * ISO8601 timestamp reported by uploader
              * </pre>
@@ -2902,10 +3126,11 @@ public final class DataDefinition {
             }
 
             // optional uint64 receiver_system_time_sec = 4;
-            private long receiverSystemTimeSec_ ;
+            private long receiverSystemTimeSec_;
+
             /**
              * <code>optional uint64 receiver_system_time_sec = 4;</code>
-             *
+             * <p/>
              * <pre>
              * Raw value of the receiver's system time
              * </pre>
@@ -2913,9 +3138,10 @@ public final class DataDefinition {
             public boolean hasReceiverSystemTimeSec() {
                 return ((bitField0_ & 0x00000008) == 0x00000008);
             }
+
             /**
              * <code>optional uint64 receiver_system_time_sec = 4;</code>
-             *
+             * <p/>
              * <pre>
              * Raw value of the receiver's system time
              * </pre>
@@ -2923,9 +3149,10 @@ public final class DataDefinition {
             public long getReceiverSystemTimeSec() {
                 return receiverSystemTimeSec_;
             }
+
             /**
              * <code>optional uint64 receiver_system_time_sec = 4;</code>
-             *
+             * <p/>
              * <pre>
              * Raw value of the receiver's system time
              * </pre>
@@ -2936,9 +3163,10 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>optional uint64 receiver_system_time_sec = 4;</code>
-             *
+             * <p/>
              * <pre>
              * Raw value of the receiver's system time
              * </pre>
@@ -2952,9 +3180,10 @@ public final class DataDefinition {
 
             // optional .DownloadStatus download_status = 5 [default = NOT_APPLICABLE];
             private DataDefinition.DownloadStatus downloadStatus_ = DataDefinition.DownloadStatus.NOT_APPLICABLE;
+
             /**
              * <code>optional .DownloadStatus download_status = 5 [default = NOT_APPLICABLE];</code>
-             *
+             * <p/>
              * <pre>
              * Status of the download
              * </pre>
@@ -2962,9 +3191,10 @@ public final class DataDefinition {
             public boolean hasDownloadStatus() {
                 return ((bitField0_ & 0x00000010) == 0x00000010);
             }
+
             /**
              * <code>optional .DownloadStatus download_status = 5 [default = NOT_APPLICABLE];</code>
-             *
+             * <p/>
              * <pre>
              * Status of the download
              * </pre>
@@ -2972,9 +3202,10 @@ public final class DataDefinition {
             public DataDefinition.DownloadStatus getDownloadStatus() {
                 return downloadStatus_;
             }
+
             /**
              * <code>optional .DownloadStatus download_status = 5 [default = NOT_APPLICABLE];</code>
-             *
+             * <p/>
              * <pre>
              * Status of the download
              * </pre>
@@ -2988,9 +3219,10 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>optional .DownloadStatus download_status = 5 [default = NOT_APPLICABLE];</code>
-             *
+             * <p/>
              * <pre>
              * Status of the download
              * </pre>
@@ -3003,10 +3235,11 @@ public final class DataDefinition {
             }
 
             // optional uint32 receiver_battery = 6;
-            private int receiverBattery_ ;
+            private int receiverBattery_;
+
             /**
              * <code>optional uint32 receiver_battery = 6;</code>
-             *
+             * <p/>
              * <pre>
              * Battery level as reported by the receiver
              * </pre>
@@ -3014,9 +3247,10 @@ public final class DataDefinition {
             public boolean hasReceiverBattery() {
                 return ((bitField0_ & 0x00000020) == 0x00000020);
             }
+
             /**
              * <code>optional uint32 receiver_battery = 6;</code>
-             *
+             * <p/>
              * <pre>
              * Battery level as reported by the receiver
              * </pre>
@@ -3024,9 +3258,10 @@ public final class DataDefinition {
             public int getReceiverBattery() {
                 return receiverBattery_;
             }
+
             /**
              * <code>optional uint32 receiver_battery = 6;</code>
-             *
+             * <p/>
              * <pre>
              * Battery level as reported by the receiver
              * </pre>
@@ -3037,9 +3272,10 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>optional uint32 receiver_battery = 6;</code>
-             *
+             * <p/>
              * <pre>
              * Battery level as reported by the receiver
              * </pre>
@@ -3052,10 +3288,11 @@ public final class DataDefinition {
             }
 
             // optional uint32 uploader_battery = 7;
-            private int uploaderBattery_ ;
+            private int uploaderBattery_;
+
             /**
              * <code>optional uint32 uploader_battery = 7;</code>
-             *
+             * <p/>
              * <pre>
              * Battery level as reported by the uploader
              * </pre>
@@ -3063,9 +3300,10 @@ public final class DataDefinition {
             public boolean hasUploaderBattery() {
                 return ((bitField0_ & 0x00000040) == 0x00000040);
             }
+
             /**
              * <code>optional uint32 uploader_battery = 7;</code>
-             *
+             * <p/>
              * <pre>
              * Battery level as reported by the uploader
              * </pre>
@@ -3073,9 +3311,10 @@ public final class DataDefinition {
             public int getUploaderBattery() {
                 return uploaderBattery_;
             }
+
             /**
              * <code>optional uint32 uploader_battery = 7;</code>
-             *
+             * <p/>
              * <pre>
              * Battery level as reported by the uploader
              * </pre>
@@ -3086,9 +3325,10 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>optional uint32 uploader_battery = 7;</code>
-             *
+             * <p/>
              * <pre>
              * Battery level as reported by the uploader
              * </pre>
@@ -3103,6 +3343,7 @@ public final class DataDefinition {
             // repeated .MeterEntry meter = 8;
             private java.util.List<DataDefinition.MeterEntry> meter_ =
                     java.util.Collections.emptyList();
+
             private void ensureMeterIsMutable() {
                 if (!((bitField0_ & 0x00000080) == 0x00000080)) {
                     meter_ = new java.util.ArrayList<DataDefinition.MeterEntry>(meter_);
@@ -3123,6 +3364,7 @@ public final class DataDefinition {
                     return meterBuilder_.getMessageList();
                 }
             }
+
             /**
              * <code>repeated .MeterEntry meter = 8;</code>
              */
@@ -3133,6 +3375,7 @@ public final class DataDefinition {
                     return meterBuilder_.getCount();
                 }
             }
+
             /**
              * <code>repeated .MeterEntry meter = 8;</code>
              */
@@ -3143,6 +3386,7 @@ public final class DataDefinition {
                     return meterBuilder_.getMessage(index);
                 }
             }
+
             /**
              * <code>repeated .MeterEntry meter = 8;</code>
              */
@@ -3160,6 +3404,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .MeterEntry meter = 8;</code>
              */
@@ -3174,6 +3419,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .MeterEntry meter = 8;</code>
              */
@@ -3190,6 +3436,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .MeterEntry meter = 8;</code>
              */
@@ -3207,6 +3454,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .MeterEntry meter = 8;</code>
              */
@@ -3221,6 +3469,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .MeterEntry meter = 8;</code>
              */
@@ -3235,6 +3484,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .MeterEntry meter = 8;</code>
              */
@@ -3249,6 +3499,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .MeterEntry meter = 8;</code>
              */
@@ -3262,6 +3513,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .MeterEntry meter = 8;</code>
              */
@@ -3275,6 +3527,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .MeterEntry meter = 8;</code>
              */
@@ -3282,16 +3535,19 @@ public final class DataDefinition {
                     int index) {
                 return getMeterFieldBuilder().getBuilder(index);
             }
+
             /**
              * <code>repeated .MeterEntry meter = 8;</code>
              */
             public DataDefinition.MeterEntryOrBuilder getMeterOrBuilder(
                     int index) {
                 if (meterBuilder_ == null) {
-                    return meter_.get(index);  } else {
+                    return meter_.get(index);
+                } else {
                     return meterBuilder_.getMessageOrBuilder(index);
                 }
             }
+
             /**
              * <code>repeated .MeterEntry meter = 8;</code>
              */
@@ -3303,6 +3559,7 @@ public final class DataDefinition {
                     return java.util.Collections.unmodifiableList(meter_);
                 }
             }
+
             /**
              * <code>repeated .MeterEntry meter = 8;</code>
              */
@@ -3310,6 +3567,7 @@ public final class DataDefinition {
                 return getMeterFieldBuilder().addBuilder(
                         DataDefinition.MeterEntry.getDefaultInstance());
             }
+
             /**
              * <code>repeated .MeterEntry meter = 8;</code>
              */
@@ -3318,6 +3576,7 @@ public final class DataDefinition {
                 return getMeterFieldBuilder().addBuilder(
                         index, DataDefinition.MeterEntry.getDefaultInstance());
             }
+
             /**
              * <code>repeated .MeterEntry meter = 8;</code>
              */
@@ -3325,6 +3584,7 @@ public final class DataDefinition {
             getMeterBuilderList() {
                 return getMeterFieldBuilder().getBuilderList();
             }
+
             private com.google.protobuf.RepeatedFieldBuilder<
                     DataDefinition.MeterEntry, DataDefinition.MeterEntry.Builder, DataDefinition.MeterEntryOrBuilder>
             getMeterFieldBuilder() {
@@ -3343,6 +3603,7 @@ public final class DataDefinition {
             // repeated .SensorEntry sensor = 9;
             private java.util.List<DataDefinition.SensorEntry> sensor_ =
                     java.util.Collections.emptyList();
+
             private void ensureSensorIsMutable() {
                 if (!((bitField0_ & 0x00000100) == 0x00000100)) {
                     sensor_ = new java.util.ArrayList<DataDefinition.SensorEntry>(sensor_);
@@ -3363,6 +3624,7 @@ public final class DataDefinition {
                     return sensorBuilder_.getMessageList();
                 }
             }
+
             /**
              * <code>repeated .SensorEntry sensor = 9;</code>
              */
@@ -3373,6 +3635,7 @@ public final class DataDefinition {
                     return sensorBuilder_.getCount();
                 }
             }
+
             /**
              * <code>repeated .SensorEntry sensor = 9;</code>
              */
@@ -3383,6 +3646,7 @@ public final class DataDefinition {
                     return sensorBuilder_.getMessage(index);
                 }
             }
+
             /**
              * <code>repeated .SensorEntry sensor = 9;</code>
              */
@@ -3400,6 +3664,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .SensorEntry sensor = 9;</code>
              */
@@ -3414,6 +3679,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .SensorEntry sensor = 9;</code>
              */
@@ -3430,6 +3696,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .SensorEntry sensor = 9;</code>
              */
@@ -3447,6 +3714,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .SensorEntry sensor = 9;</code>
              */
@@ -3461,6 +3729,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .SensorEntry sensor = 9;</code>
              */
@@ -3475,6 +3744,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .SensorEntry sensor = 9;</code>
              */
@@ -3489,6 +3759,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .SensorEntry sensor = 9;</code>
              */
@@ -3502,6 +3773,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .SensorEntry sensor = 9;</code>
              */
@@ -3515,6 +3787,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .SensorEntry sensor = 9;</code>
              */
@@ -3522,16 +3795,19 @@ public final class DataDefinition {
                     int index) {
                 return getSensorFieldBuilder().getBuilder(index);
             }
+
             /**
              * <code>repeated .SensorEntry sensor = 9;</code>
              */
             public DataDefinition.SensorEntryOrBuilder getSensorOrBuilder(
                     int index) {
                 if (sensorBuilder_ == null) {
-                    return sensor_.get(index);  } else {
+                    return sensor_.get(index);
+                } else {
                     return sensorBuilder_.getMessageOrBuilder(index);
                 }
             }
+
             /**
              * <code>repeated .SensorEntry sensor = 9;</code>
              */
@@ -3543,6 +3819,7 @@ public final class DataDefinition {
                     return java.util.Collections.unmodifiableList(sensor_);
                 }
             }
+
             /**
              * <code>repeated .SensorEntry sensor = 9;</code>
              */
@@ -3550,6 +3827,7 @@ public final class DataDefinition {
                 return getSensorFieldBuilder().addBuilder(
                         DataDefinition.SensorEntry.getDefaultInstance());
             }
+
             /**
              * <code>repeated .SensorEntry sensor = 9;</code>
              */
@@ -3558,6 +3836,7 @@ public final class DataDefinition {
                 return getSensorFieldBuilder().addBuilder(
                         index, DataDefinition.SensorEntry.getDefaultInstance());
             }
+
             /**
              * <code>repeated .SensorEntry sensor = 9;</code>
              */
@@ -3565,6 +3844,7 @@ public final class DataDefinition {
             getSensorBuilderList() {
                 return getSensorFieldBuilder().getBuilderList();
             }
+
             private com.google.protobuf.RepeatedFieldBuilder<
                     DataDefinition.SensorEntry, DataDefinition.SensorEntry.Builder, DataDefinition.SensorEntryOrBuilder>
             getSensorFieldBuilder() {
@@ -3583,6 +3863,7 @@ public final class DataDefinition {
             // repeated .CalibrationEntry cal = 10;
             private java.util.List<DataDefinition.CalibrationEntry> cal_ =
                     java.util.Collections.emptyList();
+
             private void ensureCalIsMutable() {
                 if (!((bitField0_ & 0x00000200) == 0x00000200)) {
                     cal_ = new java.util.ArrayList<DataDefinition.CalibrationEntry>(cal_);
@@ -3603,6 +3884,7 @@ public final class DataDefinition {
                     return calBuilder_.getMessageList();
                 }
             }
+
             /**
              * <code>repeated .CalibrationEntry cal = 10;</code>
              */
@@ -3613,6 +3895,7 @@ public final class DataDefinition {
                     return calBuilder_.getCount();
                 }
             }
+
             /**
              * <code>repeated .CalibrationEntry cal = 10;</code>
              */
@@ -3623,6 +3906,7 @@ public final class DataDefinition {
                     return calBuilder_.getMessage(index);
                 }
             }
+
             /**
              * <code>repeated .CalibrationEntry cal = 10;</code>
              */
@@ -3640,6 +3924,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .CalibrationEntry cal = 10;</code>
              */
@@ -3654,6 +3939,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .CalibrationEntry cal = 10;</code>
              */
@@ -3670,6 +3956,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .CalibrationEntry cal = 10;</code>
              */
@@ -3687,6 +3974,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .CalibrationEntry cal = 10;</code>
              */
@@ -3701,6 +3989,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .CalibrationEntry cal = 10;</code>
              */
@@ -3715,6 +4004,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .CalibrationEntry cal = 10;</code>
              */
@@ -3729,6 +4019,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .CalibrationEntry cal = 10;</code>
              */
@@ -3742,6 +4033,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .CalibrationEntry cal = 10;</code>
              */
@@ -3755,6 +4047,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .CalibrationEntry cal = 10;</code>
              */
@@ -3762,16 +4055,19 @@ public final class DataDefinition {
                     int index) {
                 return getCalFieldBuilder().getBuilder(index);
             }
+
             /**
              * <code>repeated .CalibrationEntry cal = 10;</code>
              */
             public DataDefinition.CalibrationEntryOrBuilder getCalOrBuilder(
                     int index) {
                 if (calBuilder_ == null) {
-                    return cal_.get(index);  } else {
+                    return cal_.get(index);
+                } else {
                     return calBuilder_.getMessageOrBuilder(index);
                 }
             }
+
             /**
              * <code>repeated .CalibrationEntry cal = 10;</code>
              */
@@ -3783,6 +4079,7 @@ public final class DataDefinition {
                     return java.util.Collections.unmodifiableList(cal_);
                 }
             }
+
             /**
              * <code>repeated .CalibrationEntry cal = 10;</code>
              */
@@ -3790,6 +4087,7 @@ public final class DataDefinition {
                 return getCalFieldBuilder().addBuilder(
                         DataDefinition.CalibrationEntry.getDefaultInstance());
             }
+
             /**
              * <code>repeated .CalibrationEntry cal = 10;</code>
              */
@@ -3798,6 +4096,7 @@ public final class DataDefinition {
                 return getCalFieldBuilder().addBuilder(
                         index, DataDefinition.CalibrationEntry.getDefaultInstance());
             }
+
             /**
              * <code>repeated .CalibrationEntry cal = 10;</code>
              */
@@ -3805,6 +4104,7 @@ public final class DataDefinition {
             getCalBuilderList() {
                 return getCalFieldBuilder().getBuilderList();
             }
+
             private com.google.protobuf.RepeatedFieldBuilder<
                     DataDefinition.CalibrationEntry, DataDefinition.CalibrationEntry.Builder, DataDefinition.CalibrationEntryOrBuilder>
             getCalFieldBuilder() {
@@ -3823,6 +4123,7 @@ public final class DataDefinition {
             // repeated .InsertionEntry insert = 11;
             private java.util.List<DataDefinition.InsertionEntry> insert_ =
                     java.util.Collections.emptyList();
+
             private void ensureInsertIsMutable() {
                 if (!((bitField0_ & 0x00000400) == 0x00000400)) {
                     insert_ = new java.util.ArrayList<DataDefinition.InsertionEntry>(insert_);
@@ -3843,6 +4144,7 @@ public final class DataDefinition {
                     return insertBuilder_.getMessageList();
                 }
             }
+
             /**
              * <code>repeated .InsertionEntry insert = 11;</code>
              */
@@ -3853,6 +4155,7 @@ public final class DataDefinition {
                     return insertBuilder_.getCount();
                 }
             }
+
             /**
              * <code>repeated .InsertionEntry insert = 11;</code>
              */
@@ -3863,6 +4166,7 @@ public final class DataDefinition {
                     return insertBuilder_.getMessage(index);
                 }
             }
+
             /**
              * <code>repeated .InsertionEntry insert = 11;</code>
              */
@@ -3880,6 +4184,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .InsertionEntry insert = 11;</code>
              */
@@ -3894,6 +4199,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .InsertionEntry insert = 11;</code>
              */
@@ -3910,6 +4216,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .InsertionEntry insert = 11;</code>
              */
@@ -3927,6 +4234,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .InsertionEntry insert = 11;</code>
              */
@@ -3941,6 +4249,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .InsertionEntry insert = 11;</code>
              */
@@ -3955,6 +4264,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .InsertionEntry insert = 11;</code>
              */
@@ -3969,6 +4279,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .InsertionEntry insert = 11;</code>
              */
@@ -3982,6 +4293,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .InsertionEntry insert = 11;</code>
              */
@@ -3995,6 +4307,7 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             /**
              * <code>repeated .InsertionEntry insert = 11;</code>
              */
@@ -4002,16 +4315,19 @@ public final class DataDefinition {
                     int index) {
                 return getInsertFieldBuilder().getBuilder(index);
             }
+
             /**
              * <code>repeated .InsertionEntry insert = 11;</code>
              */
             public DataDefinition.InsertionEntryOrBuilder getInsertOrBuilder(
                     int index) {
                 if (insertBuilder_ == null) {
-                    return insert_.get(index);  } else {
+                    return insert_.get(index);
+                } else {
                     return insertBuilder_.getMessageOrBuilder(index);
                 }
             }
+
             /**
              * <code>repeated .InsertionEntry insert = 11;</code>
              */
@@ -4023,6 +4339,7 @@ public final class DataDefinition {
                     return java.util.Collections.unmodifiableList(insert_);
                 }
             }
+
             /**
              * <code>repeated .InsertionEntry insert = 11;</code>
              */
@@ -4030,6 +4347,7 @@ public final class DataDefinition {
                 return getInsertFieldBuilder().addBuilder(
                         DataDefinition.InsertionEntry.getDefaultInstance());
             }
+
             /**
              * <code>repeated .InsertionEntry insert = 11;</code>
              */
@@ -4038,6 +4356,7 @@ public final class DataDefinition {
                 return getInsertFieldBuilder().addBuilder(
                         index, DataDefinition.InsertionEntry.getDefaultInstance());
             }
+
             /**
              * <code>repeated .InsertionEntry insert = 11;</code>
              */
@@ -4045,6 +4364,7 @@ public final class DataDefinition {
             getInsertBuilderList() {
                 return getInsertFieldBuilder().getBuilderList();
             }
+
             private com.google.protobuf.RepeatedFieldBuilder<
                     DataDefinition.InsertionEntry, DataDefinition.InsertionEntry.Builder, DataDefinition.InsertionEntryOrBuilder>
             getInsertFieldBuilder() {
@@ -4062,12 +4382,14 @@ public final class DataDefinition {
 
             // optional string receiver_id = 12;
             private java.lang.Object receiverId_ = "";
+
             /**
              * <code>optional string receiver_id = 12;</code>
              */
             public boolean hasReceiverId() {
                 return ((bitField0_ & 0x00000800) == 0x00000800);
             }
+
             /**
              * <code>optional string receiver_id = 12;</code>
              */
@@ -4082,6 +4404,7 @@ public final class DataDefinition {
                     return (java.lang.String) ref;
                 }
             }
+
             /**
              * <code>optional string receiver_id = 12;</code>
              */
@@ -4098,6 +4421,7 @@ public final class DataDefinition {
                     return (com.google.protobuf.ByteString) ref;
                 }
             }
+
             /**
              * <code>optional string receiver_id = 12;</code>
              */
@@ -4111,6 +4435,7 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>optional string receiver_id = 12;</code>
              */
@@ -4120,6 +4445,7 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>optional string receiver_id = 12;</code>
              */
@@ -4136,12 +4462,14 @@ public final class DataDefinition {
 
             // optional string transmitter_id = 13;
             private java.lang.Object transmitterId_ = "";
+
             /**
              * <code>optional string transmitter_id = 13;</code>
              */
             public boolean hasTransmitterId() {
                 return ((bitField0_ & 0x00001000) == 0x00001000);
             }
+
             /**
              * <code>optional string transmitter_id = 13;</code>
              */
@@ -4156,6 +4484,7 @@ public final class DataDefinition {
                     return (java.lang.String) ref;
                 }
             }
+
             /**
              * <code>optional string transmitter_id = 13;</code>
              */
@@ -4172,6 +4501,7 @@ public final class DataDefinition {
                     return (com.google.protobuf.ByteString) ref;
                 }
             }
+
             /**
              * <code>optional string transmitter_id = 13;</code>
              */
@@ -4185,6 +4515,7 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>optional string transmitter_id = 13;</code>
              */
@@ -4194,6 +4525,7 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>optional string transmitter_id = 13;</code>
              */
@@ -4223,17 +4555,19 @@ public final class DataDefinition {
             extends com.google.protobuf.MessageOrBuilder {
 
         // required uint32 sgv_mgdl = 1;
+
         /**
          * <code>required uint32 sgv_mgdl = 1;</code>
-         *
+         * <p/>
          * <pre>
          * Sensor Glucose Value
          * </pre>
          */
         boolean hasSgvMgdl();
+
         /**
          * <code>required uint32 sgv_mgdl = 1;</code>
-         *
+         * <p/>
          * <pre>
          * Sensor Glucose Value
          * </pre>
@@ -4241,17 +4575,19 @@ public final class DataDefinition {
         int getSgvMgdl();
 
         // optional uint64 sys_timestamp_sec = 2;
+
         /**
          * <code>optional uint64 sys_timestamp_sec = 2;</code>
-         *
+         * <p/>
          * <pre>
          * System timestamp - Timestamp representing the internal clock of the receiver
          * </pre>
          */
         boolean hasSysTimestampSec();
+
         /**
          * <code>optional uint64 sys_timestamp_sec = 2;</code>
-         *
+         * <p/>
          * <pre>
          * System timestamp - Timestamp representing the internal clock of the receiver
          * </pre>
@@ -4259,17 +4595,19 @@ public final class DataDefinition {
         long getSysTimestampSec();
 
         // optional uint64 disp_timestamp_sec = 3;
+
         /**
          * <code>optional uint64 disp_timestamp_sec = 3;</code>
-         *
+         * <p/>
          * <pre>
          * Display timestamp - Timestamp representing the user configured time displayed on the receiver
          * </pre>
          */
         boolean hasDispTimestampSec();
+
         /**
          * <code>optional uint64 disp_timestamp_sec = 3;</code>
-         *
+         * <p/>
          * <pre>
          * Display timestamp - Timestamp representing the user configured time displayed on the receiver
          * </pre>
@@ -4277,17 +4615,19 @@ public final class DataDefinition {
         long getDispTimestampSec();
 
         // optional .G4Trend trend = 4;
+
         /**
          * <code>optional .G4Trend trend = 4;</code>
-         *
+         * <p/>
          * <pre>
          * G4 Glucose trend arrow
          * </pre>
          */
         boolean hasTrend();
+
         /**
          * <code>optional .G4Trend trend = 4;</code>
-         *
+         * <p/>
          * <pre>
          * G4 Glucose trend arrow
          * </pre>
@@ -4295,23 +4635,26 @@ public final class DataDefinition {
         DataDefinition.G4Trend getTrend();
 
         // optional .G4Noise noise = 5;
+
         /**
          * <code>optional .G4Noise noise = 5;</code>
-         *
+         * <p/>
          * <pre>
          * Noise level that potentially affects the G4 sensor readings
          * </pre>
          */
         boolean hasNoise();
+
         /**
          * <code>optional .G4Noise noise = 5;</code>
-         *
+         * <p/>
          * <pre>
          * Noise level that potentially affects the G4 sensor readings
          * </pre>
          */
         DataDefinition.G4Noise getNoise();
     }
+
     /**
      * Protobuf type {@code SensorGlucoseValueEntry}
      */
@@ -4323,9 +4666,13 @@ public final class DataDefinition {
             super(builder);
             this.unknownFields = builder.getUnknownFields();
         }
-        private SensorGlucoseValueEntry(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+        private SensorGlucoseValueEntry(boolean noInit) {
+            this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+        }
 
         private static final SensorGlucoseValueEntry defaultInstance;
+
         public static SensorGlucoseValueEntry getDefaultInstance() {
             return defaultInstance;
         }
@@ -4335,11 +4682,13 @@ public final class DataDefinition {
         }
 
         private final com.google.protobuf.UnknownFieldSet unknownFields;
+
         @java.lang.Override
         public final com.google.protobuf.UnknownFieldSet
         getUnknownFields() {
             return this.unknownFields;
         }
+
         private SensorGlucoseValueEntry(
                 com.google.protobuf.CodedInputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -4412,6 +4761,7 @@ public final class DataDefinition {
                 makeExtensionsImmutable();
             }
         }
+
         public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
             return DataDefinition.internal_static_SensorGlucoseValueEntry_descriptor;
@@ -4443,9 +4793,10 @@ public final class DataDefinition {
         // required uint32 sgv_mgdl = 1;
         public static final int SGV_MGDL_FIELD_NUMBER = 1;
         private int sgvMgdl_;
+
         /**
          * <code>required uint32 sgv_mgdl = 1;</code>
-         *
+         * <p/>
          * <pre>
          * Sensor Glucose Value
          * </pre>
@@ -4453,9 +4804,10 @@ public final class DataDefinition {
         public boolean hasSgvMgdl() {
             return ((bitField0_ & 0x00000001) == 0x00000001);
         }
+
         /**
          * <code>required uint32 sgv_mgdl = 1;</code>
-         *
+         * <p/>
          * <pre>
          * Sensor Glucose Value
          * </pre>
@@ -4467,9 +4819,10 @@ public final class DataDefinition {
         // optional uint64 sys_timestamp_sec = 2;
         public static final int SYS_TIMESTAMP_SEC_FIELD_NUMBER = 2;
         private long sysTimestampSec_;
+
         /**
          * <code>optional uint64 sys_timestamp_sec = 2;</code>
-         *
+         * <p/>
          * <pre>
          * System timestamp - Timestamp representing the internal clock of the receiver
          * </pre>
@@ -4477,9 +4830,10 @@ public final class DataDefinition {
         public boolean hasSysTimestampSec() {
             return ((bitField0_ & 0x00000002) == 0x00000002);
         }
+
         /**
          * <code>optional uint64 sys_timestamp_sec = 2;</code>
-         *
+         * <p/>
          * <pre>
          * System timestamp - Timestamp representing the internal clock of the receiver
          * </pre>
@@ -4491,9 +4845,10 @@ public final class DataDefinition {
         // optional uint64 disp_timestamp_sec = 3;
         public static final int DISP_TIMESTAMP_SEC_FIELD_NUMBER = 3;
         private long dispTimestampSec_;
+
         /**
          * <code>optional uint64 disp_timestamp_sec = 3;</code>
-         *
+         * <p/>
          * <pre>
          * Display timestamp - Timestamp representing the user configured time displayed on the receiver
          * </pre>
@@ -4501,9 +4856,10 @@ public final class DataDefinition {
         public boolean hasDispTimestampSec() {
             return ((bitField0_ & 0x00000004) == 0x00000004);
         }
+
         /**
          * <code>optional uint64 disp_timestamp_sec = 3;</code>
-         *
+         * <p/>
          * <pre>
          * Display timestamp - Timestamp representing the user configured time displayed on the receiver
          * </pre>
@@ -4515,9 +4871,10 @@ public final class DataDefinition {
         // optional .G4Trend trend = 4;
         public static final int TREND_FIELD_NUMBER = 4;
         private DataDefinition.G4Trend trend_;
+
         /**
          * <code>optional .G4Trend trend = 4;</code>
-         *
+         * <p/>
          * <pre>
          * G4 Glucose trend arrow
          * </pre>
@@ -4525,9 +4882,10 @@ public final class DataDefinition {
         public boolean hasTrend() {
             return ((bitField0_ & 0x00000008) == 0x00000008);
         }
+
         /**
          * <code>optional .G4Trend trend = 4;</code>
-         *
+         * <p/>
          * <pre>
          * G4 Glucose trend arrow
          * </pre>
@@ -4539,9 +4897,10 @@ public final class DataDefinition {
         // optional .G4Noise noise = 5;
         public static final int NOISE_FIELD_NUMBER = 5;
         private DataDefinition.G4Noise noise_;
+
         /**
          * <code>optional .G4Noise noise = 5;</code>
-         *
+         * <p/>
          * <pre>
          * Noise level that potentially affects the G4 sensor readings
          * </pre>
@@ -4549,9 +4908,10 @@ public final class DataDefinition {
         public boolean hasNoise() {
             return ((bitField0_ & 0x00000010) == 0x00000010);
         }
+
         /**
          * <code>optional .G4Noise noise = 5;</code>
-         *
+         * <p/>
          * <pre>
          * Noise level that potentially affects the G4 sensor readings
          * </pre>
@@ -4567,7 +4927,9 @@ public final class DataDefinition {
             trend_ = DataDefinition.G4Trend.TREND_NONE;
             noise_ = DataDefinition.G4Noise.NOISE_NONE;
         }
+
         private byte memoizedIsInitialized = -1;
+
         public final boolean isInitialized() {
             byte isInitialized = memoizedIsInitialized;
             if (isInitialized != -1) return isInitialized == 1;
@@ -4602,6 +4964,7 @@ public final class DataDefinition {
         }
 
         private int memoizedSerializedSize = -1;
+
         public int getSerializedSize() {
             int size = memoizedSerializedSize;
             if (size != -1) return size;
@@ -4633,6 +4996,7 @@ public final class DataDefinition {
         }
 
         private static final long serialVersionUID = 0L;
+
         @java.lang.Override
         protected java.lang.Object writeReplace()
                 throws java.io.ObjectStreamException {
@@ -4644,47 +5008,56 @@ public final class DataDefinition {
                 throws com.google.protobuf.InvalidProtocolBufferException {
             return PARSER.parseFrom(data);
         }
+
         public static DataDefinition.SensorGlucoseValueEntry parseFrom(
                 com.google.protobuf.ByteString data,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws com.google.protobuf.InvalidProtocolBufferException {
             return PARSER.parseFrom(data, extensionRegistry);
         }
+
         public static DataDefinition.SensorGlucoseValueEntry parseFrom(byte[] data)
                 throws com.google.protobuf.InvalidProtocolBufferException {
             return PARSER.parseFrom(data);
         }
+
         public static DataDefinition.SensorGlucoseValueEntry parseFrom(
                 byte[] data,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws com.google.protobuf.InvalidProtocolBufferException {
             return PARSER.parseFrom(data, extensionRegistry);
         }
+
         public static DataDefinition.SensorGlucoseValueEntry parseFrom(java.io.InputStream input)
                 throws java.io.IOException {
             return PARSER.parseFrom(input);
         }
+
         public static DataDefinition.SensorGlucoseValueEntry parseFrom(
                 java.io.InputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws java.io.IOException {
             return PARSER.parseFrom(input, extensionRegistry);
         }
+
         public static DataDefinition.SensorGlucoseValueEntry parseDelimitedFrom(java.io.InputStream input)
                 throws java.io.IOException {
             return PARSER.parseDelimitedFrom(input);
         }
+
         public static DataDefinition.SensorGlucoseValueEntry parseDelimitedFrom(
                 java.io.InputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws java.io.IOException {
             return PARSER.parseDelimitedFrom(input, extensionRegistry);
         }
+
         public static DataDefinition.SensorGlucoseValueEntry parseFrom(
                 com.google.protobuf.CodedInputStream input)
                 throws java.io.IOException {
             return PARSER.parseFrom(input);
         }
+
         public static DataDefinition.SensorGlucoseValueEntry parseFrom(
                 com.google.protobuf.CodedInputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -4692,12 +5065,21 @@ public final class DataDefinition {
             return PARSER.parseFrom(input, extensionRegistry);
         }
 
-        public static Builder newBuilder() { return Builder.create(); }
-        public Builder newBuilderForType() { return newBuilder(); }
+        public static Builder newBuilder() {
+            return Builder.create();
+        }
+
+        public Builder newBuilderForType() {
+            return newBuilder();
+        }
+
         public static Builder newBuilder(DataDefinition.SensorGlucoseValueEntry prototype) {
             return newBuilder().mergeFrom(prototype);
         }
-        public Builder toBuilder() { return newBuilder(this); }
+
+        public Builder toBuilder() {
+            return newBuilder(this);
+        }
 
         @java.lang.Override
         protected Builder newBuilderForType(
@@ -4705,6 +5087,7 @@ public final class DataDefinition {
             Builder builder = new Builder(parent);
             return builder;
         }
+
         /**
          * Protobuf type {@code SensorGlucoseValueEntry}
          */
@@ -4733,10 +5116,12 @@ public final class DataDefinition {
                 super(parent);
                 maybeForceBuilderInitialization();
             }
+
             private void maybeForceBuilderInitialization() {
                 if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
                 }
             }
+
             private static Builder create() {
                 return new Builder();
             }
@@ -4808,7 +5193,7 @@ public final class DataDefinition {
 
             public Builder mergeFrom(com.google.protobuf.Message other) {
                 if (other instanceof DataDefinition.SensorGlucoseValueEntry) {
-                    return mergeFrom((DataDefinition.SensorGlucoseValueEntry)other);
+                    return mergeFrom((DataDefinition.SensorGlucoseValueEntry) other);
                 } else {
                     super.mergeFrom(other);
                     return this;
@@ -4816,7 +5201,8 @@ public final class DataDefinition {
             }
 
             public Builder mergeFrom(DataDefinition.SensorGlucoseValueEntry other) {
-                if (other == DataDefinition.SensorGlucoseValueEntry.getDefaultInstance()) return this;
+                if (other == DataDefinition.SensorGlucoseValueEntry.getDefaultInstance())
+                    return this;
                 if (other.hasSgvMgdl()) {
                     setSgvMgdl(other.getSgvMgdl());
                 }
@@ -4861,13 +5247,15 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             private int bitField0_;
 
             // required uint32 sgv_mgdl = 1;
-            private int sgvMgdl_ ;
+            private int sgvMgdl_;
+
             /**
              * <code>required uint32 sgv_mgdl = 1;</code>
-             *
+             * <p/>
              * <pre>
              * Sensor Glucose Value
              * </pre>
@@ -4875,9 +5263,10 @@ public final class DataDefinition {
             public boolean hasSgvMgdl() {
                 return ((bitField0_ & 0x00000001) == 0x00000001);
             }
+
             /**
              * <code>required uint32 sgv_mgdl = 1;</code>
-             *
+             * <p/>
              * <pre>
              * Sensor Glucose Value
              * </pre>
@@ -4885,9 +5274,10 @@ public final class DataDefinition {
             public int getSgvMgdl() {
                 return sgvMgdl_;
             }
+
             /**
              * <code>required uint32 sgv_mgdl = 1;</code>
-             *
+             * <p/>
              * <pre>
              * Sensor Glucose Value
              * </pre>
@@ -4898,9 +5288,10 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>required uint32 sgv_mgdl = 1;</code>
-             *
+             * <p/>
              * <pre>
              * Sensor Glucose Value
              * </pre>
@@ -4913,10 +5304,11 @@ public final class DataDefinition {
             }
 
             // optional uint64 sys_timestamp_sec = 2;
-            private long sysTimestampSec_ ;
+            private long sysTimestampSec_;
+
             /**
              * <code>optional uint64 sys_timestamp_sec = 2;</code>
-             *
+             * <p/>
              * <pre>
              * System timestamp - Timestamp representing the internal clock of the receiver
              * </pre>
@@ -4924,9 +5316,10 @@ public final class DataDefinition {
             public boolean hasSysTimestampSec() {
                 return ((bitField0_ & 0x00000002) == 0x00000002);
             }
+
             /**
              * <code>optional uint64 sys_timestamp_sec = 2;</code>
-             *
+             * <p/>
              * <pre>
              * System timestamp - Timestamp representing the internal clock of the receiver
              * </pre>
@@ -4934,9 +5327,10 @@ public final class DataDefinition {
             public long getSysTimestampSec() {
                 return sysTimestampSec_;
             }
+
             /**
              * <code>optional uint64 sys_timestamp_sec = 2;</code>
-             *
+             * <p/>
              * <pre>
              * System timestamp - Timestamp representing the internal clock of the receiver
              * </pre>
@@ -4947,9 +5341,10 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>optional uint64 sys_timestamp_sec = 2;</code>
-             *
+             * <p/>
              * <pre>
              * System timestamp - Timestamp representing the internal clock of the receiver
              * </pre>
@@ -4962,10 +5357,11 @@ public final class DataDefinition {
             }
 
             // optional uint64 disp_timestamp_sec = 3;
-            private long dispTimestampSec_ ;
+            private long dispTimestampSec_;
+
             /**
              * <code>optional uint64 disp_timestamp_sec = 3;</code>
-             *
+             * <p/>
              * <pre>
              * Display timestamp - Timestamp representing the user configured time displayed on the receiver
              * </pre>
@@ -4973,9 +5369,10 @@ public final class DataDefinition {
             public boolean hasDispTimestampSec() {
                 return ((bitField0_ & 0x00000004) == 0x00000004);
             }
+
             /**
              * <code>optional uint64 disp_timestamp_sec = 3;</code>
-             *
+             * <p/>
              * <pre>
              * Display timestamp - Timestamp representing the user configured time displayed on the receiver
              * </pre>
@@ -4983,9 +5380,10 @@ public final class DataDefinition {
             public long getDispTimestampSec() {
                 return dispTimestampSec_;
             }
+
             /**
              * <code>optional uint64 disp_timestamp_sec = 3;</code>
-             *
+             * <p/>
              * <pre>
              * Display timestamp - Timestamp representing the user configured time displayed on the receiver
              * </pre>
@@ -4996,9 +5394,10 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>optional uint64 disp_timestamp_sec = 3;</code>
-             *
+             * <p/>
              * <pre>
              * Display timestamp - Timestamp representing the user configured time displayed on the receiver
              * </pre>
@@ -5012,9 +5411,10 @@ public final class DataDefinition {
 
             // optional .G4Trend trend = 4;
             private DataDefinition.G4Trend trend_ = DataDefinition.G4Trend.TREND_NONE;
+
             /**
              * <code>optional .G4Trend trend = 4;</code>
-             *
+             * <p/>
              * <pre>
              * G4 Glucose trend arrow
              * </pre>
@@ -5022,9 +5422,10 @@ public final class DataDefinition {
             public boolean hasTrend() {
                 return ((bitField0_ & 0x00000008) == 0x00000008);
             }
+
             /**
              * <code>optional .G4Trend trend = 4;</code>
-             *
+             * <p/>
              * <pre>
              * G4 Glucose trend arrow
              * </pre>
@@ -5032,9 +5433,10 @@ public final class DataDefinition {
             public DataDefinition.G4Trend getTrend() {
                 return trend_;
             }
+
             /**
              * <code>optional .G4Trend trend = 4;</code>
-             *
+             * <p/>
              * <pre>
              * G4 Glucose trend arrow
              * </pre>
@@ -5048,9 +5450,10 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>optional .G4Trend trend = 4;</code>
-             *
+             * <p/>
              * <pre>
              * G4 Glucose trend arrow
              * </pre>
@@ -5064,9 +5467,10 @@ public final class DataDefinition {
 
             // optional .G4Noise noise = 5;
             private DataDefinition.G4Noise noise_ = DataDefinition.G4Noise.NOISE_NONE;
+
             /**
              * <code>optional .G4Noise noise = 5;</code>
-             *
+             * <p/>
              * <pre>
              * Noise level that potentially affects the G4 sensor readings
              * </pre>
@@ -5074,9 +5478,10 @@ public final class DataDefinition {
             public boolean hasNoise() {
                 return ((bitField0_ & 0x00000010) == 0x00000010);
             }
+
             /**
              * <code>optional .G4Noise noise = 5;</code>
-             *
+             * <p/>
              * <pre>
              * Noise level that potentially affects the G4 sensor readings
              * </pre>
@@ -5084,9 +5489,10 @@ public final class DataDefinition {
             public DataDefinition.G4Noise getNoise() {
                 return noise_;
             }
+
             /**
              * <code>optional .G4Noise noise = 5;</code>
-             *
+             * <p/>
              * <pre>
              * Noise level that potentially affects the G4 sensor readings
              * </pre>
@@ -5100,9 +5506,10 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>optional .G4Noise noise = 5;</code>
-             *
+             * <p/>
              * <pre>
              * Noise level that potentially affects the G4 sensor readings
              * </pre>
@@ -5129,37 +5536,43 @@ public final class DataDefinition {
             extends com.google.protobuf.MessageOrBuilder {
 
         // required uint32 meter_bg_mgdl = 1;
+
         /**
          * <code>required uint32 meter_bg_mgdl = 1;</code>
          */
         boolean hasMeterBgMgdl();
+
         /**
          * <code>required uint32 meter_bg_mgdl = 1;</code>
          */
         int getMeterBgMgdl();
 
         // optional uint32 meter_time = 2;
+
         /**
          * <code>optional uint32 meter_time = 2;</code>
          */
         boolean hasMeterTime();
+
         /**
          * <code>optional uint32 meter_time = 2;</code>
          */
         int getMeterTime();
 
         // optional uint64 sys_timestamp_sec = 3;
+
         /**
          * <code>optional uint64 sys_timestamp_sec = 3;</code>
-         *
+         * <p/>
          * <pre>
          * System timestamp - Timestamp representing the internal clock of the receiver
          * </pre>
          */
         boolean hasSysTimestampSec();
+
         /**
          * <code>optional uint64 sys_timestamp_sec = 3;</code>
-         *
+         * <p/>
          * <pre>
          * System timestamp - Timestamp representing the internal clock of the receiver
          * </pre>
@@ -5167,23 +5580,26 @@ public final class DataDefinition {
         long getSysTimestampSec();
 
         // optional uint64 disp_timestamp_sec = 4;
+
         /**
          * <code>optional uint64 disp_timestamp_sec = 4;</code>
-         *
+         * <p/>
          * <pre>
          * Display timestamp - Timestamp representing the user configured time displayed on the receiver
          * </pre>
          */
         boolean hasDispTimestampSec();
+
         /**
          * <code>optional uint64 disp_timestamp_sec = 4;</code>
-         *
+         * <p/>
          * <pre>
          * Display timestamp - Timestamp representing the user configured time displayed on the receiver
          * </pre>
          */
         long getDispTimestampSec();
     }
+
     /**
      * Protobuf type {@code MeterEntry}
      */
@@ -5195,9 +5611,13 @@ public final class DataDefinition {
             super(builder);
             this.unknownFields = builder.getUnknownFields();
         }
-        private MeterEntry(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+        private MeterEntry(boolean noInit) {
+            this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+        }
 
         private static final MeterEntry defaultInstance;
+
         public static MeterEntry getDefaultInstance() {
             return defaultInstance;
         }
@@ -5207,11 +5627,13 @@ public final class DataDefinition {
         }
 
         private final com.google.protobuf.UnknownFieldSet unknownFields;
+
         @java.lang.Override
         public final com.google.protobuf.UnknownFieldSet
         getUnknownFields() {
             return this.unknownFields;
         }
+
         private MeterEntry(
                 com.google.protobuf.CodedInputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -5267,6 +5689,7 @@ public final class DataDefinition {
                 makeExtensionsImmutable();
             }
         }
+
         public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
             return DataDefinition.internal_static_MeterEntry_descriptor;
@@ -5298,12 +5721,14 @@ public final class DataDefinition {
         // required uint32 meter_bg_mgdl = 1;
         public static final int METER_BG_MGDL_FIELD_NUMBER = 1;
         private int meterBgMgdl_;
+
         /**
          * <code>required uint32 meter_bg_mgdl = 1;</code>
          */
         public boolean hasMeterBgMgdl() {
             return ((bitField0_ & 0x00000001) == 0x00000001);
         }
+
         /**
          * <code>required uint32 meter_bg_mgdl = 1;</code>
          */
@@ -5314,12 +5739,14 @@ public final class DataDefinition {
         // optional uint32 meter_time = 2;
         public static final int METER_TIME_FIELD_NUMBER = 2;
         private int meterTime_;
+
         /**
          * <code>optional uint32 meter_time = 2;</code>
          */
         public boolean hasMeterTime() {
             return ((bitField0_ & 0x00000002) == 0x00000002);
         }
+
         /**
          * <code>optional uint32 meter_time = 2;</code>
          */
@@ -5330,9 +5757,10 @@ public final class DataDefinition {
         // optional uint64 sys_timestamp_sec = 3;
         public static final int SYS_TIMESTAMP_SEC_FIELD_NUMBER = 3;
         private long sysTimestampSec_;
+
         /**
          * <code>optional uint64 sys_timestamp_sec = 3;</code>
-         *
+         * <p/>
          * <pre>
          * System timestamp - Timestamp representing the internal clock of the receiver
          * </pre>
@@ -5340,9 +5768,10 @@ public final class DataDefinition {
         public boolean hasSysTimestampSec() {
             return ((bitField0_ & 0x00000004) == 0x00000004);
         }
+
         /**
          * <code>optional uint64 sys_timestamp_sec = 3;</code>
-         *
+         * <p/>
          * <pre>
          * System timestamp - Timestamp representing the internal clock of the receiver
          * </pre>
@@ -5354,9 +5783,10 @@ public final class DataDefinition {
         // optional uint64 disp_timestamp_sec = 4;
         public static final int DISP_TIMESTAMP_SEC_FIELD_NUMBER = 4;
         private long dispTimestampSec_;
+
         /**
          * <code>optional uint64 disp_timestamp_sec = 4;</code>
-         *
+         * <p/>
          * <pre>
          * Display timestamp - Timestamp representing the user configured time displayed on the receiver
          * </pre>
@@ -5364,9 +5794,10 @@ public final class DataDefinition {
         public boolean hasDispTimestampSec() {
             return ((bitField0_ & 0x00000008) == 0x00000008);
         }
+
         /**
          * <code>optional uint64 disp_timestamp_sec = 4;</code>
-         *
+         * <p/>
          * <pre>
          * Display timestamp - Timestamp representing the user configured time displayed on the receiver
          * </pre>
@@ -5381,7 +5812,9 @@ public final class DataDefinition {
             sysTimestampSec_ = 0L;
             dispTimestampSec_ = 0L;
         }
+
         private byte memoizedIsInitialized = -1;
+
         public final boolean isInitialized() {
             byte isInitialized = memoizedIsInitialized;
             if (isInitialized != -1) return isInitialized == 1;
@@ -5413,6 +5846,7 @@ public final class DataDefinition {
         }
 
         private int memoizedSerializedSize = -1;
+
         public int getSerializedSize() {
             int size = memoizedSerializedSize;
             if (size != -1) return size;
@@ -5440,6 +5874,7 @@ public final class DataDefinition {
         }
 
         private static final long serialVersionUID = 0L;
+
         @java.lang.Override
         protected java.lang.Object writeReplace()
                 throws java.io.ObjectStreamException {
@@ -5451,47 +5886,56 @@ public final class DataDefinition {
                 throws com.google.protobuf.InvalidProtocolBufferException {
             return PARSER.parseFrom(data);
         }
+
         public static DataDefinition.MeterEntry parseFrom(
                 com.google.protobuf.ByteString data,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws com.google.protobuf.InvalidProtocolBufferException {
             return PARSER.parseFrom(data, extensionRegistry);
         }
+
         public static DataDefinition.MeterEntry parseFrom(byte[] data)
                 throws com.google.protobuf.InvalidProtocolBufferException {
             return PARSER.parseFrom(data);
         }
+
         public static DataDefinition.MeterEntry parseFrom(
                 byte[] data,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws com.google.protobuf.InvalidProtocolBufferException {
             return PARSER.parseFrom(data, extensionRegistry);
         }
+
         public static DataDefinition.MeterEntry parseFrom(java.io.InputStream input)
                 throws java.io.IOException {
             return PARSER.parseFrom(input);
         }
+
         public static DataDefinition.MeterEntry parseFrom(
                 java.io.InputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws java.io.IOException {
             return PARSER.parseFrom(input, extensionRegistry);
         }
+
         public static DataDefinition.MeterEntry parseDelimitedFrom(java.io.InputStream input)
                 throws java.io.IOException {
             return PARSER.parseDelimitedFrom(input);
         }
+
         public static DataDefinition.MeterEntry parseDelimitedFrom(
                 java.io.InputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws java.io.IOException {
             return PARSER.parseDelimitedFrom(input, extensionRegistry);
         }
+
         public static DataDefinition.MeterEntry parseFrom(
                 com.google.protobuf.CodedInputStream input)
                 throws java.io.IOException {
             return PARSER.parseFrom(input);
         }
+
         public static DataDefinition.MeterEntry parseFrom(
                 com.google.protobuf.CodedInputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -5499,12 +5943,21 @@ public final class DataDefinition {
             return PARSER.parseFrom(input, extensionRegistry);
         }
 
-        public static Builder newBuilder() { return Builder.create(); }
-        public Builder newBuilderForType() { return newBuilder(); }
+        public static Builder newBuilder() {
+            return Builder.create();
+        }
+
+        public Builder newBuilderForType() {
+            return newBuilder();
+        }
+
         public static Builder newBuilder(DataDefinition.MeterEntry prototype) {
             return newBuilder().mergeFrom(prototype);
         }
-        public Builder toBuilder() { return newBuilder(this); }
+
+        public Builder toBuilder() {
+            return newBuilder(this);
+        }
 
         @java.lang.Override
         protected Builder newBuilderForType(
@@ -5512,6 +5965,7 @@ public final class DataDefinition {
             Builder builder = new Builder(parent);
             return builder;
         }
+
         /**
          * Protobuf type {@code MeterEntry}
          */
@@ -5540,10 +5994,12 @@ public final class DataDefinition {
                 super(parent);
                 maybeForceBuilderInitialization();
             }
+
             private void maybeForceBuilderInitialization() {
                 if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
                 }
             }
+
             private static Builder create() {
                 return new Builder();
             }
@@ -5609,7 +6065,7 @@ public final class DataDefinition {
 
             public Builder mergeFrom(com.google.protobuf.Message other) {
                 if (other instanceof DataDefinition.MeterEntry) {
-                    return mergeFrom((DataDefinition.MeterEntry)other);
+                    return mergeFrom((DataDefinition.MeterEntry) other);
                 } else {
                     super.mergeFrom(other);
                     return this;
@@ -5659,22 +6115,26 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             private int bitField0_;
 
             // required uint32 meter_bg_mgdl = 1;
-            private int meterBgMgdl_ ;
+            private int meterBgMgdl_;
+
             /**
              * <code>required uint32 meter_bg_mgdl = 1;</code>
              */
             public boolean hasMeterBgMgdl() {
                 return ((bitField0_ & 0x00000001) == 0x00000001);
             }
+
             /**
              * <code>required uint32 meter_bg_mgdl = 1;</code>
              */
             public int getMeterBgMgdl() {
                 return meterBgMgdl_;
             }
+
             /**
              * <code>required uint32 meter_bg_mgdl = 1;</code>
              */
@@ -5684,6 +6144,7 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>required uint32 meter_bg_mgdl = 1;</code>
              */
@@ -5695,19 +6156,22 @@ public final class DataDefinition {
             }
 
             // optional uint32 meter_time = 2;
-            private int meterTime_ ;
+            private int meterTime_;
+
             /**
              * <code>optional uint32 meter_time = 2;</code>
              */
             public boolean hasMeterTime() {
                 return ((bitField0_ & 0x00000002) == 0x00000002);
             }
+
             /**
              * <code>optional uint32 meter_time = 2;</code>
              */
             public int getMeterTime() {
                 return meterTime_;
             }
+
             /**
              * <code>optional uint32 meter_time = 2;</code>
              */
@@ -5717,6 +6181,7 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>optional uint32 meter_time = 2;</code>
              */
@@ -5728,10 +6193,11 @@ public final class DataDefinition {
             }
 
             // optional uint64 sys_timestamp_sec = 3;
-            private long sysTimestampSec_ ;
+            private long sysTimestampSec_;
+
             /**
              * <code>optional uint64 sys_timestamp_sec = 3;</code>
-             *
+             * <p/>
              * <pre>
              * System timestamp - Timestamp representing the internal clock of the receiver
              * </pre>
@@ -5739,9 +6205,10 @@ public final class DataDefinition {
             public boolean hasSysTimestampSec() {
                 return ((bitField0_ & 0x00000004) == 0x00000004);
             }
+
             /**
              * <code>optional uint64 sys_timestamp_sec = 3;</code>
-             *
+             * <p/>
              * <pre>
              * System timestamp - Timestamp representing the internal clock of the receiver
              * </pre>
@@ -5749,9 +6216,10 @@ public final class DataDefinition {
             public long getSysTimestampSec() {
                 return sysTimestampSec_;
             }
+
             /**
              * <code>optional uint64 sys_timestamp_sec = 3;</code>
-             *
+             * <p/>
              * <pre>
              * System timestamp - Timestamp representing the internal clock of the receiver
              * </pre>
@@ -5762,9 +6230,10 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>optional uint64 sys_timestamp_sec = 3;</code>
-             *
+             * <p/>
              * <pre>
              * System timestamp - Timestamp representing the internal clock of the receiver
              * </pre>
@@ -5777,10 +6246,11 @@ public final class DataDefinition {
             }
 
             // optional uint64 disp_timestamp_sec = 4;
-            private long dispTimestampSec_ ;
+            private long dispTimestampSec_;
+
             /**
              * <code>optional uint64 disp_timestamp_sec = 4;</code>
-             *
+             * <p/>
              * <pre>
              * Display timestamp - Timestamp representing the user configured time displayed on the receiver
              * </pre>
@@ -5788,9 +6258,10 @@ public final class DataDefinition {
             public boolean hasDispTimestampSec() {
                 return ((bitField0_ & 0x00000008) == 0x00000008);
             }
+
             /**
              * <code>optional uint64 disp_timestamp_sec = 4;</code>
-             *
+             * <p/>
              * <pre>
              * Display timestamp - Timestamp representing the user configured time displayed on the receiver
              * </pre>
@@ -5798,9 +6269,10 @@ public final class DataDefinition {
             public long getDispTimestampSec() {
                 return dispTimestampSec_;
             }
+
             /**
              * <code>optional uint64 disp_timestamp_sec = 4;</code>
-             *
+             * <p/>
              * <pre>
              * Display timestamp - Timestamp representing the user configured time displayed on the receiver
              * </pre>
@@ -5811,9 +6283,10 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>optional uint64 disp_timestamp_sec = 4;</code>
-             *
+             * <p/>
              * <pre>
              * Display timestamp - Timestamp representing the user configured time displayed on the receiver
              * </pre>
@@ -5840,47 +6313,55 @@ public final class DataDefinition {
             extends com.google.protobuf.MessageOrBuilder {
 
         // required uint64 filtered = 1;
+
         /**
          * <code>required uint64 filtered = 1;</code>
          */
         boolean hasFiltered();
+
         /**
          * <code>required uint64 filtered = 1;</code>
          */
         long getFiltered();
 
         // optional uint64 unfiltered = 2;
+
         /**
          * <code>optional uint64 unfiltered = 2;</code>
          */
         boolean hasUnfiltered();
+
         /**
          * <code>optional uint64 unfiltered = 2;</code>
          */
         long getUnfiltered();
 
         // optional uint32 rssi = 3;
+
         /**
          * <code>optional uint32 rssi = 3;</code>
          */
         boolean hasRssi();
+
         /**
          * <code>optional uint32 rssi = 3;</code>
          */
         int getRssi();
 
         // optional uint64 sys_timestamp_sec = 4;
+
         /**
          * <code>optional uint64 sys_timestamp_sec = 4;</code>
-         *
+         * <p/>
          * <pre>
          * System timestamp - Timestamp representing the internal clock of the receiver
          * </pre>
          */
         boolean hasSysTimestampSec();
+
         /**
          * <code>optional uint64 sys_timestamp_sec = 4;</code>
-         *
+         * <p/>
          * <pre>
          * System timestamp - Timestamp representing the internal clock of the receiver
          * </pre>
@@ -5888,23 +6369,26 @@ public final class DataDefinition {
         long getSysTimestampSec();
 
         // optional uint64 disp_timestamp_sec = 5;
+
         /**
          * <code>optional uint64 disp_timestamp_sec = 5;</code>
-         *
+         * <p/>
          * <pre>
          * Display timestamp - Timestamp representing the user configured time displayed on the receiver
          * </pre>
          */
         boolean hasDispTimestampSec();
+
         /**
          * <code>optional uint64 disp_timestamp_sec = 5;</code>
-         *
+         * <p/>
          * <pre>
          * Display timestamp - Timestamp representing the user configured time displayed on the receiver
          * </pre>
          */
         long getDispTimestampSec();
     }
+
     /**
      * Protobuf type {@code SensorEntry}
      */
@@ -5916,9 +6400,13 @@ public final class DataDefinition {
             super(builder);
             this.unknownFields = builder.getUnknownFields();
         }
-        private SensorEntry(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+        private SensorEntry(boolean noInit) {
+            this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+        }
 
         private static final SensorEntry defaultInstance;
+
         public static SensorEntry getDefaultInstance() {
             return defaultInstance;
         }
@@ -5928,11 +6416,13 @@ public final class DataDefinition {
         }
 
         private final com.google.protobuf.UnknownFieldSet unknownFields;
+
         @java.lang.Override
         public final com.google.protobuf.UnknownFieldSet
         getUnknownFields() {
             return this.unknownFields;
         }
+
         private SensorEntry(
                 com.google.protobuf.CodedInputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -5993,6 +6483,7 @@ public final class DataDefinition {
                 makeExtensionsImmutable();
             }
         }
+
         public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
             return DataDefinition.internal_static_SensorEntry_descriptor;
@@ -6024,12 +6515,14 @@ public final class DataDefinition {
         // required uint64 filtered = 1;
         public static final int FILTERED_FIELD_NUMBER = 1;
         private long filtered_;
+
         /**
          * <code>required uint64 filtered = 1;</code>
          */
         public boolean hasFiltered() {
             return ((bitField0_ & 0x00000001) == 0x00000001);
         }
+
         /**
          * <code>required uint64 filtered = 1;</code>
          */
@@ -6040,12 +6533,14 @@ public final class DataDefinition {
         // optional uint64 unfiltered = 2;
         public static final int UNFILTERED_FIELD_NUMBER = 2;
         private long unfiltered_;
+
         /**
          * <code>optional uint64 unfiltered = 2;</code>
          */
         public boolean hasUnfiltered() {
             return ((bitField0_ & 0x00000002) == 0x00000002);
         }
+
         /**
          * <code>optional uint64 unfiltered = 2;</code>
          */
@@ -6056,12 +6551,14 @@ public final class DataDefinition {
         // optional uint32 rssi = 3;
         public static final int RSSI_FIELD_NUMBER = 3;
         private int rssi_;
+
         /**
          * <code>optional uint32 rssi = 3;</code>
          */
         public boolean hasRssi() {
             return ((bitField0_ & 0x00000004) == 0x00000004);
         }
+
         /**
          * <code>optional uint32 rssi = 3;</code>
          */
@@ -6072,9 +6569,10 @@ public final class DataDefinition {
         // optional uint64 sys_timestamp_sec = 4;
         public static final int SYS_TIMESTAMP_SEC_FIELD_NUMBER = 4;
         private long sysTimestampSec_;
+
         /**
          * <code>optional uint64 sys_timestamp_sec = 4;</code>
-         *
+         * <p/>
          * <pre>
          * System timestamp - Timestamp representing the internal clock of the receiver
          * </pre>
@@ -6082,9 +6580,10 @@ public final class DataDefinition {
         public boolean hasSysTimestampSec() {
             return ((bitField0_ & 0x00000008) == 0x00000008);
         }
+
         /**
          * <code>optional uint64 sys_timestamp_sec = 4;</code>
-         *
+         * <p/>
          * <pre>
          * System timestamp - Timestamp representing the internal clock of the receiver
          * </pre>
@@ -6096,9 +6595,10 @@ public final class DataDefinition {
         // optional uint64 disp_timestamp_sec = 5;
         public static final int DISP_TIMESTAMP_SEC_FIELD_NUMBER = 5;
         private long dispTimestampSec_;
+
         /**
          * <code>optional uint64 disp_timestamp_sec = 5;</code>
-         *
+         * <p/>
          * <pre>
          * Display timestamp - Timestamp representing the user configured time displayed on the receiver
          * </pre>
@@ -6106,9 +6606,10 @@ public final class DataDefinition {
         public boolean hasDispTimestampSec() {
             return ((bitField0_ & 0x00000010) == 0x00000010);
         }
+
         /**
          * <code>optional uint64 disp_timestamp_sec = 5;</code>
-         *
+         * <p/>
          * <pre>
          * Display timestamp - Timestamp representing the user configured time displayed on the receiver
          * </pre>
@@ -6124,7 +6625,9 @@ public final class DataDefinition {
             sysTimestampSec_ = 0L;
             dispTimestampSec_ = 0L;
         }
+
         private byte memoizedIsInitialized = -1;
+
         public final boolean isInitialized() {
             byte isInitialized = memoizedIsInitialized;
             if (isInitialized != -1) return isInitialized == 1;
@@ -6159,6 +6662,7 @@ public final class DataDefinition {
         }
 
         private int memoizedSerializedSize = -1;
+
         public int getSerializedSize() {
             int size = memoizedSerializedSize;
             if (size != -1) return size;
@@ -6190,6 +6694,7 @@ public final class DataDefinition {
         }
 
         private static final long serialVersionUID = 0L;
+
         @java.lang.Override
         protected java.lang.Object writeReplace()
                 throws java.io.ObjectStreamException {
@@ -6201,47 +6706,56 @@ public final class DataDefinition {
                 throws com.google.protobuf.InvalidProtocolBufferException {
             return PARSER.parseFrom(data);
         }
+
         public static DataDefinition.SensorEntry parseFrom(
                 com.google.protobuf.ByteString data,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws com.google.protobuf.InvalidProtocolBufferException {
             return PARSER.parseFrom(data, extensionRegistry);
         }
+
         public static DataDefinition.SensorEntry parseFrom(byte[] data)
                 throws com.google.protobuf.InvalidProtocolBufferException {
             return PARSER.parseFrom(data);
         }
+
         public static DataDefinition.SensorEntry parseFrom(
                 byte[] data,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws com.google.protobuf.InvalidProtocolBufferException {
             return PARSER.parseFrom(data, extensionRegistry);
         }
+
         public static DataDefinition.SensorEntry parseFrom(java.io.InputStream input)
                 throws java.io.IOException {
             return PARSER.parseFrom(input);
         }
+
         public static DataDefinition.SensorEntry parseFrom(
                 java.io.InputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws java.io.IOException {
             return PARSER.parseFrom(input, extensionRegistry);
         }
+
         public static DataDefinition.SensorEntry parseDelimitedFrom(java.io.InputStream input)
                 throws java.io.IOException {
             return PARSER.parseDelimitedFrom(input);
         }
+
         public static DataDefinition.SensorEntry parseDelimitedFrom(
                 java.io.InputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws java.io.IOException {
             return PARSER.parseDelimitedFrom(input, extensionRegistry);
         }
+
         public static DataDefinition.SensorEntry parseFrom(
                 com.google.protobuf.CodedInputStream input)
                 throws java.io.IOException {
             return PARSER.parseFrom(input);
         }
+
         public static DataDefinition.SensorEntry parseFrom(
                 com.google.protobuf.CodedInputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -6249,12 +6763,21 @@ public final class DataDefinition {
             return PARSER.parseFrom(input, extensionRegistry);
         }
 
-        public static Builder newBuilder() { return Builder.create(); }
-        public Builder newBuilderForType() { return newBuilder(); }
+        public static Builder newBuilder() {
+            return Builder.create();
+        }
+
+        public Builder newBuilderForType() {
+            return newBuilder();
+        }
+
         public static Builder newBuilder(DataDefinition.SensorEntry prototype) {
             return newBuilder().mergeFrom(prototype);
         }
-        public Builder toBuilder() { return newBuilder(this); }
+
+        public Builder toBuilder() {
+            return newBuilder(this);
+        }
 
         @java.lang.Override
         protected Builder newBuilderForType(
@@ -6262,6 +6785,7 @@ public final class DataDefinition {
             Builder builder = new Builder(parent);
             return builder;
         }
+
         /**
          * Protobuf type {@code SensorEntry}
          */
@@ -6290,10 +6814,12 @@ public final class DataDefinition {
                 super(parent);
                 maybeForceBuilderInitialization();
             }
+
             private void maybeForceBuilderInitialization() {
                 if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
                 }
             }
+
             private static Builder create() {
                 return new Builder();
             }
@@ -6365,7 +6891,7 @@ public final class DataDefinition {
 
             public Builder mergeFrom(com.google.protobuf.Message other) {
                 if (other instanceof DataDefinition.SensorEntry) {
-                    return mergeFrom((DataDefinition.SensorEntry)other);
+                    return mergeFrom((DataDefinition.SensorEntry) other);
                 } else {
                     super.mergeFrom(other);
                     return this;
@@ -6418,22 +6944,26 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             private int bitField0_;
 
             // required uint64 filtered = 1;
-            private long filtered_ ;
+            private long filtered_;
+
             /**
              * <code>required uint64 filtered = 1;</code>
              */
             public boolean hasFiltered() {
                 return ((bitField0_ & 0x00000001) == 0x00000001);
             }
+
             /**
              * <code>required uint64 filtered = 1;</code>
              */
             public long getFiltered() {
                 return filtered_;
             }
+
             /**
              * <code>required uint64 filtered = 1;</code>
              */
@@ -6443,6 +6973,7 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>required uint64 filtered = 1;</code>
              */
@@ -6454,19 +6985,22 @@ public final class DataDefinition {
             }
 
             // optional uint64 unfiltered = 2;
-            private long unfiltered_ ;
+            private long unfiltered_;
+
             /**
              * <code>optional uint64 unfiltered = 2;</code>
              */
             public boolean hasUnfiltered() {
                 return ((bitField0_ & 0x00000002) == 0x00000002);
             }
+
             /**
              * <code>optional uint64 unfiltered = 2;</code>
              */
             public long getUnfiltered() {
                 return unfiltered_;
             }
+
             /**
              * <code>optional uint64 unfiltered = 2;</code>
              */
@@ -6476,6 +7010,7 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>optional uint64 unfiltered = 2;</code>
              */
@@ -6487,19 +7022,22 @@ public final class DataDefinition {
             }
 
             // optional uint32 rssi = 3;
-            private int rssi_ ;
+            private int rssi_;
+
             /**
              * <code>optional uint32 rssi = 3;</code>
              */
             public boolean hasRssi() {
                 return ((bitField0_ & 0x00000004) == 0x00000004);
             }
+
             /**
              * <code>optional uint32 rssi = 3;</code>
              */
             public int getRssi() {
                 return rssi_;
             }
+
             /**
              * <code>optional uint32 rssi = 3;</code>
              */
@@ -6509,6 +7047,7 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>optional uint32 rssi = 3;</code>
              */
@@ -6520,10 +7059,11 @@ public final class DataDefinition {
             }
 
             // optional uint64 sys_timestamp_sec = 4;
-            private long sysTimestampSec_ ;
+            private long sysTimestampSec_;
+
             /**
              * <code>optional uint64 sys_timestamp_sec = 4;</code>
-             *
+             * <p/>
              * <pre>
              * System timestamp - Timestamp representing the internal clock of the receiver
              * </pre>
@@ -6531,9 +7071,10 @@ public final class DataDefinition {
             public boolean hasSysTimestampSec() {
                 return ((bitField0_ & 0x00000008) == 0x00000008);
             }
+
             /**
              * <code>optional uint64 sys_timestamp_sec = 4;</code>
-             *
+             * <p/>
              * <pre>
              * System timestamp - Timestamp representing the internal clock of the receiver
              * </pre>
@@ -6541,9 +7082,10 @@ public final class DataDefinition {
             public long getSysTimestampSec() {
                 return sysTimestampSec_;
             }
+
             /**
              * <code>optional uint64 sys_timestamp_sec = 4;</code>
-             *
+             * <p/>
              * <pre>
              * System timestamp - Timestamp representing the internal clock of the receiver
              * </pre>
@@ -6554,9 +7096,10 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>optional uint64 sys_timestamp_sec = 4;</code>
-             *
+             * <p/>
              * <pre>
              * System timestamp - Timestamp representing the internal clock of the receiver
              * </pre>
@@ -6569,10 +7112,11 @@ public final class DataDefinition {
             }
 
             // optional uint64 disp_timestamp_sec = 5;
-            private long dispTimestampSec_ ;
+            private long dispTimestampSec_;
+
             /**
              * <code>optional uint64 disp_timestamp_sec = 5;</code>
-             *
+             * <p/>
              * <pre>
              * Display timestamp - Timestamp representing the user configured time displayed on the receiver
              * </pre>
@@ -6580,9 +7124,10 @@ public final class DataDefinition {
             public boolean hasDispTimestampSec() {
                 return ((bitField0_ & 0x00000010) == 0x00000010);
             }
+
             /**
              * <code>optional uint64 disp_timestamp_sec = 5;</code>
-             *
+             * <p/>
              * <pre>
              * Display timestamp - Timestamp representing the user configured time displayed on the receiver
              * </pre>
@@ -6590,9 +7135,10 @@ public final class DataDefinition {
             public long getDispTimestampSec() {
                 return dispTimestampSec_;
             }
+
             /**
              * <code>optional uint64 disp_timestamp_sec = 5;</code>
-             *
+             * <p/>
              * <pre>
              * Display timestamp - Timestamp representing the user configured time displayed on the receiver
              * </pre>
@@ -6603,9 +7149,10 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>optional uint64 disp_timestamp_sec = 5;</code>
-             *
+             * <p/>
              * <pre>
              * Display timestamp - Timestamp representing the user configured time displayed on the receiver
              * </pre>
@@ -6632,27 +7179,31 @@ public final class DataDefinition {
             extends com.google.protobuf.MessageOrBuilder {
 
         // required .G4Insertion state = 1;
+
         /**
          * <code>required .G4Insertion state = 1;</code>
          */
         boolean hasState();
+
         /**
          * <code>required .G4Insertion state = 1;</code>
          */
         DataDefinition.G4Insertion getState();
 
         // optional uint64 sys_timestamp_sec = 2;
+
         /**
          * <code>optional uint64 sys_timestamp_sec = 2;</code>
-         *
+         * <p/>
          * <pre>
          * System timestamp - Timestamp representing the internal clock of the receiver
          * </pre>
          */
         boolean hasSysTimestampSec();
+
         /**
          * <code>optional uint64 sys_timestamp_sec = 2;</code>
-         *
+         * <p/>
          * <pre>
          * System timestamp - Timestamp representing the internal clock of the receiver
          * </pre>
@@ -6660,23 +7211,26 @@ public final class DataDefinition {
         long getSysTimestampSec();
 
         // optional uint64 disp_timestamp_sec = 3;
+
         /**
          * <code>optional uint64 disp_timestamp_sec = 3;</code>
-         *
+         * <p/>
          * <pre>
          * Display timestamp - Timestamp representing the user configured time displayed on the receiver
          * </pre>
          */
         boolean hasDispTimestampSec();
+
         /**
          * <code>optional uint64 disp_timestamp_sec = 3;</code>
-         *
+         * <p/>
          * <pre>
          * Display timestamp - Timestamp representing the user configured time displayed on the receiver
          * </pre>
          */
         long getDispTimestampSec();
     }
+
     /**
      * Protobuf type {@code InsertionEntry}
      */
@@ -6688,9 +7242,13 @@ public final class DataDefinition {
             super(builder);
             this.unknownFields = builder.getUnknownFields();
         }
-        private InsertionEntry(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+        private InsertionEntry(boolean noInit) {
+            this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+        }
 
         private static final InsertionEntry defaultInstance;
+
         public static InsertionEntry getDefaultInstance() {
             return defaultInstance;
         }
@@ -6700,11 +7258,13 @@ public final class DataDefinition {
         }
 
         private final com.google.protobuf.UnknownFieldSet unknownFields;
+
         @java.lang.Override
         public final com.google.protobuf.UnknownFieldSet
         getUnknownFields() {
             return this.unknownFields;
         }
+
         private InsertionEntry(
                 com.google.protobuf.CodedInputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -6761,6 +7321,7 @@ public final class DataDefinition {
                 makeExtensionsImmutable();
             }
         }
+
         public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
             return DataDefinition.internal_static_InsertionEntry_descriptor;
@@ -6792,12 +7353,14 @@ public final class DataDefinition {
         // required .G4Insertion state = 1;
         public static final int STATE_FIELD_NUMBER = 1;
         private DataDefinition.G4Insertion state_;
+
         /**
          * <code>required .G4Insertion state = 1;</code>
          */
         public boolean hasState() {
             return ((bitField0_ & 0x00000001) == 0x00000001);
         }
+
         /**
          * <code>required .G4Insertion state = 1;</code>
          */
@@ -6808,9 +7371,10 @@ public final class DataDefinition {
         // optional uint64 sys_timestamp_sec = 2;
         public static final int SYS_TIMESTAMP_SEC_FIELD_NUMBER = 2;
         private long sysTimestampSec_;
+
         /**
          * <code>optional uint64 sys_timestamp_sec = 2;</code>
-         *
+         * <p/>
          * <pre>
          * System timestamp - Timestamp representing the internal clock of the receiver
          * </pre>
@@ -6818,9 +7382,10 @@ public final class DataDefinition {
         public boolean hasSysTimestampSec() {
             return ((bitField0_ & 0x00000002) == 0x00000002);
         }
+
         /**
          * <code>optional uint64 sys_timestamp_sec = 2;</code>
-         *
+         * <p/>
          * <pre>
          * System timestamp - Timestamp representing the internal clock of the receiver
          * </pre>
@@ -6832,9 +7397,10 @@ public final class DataDefinition {
         // optional uint64 disp_timestamp_sec = 3;
         public static final int DISP_TIMESTAMP_SEC_FIELD_NUMBER = 3;
         private long dispTimestampSec_;
+
         /**
          * <code>optional uint64 disp_timestamp_sec = 3;</code>
-         *
+         * <p/>
          * <pre>
          * Display timestamp - Timestamp representing the user configured time displayed on the receiver
          * </pre>
@@ -6842,9 +7408,10 @@ public final class DataDefinition {
         public boolean hasDispTimestampSec() {
             return ((bitField0_ & 0x00000004) == 0x00000004);
         }
+
         /**
          * <code>optional uint64 disp_timestamp_sec = 3;</code>
-         *
+         * <p/>
          * <pre>
          * Display timestamp - Timestamp representing the user configured time displayed on the receiver
          * </pre>
@@ -6858,7 +7425,9 @@ public final class DataDefinition {
             sysTimestampSec_ = 0L;
             dispTimestampSec_ = 0L;
         }
+
         private byte memoizedIsInitialized = -1;
+
         public final boolean isInitialized() {
             byte isInitialized = memoizedIsInitialized;
             if (isInitialized != -1) return isInitialized == 1;
@@ -6887,6 +7456,7 @@ public final class DataDefinition {
         }
 
         private int memoizedSerializedSize = -1;
+
         public int getSerializedSize() {
             int size = memoizedSerializedSize;
             if (size != -1) return size;
@@ -6910,6 +7480,7 @@ public final class DataDefinition {
         }
 
         private static final long serialVersionUID = 0L;
+
         @java.lang.Override
         protected java.lang.Object writeReplace()
                 throws java.io.ObjectStreamException {
@@ -6921,47 +7492,56 @@ public final class DataDefinition {
                 throws com.google.protobuf.InvalidProtocolBufferException {
             return PARSER.parseFrom(data);
         }
+
         public static DataDefinition.InsertionEntry parseFrom(
                 com.google.protobuf.ByteString data,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws com.google.protobuf.InvalidProtocolBufferException {
             return PARSER.parseFrom(data, extensionRegistry);
         }
+
         public static DataDefinition.InsertionEntry parseFrom(byte[] data)
                 throws com.google.protobuf.InvalidProtocolBufferException {
             return PARSER.parseFrom(data);
         }
+
         public static DataDefinition.InsertionEntry parseFrom(
                 byte[] data,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws com.google.protobuf.InvalidProtocolBufferException {
             return PARSER.parseFrom(data, extensionRegistry);
         }
+
         public static DataDefinition.InsertionEntry parseFrom(java.io.InputStream input)
                 throws java.io.IOException {
             return PARSER.parseFrom(input);
         }
+
         public static DataDefinition.InsertionEntry parseFrom(
                 java.io.InputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws java.io.IOException {
             return PARSER.parseFrom(input, extensionRegistry);
         }
+
         public static DataDefinition.InsertionEntry parseDelimitedFrom(java.io.InputStream input)
                 throws java.io.IOException {
             return PARSER.parseDelimitedFrom(input);
         }
+
         public static DataDefinition.InsertionEntry parseDelimitedFrom(
                 java.io.InputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws java.io.IOException {
             return PARSER.parseDelimitedFrom(input, extensionRegistry);
         }
+
         public static DataDefinition.InsertionEntry parseFrom(
                 com.google.protobuf.CodedInputStream input)
                 throws java.io.IOException {
             return PARSER.parseFrom(input);
         }
+
         public static DataDefinition.InsertionEntry parseFrom(
                 com.google.protobuf.CodedInputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -6969,12 +7549,21 @@ public final class DataDefinition {
             return PARSER.parseFrom(input, extensionRegistry);
         }
 
-        public static Builder newBuilder() { return Builder.create(); }
-        public Builder newBuilderForType() { return newBuilder(); }
+        public static Builder newBuilder() {
+            return Builder.create();
+        }
+
+        public Builder newBuilderForType() {
+            return newBuilder();
+        }
+
         public static Builder newBuilder(DataDefinition.InsertionEntry prototype) {
             return newBuilder().mergeFrom(prototype);
         }
-        public Builder toBuilder() { return newBuilder(this); }
+
+        public Builder toBuilder() {
+            return newBuilder(this);
+        }
 
         @java.lang.Override
         protected Builder newBuilderForType(
@@ -6982,6 +7571,7 @@ public final class DataDefinition {
             Builder builder = new Builder(parent);
             return builder;
         }
+
         /**
          * Protobuf type {@code InsertionEntry}
          */
@@ -7010,10 +7600,12 @@ public final class DataDefinition {
                 super(parent);
                 maybeForceBuilderInitialization();
             }
+
             private void maybeForceBuilderInitialization() {
                 if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
                 }
             }
+
             private static Builder create() {
                 return new Builder();
             }
@@ -7073,7 +7665,7 @@ public final class DataDefinition {
 
             public Builder mergeFrom(com.google.protobuf.Message other) {
                 if (other instanceof DataDefinition.InsertionEntry) {
-                    return mergeFrom((DataDefinition.InsertionEntry)other);
+                    return mergeFrom((DataDefinition.InsertionEntry) other);
                 } else {
                     super.mergeFrom(other);
                     return this;
@@ -7120,22 +7712,26 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             private int bitField0_;
 
             // required .G4Insertion state = 1;
             private DataDefinition.G4Insertion state_ = DataDefinition.G4Insertion.INSERTION_NONE;
+
             /**
              * <code>required .G4Insertion state = 1;</code>
              */
             public boolean hasState() {
                 return ((bitField0_ & 0x00000001) == 0x00000001);
             }
+
             /**
              * <code>required .G4Insertion state = 1;</code>
              */
             public DataDefinition.G4Insertion getState() {
                 return state_;
             }
+
             /**
              * <code>required .G4Insertion state = 1;</code>
              */
@@ -7148,6 +7744,7 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>required .G4Insertion state = 1;</code>
              */
@@ -7159,10 +7756,11 @@ public final class DataDefinition {
             }
 
             // optional uint64 sys_timestamp_sec = 2;
-            private long sysTimestampSec_ ;
+            private long sysTimestampSec_;
+
             /**
              * <code>optional uint64 sys_timestamp_sec = 2;</code>
-             *
+             * <p/>
              * <pre>
              * System timestamp - Timestamp representing the internal clock of the receiver
              * </pre>
@@ -7170,9 +7768,10 @@ public final class DataDefinition {
             public boolean hasSysTimestampSec() {
                 return ((bitField0_ & 0x00000002) == 0x00000002);
             }
+
             /**
              * <code>optional uint64 sys_timestamp_sec = 2;</code>
-             *
+             * <p/>
              * <pre>
              * System timestamp - Timestamp representing the internal clock of the receiver
              * </pre>
@@ -7180,9 +7779,10 @@ public final class DataDefinition {
             public long getSysTimestampSec() {
                 return sysTimestampSec_;
             }
+
             /**
              * <code>optional uint64 sys_timestamp_sec = 2;</code>
-             *
+             * <p/>
              * <pre>
              * System timestamp - Timestamp representing the internal clock of the receiver
              * </pre>
@@ -7193,9 +7793,10 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>optional uint64 sys_timestamp_sec = 2;</code>
-             *
+             * <p/>
              * <pre>
              * System timestamp - Timestamp representing the internal clock of the receiver
              * </pre>
@@ -7208,10 +7809,11 @@ public final class DataDefinition {
             }
 
             // optional uint64 disp_timestamp_sec = 3;
-            private long dispTimestampSec_ ;
+            private long dispTimestampSec_;
+
             /**
              * <code>optional uint64 disp_timestamp_sec = 3;</code>
-             *
+             * <p/>
              * <pre>
              * Display timestamp - Timestamp representing the user configured time displayed on the receiver
              * </pre>
@@ -7219,9 +7821,10 @@ public final class DataDefinition {
             public boolean hasDispTimestampSec() {
                 return ((bitField0_ & 0x00000004) == 0x00000004);
             }
+
             /**
              * <code>optional uint64 disp_timestamp_sec = 3;</code>
-             *
+             * <p/>
              * <pre>
              * Display timestamp - Timestamp representing the user configured time displayed on the receiver
              * </pre>
@@ -7229,9 +7832,10 @@ public final class DataDefinition {
             public long getDispTimestampSec() {
                 return dispTimestampSec_;
             }
+
             /**
              * <code>optional uint64 disp_timestamp_sec = 3;</code>
-             *
+             * <p/>
              * <pre>
              * Display timestamp - Timestamp representing the user configured time displayed on the receiver
              * </pre>
@@ -7242,9 +7846,10 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>optional uint64 disp_timestamp_sec = 3;</code>
-             *
+             * <p/>
              * <pre>
              * Display timestamp - Timestamp representing the user configured time displayed on the receiver
              * </pre>
@@ -7271,57 +7876,67 @@ public final class DataDefinition {
             extends com.google.protobuf.MessageOrBuilder {
 
         // required double slope = 1;
+
         /**
          * <code>required double slope = 1;</code>
          */
         boolean hasSlope();
+
         /**
          * <code>required double slope = 1;</code>
          */
         double getSlope();
 
         // optional double intercept = 2;
+
         /**
          * <code>optional double intercept = 2;</code>
          */
         boolean hasIntercept();
+
         /**
          * <code>optional double intercept = 2;</code>
          */
         double getIntercept();
 
         // optional double scale = 3;
+
         /**
          * <code>optional double scale = 3;</code>
          */
         boolean hasScale();
+
         /**
          * <code>optional double scale = 3;</code>
          */
         double getScale();
 
         // optional double decay = 4;
+
         /**
          * <code>optional double decay = 4;</code>
          */
         boolean hasDecay();
+
         /**
          * <code>optional double decay = 4;</code>
          */
         double getDecay();
 
         // optional uint64 sys_timestamp_sec = 5;
+
         /**
          * <code>optional uint64 sys_timestamp_sec = 5;</code>
-         *
+         * <p/>
          * <pre>
          * System timestamp - Timestamp representing the internal clock of the receiver
          * </pre>
          */
         boolean hasSysTimestampSec();
+
         /**
          * <code>optional uint64 sys_timestamp_sec = 5;</code>
-         *
+         * <p/>
          * <pre>
          * System timestamp - Timestamp representing the internal clock of the receiver
          * </pre>
@@ -7329,23 +7944,26 @@ public final class DataDefinition {
         long getSysTimestampSec();
 
         // optional uint64 disp_timestamp_sec = 6;
+
         /**
          * <code>optional uint64 disp_timestamp_sec = 6;</code>
-         *
+         * <p/>
          * <pre>
          * Display timestamp - Timestamp representing the user configured time displayed on the receiver
          * </pre>
          */
         boolean hasDispTimestampSec();
+
         /**
          * <code>optional uint64 disp_timestamp_sec = 6;</code>
-         *
+         * <p/>
          * <pre>
          * Display timestamp - Timestamp representing the user configured time displayed on the receiver
          * </pre>
          */
         long getDispTimestampSec();
     }
+
     /**
      * Protobuf type {@code CalibrationEntry}
      */
@@ -7357,9 +7975,13 @@ public final class DataDefinition {
             super(builder);
             this.unknownFields = builder.getUnknownFields();
         }
-        private CalibrationEntry(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+        private CalibrationEntry(boolean noInit) {
+            this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+        }
 
         private static final CalibrationEntry defaultInstance;
+
         public static CalibrationEntry getDefaultInstance() {
             return defaultInstance;
         }
@@ -7369,11 +7991,13 @@ public final class DataDefinition {
         }
 
         private final com.google.protobuf.UnknownFieldSet unknownFields;
+
         @java.lang.Override
         public final com.google.protobuf.UnknownFieldSet
         getUnknownFields() {
             return this.unknownFields;
         }
+
         private CalibrationEntry(
                 com.google.protobuf.CodedInputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -7439,6 +8063,7 @@ public final class DataDefinition {
                 makeExtensionsImmutable();
             }
         }
+
         public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
             return DataDefinition.internal_static_CalibrationEntry_descriptor;
@@ -7470,12 +8095,14 @@ public final class DataDefinition {
         // required double slope = 1;
         public static final int SLOPE_FIELD_NUMBER = 1;
         private double slope_;
+
         /**
          * <code>required double slope = 1;</code>
          */
         public boolean hasSlope() {
             return ((bitField0_ & 0x00000001) == 0x00000001);
         }
+
         /**
          * <code>required double slope = 1;</code>
          */
@@ -7486,12 +8113,14 @@ public final class DataDefinition {
         // optional double intercept = 2;
         public static final int INTERCEPT_FIELD_NUMBER = 2;
         private double intercept_;
+
         /**
          * <code>optional double intercept = 2;</code>
          */
         public boolean hasIntercept() {
             return ((bitField0_ & 0x00000002) == 0x00000002);
         }
+
         /**
          * <code>optional double intercept = 2;</code>
          */
@@ -7502,12 +8131,14 @@ public final class DataDefinition {
         // optional double scale = 3;
         public static final int SCALE_FIELD_NUMBER = 3;
         private double scale_;
+
         /**
          * <code>optional double scale = 3;</code>
          */
         public boolean hasScale() {
             return ((bitField0_ & 0x00000004) == 0x00000004);
         }
+
         /**
          * <code>optional double scale = 3;</code>
          */
@@ -7518,12 +8149,14 @@ public final class DataDefinition {
         // optional double decay = 4;
         public static final int DECAY_FIELD_NUMBER = 4;
         private double decay_;
+
         /**
          * <code>optional double decay = 4;</code>
          */
         public boolean hasDecay() {
             return ((bitField0_ & 0x00000008) == 0x00000008);
         }
+
         /**
          * <code>optional double decay = 4;</code>
          */
@@ -7534,9 +8167,10 @@ public final class DataDefinition {
         // optional uint64 sys_timestamp_sec = 5;
         public static final int SYS_TIMESTAMP_SEC_FIELD_NUMBER = 5;
         private long sysTimestampSec_;
+
         /**
          * <code>optional uint64 sys_timestamp_sec = 5;</code>
-         *
+         * <p/>
          * <pre>
          * System timestamp - Timestamp representing the internal clock of the receiver
          * </pre>
@@ -7544,9 +8178,10 @@ public final class DataDefinition {
         public boolean hasSysTimestampSec() {
             return ((bitField0_ & 0x00000010) == 0x00000010);
         }
+
         /**
          * <code>optional uint64 sys_timestamp_sec = 5;</code>
-         *
+         * <p/>
          * <pre>
          * System timestamp - Timestamp representing the internal clock of the receiver
          * </pre>
@@ -7558,9 +8193,10 @@ public final class DataDefinition {
         // optional uint64 disp_timestamp_sec = 6;
         public static final int DISP_TIMESTAMP_SEC_FIELD_NUMBER = 6;
         private long dispTimestampSec_;
+
         /**
          * <code>optional uint64 disp_timestamp_sec = 6;</code>
-         *
+         * <p/>
          * <pre>
          * Display timestamp - Timestamp representing the user configured time displayed on the receiver
          * </pre>
@@ -7568,9 +8204,10 @@ public final class DataDefinition {
         public boolean hasDispTimestampSec() {
             return ((bitField0_ & 0x00000020) == 0x00000020);
         }
+
         /**
          * <code>optional uint64 disp_timestamp_sec = 6;</code>
-         *
+         * <p/>
          * <pre>
          * Display timestamp - Timestamp representing the user configured time displayed on the receiver
          * </pre>
@@ -7587,7 +8224,9 @@ public final class DataDefinition {
             sysTimestampSec_ = 0L;
             dispTimestampSec_ = 0L;
         }
+
         private byte memoizedIsInitialized = -1;
+
         public final boolean isInitialized() {
             byte isInitialized = memoizedIsInitialized;
             if (isInitialized != -1) return isInitialized == 1;
@@ -7625,6 +8264,7 @@ public final class DataDefinition {
         }
 
         private int memoizedSerializedSize = -1;
+
         public int getSerializedSize() {
             int size = memoizedSerializedSize;
             if (size != -1) return size;
@@ -7660,6 +8300,7 @@ public final class DataDefinition {
         }
 
         private static final long serialVersionUID = 0L;
+
         @java.lang.Override
         protected java.lang.Object writeReplace()
                 throws java.io.ObjectStreamException {
@@ -7671,47 +8312,56 @@ public final class DataDefinition {
                 throws com.google.protobuf.InvalidProtocolBufferException {
             return PARSER.parseFrom(data);
         }
+
         public static DataDefinition.CalibrationEntry parseFrom(
                 com.google.protobuf.ByteString data,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws com.google.protobuf.InvalidProtocolBufferException {
             return PARSER.parseFrom(data, extensionRegistry);
         }
+
         public static DataDefinition.CalibrationEntry parseFrom(byte[] data)
                 throws com.google.protobuf.InvalidProtocolBufferException {
             return PARSER.parseFrom(data);
         }
+
         public static DataDefinition.CalibrationEntry parseFrom(
                 byte[] data,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws com.google.protobuf.InvalidProtocolBufferException {
             return PARSER.parseFrom(data, extensionRegistry);
         }
+
         public static DataDefinition.CalibrationEntry parseFrom(java.io.InputStream input)
                 throws java.io.IOException {
             return PARSER.parseFrom(input);
         }
+
         public static DataDefinition.CalibrationEntry parseFrom(
                 java.io.InputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws java.io.IOException {
             return PARSER.parseFrom(input, extensionRegistry);
         }
+
         public static DataDefinition.CalibrationEntry parseDelimitedFrom(java.io.InputStream input)
                 throws java.io.IOException {
             return PARSER.parseDelimitedFrom(input);
         }
+
         public static DataDefinition.CalibrationEntry parseDelimitedFrom(
                 java.io.InputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws java.io.IOException {
             return PARSER.parseDelimitedFrom(input, extensionRegistry);
         }
+
         public static DataDefinition.CalibrationEntry parseFrom(
                 com.google.protobuf.CodedInputStream input)
                 throws java.io.IOException {
             return PARSER.parseFrom(input);
         }
+
         public static DataDefinition.CalibrationEntry parseFrom(
                 com.google.protobuf.CodedInputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -7719,12 +8369,21 @@ public final class DataDefinition {
             return PARSER.parseFrom(input, extensionRegistry);
         }
 
-        public static Builder newBuilder() { return Builder.create(); }
-        public Builder newBuilderForType() { return newBuilder(); }
+        public static Builder newBuilder() {
+            return Builder.create();
+        }
+
+        public Builder newBuilderForType() {
+            return newBuilder();
+        }
+
         public static Builder newBuilder(DataDefinition.CalibrationEntry prototype) {
             return newBuilder().mergeFrom(prototype);
         }
-        public Builder toBuilder() { return newBuilder(this); }
+
+        public Builder toBuilder() {
+            return newBuilder(this);
+        }
 
         @java.lang.Override
         protected Builder newBuilderForType(
@@ -7732,6 +8391,7 @@ public final class DataDefinition {
             Builder builder = new Builder(parent);
             return builder;
         }
+
         /**
          * Protobuf type {@code CalibrationEntry}
          */
@@ -7760,10 +8420,12 @@ public final class DataDefinition {
                 super(parent);
                 maybeForceBuilderInitialization();
             }
+
             private void maybeForceBuilderInitialization() {
                 if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
                 }
             }
+
             private static Builder create() {
                 return new Builder();
             }
@@ -7841,7 +8503,7 @@ public final class DataDefinition {
 
             public Builder mergeFrom(com.google.protobuf.Message other) {
                 if (other instanceof DataDefinition.CalibrationEntry) {
-                    return mergeFrom((DataDefinition.CalibrationEntry)other);
+                    return mergeFrom((DataDefinition.CalibrationEntry) other);
                 } else {
                     super.mergeFrom(other);
                     return this;
@@ -7897,22 +8559,26 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             private int bitField0_;
 
             // required double slope = 1;
-            private double slope_ ;
+            private double slope_;
+
             /**
              * <code>required double slope = 1;</code>
              */
             public boolean hasSlope() {
                 return ((bitField0_ & 0x00000001) == 0x00000001);
             }
+
             /**
              * <code>required double slope = 1;</code>
              */
             public double getSlope() {
                 return slope_;
             }
+
             /**
              * <code>required double slope = 1;</code>
              */
@@ -7922,6 +8588,7 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>required double slope = 1;</code>
              */
@@ -7933,19 +8600,22 @@ public final class DataDefinition {
             }
 
             // optional double intercept = 2;
-            private double intercept_ ;
+            private double intercept_;
+
             /**
              * <code>optional double intercept = 2;</code>
              */
             public boolean hasIntercept() {
                 return ((bitField0_ & 0x00000002) == 0x00000002);
             }
+
             /**
              * <code>optional double intercept = 2;</code>
              */
             public double getIntercept() {
                 return intercept_;
             }
+
             /**
              * <code>optional double intercept = 2;</code>
              */
@@ -7955,6 +8625,7 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>optional double intercept = 2;</code>
              */
@@ -7966,19 +8637,22 @@ public final class DataDefinition {
             }
 
             // optional double scale = 3;
-            private double scale_ ;
+            private double scale_;
+
             /**
              * <code>optional double scale = 3;</code>
              */
             public boolean hasScale() {
                 return ((bitField0_ & 0x00000004) == 0x00000004);
             }
+
             /**
              * <code>optional double scale = 3;</code>
              */
             public double getScale() {
                 return scale_;
             }
+
             /**
              * <code>optional double scale = 3;</code>
              */
@@ -7988,6 +8662,7 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>optional double scale = 3;</code>
              */
@@ -7999,19 +8674,22 @@ public final class DataDefinition {
             }
 
             // optional double decay = 4;
-            private double decay_ ;
+            private double decay_;
+
             /**
              * <code>optional double decay = 4;</code>
              */
             public boolean hasDecay() {
                 return ((bitField0_ & 0x00000008) == 0x00000008);
             }
+
             /**
              * <code>optional double decay = 4;</code>
              */
             public double getDecay() {
                 return decay_;
             }
+
             /**
              * <code>optional double decay = 4;</code>
              */
@@ -8021,6 +8699,7 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>optional double decay = 4;</code>
              */
@@ -8032,10 +8711,11 @@ public final class DataDefinition {
             }
 
             // optional uint64 sys_timestamp_sec = 5;
-            private long sysTimestampSec_ ;
+            private long sysTimestampSec_;
+
             /**
              * <code>optional uint64 sys_timestamp_sec = 5;</code>
-             *
+             * <p/>
              * <pre>
              * System timestamp - Timestamp representing the internal clock of the receiver
              * </pre>
@@ -8043,9 +8723,10 @@ public final class DataDefinition {
             public boolean hasSysTimestampSec() {
                 return ((bitField0_ & 0x00000010) == 0x00000010);
             }
+
             /**
              * <code>optional uint64 sys_timestamp_sec = 5;</code>
-             *
+             * <p/>
              * <pre>
              * System timestamp - Timestamp representing the internal clock of the receiver
              * </pre>
@@ -8053,9 +8734,10 @@ public final class DataDefinition {
             public long getSysTimestampSec() {
                 return sysTimestampSec_;
             }
+
             /**
              * <code>optional uint64 sys_timestamp_sec = 5;</code>
-             *
+             * <p/>
              * <pre>
              * System timestamp - Timestamp representing the internal clock of the receiver
              * </pre>
@@ -8066,9 +8748,10 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>optional uint64 sys_timestamp_sec = 5;</code>
-             *
+             * <p/>
              * <pre>
              * System timestamp - Timestamp representing the internal clock of the receiver
              * </pre>
@@ -8081,10 +8764,11 @@ public final class DataDefinition {
             }
 
             // optional uint64 disp_timestamp_sec = 6;
-            private long dispTimestampSec_ ;
+            private long dispTimestampSec_;
+
             /**
              * <code>optional uint64 disp_timestamp_sec = 6;</code>
-             *
+             * <p/>
              * <pre>
              * Display timestamp - Timestamp representing the user configured time displayed on the receiver
              * </pre>
@@ -8092,9 +8776,10 @@ public final class DataDefinition {
             public boolean hasDispTimestampSec() {
                 return ((bitField0_ & 0x00000020) == 0x00000020);
             }
+
             /**
              * <code>optional uint64 disp_timestamp_sec = 6;</code>
-             *
+             * <p/>
              * <pre>
              * Display timestamp - Timestamp representing the user configured time displayed on the receiver
              * </pre>
@@ -8102,9 +8787,10 @@ public final class DataDefinition {
             public long getDispTimestampSec() {
                 return dispTimestampSec_;
             }
+
             /**
              * <code>optional uint64 disp_timestamp_sec = 6;</code>
-             *
+             * <p/>
              * <pre>
              * Display timestamp - Timestamp representing the user configured time displayed on the receiver
              * </pre>
@@ -8115,9 +8801,10 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>optional uint64 disp_timestamp_sec = 6;</code>
-             *
+             * <p/>
              * <pre>
              * Display timestamp - Timestamp representing the user configured time displayed on the receiver
              * </pre>
@@ -8144,29 +8831,35 @@ public final class DataDefinition {
             extends com.google.protobuf.MessageOrBuilder {
 
         // required uint64 timestamp_ms = 1;
+
         /**
          * <code>required uint64 timestamp_ms = 1;</code>
          */
         boolean hasTimestampMs();
+
         /**
          * <code>required uint64 timestamp_ms = 1;</code>
          */
         long getTimestampMs();
 
         // repeated .ReceiverStatus event = 2;
+
         /**
          * <code>repeated .ReceiverStatus event = 2;</code>
          */
         java.util.List<DataDefinition.ReceiverStatus> getEventList();
+
         /**
          * <code>repeated .ReceiverStatus event = 2;</code>
          */
         int getEventCount();
+
         /**
          * <code>repeated .ReceiverStatus event = 2;</code>
          */
         DataDefinition.ReceiverStatus getEvent(int index);
     }
+
     /**
      * Protobuf type {@code ReceiverState}
      */
@@ -8178,9 +8871,13 @@ public final class DataDefinition {
             super(builder);
             this.unknownFields = builder.getUnknownFields();
         }
-        private ReceiverState(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+        private ReceiverState(boolean noInit) {
+            this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+        }
 
         private static final ReceiverState defaultInstance;
+
         public static ReceiverState getDefaultInstance() {
             return defaultInstance;
         }
@@ -8190,11 +8887,13 @@ public final class DataDefinition {
         }
 
         private final com.google.protobuf.UnknownFieldSet unknownFields;
+
         @java.lang.Override
         public final com.google.protobuf.UnknownFieldSet
         getUnknownFields() {
             return this.unknownFields;
         }
+
         private ReceiverState(
                 com.google.protobuf.CodedInputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -8240,7 +8939,7 @@ public final class DataDefinition {
                         case 18: {
                             int length = input.readRawVarint32();
                             int oldLimit = input.pushLimit(length);
-                            while(input.getBytesUntilLimit() > 0) {
+                            while (input.getBytesUntilLimit() > 0) {
                                 int rawValue = input.readEnum();
                                 DataDefinition.ReceiverStatus value = DataDefinition.ReceiverStatus.valueOf(rawValue);
                                 if (value == null) {
@@ -8271,6 +8970,7 @@ public final class DataDefinition {
                 makeExtensionsImmutable();
             }
         }
+
         public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
             return DataDefinition.internal_static_ReceiverState_descriptor;
@@ -8302,12 +9002,14 @@ public final class DataDefinition {
         // required uint64 timestamp_ms = 1;
         public static final int TIMESTAMP_MS_FIELD_NUMBER = 1;
         private long timestampMs_;
+
         /**
          * <code>required uint64 timestamp_ms = 1;</code>
          */
         public boolean hasTimestampMs() {
             return ((bitField0_ & 0x00000001) == 0x00000001);
         }
+
         /**
          * <code>required uint64 timestamp_ms = 1;</code>
          */
@@ -8318,18 +9020,21 @@ public final class DataDefinition {
         // repeated .ReceiverStatus event = 2;
         public static final int EVENT_FIELD_NUMBER = 2;
         private java.util.List<DataDefinition.ReceiverStatus> event_;
+
         /**
          * <code>repeated .ReceiverStatus event = 2;</code>
          */
         public java.util.List<DataDefinition.ReceiverStatus> getEventList() {
             return event_;
         }
+
         /**
          * <code>repeated .ReceiverStatus event = 2;</code>
          */
         public int getEventCount() {
             return event_.size();
         }
+
         /**
          * <code>repeated .ReceiverStatus event = 2;</code>
          */
@@ -8341,7 +9046,9 @@ public final class DataDefinition {
             timestampMs_ = 0L;
             event_ = java.util.Collections.emptyList();
         }
+
         private byte memoizedIsInitialized = -1;
+
         public final boolean isInitialized() {
             byte isInitialized = memoizedIsInitialized;
             if (isInitialized != -1) return isInitialized == 1;
@@ -8367,6 +9074,7 @@ public final class DataDefinition {
         }
 
         private int memoizedSerializedSize = -1;
+
         public int getSerializedSize() {
             int size = memoizedSerializedSize;
             if (size != -1) return size;
@@ -8391,6 +9099,7 @@ public final class DataDefinition {
         }
 
         private static final long serialVersionUID = 0L;
+
         @java.lang.Override
         protected java.lang.Object writeReplace()
                 throws java.io.ObjectStreamException {
@@ -8402,47 +9111,56 @@ public final class DataDefinition {
                 throws com.google.protobuf.InvalidProtocolBufferException {
             return PARSER.parseFrom(data);
         }
+
         public static DataDefinition.ReceiverState parseFrom(
                 com.google.protobuf.ByteString data,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws com.google.protobuf.InvalidProtocolBufferException {
             return PARSER.parseFrom(data, extensionRegistry);
         }
+
         public static DataDefinition.ReceiverState parseFrom(byte[] data)
                 throws com.google.protobuf.InvalidProtocolBufferException {
             return PARSER.parseFrom(data);
         }
+
         public static DataDefinition.ReceiverState parseFrom(
                 byte[] data,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws com.google.protobuf.InvalidProtocolBufferException {
             return PARSER.parseFrom(data, extensionRegistry);
         }
+
         public static DataDefinition.ReceiverState parseFrom(java.io.InputStream input)
                 throws java.io.IOException {
             return PARSER.parseFrom(input);
         }
+
         public static DataDefinition.ReceiverState parseFrom(
                 java.io.InputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws java.io.IOException {
             return PARSER.parseFrom(input, extensionRegistry);
         }
+
         public static DataDefinition.ReceiverState parseDelimitedFrom(java.io.InputStream input)
                 throws java.io.IOException {
             return PARSER.parseDelimitedFrom(input);
         }
+
         public static DataDefinition.ReceiverState parseDelimitedFrom(
                 java.io.InputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws java.io.IOException {
             return PARSER.parseDelimitedFrom(input, extensionRegistry);
         }
+
         public static DataDefinition.ReceiverState parseFrom(
                 com.google.protobuf.CodedInputStream input)
                 throws java.io.IOException {
             return PARSER.parseFrom(input);
         }
+
         public static DataDefinition.ReceiverState parseFrom(
                 com.google.protobuf.CodedInputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -8450,12 +9168,21 @@ public final class DataDefinition {
             return PARSER.parseFrom(input, extensionRegistry);
         }
 
-        public static Builder newBuilder() { return Builder.create(); }
-        public Builder newBuilderForType() { return newBuilder(); }
+        public static Builder newBuilder() {
+            return Builder.create();
+        }
+
+        public Builder newBuilderForType() {
+            return newBuilder();
+        }
+
         public static Builder newBuilder(DataDefinition.ReceiverState prototype) {
             return newBuilder().mergeFrom(prototype);
         }
-        public Builder toBuilder() { return newBuilder(this); }
+
+        public Builder toBuilder() {
+            return newBuilder(this);
+        }
 
         @java.lang.Override
         protected Builder newBuilderForType(
@@ -8463,6 +9190,7 @@ public final class DataDefinition {
             Builder builder = new Builder(parent);
             return builder;
         }
+
         /**
          * Protobuf type {@code ReceiverState}
          */
@@ -8491,10 +9219,12 @@ public final class DataDefinition {
                 super(parent);
                 maybeForceBuilderInitialization();
             }
+
             private void maybeForceBuilderInitialization() {
                 if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
                 }
             }
+
             private static Builder create() {
                 return new Builder();
             }
@@ -8549,7 +9279,7 @@ public final class DataDefinition {
 
             public Builder mergeFrom(com.google.protobuf.Message other) {
                 if (other instanceof DataDefinition.ReceiverState) {
-                    return mergeFrom((DataDefinition.ReceiverState)other);
+                    return mergeFrom((DataDefinition.ReceiverState) other);
                 } else {
                     super.mergeFrom(other);
                     return this;
@@ -8600,22 +9330,26 @@ public final class DataDefinition {
                 }
                 return this;
             }
+
             private int bitField0_;
 
             // required uint64 timestamp_ms = 1;
-            private long timestampMs_ ;
+            private long timestampMs_;
+
             /**
              * <code>required uint64 timestamp_ms = 1;</code>
              */
             public boolean hasTimestampMs() {
                 return ((bitField0_ & 0x00000001) == 0x00000001);
             }
+
             /**
              * <code>required uint64 timestamp_ms = 1;</code>
              */
             public long getTimestampMs() {
                 return timestampMs_;
             }
+
             /**
              * <code>required uint64 timestamp_ms = 1;</code>
              */
@@ -8625,6 +9359,7 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>required uint64 timestamp_ms = 1;</code>
              */
@@ -8638,30 +9373,35 @@ public final class DataDefinition {
             // repeated .ReceiverStatus event = 2;
             private java.util.List<DataDefinition.ReceiverStatus> event_ =
                     java.util.Collections.emptyList();
+
             private void ensureEventIsMutable() {
                 if (!((bitField0_ & 0x00000002) == 0x00000002)) {
                     event_ = new java.util.ArrayList<DataDefinition.ReceiverStatus>(event_);
                     bitField0_ |= 0x00000002;
                 }
             }
+
             /**
              * <code>repeated .ReceiverStatus event = 2;</code>
              */
             public java.util.List<DataDefinition.ReceiverStatus> getEventList() {
                 return java.util.Collections.unmodifiableList(event_);
             }
+
             /**
              * <code>repeated .ReceiverStatus event = 2;</code>
              */
             public int getEventCount() {
                 return event_.size();
             }
+
             /**
              * <code>repeated .ReceiverStatus event = 2;</code>
              */
             public DataDefinition.ReceiverStatus getEvent(int index) {
                 return event_.get(index);
             }
+
             /**
              * <code>repeated .ReceiverStatus event = 2;</code>
              */
@@ -8675,6 +9415,7 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>repeated .ReceiverStatus event = 2;</code>
              */
@@ -8687,6 +9428,7 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>repeated .ReceiverStatus event = 2;</code>
              */
@@ -8697,6 +9439,7 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
+
             /**
              * <code>repeated .ReceiverStatus event = 2;</code>
              */
@@ -8758,8 +9501,10 @@ public final class DataDefinition {
     getDescriptor() {
         return descriptor;
     }
+
     private static com.google.protobuf.Descriptors.FileDescriptor
             descriptor;
+
     static {
         java.lang.String[] descriptorData = {
                 "\n\023DataDefinition.proto\"\244\003\n\nG4Download\022%\n\003" +
@@ -8821,49 +9566,49 @@ public final class DataDefinition {
                         internal_static_G4Download_fieldAccessorTable = new
                                 com.google.protobuf.GeneratedMessage.FieldAccessorTable(
                                 internal_static_G4Download_descriptor,
-                                new java.lang.String[] { "Sgv", "Units", "DownloadTimestamp", "ReceiverSystemTimeSec", "DownloadStatus", "ReceiverBattery", "UploaderBattery", "Meter", "Sensor", "Cal", "Insert", "ReceiverId", "TransmitterId", });
+                                new java.lang.String[]{"Sgv", "Units", "DownloadTimestamp", "ReceiverSystemTimeSec", "DownloadStatus", "ReceiverBattery", "UploaderBattery", "Meter", "Sensor", "Cal", "Insert", "ReceiverId", "TransmitterId",});
                         internal_static_SensorGlucoseValueEntry_descriptor =
                                 getDescriptor().getMessageTypes().get(1);
                         internal_static_SensorGlucoseValueEntry_fieldAccessorTable = new
                                 com.google.protobuf.GeneratedMessage.FieldAccessorTable(
                                 internal_static_SensorGlucoseValueEntry_descriptor,
-                                new java.lang.String[] { "SgvMgdl", "SysTimestampSec", "DispTimestampSec", "Trend", "Noise", });
+                                new java.lang.String[]{"SgvMgdl", "SysTimestampSec", "DispTimestampSec", "Trend", "Noise",});
                         internal_static_MeterEntry_descriptor =
                                 getDescriptor().getMessageTypes().get(2);
                         internal_static_MeterEntry_fieldAccessorTable = new
                                 com.google.protobuf.GeneratedMessage.FieldAccessorTable(
                                 internal_static_MeterEntry_descriptor,
-                                new java.lang.String[] { "MeterBgMgdl", "MeterTime", "SysTimestampSec", "DispTimestampSec", });
+                                new java.lang.String[]{"MeterBgMgdl", "MeterTime", "SysTimestampSec", "DispTimestampSec",});
                         internal_static_SensorEntry_descriptor =
                                 getDescriptor().getMessageTypes().get(3);
                         internal_static_SensorEntry_fieldAccessorTable = new
                                 com.google.protobuf.GeneratedMessage.FieldAccessorTable(
                                 internal_static_SensorEntry_descriptor,
-                                new java.lang.String[] { "Filtered", "Unfiltered", "Rssi", "SysTimestampSec", "DispTimestampSec", });
+                                new java.lang.String[]{"Filtered", "Unfiltered", "Rssi", "SysTimestampSec", "DispTimestampSec",});
                         internal_static_InsertionEntry_descriptor =
                                 getDescriptor().getMessageTypes().get(4);
                         internal_static_InsertionEntry_fieldAccessorTable = new
                                 com.google.protobuf.GeneratedMessage.FieldAccessorTable(
                                 internal_static_InsertionEntry_descriptor,
-                                new java.lang.String[] { "State", "SysTimestampSec", "DispTimestampSec", });
+                                new java.lang.String[]{"State", "SysTimestampSec", "DispTimestampSec",});
                         internal_static_CalibrationEntry_descriptor =
                                 getDescriptor().getMessageTypes().get(5);
                         internal_static_CalibrationEntry_fieldAccessorTable = new
                                 com.google.protobuf.GeneratedMessage.FieldAccessorTable(
                                 internal_static_CalibrationEntry_descriptor,
-                                new java.lang.String[] { "Slope", "Intercept", "Scale", "Decay", "SysTimestampSec", "DispTimestampSec", });
+                                new java.lang.String[]{"Slope", "Intercept", "Scale", "Decay", "SysTimestampSec", "DispTimestampSec",});
                         internal_static_ReceiverState_descriptor =
                                 getDescriptor().getMessageTypes().get(6);
                         internal_static_ReceiverState_fieldAccessorTable = new
                                 com.google.protobuf.GeneratedMessage.FieldAccessorTable(
                                 internal_static_ReceiverState_descriptor,
-                                new java.lang.String[] { "TimestampMs", "Event", });
+                                new java.lang.String[]{"TimestampMs", "Event",});
                         return null;
                     }
                 };
         com.google.protobuf.Descriptors.FileDescriptor
                 .internalBuildGeneratedFileFrom(descriptorData,
-                        new com.google.protobuf.Descriptors.FileDescriptor[] {
+                        new com.google.protobuf.Descriptors.FileDescriptor[]{
                         }, assigner);
     }
 

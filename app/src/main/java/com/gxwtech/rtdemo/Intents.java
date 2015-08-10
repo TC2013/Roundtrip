@@ -16,4 +16,8 @@ public class Intents {
     public static final String ROUNDTRIP_BG_READING = basename + ".bgreading";
     public static final String APSLOGIC_LOG_MESSAGE = basename + ".apslogic_log_msg";
     public static final String MONITOR_DATA_CHANGED = basename + ".monitor_data_changed";
+
+    public static final String BLUETOOTH_CONNECTED = basename + ".bluetooth_connected";
+    public static final String BLUETOOTH_CONNECTING = basename + ".bluetooth_connecting";
+    public static final String BLUETOOTH_DISCONNECTED = basename + ".bluetooth_disconnected";
 }

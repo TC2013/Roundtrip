@@ -8,25 +8,15 @@ import android.util.Log;
 
 import com.gxwtech.rtdemo.Constants;
 import com.gxwtech.rtdemo.Intents;
-import com.gxwtech.rtdemo.medtronic.MedtronicCommandStatusEnum;
-import com.gxwtech.rtdemo.medtronic.PowerControlCommand;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfile;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileTypeEnum;
 import com.gxwtech.rtdemo.medtronic.PumpData.HistoryReport;
 import com.gxwtech.rtdemo.medtronic.PumpData.PumpSettings;
 import com.gxwtech.rtdemo.medtronic.PumpData.TempBasalPair;
-import com.gxwtech.rtdemo.medtronic.ReadBasalTempCommand;
-import com.gxwtech.rtdemo.medtronic.ReadHistoryCommand;
-import com.gxwtech.rtdemo.medtronic.ReadProfileCommand;
-import com.gxwtech.rtdemo.medtronic.ReadPumpRTCCommand;
-import com.gxwtech.rtdemo.medtronic.ReadPumpSettingsCommand;
-import com.gxwtech.rtdemo.medtronic.SetTempBasalCommand;
 import com.gxwtech.rtdemo.usb.CareLinkUsb;
 import com.gxwtech.rtdemo.usb.UsbException;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.Seconds;
 import org.joda.time.format.ISODateTimeFormat;
 
 /**

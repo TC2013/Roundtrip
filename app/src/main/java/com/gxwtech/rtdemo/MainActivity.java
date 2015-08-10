@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
@@ -13,8 +14,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
-import com.gxwtech.rtdemo.bluetooth.BluetoothConnection;
 import com.gxwtech.rtdemo.services.RTDemoService;
 
 import java.util.ArrayList;
@@ -24,11 +25,68 @@ import java.util.List;
 public class MainActivity extends ActionBarActivity {
     private static final String TAG = "MainActivity";
 
-    // For receiving and displaying log messages from the Service thread
-    BroadcastReceiver broadcastReceiver;
     int nRecentMessages = 50;
     List<String> msgList = new ArrayList<>();
     ArrayAdapter<String> adapter = null;
+
+    // For receiving and displaying log messages from the Service thread
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(Intents.ROUNDTRIP_STATUS_MESSAGE)) {
+                Log.d(TAG, "Received Roundtrip_Status_message");
+                if (intent.hasExtra("messages")) {
+                    ArrayList<String> newMsgList = intent.getStringArrayListExtra("messages");
+                    Log.w(TAG, String.format("Found extra: %d messages", msgList.size()));
+                    adapter.clear();
+                    adapter.addAll(newMsgList);
+                    adapter.notifyDataSetChanged();
+                }
+                if (intent.hasExtra(Intents.ROUNDTRIP_STATUS_MESSAGE_STRING)) {
+                    String s = intent.getStringExtra(Intents.ROUNDTRIP_STATUS_MESSAGE_STRING);
+                    Log.w(TAG, "Found extra: one string:" + s);
+                }
+
+            } else if (intent.getAction().equals(Intents.ROUNDTRIP_TASK_RESPONSE)) {
+                // pump settings viewer used to be here.
+                // I'm leaving it as an example of how to receive task_response
+                    /*
+                    if (intent.hasExtra("name")) {
+                        String name = intent.getStringExtra("name");
+                        if (intent.hasExtra(name)) {
+                            if (intent.getAction() == Constants.ParcelName.PumpSettingsParcelName) {
+                                Bundle data = intent.getExtras();
+                                PumpSettingsParcel p = data.getParcelable(name);
+                                // do something with it.
+                                receivePumpSettingsParcel(p);
+                            }
+                        }
+                    }
+                    */
+            }
+            else if (intent.getAction().equals(Intents.BLUETOOTH_CONNECTED)) {
+                TextView t=(TextView)findViewById(R.id.textView_StatusNote);
+                t.setText("Connected to the Rileylink");
+                t.setTextColor(Color.GREEN);
+
+                Log.w(TAG, "Connected to the Rileylink");
+            }
+            else if (intent.getAction().equals(Intents.BLUETOOTH_CONNECTING)) {
+                TextView t=(TextView)findViewById(R.id.textView_StatusNote);
+                t.setText("Connecting to the Rileylink");
+                t.setTextColor(Color.YELLOW);
+
+                Log.w(TAG, "Connecting to the Rileylink");
+            }
+            else if (intent.getAction().equals(Intents.BLUETOOTH_DISCONNECTED)) {
+                TextView t=(TextView)findViewById(R.id.textView_StatusNote);
+                t.setText("Disconnected to the Rileylink");
+                t.setTextColor(Color.RED);
+
+                Log.w(TAG, "Disconnected to the Rileylink");
+            }
+        }
+    };
 
 
     @Override
@@ -44,50 +102,8 @@ public class MainActivity extends ActionBarActivity {
         ListView lv = (ListView) findViewById(R.id.listView_Log);
         lv.setAdapter(adapter);
 
-        broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().equals(Intents.ROUNDTRIP_STATUS_MESSAGE)) {
-                    Log.d(TAG, "Received Roundtrip_Status_message");
-                    if (intent.hasExtra("messages")) {
-                        ArrayList<String> newMsgList = intent.getStringArrayListExtra("messages");
-                        Log.w(TAG, String.format("Found extra: %d messages", msgList.size()));
-                        adapter.clear();
-                        adapter.addAll(newMsgList);
-                        adapter.notifyDataSetChanged();
-                    }
-                    if (intent.hasExtra(Intents.ROUNDTRIP_STATUS_MESSAGE_STRING)) {
-                        String s = intent.getStringExtra(Intents.ROUNDTRIP_STATUS_MESSAGE_STRING);
-                        Log.w(TAG, "Found extra: one string:" + s);
-                    }
-
-                } else if (intent.getAction().equals(Intents.ROUNDTRIP_TASK_RESPONSE)) {
-                    // pump settings viewer used to be here.
-                    // I'm leaving it as an example of how to receive task_response
-                    /*
-                    if (intent.hasExtra("name")) {
-                        String name = intent.getStringExtra("name");
-                        if (intent.hasExtra(name)) {
-                            if (intent.getAction() == Constants.ParcelName.PumpSettingsParcelName) {
-                                Bundle data = intent.getExtras();
-                                PumpSettingsParcel p = data.getParcelable(name);
-                                // do something with it.
-                                receivePumpSettingsParcel(p);
-                            }
-                        }
-                    }
-                    */
-                }
-            }
-        };
         // FIXME the source of our null intents?
         this.startService(new Intent(this, RTDemoService.class).putExtra("srq", Constants.SRQ.START_SERVICE));
-    }
-
-    public void bluetoothConnect(View view) {
-        Intent intent = new Intent(this, RTDemoService.class);
-        intent.putExtra("srq", Constants.SRQ.BLUETOOTH_CONNECT);
-        this.startService(intent);
     }
 
     public void bluetoothWrite(View view) {
@@ -112,16 +128,14 @@ public class MainActivity extends ActionBarActivity {
         this.startActivity(intent);
     }
 
-    // No need to call stopRTService, as we don't care to ever stop the service.
-    public void stopRTService(View view) {
-        stopService(new Intent(this, RTDemoService.class));
-    }
-
     protected void onResume() {
         super.onResume();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intents.ROUNDTRIP_STATUS_MESSAGE);
         intentFilter.addAction(Intents.ROUNDTRIP_TASK_RESPONSE);
+        intentFilter.addAction(Intents.BLUETOOTH_CONNECTED);
+        intentFilter.addAction(Intents.BLUETOOTH_CONNECTING);
+        intentFilter.addAction(Intents.BLUETOOTH_DISCONNECTED);
 
         // register our desire to receive broadcasts from RTDemoService
         LocalBroadcastManager.getInstance(getApplicationContext())
@@ -158,6 +172,7 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     protected void onDestroy() {
+        super.onDestroy();
 
     }
 }

@@ -40,7 +40,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:text="Ready"
+                        android:text="Starting..."
                         android:id="@+id/textView_StatusNote"
                         android:layout_gravity="left|bottom" />
 
@@ -81,16 +81,6 @@
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
-
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Bluetooth Connect"
-                    android:id="@+id/button_verifyUsbPumpCommunications"
-                    android:onClick="bluetoothConnect"
-                    android:layout_alignTop="@+id/button_testlink"
-                    android:layout_toEndOf="@+id/button_testlink"
-                    android:nestedScrollingEnabled="true" />
 
                 <Button
                     android:layout_width="wrap_content"

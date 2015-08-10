@@ -21,10 +21,8 @@ public interface Constants {
         public static final String START_SERVICE = "StartService"; // 301
         public static final String SRQ_UNUSED = "UNUSED-302"; // 302;
 
-
-        public static final String BLUETOOTH_CONNECT = "bluetoothConnect"; //303;
         public static final String BLUETOOTH_READ = "bluetoothWrite"; //303;
-        public static final String BLUETOOTH_WRITE  = "bluetoothRead"; //303;
+        public static final String BLUETOOTH_WRITE = "bluetoothRead"; //303;
 
         public static final String VERIFY_DB_ACCESS = "VerifyDBAccess"; //304;
         // report_pump_settings sends back a PumpSettingsParcel

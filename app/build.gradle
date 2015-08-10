@@ -60,7 +60,6 @@ dependencies {
 
     compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.0.2'
 
-
     testCompile 'org.json:json:20140107'
 
     // Based on https://developer.android.com/training/testing/unit-testing/local-unit-tests.html

@@ -2,12 +2,9 @@ package com.gxwtech.rtdemo.decoding;
 
 import android.util.Log;
 
-import com.gxwtech.rtdemo.HexDump;
 import com.gxwtech.rtdemo.bluetooth.CRC;
-import com.gxwtech.rtdemo.medtronic.MedtronicConstants;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 /**
  * Created by Fokko on 6-8-15.
@@ -24,14 +21,14 @@ public class MedtronicGlucose extends DataPackage {
     @Override
     public void decode(final byte[] readData) {
 
-        if(readData.length != packageLength()) {
+        if (readData.length != packageLength()) {
             Log.w(TAG, "Unknown length of data.");
             return;
         }
 
-        byte crcComputed = CRC.computeCRC(readData,2,8);
+        byte crcComputed = CRC.computeCRC(readData, 2, 8);
 
-        if(crcComputed != readData[readData.length-1]) {
+        if (crcComputed != readData[readData.length - 1]) {
             Log.w(TAG, "Invalid CRC.");
             return;
         }

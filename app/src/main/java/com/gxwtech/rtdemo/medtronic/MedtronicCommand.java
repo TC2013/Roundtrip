@@ -2,7 +2,6 @@ package com.gxwtech.rtdemo.medtronic;
 
 import android.util.Log;
 
-import com.gxwtech.rtdemo.HexDump;
 import com.gxwtech.rtdemo.usb.UsbException;
 
 /**

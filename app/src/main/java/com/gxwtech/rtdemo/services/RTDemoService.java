@@ -5,7 +5,6 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -21,12 +20,10 @@ import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.gxwtech.rtdemo.BGReading;
 import com.gxwtech.rtdemo.BGReadingParcel;
 import com.gxwtech.rtdemo.Constants;
-import com.gxwtech.rtdemo.HexDump;
 import com.gxwtech.rtdemo.Intents;
 import com.gxwtech.rtdemo.MainActivity;
 import com.gxwtech.rtdemo.MongoWrapper;
@@ -35,6 +32,8 @@ import com.gxwtech.rtdemo.R;
 import com.gxwtech.rtdemo.bluetooth.BluetoothConnection;
 import com.gxwtech.rtdemo.bluetooth.Commands;
 import com.gxwtech.rtdemo.bluetooth.GattAttributes;
+import com.gxwtech.rtdemo.bluetooth.operations.GattCharacteristicReadOperation;
+import com.gxwtech.rtdemo.bluetooth.operations.GattCharacteristicWriteOperation;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfile;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileEntry;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileTypeEnum;
@@ -51,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -123,6 +123,7 @@ public class RTDemoService extends IntentService {
     public RTDemoService() {
         super(TAG);
         setIntentRedelivery(true);
+
     }
 
     public PumpManager getPumpManager() {
@@ -146,74 +147,62 @@ public class RTDemoService extends IntentService {
             }
             Log.w(TAG, String.format("onHandleIntent: received request srq=%s", srq));
 
-            if (srq.equals(Constants.SRQ.BLUETOOTH_CONNECT)) {
 
-                String response = BluetoothConnection.getInstance(this).connect();
-                llog(response);
-
-            } else if (srq.equals(Constants.SRQ.BLUETOOTH_WRITE)) {
+             if (srq.equals(Constants.SRQ.BLUETOOTH_WRITE)) {
 
 
                 BluetoothConnection conn = BluetoothConnection.getInstance(this);
 
-                byte[] serial = Commands.getReadPumpCommand(new byte[] { 0x41, 0x75, 0x40 });
+                byte[] command = Commands.getReadPumpCommand(new byte[]{0x41, 0x75, 0x40});
 
-                conn.sendCommand(serial, GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE, GattAttributes.GLUCOSELINK_TX_PACKET_UUID, false, false);
 
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                conn.queue(new GattCharacteristicWriteOperation(
+                        UUID.fromString(GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE),
+                        UUID.fromString(GattAttributes.GLUCOSELINK_TX_PACKET_UUID),
+                        command,
+                        true,
+                        true
+                ));
 
-                conn.sendCommand(new byte[]{0x01}, GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE, GattAttributes.GLUCOSELINK_TX_TRIGGER_UUID, false, false);
+                 conn.queue(new GattCharacteristicWriteOperation(
+                         UUID.fromString(GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE),
+                         UUID.fromString(GattAttributes.GLUCOSELINK_TX_TRIGGER_UUID),
+                         new byte[]{0x01},
+                         false,
+                         false
+                ));
 
             } else if (srq.equals(Constants.SRQ.BLUETOOTH_READ)) {
 
 
                 BluetoothConnection conn = BluetoothConnection.getInstance(this);
 
-                conn.performReadCharacteristic(GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE, GattAttributes.GLUCOSELINK_PACKET_COUNT);
+                conn.queue(new GattCharacteristicReadOperation(
+                        UUID.fromString(GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE),
+                        UUID.fromString(GattAttributes.GLUCOSELINK_PACKET_COUNT),
+                        null
+                ));
 
-                try {
-                    Thread.sleep(1000);
-                } catch (java.lang.InterruptedException e) {
-                    // whatever
-                    Log.i(TAG, "Exception(?):" + e.getMessage());
-                }
-
-                /*
-
-                conn.performReadCharacteristic(GattAttributes.GLUCOSELINK_BATTERY_SERVICE, GattAttributes.GLUCOSELINK_BATTERY_UUID);
-
-                try {
-                    Thread.sleep(1000);
-                } catch (java.lang.InterruptedException e) {
-                    // whatever
-                    Log.i(TAG, "Exception(?):" + e.getMessage());
-                }
-
-*/
             } else if (srq.equals(Constants.SRQ.REPORT_PUMP_SETTINGS)) {
                 PumpSettingsParcel parcel = new PumpSettingsParcel();
                 parcel.initFromPumpSettings(mPumpManager.getPumpSettings());
-                sendTaskResponseParcel(parcel, "PumpSettingsParcel");
+                 sendTaskResponseParcel(parcel, "PumpSettingsParcel");
             } else if (srq.equals(Constants.SRQ.REPORT_PUMP_HISTORY)) {
 
                 // this was just used for debugging the getting of history reports.
                 // TODO: Remove this and the pump history GUI, or fix them both to work properly
-                Log.d(TAG, "Received request for pump history");
+                 Log.d(TAG, "Received request for pump history");
                 HistoryReport report = mPumpManager.getPumpHistory(0);
 
             } else if (srq.equals(Constants.SRQ.SET_TEMP_BASAL)) {
                 TempBasalPairParcel pair = (TempBasalPairParcel) intent.getParcelableExtra(Constants.ParcelName.TempBasalPairParcelName);
                 Log.d(TAG, String.format("Request to Set Temp Basal(Rate %.2fU, duration %d minutes",
                         pair.mInsulinRate, pair.mDurationMinutes));
-                mPumpManager.setTempBasal(pair);
+                 mPumpManager.setTempBasal(pair);
             } else if (srq.equals(Constants.SRQ.MONGO_SETTINGS_CHANGED)) {
                 // there are new settings in the preferences.
                 // Get them and give them to MongoWrapper
-                updateMongoWrapperFromPrefs();
+                 updateMongoWrapperFromPrefs();
             } else if (srq.equals(Constants.SRQ.START_REPEAT_ALARM)) {
                 // MonitorActivity start button runs this.
                 Log.w(TAG, "onHandleIntent: starting repeating alarm");
@@ -224,7 +213,7 @@ public class RTDemoService extends IntentService {
             } else if (srq.equals(Constants.SRQ.STOP_REPEAT_ALARM)) {
                 // MonitorActivity stop button runs this.
                 Log.w(TAG, "onHandleIntent: stopping repeating alarm");
-                stopRepeatingAlarm();
+                 stopRepeatingAlarm();
             } else if (srq.equals(Constants.SRQ.DO_SUSPEND_MINUTES)) {
                 Log.w(TAG, "onHandleIntent: suspending repeating alarm");
                 // MonitorActivity Suspend button runs this.
@@ -314,22 +303,6 @@ public class RTDemoService extends IntentService {
         }
 
         return (lockStatic);
-    }
-
-    private void checkPumpCommunications() {
-        // this command should be the first place
-        // we actually try to talk over USB to the carelink.
-        if (mPumpManager.wakeUpCarelink()) {
-            llog("Carelink ready.");
-            if (mPumpManager.verifyPumpCommunications()) {
-                llog("Pump ready.");
-            } else {
-                llog("Error accessing pump.");
-            }
-        } else {
-            llog("Error accessing CareLink USB Stick.");
-            Log.e(TAG, "wakeUpCarelink failed");
-        }
     }
 
     private void testGetProfile() {
@@ -458,8 +431,8 @@ public class RTDemoService extends IntentService {
         filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
 
-
-
+        String response = BluetoothConnection.getInstance(this).connect();
+        llog(response);
 
         //llog("End of onCreate()");
         llog("Roundtrip ready.");

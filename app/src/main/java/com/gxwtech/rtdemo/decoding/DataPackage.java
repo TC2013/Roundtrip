@@ -5,5 +5,6 @@ package com.gxwtech.rtdemo.decoding;
  */
 public abstract class DataPackage {
     public abstract void decode(byte[] data);
+
     protected abstract int packageLength();
 }

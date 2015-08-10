@@ -2,8 +2,6 @@ package com.gxwtech.rtdemo.decoding;
 
 import android.util.Log;
 
-import com.gxwtech.rtdemo.bluetooth.CRC;
-
 /**
  * Created by Fokko on 7-8-15.
  */
@@ -14,16 +12,16 @@ public class MedtronicSensor extends DataPackage {
     public void decode(final byte[] readData) {
 
         //TODO 5-7 Enlite ID, check this
-        if(readData.length != packageLength()) {
+        if (readData.length != packageLength()) {
             Log.w(TAG, "Unknown length of data.");
             return;
         }
 
         byte[] serial = toBytes(2541711);
 
-        if(serial[0] != readData[4] ||
-            serial[1] != readData[5] ||
-            serial[2] != readData[6]) {
+        if (serial[0] != readData[4] ||
+                serial[1] != readData[5] ||
+                serial[2] != readData[6]) {
             Log.w(TAG, "Found package with invalid serial.");
             return;
         }
@@ -36,8 +34,6 @@ public class MedtronicSensor extends DataPackage {
             Log.w(TAG, "Invalid CRC.");
             return;
         }*/
-
-
 
 
     }
