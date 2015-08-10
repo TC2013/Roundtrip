@@ -431,8 +431,7 @@ public class RTDemoService extends IntentService {
         filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
 
-        String response = BluetoothConnection.getInstance(this).connect();
-        llog(response);
+        BluetoothConnection.getInstance(this).drive();
 
         //llog("End of onCreate()");
         llog("Roundtrip ready.");
