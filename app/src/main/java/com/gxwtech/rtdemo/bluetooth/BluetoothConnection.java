@@ -64,6 +64,7 @@ public class BluetoothConnection {
 
         // Close old conenction
         if (bluetoothConnectionGatt != null) {
+            // Not sure if to disconnect or to close first..
             bluetoothConnectionGatt.disconnect();
             bluetoothConnectionGatt.close();
             bluetoothConnectionGatt = null;
@@ -93,7 +94,7 @@ public class BluetoothConnection {
     }
 
     public String connect() {
-        // Close old conenction
+        // Close old connection
         disconnect();
 
         String message;
