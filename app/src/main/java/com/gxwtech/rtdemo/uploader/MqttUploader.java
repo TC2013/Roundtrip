@@ -10,12 +10,23 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
  * Created by Fokko on 7-8-15.
  */
 public class MqttUploader {
+    private static final String LS = System.getProperty("line.separator");
+    private static final String TAG = "MqttUploader";
+    private static MqttUploader instance = null;
     private final String topic = "/downloads/protobuf";
     private final int qos = 2;
     private final String broker = "tcp://broker.nightscout-docker2.fokko.svc.tutum.io:1883";
     private final String clientId = "Roundtrip";
+    private MqttClient sampleClient = null;
 
-    private static MqttUploader instance = null;
+    protected MqttUploader() throws MqttException {
+        sampleClient = new MqttClient(broker, clientId, new MemoryPersistence());
+
+        MqttConnectOptions connOpts = new MqttConnectOptions();
+        connOpts.setCleanSession(true);
+
+        sampleClient.connect(connOpts);
+    }
 
     public static MqttUploader getInstance() throws MqttException {
         if (instance == null) {
@@ -26,20 +37,6 @@ public class MqttUploader {
             }
         }
         return instance;
-    }
-
-    private static final String LS = System.getProperty("line.separator");
-    private static final String TAG = "MqttUploader";
-
-    private MqttClient sampleClient = null;
-
-    protected MqttUploader() throws MqttException {
-        sampleClient = new MqttClient(broker, clientId, new MemoryPersistence());
-
-        MqttConnectOptions connOpts = new MqttConnectOptions();
-        connOpts.setCleanSession(true);
-
-        sampleClient.connect(connOpts);
     }
 
     public void publishMessage(byte[] data) throws MqttException {

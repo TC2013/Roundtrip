@@ -9,7 +9,7 @@ public class Commands {
      Based on: https://github.com/bewest/decoding-carelink/blob/master/decocare/commands.py#L1441-L1461
      */
     public static byte[] getReadPumpCommand(byte[] serial) {
-        byte[] data = new byte[] {
+        byte[] data = new byte[]{
                 0x01, // head
                 0x00, // head
                 (byte) 0xA7, // 167

@@ -11,13 +11,19 @@ import java.util.ArrayList;
  * Created by geoff on 5/29/15.
  */
 public class TempBasalPairParcel extends TempBasalPair implements Parcelable {
+    public static final Parcelable.Creator<TempBasalPairParcel> CREATOR
+            = new Parcelable.Creator<TempBasalPairParcel>() {
+        public TempBasalPairParcel createFromParcel(Parcel in) {
+            return new TempBasalPairParcel(in);
+        }
+
+        public TempBasalPairParcel[] newArray(int size) {
+            return new TempBasalPairParcel[size];
+        }
+    };
+
     public TempBasalPairParcel() {
         init(0.0, 0);
-    }
-
-    public void init(double insulinRate, int durationMinutes) {
-        mInsulinRate = insulinRate;
-        mDurationMinutes = durationMinutes;
     }
 
     // copy constructor
@@ -27,6 +33,15 @@ public class TempBasalPairParcel extends TempBasalPair implements Parcelable {
 
     public TempBasalPairParcel(TempBasalPair pair) {
         init(pair.mInsulinRate, pair.mDurationMinutes);
+    }
+
+    private TempBasalPairParcel(Parcel in) {
+        init(in.readDouble(), in.readInt());
+    }
+
+    public void init(double insulinRate, int durationMinutes) {
+        mInsulinRate = insulinRate;
+        mDurationMinutes = durationMinutes;
     }
 
     @Override
@@ -48,20 +63,5 @@ public class TempBasalPairParcel extends TempBasalPair implements Parcelable {
     public void writeToParcel(Parcel out, int flags) {
         out.writeDouble(mInsulinRate);
         out.writeInt(mDurationMinutes);
-    }
-
-    public static final Parcelable.Creator<TempBasalPairParcel> CREATOR
-            = new Parcelable.Creator<TempBasalPairParcel>() {
-        public TempBasalPairParcel createFromParcel(Parcel in) {
-            return new TempBasalPairParcel(in);
-        }
-
-        public TempBasalPairParcel[] newArray(int size) {
-            return new TempBasalPairParcel[size];
-        }
-    };
-
-    private TempBasalPairParcel(Parcel in) {
-        init(in.readDouble(), in.readInt());
     }
 }

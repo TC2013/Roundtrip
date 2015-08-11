@@ -1,65 +1,67 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="com.gxwtech.rtdemo.TempBasalActivity">
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                tools:context="com.gxwtech.rtdemo.TempBasalActivity">
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
+        android:orientation="vertical"
         android:weightSum="1">
 
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal">
+            android:layout_gravity="center_horizontal"
+            android:orientation="horizontal">
 
             <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0 Units for 30min"
                 android:id="@+id/button_tempBasalZero30"
-                android:onClick="tempBasalZero30Clicked" />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="tempBasalZero30Clicked"
+                android:text="0 Units for 30min"/>
 
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
             <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cancel Temp Basal"
                 android:id="@+id/button_cancelTempBasal"
-                android:onClick="CancelTempBasalClicked" />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="CancelTempBasalClicked"
+                android:text="Cancel Temp Basal"/>
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
             <Button
+                android:id="@+id/button_otherTempBasal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Other Temp Basal"
-                android:id="@+id/button_otherTempBasal" />
+                android:text="Other Temp Basal"/>
 
         </LinearLayout>
 
         <ListView
+            android:id="@+id/listView_TempBasalResults"
             android:layout_width="match_parent"
             android:layout_height="198dp"
-            android:id="@+id/listView_TempBasalResults"
             android:layout_gravity="center_horizontal"
-            android:layout_weight="0.49" />
+            android:layout_weight="0.49"/>
     </LinearLayout>
 
 </RelativeLayout>

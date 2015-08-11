@@ -9,8 +9,8 @@ import org.joda.time.DateTime;
  * This is a base class for the double and int persistant values.  Should probably be an interface.
  */
 public class PersistentValue {
-    protected String mName;
     protected static final String ts_suffix = "_PVTimestamp";
+    protected String mName;
     SharedPreferences mp;
 
     public PersistentValue(SharedPreferences p, String name) {

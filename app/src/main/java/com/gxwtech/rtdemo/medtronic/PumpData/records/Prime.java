@@ -35,14 +35,14 @@ public class Prime extends TimeStampedRecord {
         return true;
     }
 
-    private enum PrimeType {
-        MANUAL,
-        FIXED
-    }
-
     @Override
     public void logRecord() {
         Log.i(TAG, String.format("%s %s Amount: %.2f Fixed: %.2f Type: %s",
                 timeStamp, recordTypeName, amount, fixed, primeType.name()));
+    }
+
+    private enum PrimeType {
+        MANUAL,
+        FIXED
     }
 }

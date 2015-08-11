@@ -11,12 +11,19 @@ import java.util.ArrayList;
  * Created by geoff on 5/29/15.
  */
 public class BGReadingParcel extends BGReading implements Parcelable {
+    public static final Parcelable.Creator<BGReadingParcel> CREATOR
+            = new Parcelable.Creator<BGReadingParcel>() {
+        public BGReadingParcel createFromParcel(Parcel in) {
+            return new BGReadingParcel(in);
+        }
+
+        public BGReadingParcel[] newArray(int size) {
+            return new BGReadingParcel[size];
+        }
+    };
+
     public BGReadingParcel() {
         init(new DateTime(0), 0.0);
-    }
-
-    public void init(DateTime dt, double bg) {
-        super.init(dt, bg);
     }
 
     // copy constructor
@@ -28,6 +35,15 @@ public class BGReadingParcel extends BGReading implements Parcelable {
         if (bgr != null) {
             init(bgr.mTimestamp, bgr.mBg);
         }
+    }
+
+    private BGReadingParcel(Parcel in) {
+        String datestring = in.readString();
+        init(DateTime.parse(datestring), in.readDouble());
+    }
+
+    public void init(DateTime dt, double bg) {
+        super.init(dt, bg);
     }
 
     @Override
@@ -49,21 +65,5 @@ public class BGReadingParcel extends BGReading implements Parcelable {
     public void writeToParcel(Parcel out, int flags) {
         out.writeString(mTimestamp.toString()); // todo: proper formatting, for re-reading?
         out.writeDouble(mBg);
-    }
-
-    public static final Parcelable.Creator<BGReadingParcel> CREATOR
-            = new Parcelable.Creator<BGReadingParcel>() {
-        public BGReadingParcel createFromParcel(Parcel in) {
-            return new BGReadingParcel(in);
-        }
-
-        public BGReadingParcel[] newArray(int size) {
-            return new BGReadingParcel[size];
-        }
-    };
-
-    private BGReadingParcel(Parcel in) {
-        String datestring = in.readString();
-        init(DateTime.parse(datestring), in.readDouble());
     }
 }

@@ -14,17 +14,24 @@ import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.gxwtech.rtdemo.Constants;
-import com.gxwtech.rtdemo.HexDump;
+import com.gxwtech.rtdemo.Intents;
+import com.gxwtech.rtdemo.bluetooth.operations.GattCharacteristicReadOperation;
+import com.gxwtech.rtdemo.bluetooth.operations.GattDescriptorReadOperation;
+import com.gxwtech.rtdemo.bluetooth.operations.GattOperation;
+import com.gxwtech.rtdemo.bluetooth.operations.GattSetNotificationOperation;
 import com.gxwtech.rtdemo.decoding.DataPackage;
 import com.gxwtech.rtdemo.decoding.Decoder;
-import com.gxwtech.rtdemo.medtronic.MedtronicConstants;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Created by Fokko on 2-8-15.
@@ -32,21 +39,19 @@ import java.util.UUID;
 public class BluetoothConnection {
     private static final String LS = System.getProperty("line.separator");
     private static final String TAG = "BluetoothConnection";
-
-    private BluetoothGatt bluetoothConnectionGatt = null;
-
+    private final static char[] HEX_DIGITS = {
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
+    };
+    private static BluetoothConnection instance = null;
     private final Context context;
-
-
-    protected BluetoothConnection() {
-        this.context = null;
-    }
+    private GattOperation mCurrentOperation;
+    private AsyncTask<Void, Void, Void> mCurrentOperationTimeout;
+    private BluetoothGatt bluetoothConnectionGatt = null;
+    private ConcurrentLinkedQueue<GattOperation> mQueue = new ConcurrentLinkedQueue<>();
 
     protected BluetoothConnection(Context context) {
         this.context = context;
     }
-
-    private static BluetoothConnection instance = null;
 
     public static BluetoothConnection getInstance(Context context) {
         if (instance == null) {
@@ -54,305 +59,15 @@ public class BluetoothConnection {
                 if (instance == null) {
                     instance = new BluetoothConnection(context);
                 }
+
             }
         }
         return instance;
     }
 
-    public void disconnect() {
-        Log.w(TAG, "Closing GATT connection");
-
-        // Close old conenction
-        if (bluetoothConnectionGatt != null) {
-            // Not sure if to disconnect or to close first..
-            bluetoothConnectionGatt.disconnect();
-            bluetoothConnectionGatt.close();
-            bluetoothConnectionGatt = null;
-        }
-    }
-
-    public boolean performReadCharacteristic(String uuidServiceString, String uuidCharasteristicString) {
-        final UUID uuidService = UUID.fromString(uuidServiceString);
-        final UUID uuidCharasteristic = UUID.fromString(uuidCharasteristicString);
-        return performReadCharacteristic(uuidService, uuidCharasteristic);
-    }
-
-    public boolean performReadCharacteristic(UUID uuidService, UUID uuidCharasteristic) {
-        final BluetoothGattCharacteristic characteristic = getCharasteristic(uuidService, uuidCharasteristic);
-
-        if (characteristic != null) {
-            if (bluetoothConnectionGatt.readCharacteristic(characteristic)) {
-                Log.i(TAG, "Successfully queried " + GattAttributes.lookup(uuidService) + " " + GattAttributes.lookup(uuidCharasteristic));
-
-                return true;
-            } else {
-                Log.i(TAG, "Could not query " + GattAttributes.lookup(uuidService) + " " + GattAttributes.lookup(uuidCharasteristic));
-            }
-        }
-
-        return false;
-    }
-
-    public String connect() {
-        // Close old connection
-        disconnect();
-
-        String message;
-
-        BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
-        BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
-
-        if (bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
-            //TODO: Look into Scanmode settings
-            ScanSettings settings = new ScanSettings.Builder().build();
-
-            // This comes in handy when using a BLE smartwatch :)
-            ArrayList<ScanFilter> filters = new ArrayList<>();
-            ScanFilter filter = new ScanFilter.Builder().setDeviceAddress(Constants.PrefName.Bluetooth_RileyLink_Address).build();
-            filters.add(filter);
-
-            final BluetoothLeScanner scanner = bluetoothAdapter.getBluetoothLeScanner();
-
-            scanner.startScan(filters, settings, new ScanCallback() {
-                @Override
-                public void onBatchScanResults(List<ScanResult> results) {
-                    Log.w(TAG, "Batch results: " + results.size());
-                }
-
-                @Override
-                public void onScanFailed(int errorCode) {
-                    Log.w(TAG, "Scan failed: " + errorCode);
-                }
-
-                @Override
-                public void onScanResult(int callbackType, ScanResult result) {
-                    Log.w(TAG, "Found device: " + result.getDevice().getAddress());
-
-                    if (callbackType == ScanSettings.CALLBACK_TYPE_ALL_MATCHES) {
-                        Log.w(TAG, "Found a suitable device, stopping the scan.");
-                        scanner.stopScan(this);
-
-                        // TODO: https://github.com/suzp1984/Light_BLE/blob/master/Light_BLE/ble/src/main/java/org/zpcat/ble/BluetoothLeService.java#L285
-                        // Connect using Gatt, any further communication will be done using asynchronous calls.
-                        bluetoothConnectionGatt = result.getDevice().connectGatt(context, true, mGattcallback);
-
-                        Log.w(TAG, "RileyLink has been found, establishing connection.");
-                    }
-                }
-            });
-
-            message = "Started scanning.";
-        } else {
-            message = "Bluetooth is not enabled on device.";
-        }
-
-
-        return message;
-    }
-
-    public void sendCommand(byte[] data, final String uuidServiceString, final String uuidCharacteristicString, final boolean transform, final boolean addCRC) {
-
-        final UUID uuidService = UUID.fromString(uuidServiceString);
-        final UUID uuidCharacteristic = UUID.fromString(uuidCharacteristicString);
-
-        if (addCRC) {
-            data = CRC.appendCRC(data);
-        }
-
-        Log.d(TAG, "Sending package, pre-transform: " + BluetoothConnection.toHexString(data));
-        if (transform) {
-            data = RileyLinkUtil.composeRFStream(data);
-            Log.d(TAG, "Sending, post-transform: " + BluetoothConnection.toHexString(data));
-        }
-        final BluetoothGattCharacteristic characteristic = getCharasteristic(uuidService, uuidCharacteristic);
-
-        if (characteristic != null) {
-            characteristic.setValue(data);
-
-            if (bluetoothConnectionGatt.writeCharacteristic(characteristic)) {
-                Log.d(TAG, "Characteristic is being send.");
-            } else {
-                Log.d(TAG, "Cannot send characteristic.");
-            }
-        }
-
-    }
-
-    private final BluetoothGattCallback mGattcallback = new BluetoothGattCallback() {
-
-        @Override
-        public void onCharacteristicChanged(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
-            Log.w(TAG, "onCharacteristicChanged " + GattAttributes.lookup(characteristic.getUuid()) + " " + toHexString(characteristic.getValue()));
-
-        }
-
-
-        @Override
-        public void onCharacteristicRead(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic, int status) {
-
-            final String statusMessage = getGattStatusMessage(status);
-
-            if (characteristic.getUuid().toString().equals(GattAttributes.GLUCOSELINK_BATTERY_UUID)) {
-                Log.w(TAG, statusMessage + " Battery level: " + (int) characteristic.getValue()[0]);
-            } else if (characteristic.getUuid().toString().equals(GattAttributes.GLUCOSELINK_RX_PACKET_UUID)) {
-                byte[] data = characteristic.getValue();
-
-                final DataPackage pack = Decoder.DeterminePackage(data);
-
-                if( pack != null) {
-                    Log.w(TAG, "Got valid package: " + pack.toString() + " raw dat: " + toHexString(data));
-                } else {
-                    Log.w(TAG, "Could not determine package from bytes " + toHexString(data));
-                }
-
-            } else if (characteristic.getUuid().toString().equals(GattAttributes.GLUCOSELINK_PACKET_COUNT)) {
-
-                Log.w(TAG, "Found number of packets: " + toHexString(characteristic.getValue()));
-
-                if(characteristic.getValue()[0] > 0) {
-                    performReadCharacteristic(GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE, GattAttributes.GLUCOSELINK_RX_PACKET_UUID);
-                }
-            } else {
-                Log.w(TAG, "onCharacteristicRead (" + GattAttributes.lookup(characteristic.getUuid()) + ") "
-                        + statusMessage + ":" + toHexString(characteristic.getValue()));
-            }
-        }
-
-        @Override
-        public void onCharacteristicWrite(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic, int status) {
-            final String uuidString = GattAttributes.lookup(characteristic.getUuid());
-            Log.w(TAG, "onCharacteristicWrite " + getGattStatusMessage(status) + " " + uuidString + " " + toHexString(characteristic.getValue()));
-        }
-
-        @Override
-        public void onConnectionStateChange(final BluetoothGatt gatt, int status, int newState) {
-
-            final String stateMessage;
-            if (newState == BluetoothProfile.STATE_CONNECTED) {
-                stateMessage = "CONNECTED";
-            } else if (newState == BluetoothProfile.STATE_CONNECTING) {
-                stateMessage = "CONNECTING";
-            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                stateMessage = "DISCONNECTED";
-            } else if (newState == BluetoothProfile.STATE_DISCONNECTING) {
-                stateMessage = "DISCONNECTING";
-            } else {
-                stateMessage = "UNKNOWN (" + newState + ")";
-            }
-
-            Log.w(TAG, "onConnectionStateChange " + getGattStatusMessage(status) + " " + stateMessage);
-
-            if (status == BluetoothGatt.GATT_SUCCESS) {
-                if (newState == BluetoothProfile.STATE_CONNECTED) {
-                    if (gatt.discoverServices()) {
-                        Log.w(TAG, "Starting to discover GATT Services.");
-                    } else {
-                        Log.w(TAG, "Cannot discover GATT Services.");
-                    }
-
-                } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-
-                    // Disconnected, so the RSSI is not relevant anymore.
-                }
-            }
-        }
-
-        @Override
-        public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
-            Log.w(TAG, "onDescriptorRead " + getGattStatusMessage(status) + " status " + descriptor);
-        }
-
-        @Override
-        public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
-            Log.w(TAG, "onDescriptorWrite "
-                    + GattAttributes.lookup(descriptor.getUuid()) + " "
-                    + getGattStatusMessage(status)
-                    + " written: " + toHexString(descriptor.getValue()));
-        }
-
-        @Override
-        public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
-            Log.w(TAG, "onMtuChanged " + mtu + " status " + status);
-        }
-
-        @Override
-        public void onReadRemoteRssi(final BluetoothGatt gatt, int rssi, int status) {
-            Log.w(TAG, "onReadRemoteRssi " + getGattStatusMessage(status) + ": " + rssi);
-        }
-
-        @Override
-        public void onReliableWriteCompleted(BluetoothGatt gatt, int status) {
-            Log.w(TAG, "onReliableWriteCompleted status " + status);
-
-
-        }
-
-        @Override
-        public void onServicesDiscovered(final BluetoothGatt gatt, int status) {
-            super.onServicesDiscovered(gatt, status);
-
-            final String message;
-            if (status == BluetoothGatt.GATT_SUCCESS) {
-                List<BluetoothGattService> services = gatt.getServices();
-                for (BluetoothGattService service : services) {
-                    List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
-
-                    final UUID uuidService = service.getUuid();
-                    final String uuidServiceString = uuidService.toString();
-
-                    String debugString = "Found service: " + GattAttributes.lookup(uuidServiceString, "Unknown device") + " (" + uuidServiceString + ")" + LS;
-                    for (BluetoothGattCharacteristic character : characteristics) {
-
-                        if (character.getUuid().equals(UUID.fromString(GattAttributes.GLUCOSELINK_PACKET_COUNT))) {
-                            gatt.setCharacteristicNotification(character, true);
-
-                            for (BluetoothGattDescriptor descriptor : character.getDescriptors()) {
-                                descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                                if (gatt.writeDescriptor(descriptor)) {
-                                    Log.w(TAG, "Set descriptor to NOTIFY");
-                                } else {
-                                    Log.w(TAG, "Unable to set descriptor to NOTIFY");
-                                }
-                                try {
-                                    Thread.sleep(100);
-                                } catch (java.lang.InterruptedException e) {
-                                    Log.d(TAG, "Exception(?):" + e.getMessage());
-                                }
-                            }
-                        } else if (character.getUuid().equals(UUID.fromString(GattAttributes.GLUCOSELINK_TX_PACKET_UUID))) {
-                            /*for (BluetoothGattDescriptor descriptor : character.getDescriptors()) {
-                                descriptor.setValue(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
-                                gatt.writeDescriptor(descriptor);
-                            }*/
-                        }
-
-                        final String uuidCharacteristicString = character.getUuid().toString();
-                        debugString += "    - " + GattAttributes.lookup(uuidCharacteristicString) + LS;
-                    }
-                    Log.w(TAG, debugString);
-
-                }
-
-                message = "Got response, found " + services.size() + " devices so far.";
-            } else if (status == BluetoothGatt.GATT_WRITE_NOT_PERMITTED) {
-                message = "WRITE NOT PERMITTED";
-            } else {
-                message = "UNKNOWN RESPONSE (" + status + ")";
-            }
-
-            Log.w(TAG, "onServicesDiscovered " + message);
-        }
-
-    };
-
-
     public static String toHexString(byte[] array) {
         return toHexString(array, 0, array.length);
     }
-
-    private final static char[] HEX_DIGITS = {
-            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
-    };
 
     public static String toHexString(byte[] array, int offset, int length) {
         char[] buf = new char[length * 2];
@@ -365,42 +80,364 @@ public class BluetoothConnection {
         return new String(buf);
     }
 
+    public void disconnect() {
+        Log.w(TAG, "Closing GATT connection");
+
+        // Close old conenction
+        if (bluetoothConnectionGatt != null) {
+            // Not sure if to disconnect or to close first..
+            bluetoothConnectionGatt.disconnect();
+            bluetoothConnectionGatt.close();
+            bluetoothConnectionGatt = null;
+        }
+
+        setCurrentOperation(null);
+    }
+
+    public synchronized void queue(GattOperation gattOperation) {
+        if (gattOperation != null) {
+            mQueue.add(gattOperation);
+            Log.v(TAG, "Queueing Gatt operation " + gattOperation.toString() + ", size: " + mQueue.size());
+            drive();
+        }
+    }
+
+    public synchronized void cancelCurrentOperation() {
+        Log.v(TAG, "Cancelling current operation. Queue size: " + mQueue.size());
+
+        setCurrentOperation(null);
+        drive();
+    }
+
+    public synchronized void setCurrentOperation(GattOperation currentOperation) {
+        if (currentOperation != null) {
+            Log.v(TAG, "Current operation: " + currentOperation.toString());
+        } else {
+            Log.v(TAG, "Current operation: null");
+        }
+        mCurrentOperation = currentOperation;
+    }
+
+    public synchronized void drive() {
+        if (mCurrentOperation != null) {
+            Log.v(TAG, "Still a query running, waiting...");
+            return;
+        }
+
+        if (mCurrentOperationTimeout != null) {
+            mCurrentOperationTimeout.cancel(true);
+            mCurrentOperationTimeout = null;
+        }
+
+        if (mQueue.size() == 0) {
+            Log.v(TAG, "Queue empty, drive loop stopped.");
+            return;
+        }
+
+        final GattOperation operation = mQueue.poll();
+        setCurrentOperation(operation);
+
+        mCurrentOperationTimeout = new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected synchronized Void doInBackground(Void... voids) {
+                try {
+                    Log.v(TAG, "Setting timeout for: " + operation.toString());
+                    wait(200000);
+
+                    if (isCancelled()) {
+                        Log.v(TAG, "The timeout has already been cancelled.");
+                    } else if (null == mCurrentOperation) {
+                        Log.v(TAG, "The timeout was cancelled and the query was successful, so we do nothing.");
+                    } else {
+                        Log.v(TAG, "Timeout ran to completion, time to cancel the operation. Abort ships!");
+                        cancelCurrentOperation();
+                    }
+                } catch (InterruptedException e) {
+                    Log.v(TAG, "Timeout was stopped because of early success");
+                }
+                return null;
+            }
+
+            @Override
+            protected synchronized void onCancelled() {
+                super.onCancelled();
+                notify();
+            }
+        }.execute();
+
+        final BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+        final BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
+
+        if (bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
+            //TODO: Look into Scanmode settings
+            final ScanSettings settings = new ScanSettings.Builder().build();
+
+            // This comes in handy when using a BLE smartwatch :)
+            final ArrayList<ScanFilter> filters = new ArrayList<>();
+            final ScanFilter filter = new ScanFilter.Builder().setDeviceAddress(Constants.PrefName.Bluetooth_RileyLink_Address).build();
+            filters.add(filter);
+
+            final BluetoothLeScanner scanner = bluetoothAdapter.getBluetoothLeScanner();
+
+            if (bluetoothConnectionGatt != null) {
+                execute(bluetoothConnectionGatt, operation);
+            } else {
+                // Start new connection
+                scanner.startScan(filters, settings, new ScanCallback() {
+                    @Override
+                    public void onBatchScanResults(List<ScanResult> results) {
+                        Log.w(TAG, "Batch results: " + results.size());
+                    }
+
+                    @Override
+                    public void onScanFailed(int errorCode) {
+                        Log.w(TAG, "Scan failed: " + errorCode);
+                    }
+
+                    @Override
+                    public void onScanResult(final int callbackType, final ScanResult result) {
+                        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(Intents.BLUETOOTH_CONNECTING));
+
+                        Log.w(TAG, "Found device: " + result.getDevice().getAddress());
+
+                        if (callbackType == ScanSettings.CALLBACK_TYPE_ALL_MATCHES) {
+                            Log.w(TAG, "Found a suitable device, stopping the scan.");
+                            scanner.stopScan(this);
+
+                            // TODO: https://github.com/suzp1984/Light_BLE/blob/master/Light_BLE/ble/src/main/java/org/zpcat/ble/BluetoothLeService.java#L285
+                            // Connect using Gatt, any further communication will be done using asynchronous calls.
+                            result.getDevice().connectGatt(context, false, new BluetoothGattCallback() {
+
+                                @Override
+                                public void onCharacteristicChanged(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
+                                    super.onCharacteristicChanged(gatt, characteristic);
+
+                                    Log.w(TAG, "onCharacteristicChanged " + GattAttributes.lookup(characteristic.getUuid()) + " " + toHexString(characteristic.getValue()));
+                                }
+
+                                @Override
+                                public void onCharacteristicRead(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic, int status) {
+                                    super.onCharacteristicRead(gatt, characteristic, status);
+
+                                    final String statusMessage = getGattStatusMessage(status);
+
+                                    if (characteristic.getUuid().toString().equals(GattAttributes.GLUCOSELINK_BATTERY_UUID)) {
+                                        Log.w(TAG, statusMessage + " Battery level: " + (int) characteristic.getValue()[0]);
+
+                                    } else if (characteristic.getUuid().toString().equals(GattAttributes.GLUCOSELINK_RX_PACKET_UUID)) {
+                                        byte[] data = characteristic.getValue();
+
+                                        final DataPackage pack = Decoder.DeterminePackage(data);
+
+                                        if (pack != null) {
+                                            Log.w(TAG, "Got valid package: " + pack.toString() + " raw data: " + toHexString(data));
+                                        } else {
+                                            Log.w(TAG, "Could not determine package from bytes " + toHexString(data));
+                                        }
+
+                                    } else if (characteristic.getUuid().toString().equals(GattAttributes.GLUCOSELINK_PACKET_COUNT)) {
+
+                                        Log.w(TAG, "Found number of packets: " + toHexString(characteristic.getValue()));
+
+                                        /*
+                                        if (characteristic.getValue()[0] > 0) {
+                                            queue(new GattCharacteristicReadOperation(
+                                                    UUID.fromString(GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE),
+                                                    UUID.fromString(GattAttributes.GLUCOSELINK_RX_PACKET_UUID),
+                                                    null
+                                            ));
+                                        }*/
+                                    } else {
+                                        Log.w(TAG, "onCharacteristicRead (" + GattAttributes.lookup(characteristic.getUuid()) + ") "
+                                                + statusMessage + ":" + toHexString(characteristic.getValue()));
+                                    }
+
+                                    ((GattCharacteristicReadOperation) mCurrentOperation).onRead(characteristic);
+
+                                    setCurrentOperation(null);
+                                    drive();
+                                }
+
+                                @Override
+                                public void onCharacteristicWrite(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic, int status) {
+                                    super.onCharacteristicWrite(gatt, characteristic, status);
+
+                                    final String uuidString = GattAttributes.lookup(characteristic.getUuid());
+                                    Log.w(TAG, "onCharacteristicWrite " + getGattStatusMessage(status) + " " + uuidString + " " + toHexString(characteristic.getValue()));
+
+                                    setCurrentOperation(null);
+                                    drive();
+                                }
+
+                                @Override
+                                public void onConnectionStateChange(final BluetoothGatt gatt, final int status, final int newState) {
+                                    super.onConnectionStateChange(gatt, status, newState);
+
+                                    // https://github.com/NordicSemiconductor/puck-central-android/blob/master/PuckCentral/app/src/main/java/no/nordicsemi/puckcentral/bluetooth/gatt/GattManager.java#L117
+                                    if (status == 133) {
+                                        Log.e(TAG, "Got the status 133 bug, closing gatt");
+                                        disconnect();
+                                        return;
+                                    }
+
+                                    final String stateMessage;
+                                    if (newState == BluetoothProfile.STATE_CONNECTED) {
+                                        stateMessage = "CONNECTED";
+                                    } else if (newState == BluetoothProfile.STATE_CONNECTING) {
+                                        stateMessage = "CONNECTING";
+                                    } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                                        stateMessage = "DISCONNECTED";
+                                    } else if (newState == BluetoothProfile.STATE_DISCONNECTING) {
+                                        stateMessage = "DISCONNECTING";
+                                    } else {
+                                        stateMessage = "UNKNOWN (" + newState + ")";
+                                    }
+
+                                    Log.w(TAG, "onConnectionStateChange " + getGattStatusMessage(status) + " " + stateMessage);
+
+                                    if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_CONNECTED) {
+                                        if (gatt.discoverServices()) {
+                                            Log.w(TAG, "Starting to discover GATT Services.");
+                                            bluetoothConnectionGatt = gatt;
+                                        } else {
+                                            Log.w(TAG, "Cannot discover GATT Services.");
+                                        }
+
+                                        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(Intents.BLUETOOTH_CONNECTED));
+                                    } else {
+                                        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(Intents.BLUETOOTH_DISCONNECTED));
+                                        disconnect();
+
+                                        Log.w(TAG, "Cannot establish Bluetooth connection.");
+                                    }
+                                }
+
+
+                                @Override
+                                public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+                                    super.onDescriptorWrite(gatt, descriptor, status);
+
+                                    Log.w(TAG, "onDescriptorWrite "
+                                            + GattAttributes.lookup(descriptor.getUuid()) + " "
+                                            + getGattStatusMessage(status)
+                                            + " written: " + toHexString(descriptor.getValue()));
+
+                                    setCurrentOperation(null);
+                                    drive();
+                                }
+
+                                @Override
+                                public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+                                    super.onDescriptorRead(gatt, descriptor, status);
+
+                                    ((GattDescriptorReadOperation) mCurrentOperation).onRead(descriptor);
+
+                                    Log.w(TAG, "onDescriptorRead " + getGattStatusMessage(status) + " status " + descriptor);
+
+                                    setCurrentOperation(null);
+                                    drive();
+                                }
+
+                                @Override
+                                public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
+                                    super.onMtuChanged(gatt, mtu, status);
+
+                                    Log.w(TAG, "onMtuChanged " + mtu + " status " + status);
+                                }
+
+                                @Override
+                                public void onReadRemoteRssi(final BluetoothGatt gatt, int rssi, int status) {
+                                    super.onReadRemoteRssi(gatt, rssi, status);
+
+                                    Log.w(TAG, "onReadRemoteRssi " + getGattStatusMessage(status) + ": " + rssi);
+                                }
+
+                                @Override
+                                public void onReliableWriteCompleted(BluetoothGatt gatt, int status) {
+                                    super.onReliableWriteCompleted(gatt, status);
+
+                                    Log.w(TAG, "onReliableWriteCompleted status " + status);
+                                }
+
+                                @Override
+                                public void onServicesDiscovered(final BluetoothGatt gatt, int status) {
+                                    super.onServicesDiscovered(gatt, status);
+
+                                    final String message;
+                                    if (status == BluetoothGatt.GATT_SUCCESS) {
+                                        final List<BluetoothGattService> services = gatt.getServices();
+                                        for (BluetoothGattService service : services) {
+                                            final List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
+
+                                            final UUID uuidService = service.getUuid();
+                                            final String uuidServiceString = uuidService.toString();
+
+                                            String debugString = "Found service: " + GattAttributes.lookup(uuidServiceString, "Unknown device") + " (" + uuidServiceString + ")" + LS;
+
+                                            for (BluetoothGattCharacteristic character : characteristics) {
+                                                if (character.getUuid().equals(UUID.fromString(GattAttributes.GLUCOSELINK_PACKET_COUNT))) {
+                                                    queue(new GattSetNotificationOperation(
+                                                            UUID.fromString(GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE),
+                                                            UUID.fromString(GattAttributes.GLUCOSELINK_PACKET_COUNT),
+                                                            character.getDescriptors().get(0).getUuid()
+                                                    ));
+                                                }
+
+                                                final String uuidCharacteristicString = character.getUuid().toString();
+                                                debugString += "    - " + GattAttributes.lookup(uuidCharacteristicString) + LS;
+                                            }
+                                            Log.w(TAG, debugString);
+                                        }
+
+                                        message = "Got response, found " + services.size() + " devices so far.";
+
+                                        execute(gatt, operation);
+                                    } else if (status == BluetoothGatt.GATT_WRITE_NOT_PERMITTED) {
+                                        message = "WRITE NOT PERMITTED";
+                                    } else {
+                                        message = "UNKNOWN RESPONSE (" + status + ")";
+                                    }
+
+                                    Log.w(TAG, "onServicesDiscovered " + message);
+                                }
+                            });
+
+                            Log.w(TAG, "RileyLink has been found, establishing connection.");
+                        }
+                    }
+                });
+            }
+        } else {
+            Log.e(TAG, "Could not find suitable bluetooth adapter.");
+        }
+    }
+
+    private void execute(BluetoothGatt gatt, GattOperation operation) {
+        if (operation != mCurrentOperation) {
+            Log.e(TAG, "Already other service running!!");
+            return;
+        }
+
+        operation.execute(gatt);
+
+        if (!operation.hasAvailableCompletionCallback()) {
+            setCurrentOperation(null);
+            drive();
+        }
+    }
+
     private String getGattStatusMessage(int status) {
         final String statusMessage;
         if (status == BluetoothGatt.GATT_SUCCESS) {
             statusMessage = "SUCCESS";
         } else if (status == BluetoothGatt.GATT_FAILURE) {
             statusMessage = "FAILED";
+        } else if (status == BluetoothGatt.GATT_WRITE_NOT_PERMITTED) {
+            statusMessage = "NOT PERMITTED";
         } else {
             statusMessage = "UNKNOWN (" + status + ")";
         }
 
         return statusMessage;
-    }
-
-    private BluetoothGattCharacteristic getCharasteristic(final UUID uuidService, final UUID uuidCharacteristic) {
-
-        if (bluetoothConnectionGatt == null) {
-            Log.e(TAG, "GATT connection not available!");
-            return null;
-        }
-
-        final BluetoothGattService service = bluetoothConnectionGatt.
-                getService(uuidService);
-
-        if (service == null) {
-            Log.e(TAG, "Service not found!");
-            return null;
-        }
-
-        final BluetoothGattCharacteristic characteristic = service.
-                getCharacteristic(uuidCharacteristic);
-
-        if (characteristic == null) {
-            Log.e(TAG, "Characteristic not found: " + GattAttributes.lookup(uuidCharacteristic));
-            return null;
-        }
-
-        return characteristic;
     }
 }

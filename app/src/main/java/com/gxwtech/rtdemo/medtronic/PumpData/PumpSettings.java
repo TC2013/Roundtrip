@@ -17,13 +17,10 @@ package com.gxwtech.rtdemo.medtronic.PumpData;
  * implementation very simple.
  */
 public class PumpSettings {
-    private static final String TAG = "PumpSettings";
-
     // these values help with the parcel extension
     protected static final int MINIMUM_DATA_LENGTH = 20; // bytes
     protected static final int MAXIMUM_DATA_LENGTH = 64; // bytes
-    protected byte[] mRawData;
-
+    private static final String TAG = "PumpSettings";
     public byte mAutoOffDuration_hours = 0;
     public byte mAlarmMode = 0;
     public byte mAlarmVolume = 0;
@@ -49,6 +46,7 @@ public class PumpSettings {
     public byte mLowReservoirWarnType = 0;
     public byte mLowReservoirWarnPoint = 0;
     public byte mKeypadLockStatus = 0;
+    protected byte[] mRawData;
 
     public PumpSettings() {
         init();

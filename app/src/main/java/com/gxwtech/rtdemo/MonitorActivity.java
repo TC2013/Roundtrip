@@ -28,15 +28,14 @@ import java.util.ArrayList;
 
 public class MonitorActivity extends ActionBarActivity {
     private static final String TAG = "MonitorActivity";
+    private final int MaxLogSize = 500;
     BroadcastReceiver mBroadcastReceiver;
     PreferenceBackedStorage mStorage;
-
     //    DateTime mLastBGUpdateTime = null;
     DateTime mSleepNotificationStartTime = null;
     int mSleepNotificationDuration = 0;
     ArrayList<String> msgList = new ArrayList<>();
     ArrayAdapter<String> adapter = null;
-
     // for periodically updating gui
     Handler timerHandler;
 
@@ -72,8 +71,6 @@ public class MonitorActivity extends ActionBarActivity {
             }
         };
     }
-
-    private final int MaxLogSize = 500;
 
     public void receiveLogMessage(String msg) {
         // keep 50 messages?  make configurable?

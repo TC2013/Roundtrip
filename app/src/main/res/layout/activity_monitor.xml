@@ -1,252 +1,254 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="com.gxwtech.rtdemo.MonitorActivity">
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                tools:context="com.gxwtech.rtdemo.MonitorActivity">
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentTop="true"
-        android:layout_alignParentBottom="true">
+        android:layout_centerHorizontal="true"
+        android:orientation="vertical">
 
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="30dp">
+            android:layout_height="30dp"
+            android:orientation="horizontal">
 
             <TextView
+                android:id="@+id/textView_Label_LastBGReadTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="Last Read Time:"
-                android:id="@+id/textView_Label_LastBGReadTime" />
+                android:textAppearance="?android:attr/textAppearanceLarge"/>
 
             <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="-- min ago"
                 android:id="@+id/textView_LastBGReadTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
                 android:gravity="right"
-                android:layout_gravity="right" />
+                android:text="-- min ago"
+                android:textAppearance="?android:attr/textAppearanceLarge"/>
 
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="30dp">
+            android:layout_height="30dp"
+            android:orientation="horizontal">
 
             <TextView
+                android:id="@+id/textView_Label_LatestBG"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="Latest BG:"
-                android:id="@+id/textView_Label_LatestBG" />
+                android:textAppearance="?android:attr/textAppearanceLarge"/>
 
             <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="--- mg/dL"
                 android:id="@+id/textView_LatestBG"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_gravity="right"
-                android:gravity="right" />
+                android:gravity="right"
+                android:text="--- mg/dL"
+                android:textAppearance="?android:attr/textAppearanceLarge"/>
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="30dp">
+            android:layout_height="30dp"
+            android:orientation="horizontal">
 
             <TextView
+                android:id="@+id/textView_Label_IOB"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="Current IOB:"
-                android:id="@+id/textView_Label_IOB" />
+                android:textAppearance="?android:attr/textAppearanceLarge"/>
 
             <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="--- U"
                 android:id="@+id/textView_IOB"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_gravity="right"
                 android:gravity="right"
+                android:text="--- U"
+                android:textAppearance="?android:attr/textAppearanceLarge"
                 />
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="30dp">
+            android:layout_height="30dp"
+            android:orientation="horizontal">
 
             <TextView
+                android:id="@+id/textView_Label_COB"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="Current COB:"
-                android:id="@+id/textView_Label_COB" />
+                android:textAppearance="?android:attr/textAppearanceLarge"/>
 
             <TextView
+                android:id="@+id/textView_COB"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="--- gm"
-                android:id="@+id/textView_COB"
                 android:layout_gravity="right"
                 android:gravity="right"
+                android:text="--- gm"
+                android:textAppearance="?android:attr/textAppearanceLarge"
                 />
 
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="30dp"
-            android:layout_gravity="center_vertical">
+            android:layout_gravity="center_vertical"
+            android:orientation="horizontal">
 
             <TextView
+                android:id="@+id/textView_Label_CurrentBasal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="Current Basal Rate:"
-                android:id="@+id/textView_Label_CurrentBasal" />
+                android:textAppearance="?android:attr/textAppearanceLarge"/>
 
             <TextView
+                android:id="@+id/textView_CurrentBasal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="--- U/hr"
-                android:id="@+id/textView_CurrentBasal"
                 android:layout_gravity="right"
                 android:gravity="right"
+                android:text="--- U/hr"
+                android:textAppearance="?android:attr/textAppearanceLarge"
                 />
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="30dp"
+            android:orientation="horizontal"
             android:weightSum="1">
 
             <TextView
+                android:id="@+id/textView_TempBasal_Label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:layout_gravity="left"
                 android:text="Temp Basal:"
-                android:id="@+id/textView_TempBasal_Label"
-                android:layout_gravity="left" />
+                android:textAppearance="?android:attr/textAppearanceLarge"/>
 
             <LinearLayout
-                android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_gravity="right"
                 android:gravity="right"
-                android:layout_gravity="right">
+                android:orientation="horizontal">
 
                 <TextView
+                    android:id="@+id/textView_TempBasalRate"
                     android:layout_width="120dp"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="--- U/hr"
-                    android:id="@+id/textView_TempBasalRate"
-                    android:layout_gravity="right"
-                    android:gravity="right" />
-
-                <TextView
-                    android:layout_width="100dp"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="-- min"
-                    android:id="@+id/textView_TempBasalMinRemaining"
                     android:layout_gravity="right"
                     android:gravity="right"
+                    android:text="--- U/hr"
+                    android:textAppearance="?android:attr/textAppearanceLarge"/>
+
+                <TextView
+                    android:id="@+id/textView_TempBasalMinRemaining"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:gravity="right"
+                    android:text="-- min"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
                     />
             </LinearLayout>
 
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="30dp">
+            android:layout_height="30dp"
+            android:orientation="horizontal">
 
             <TextView
+                android:id="@+id/textView_Label_PredBG"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="Predicted BG:"
-                android:id="@+id/textView_Label_PredBG" />
+                android:textAppearance="?android:attr/textAppearanceLarge"/>
 
             <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="--- mg/dL"
                 android:id="@+id/textView_PredBG"
-                android:layout_gravity="right"
-                android:gravity="right"
-                />
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="45dp">
-
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Run"
-                android:id="@+id/button_RunAPS"
-                android:onClick="startupButtonClicked" />
-
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Stop"
-                android:id="@+id/button_StopAPS"
-                android:onClick="buttonStopClicked" />
-
-            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="Sleep"
-                android:id="@+id/textView_SleepNotification"
-                android:visibility="invisible"
                 android:layout_gravity="right"
                 android:gravity="right"
+                android:text="--- mg/dL"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/button_RunAPS"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="startupButtonClicked"
+                android:text="Run"/>
+
+            <Button
+                android:id="@+id/button_StopAPS"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="buttonStopClicked"
+                android:text="Stop"/>
+
+            <TextView
+                android:id="@+id/textView_SleepNotification"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:gravity="right"
+                android:text="Sleep"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:visibility="invisible"
                 />
 
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="45dp">
+            android:layout_height="45dp"
+            android:orientation="horizontal">
 
             <Button
+                android:id="@+id/button_SuspendAPS"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Suspend for ..."
-                android:id="@+id/button_SuspendAPS"
-                android:onClick="buttonSuspendClicked" />
+                android:onClick="buttonSuspendClicked"
+                android:text="Suspend for ..."/>
         </LinearLayout>
 
         <ListView
+            android:id="@+id/listView_MonitorMsgs"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:footerDividersEnabled="false"
-            android:headerDividersEnabled="false"
-            android:id="@+id/listView_MonitorMsgs" />
+            android:headerDividersEnabled="false"/>
 
     </LinearLayout>
 
