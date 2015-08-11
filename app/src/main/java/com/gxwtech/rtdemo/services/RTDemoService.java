@@ -76,10 +76,9 @@ import java.util.regex.Pattern;
 
 
 public class RTDemoService extends IntentService {
-    public static final String REQUEST_STRING_EXTRANAME = "com.gxwtech.wltest2.requeststring";
     private static final String TAG = "RTDemoService";
+
     // @TODO Move this to constants?
-    private static final String MEDTRONIC_DEFAULT_SERIAL = "000000";
     private static final String MONGO_DEFAULT_SERVER = "localhost";
     private static final String MONGO_DEFAULT_PORT = "27015";
     private static final String MONGO_DEFAULT_DATABASE = "nightscout";
@@ -90,19 +89,19 @@ public class RTDemoService extends IntentService {
 
     private static volatile PowerManager.WakeLock lockStatic = null;
     protected final int secondsBetweenRuns = 5 * 60; // five minutes
+
     // This is the object that receives interactions from clients.  See
     // RemoteService for a more complete example.
     private final IBinder mBinder = new RTDemoBinder();
     protected ArrayList<String> msgQ = new ArrayList<>();
     PendingIntent mRepeatingAlarmPendingIntent;
+
     // GGW: I think APSLogic should be its own service, but for now, it's a member of RTDemoService.
     // It has significant connections with PumpManager which will have to be ironed out.
     APSLogic mAPSLogic;
     MongoWrapper mMongoWrapper;
     PreferenceBackedStorage mStorage;
-    //protected static RTDemoService mInstance = null;
     NotificationManager mNM;
-    PendingIntent mPermissionIntent;
 
     PumpManager mPumpManager;
     private int NOTIFICATION = R.string.local_service_started;
