@@ -2,10 +2,8 @@ package com.gxwtech.rtdemo.medtronic;
 
 import android.util.Log;
 
-import com.gxwtech.rtdemo.usb.UsbException;
-
 /**
- * Created by geoff on 4/27/15.
+ * Created by Geoff on 4/27/15.
  */
 public class MedtronicCommand {
     private static final String TAG = "MedtronicCommand";
@@ -18,14 +16,13 @@ public class MedtronicCommand {
     // button is zero, unless command 93 (SET_POWER_CONTROL) in which case, 85.
     // No, we don't know why :(
     protected byte mButton = 0;
-    byte mNRetries = 2;
-    byte mBytesPerRecord = 64;
-    byte mMaxRecords = 1;
-
     // +++ what's all this talk of a new way?
     protected byte[] mRawReceivedData;
     protected int mSleepForPumpResponse = 100;
     protected int mSleepForPumpRetry = 500; //millis
+    byte mNRetries = 2;
+    byte mBytesPerRecord = 64;
+    byte mMaxRecords = 1;
 
     public MedtronicCommand() {
         init();
@@ -83,18 +80,6 @@ public class MedtronicCommand {
         // Rewrite for bluetooth
 
         return null;
-    }
-
-    protected int checkForData() throws UsbException {
-        // Rewrite for bluetooth
-
-        return -1;
-    }
-
-    public byte[] downloadIdeal() {
-        // Rewrite for bluetooth
-
-        return new byte[]{};
     }
 
 }

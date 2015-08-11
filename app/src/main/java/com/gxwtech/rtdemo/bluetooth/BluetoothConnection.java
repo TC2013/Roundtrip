@@ -16,6 +16,7 @@ import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -39,26 +40,44 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class BluetoothConnection {
     private static final String LS = System.getProperty("line.separator");
     private static final String TAG = "BluetoothConnection";
-
+    private final static char[] HEX_DIGITS = {
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
+    };
+    // http://www.mopri.de/2010/timertask-bad-do-it-the-android-way-use-a-handler/
+    private static final int BATTERY_UPDATE = 60 * 1000; // Every minute
+    private static BluetoothConnection instance = null;
+    private final Context context;
     private GattOperation mCurrentOperation;
-
-    private int currentStatue = BluetoothProfile.STATE_DISCONNECTED;
-
     private AsyncTask<Void, Void, Void> mCurrentOperationTimeout;
     private BluetoothGatt bluetoothConnectionGatt = null;
-
-    private final Context context;
     private ConcurrentLinkedQueue<GattOperation> mQueue = new ConcurrentLinkedQueue<>();
+    private Handler batteryHandler = new Handler();
+    private Runnable batteryTask = new Runnable() {
+        @Override
+        public void run() {
+            /* do what you need to do */
+            instance.queue(new GattCharacteristicReadOperation(
+                    UUID.fromString(GattAttributes.GLUCOSELINK_BATTERY_SERVICE),
+                    UUID.fromString(GattAttributes.GLUCOSELINK_BATTERY_UUID),
+                    new GattCharacteristicReadCallback() {
+                        @Override
+                        public void call(byte[] characteristic) {
+                            Intent batteryUpdate = new Intent(Intents.BLUETOOTH_BATTERY);
+                            batteryUpdate.putExtra("battery", characteristic[0]);
 
-    protected BluetoothConnection() {
-        this.context = null;
-    }
+                            LocalBroadcastManager.getInstance(context).sendBroadcast(batteryUpdate);
+                        }
+                    }
+            ));
+
+            /* and here comes the "trick" */
+            batteryHandler.postDelayed(this, BATTERY_UPDATE);
+        }
+    };
 
     protected BluetoothConnection(Context context) {
         this.context = context;
     }
-
-    private static BluetoothConnection instance = null;
 
     public static BluetoothConnection getInstance(Context context) {
         if (instance == null) {
@@ -72,11 +91,27 @@ public class BluetoothConnection {
         return instance;
     }
 
+    public static String toHexString(byte[] array) {
+        return toHexString(array, 0, array.length);
+    }
+
+    public static String toHexString(byte[] array, int offset, int length) {
+        char[] buf = new char[length * 2];
+        for (int i = offset; i < offset + length; i++) {
+            int b = array[i] & 0xFF;
+            buf[i * 2] = HEX_DIGITS[b >>> 4];
+            buf[i * 2 + 1] = HEX_DIGITS[b & 0x0F];
+        }
+
+        return new String(buf);
+    }
+
     public void disconnect() {
         Log.w(TAG, "Closing GATT connection");
 
         // Close old conenction
         if (bluetoothConnectionGatt != null) {
+            // Not sure if to disconnect or to close first..
             bluetoothConnectionGatt.disconnect();
             bluetoothConnectionGatt.close();
             bluetoothConnectionGatt = null;
@@ -86,12 +121,14 @@ public class BluetoothConnection {
     }
 
     public synchronized void queue(GattOperation gattOperation) {
-        mQueue.add(gattOperation);
-        Log.v(TAG, "Queueing Gatt operation, size will now become: " + mQueue.size());
-        drive();
+        if (gattOperation != null) {
+            mQueue.add(gattOperation);
+            Log.v(TAG, "Queueing Gatt operation " + gattOperation.toString() + ", size: " + mQueue.size());
+            drive();
+        }
     }
 
-    public synchronized void cancelCurrentOperationBundle() {
+    public synchronized void cancelCurrentOperation() {
         Log.v(TAG, "Cancelling current operation. Queue size: " + mQueue.size());
 
         setCurrentOperation(null);
@@ -99,10 +136,25 @@ public class BluetoothConnection {
     }
 
     public synchronized void setCurrentOperation(GattOperation currentOperation) {
+        if (currentOperation != null) {
+            Log.v(TAG, "Current operation: " + currentOperation.toString());
+        } else {
+            Log.v(TAG, "Current operation: null");
+        }
         mCurrentOperation = currentOperation;
     }
 
     public synchronized void drive() {
+        if (mCurrentOperation != null) {
+            Log.v(TAG, "Still a query running, waiting...");
+            return;
+        }
+
+        if (mCurrentOperationTimeout != null) {
+            mCurrentOperationTimeout.cancel(true);
+            mCurrentOperationTimeout = null;
+        }
+
         if (mQueue.size() == 0) {
             Log.v(TAG, "Queue empty, drive loop stopped.");
             return;
@@ -111,25 +163,24 @@ public class BluetoothConnection {
         final GattOperation operation = mQueue.poll();
         setCurrentOperation(operation);
 
-        if (mCurrentOperationTimeout != null) {
-            mCurrentOperationTimeout.cancel(true);
-        }
-
         mCurrentOperationTimeout = new AsyncTask<Void, Void, Void>() {
             @Override
             protected synchronized Void doInBackground(Void... voids) {
                 try {
-                    Log.v(TAG, "Starting to do a background timeout");
-                    wait(100);
+                    Log.v(TAG, "Setting timeout for: " + operation.toString());
+                    wait(22 * 1000);
+
+                    if (isCancelled()) {
+                        Log.v(TAG, "The timeout has already been cancelled.");
+                    } else if (null == mCurrentOperation) {
+                        Log.v(TAG, "The timeout was cancelled and the query was successful, so we do nothing.");
+                    } else {
+                        Log.v(TAG, "Timeout ran to completion, time to cancel the operation. Abort ships!");
+                        cancelCurrentOperation();
+                    }
                 } catch (InterruptedException e) {
-                    Log.v(TAG, "was interrupted out of the timeout");
+                    Log.v(TAG, "Timeout was stopped because of early success");
                 }
-                if (isCancelled()) {
-                    Log.v(TAG, "The timeout was cancelled, so we do nothing.");
-                    return null;
-                }
-                Log.v(TAG, "Timeout ran to completion, time to cancel the entire operation bundle. Abort, abort!");
-                cancelCurrentOperationBundle();
                 return null;
             }
 
@@ -154,9 +205,10 @@ public class BluetoothConnection {
 
             final BluetoothLeScanner scanner = bluetoothAdapter.getBluetoothLeScanner();
 
-            if(bluetoothConnectionGatt != null) {
+            if (bluetoothConnectionGatt != null) {
                 execute(bluetoothConnectionGatt, operation);
             } else {
+                Log.w(TAG, "Starting scan.");
                 // Start new connection
                 scanner.startScan(filters, settings, new ScanCallback() {
                     @Override
@@ -170,7 +222,7 @@ public class BluetoothConnection {
                     }
 
                     @Override
-                    public void onScanResult(int callbackType, ScanResult result) {
+                    public void onScanResult(final int callbackType, final ScanResult result) {
                         LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(Intents.BLUETOOTH_CONNECTING));
 
                         Log.w(TAG, "Found device: " + result.getDevice().getAddress());
@@ -181,7 +233,7 @@ public class BluetoothConnection {
 
                             // TODO: https://github.com/suzp1984/Light_BLE/blob/master/Light_BLE/ble/src/main/java/org/zpcat/ble/BluetoothLeService.java#L285
                             // Connect using Gatt, any further communication will be done using asynchronous calls.
-                            bluetoothConnectionGatt = result.getDevice().connectGatt(context, true, new BluetoothGattCallback() {
+                            result.getDevice().connectGatt(context, false, new BluetoothGattCallback() {
 
                                 @Override
                                 public void onCharacteristicChanged(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
@@ -190,17 +242,13 @@ public class BluetoothConnection {
                                     Log.w(TAG, "onCharacteristicChanged " + GattAttributes.lookup(characteristic.getUuid()) + " " + toHexString(characteristic.getValue()));
                                 }
 
-
                                 @Override
                                 public void onCharacteristicRead(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic, int status) {
                                     super.onCharacteristicRead(gatt, characteristic, status);
 
                                     final String statusMessage = getGattStatusMessage(status);
 
-                                    if (characteristic.getUuid().toString().equals(GattAttributes.GLUCOSELINK_BATTERY_UUID)) {
-                                        Log.w(TAG, statusMessage + " Battery level: " + (int) characteristic.getValue()[0]);
-
-                                    } else if (characteristic.getUuid().toString().equals(GattAttributes.GLUCOSELINK_RX_PACKET_UUID)) {
+                                    if (characteristic.getUuid().toString().equals(GattAttributes.GLUCOSELINK_RX_PACKET_UUID)) {
                                         byte[] data = characteristic.getValue();
 
                                         final DataPackage pack = Decoder.DeterminePackage(data);
@@ -215,19 +263,20 @@ public class BluetoothConnection {
 
                                         Log.w(TAG, "Found number of packets: " + toHexString(characteristic.getValue()));
 
+                                        /*
                                         if (characteristic.getValue()[0] > 0) {
                                             queue(new GattCharacteristicReadOperation(
                                                     UUID.fromString(GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE),
                                                     UUID.fromString(GattAttributes.GLUCOSELINK_RX_PACKET_UUID),
                                                     null
                                             ));
-                                        }
+                                        }*/
                                     } else {
                                         Log.w(TAG, "onCharacteristicRead (" + GattAttributes.lookup(characteristic.getUuid()) + ") "
                                                 + statusMessage + ":" + toHexString(characteristic.getValue()));
                                     }
 
-//            ((GattCharacteristicReadOperation) mCurrentOperation).onRead(characteristic);
+                                    ((GattCharacteristicReadOperation) mCurrentOperation).onRead(characteristic);
 
                                     setCurrentOperation(null);
                                     drive();
@@ -262,11 +311,6 @@ public class BluetoothConnection {
                                         stateMessage = "CONNECTING";
                                     } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                                         stateMessage = "DISCONNECTED";
-
-                                        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(Intents.BLUETOOTH_DISCONNECTED));
-                                        disconnect();
-
-                                        drive();
                                     } else if (newState == BluetoothProfile.STATE_DISCONNECTING) {
                                         stateMessage = "DISCONNECTING";
                                     } else {
@@ -280,29 +324,20 @@ public class BluetoothConnection {
                                             Log.w(TAG, "Starting to discover GATT Services.");
 
                                             bluetoothConnectionGatt = gatt;
+                                            batteryHandler.postDelayed(batteryTask, BATTERY_UPDATE);
                                         } else {
                                             Log.w(TAG, "Cannot discover GATT Services.");
                                         }
 
                                         LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(Intents.BLUETOOTH_CONNECTED));
+                                    } else {
+                                        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(Intents.BLUETOOTH_DISCONNECTED));
+                                        disconnect();
+
+                                        Log.w(TAG, "Cannot establish Bluetooth connection.");
                                     }
-
-                                    currentStatue = newState;
-
-                                    execute(gatt, operation);
                                 }
 
-                                @Override
-                                public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
-                                    super.onDescriptorRead(gatt, descriptor, status);
-
-                                    ((GattDescriptorReadOperation) mCurrentOperation).onRead(descriptor);
-
-                                    Log.w(TAG, "onDescriptorRead " + getGattStatusMessage(status) + " status " + descriptor);
-
-                                    setCurrentOperation(null);
-                                    drive();
-                                }
 
                                 @Override
                                 public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
@@ -312,6 +347,18 @@ public class BluetoothConnection {
                                             + GattAttributes.lookup(descriptor.getUuid()) + " "
                                             + getGattStatusMessage(status)
                                             + " written: " + toHexString(descriptor.getValue()));
+
+                                    setCurrentOperation(null);
+                                    drive();
+                                }
+
+                                @Override
+                                public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+                                    super.onDescriptorRead(gatt, descriptor, status);
+
+                                    ((GattDescriptorReadOperation) mCurrentOperation).onRead(descriptor);
+
+                                    Log.w(TAG, "onDescriptorRead " + getGattStatusMessage(status) + " status " + descriptor);
 
                                     setCurrentOperation(null);
                                     drive();
@@ -344,37 +391,33 @@ public class BluetoothConnection {
 
                                     final String message;
                                     if (status == BluetoothGatt.GATT_SUCCESS) {
-                                        List<BluetoothGattService> services = gatt.getServices();
+                                        final List<BluetoothGattService> services = gatt.getServices();
                                         for (BluetoothGattService service : services) {
-                                            List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
+                                            final List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
 
                                             final UUID uuidService = service.getUuid();
                                             final String uuidServiceString = uuidService.toString();
 
                                             String debugString = "Found service: " + GattAttributes.lookup(uuidServiceString, "Unknown device") + " (" + uuidServiceString + ")" + LS;
+
                                             for (BluetoothGattCharacteristic character : characteristics) {
-
                                                 if (character.getUuid().equals(UUID.fromString(GattAttributes.GLUCOSELINK_PACKET_COUNT))) {
-                                                    gatt.setCharacteristicNotification(character, true);
-
                                                     queue(new GattSetNotificationOperation(
                                                             UUID.fromString(GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE),
                                                             UUID.fromString(GattAttributes.GLUCOSELINK_PACKET_COUNT),
                                                             character.getDescriptors().get(0).getUuid()
                                                     ));
-
                                                 }
 
                                                 final String uuidCharacteristicString = character.getUuid().toString();
                                                 debugString += "    - " + GattAttributes.lookup(uuidCharacteristicString) + LS;
                                             }
                                             Log.w(TAG, debugString);
-
                                         }
 
                                         message = "Got response, found " + services.size() + " devices so far.";
 
-                                        drive();
+                                        execute(gatt, operation);
                                     } else if (status == BluetoothGatt.GATT_WRITE_NOT_PERMITTED) {
                                         message = "WRITE NOT PERMITTED";
                                     } else {
@@ -395,38 +438,21 @@ public class BluetoothConnection {
         }
     }
 
-
     private void execute(BluetoothGatt gatt, GattOperation operation) {
-        if(operation != mCurrentOperation) {
+        if (operation != mCurrentOperation) {
+            Log.e(TAG, "Already other service running!!");
             return;
         }
+
         operation.execute(gatt);
-        if(!operation.hasAvailableCompletionCallback()) {
+
+        if (!operation.hasAvailableCompletionCallback()) {
             setCurrentOperation(null);
             drive();
         }
     }
 
-    public static String toHexString(byte[] array) {
-        return toHexString(array, 0, array.length);
-    }
-
-    private final static char[] HEX_DIGITS = {
-            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
-    };
-
-    public static String toHexString(byte[] array, int offset, int length) {
-        char[] buf = new char[length * 2];
-        for (int i = offset; i < offset + length; i++) {
-            int b = array[i] & 0xFF;
-            buf[i * 2] = HEX_DIGITS[b >>> 4];
-            buf[i * 2 + 1] = HEX_DIGITS[b & 0x0F];
-        }
-
-        return new String(buf);
-    }
-
-    private String getGattStatusMessage(int status) {
+    private String getGattStatusMessage(final int status) {
         final String statusMessage;
         if (status == BluetoothGatt.GATT_SUCCESS) {
             statusMessage = "SUCCESS";
@@ -434,6 +460,8 @@ public class BluetoothConnection {
             statusMessage = "FAILED";
         } else if (status == BluetoothGatt.GATT_WRITE_NOT_PERMITTED) {
             statusMessage = "NOT PERMITTED";
+        } else if (status == 133) {
+            statusMessage = "Found the strange 133 bug";
         } else {
             statusMessage = "UNKNOWN (" + status + ")";
         }

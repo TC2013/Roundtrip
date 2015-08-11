@@ -4,11 +4,161 @@ package com.gxwtech.rtdemo.uploader;
 // source: DataDefinition.proto
 
 public final class DataDefinition {
+    private static com.google.protobuf.Descriptors.Descriptor
+            internal_static_G4Download_descriptor;
+    private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+            internal_static_G4Download_fieldAccessorTable;
+    private static com.google.protobuf.Descriptors.Descriptor
+            internal_static_SensorGlucoseValueEntry_descriptor;
+    private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+            internal_static_SensorGlucoseValueEntry_fieldAccessorTable;
+    private static com.google.protobuf.Descriptors.Descriptor
+            internal_static_MeterEntry_descriptor;
+    private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+            internal_static_MeterEntry_fieldAccessorTable;
+    private static com.google.protobuf.Descriptors.Descriptor
+            internal_static_SensorEntry_descriptor;
+    private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+            internal_static_SensorEntry_fieldAccessorTable;
+    private static com.google.protobuf.Descriptors.Descriptor
+            internal_static_InsertionEntry_descriptor;
+    private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+            internal_static_InsertionEntry_fieldAccessorTable;
+    private static com.google.protobuf.Descriptors.Descriptor
+            internal_static_CalibrationEntry_descriptor;
+    private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+            internal_static_CalibrationEntry_fieldAccessorTable;
+    private static com.google.protobuf.Descriptors.Descriptor
+            internal_static_ReceiverState_descriptor;
+    private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+            internal_static_ReceiverState_fieldAccessorTable;
+    private static com.google.protobuf.Descriptors.FileDescriptor
+            descriptor;
+
+    static {
+        java.lang.String[] descriptorData = {
+                "\n\023DataDefinition.proto\"\244\003\n\nG4Download\022%\n\003" +
+                        "sgv\030\001 \003(\0132\030.SensorGlucoseValueEntry\022\033\n\005u" +
+                        "nits\030\002 \001(\0162\014.GlucoseUnit\022\032\n\022download_tim" +
+                        "estamp\030\003 \002(\t\022 \n\030receiver_system_time_sec" +
+                        "\030\004 \001(\004\0228\n\017download_status\030\005 \001(\0162\017.Downlo" +
+                        "adStatus:\016NOT_APPLICABLE\022\030\n\020receiver_bat" +
+                        "tery\030\006 \001(\r\022\030\n\020uploader_battery\030\007 \001(\r\022\032\n\005" +
+                        "meter\030\010 \003(\0132\013.MeterEntry\022\034\n\006sensor\030\t \003(\013" +
+                        "2\014.SensorEntry\022\036\n\003cal\030\n \003(\0132\021.Calibratio" +
+                        "nEntry\022\037\n\006insert\030\013 \003(\0132\017.InsertionEntry\022",
+                "\023\n\013receiver_id\030\014 \001(\t\022\026\n\016transmitter_id\030\r" +
+                        " \001(\t\"\224\001\n\027SensorGlucoseValueEntry\022\020\n\010sgv_" +
+                        "mgdl\030\001 \002(\r\022\031\n\021sys_timestamp_sec\030\002 \001(\004\022\032\n" +
+                        "\022disp_timestamp_sec\030\003 \001(\004\022\027\n\005trend\030\004 \001(\016" +
+                        "2\010.G4Trend\022\027\n\005noise\030\005 \001(\0162\010.G4Noise\"n\n\nM" +
+                        "eterEntry\022\025\n\rmeter_bg_mgdl\030\001 \002(\r\022\022\n\nmete" +
+                        "r_time\030\002 \001(\r\022\031\n\021sys_timestamp_sec\030\003 \001(\004\022" +
+                        "\032\n\022disp_timestamp_sec\030\004 \001(\004\"x\n\013SensorEnt" +
+                        "ry\022\020\n\010filtered\030\001 \002(\004\022\022\n\nunfiltered\030\002 \001(\004" +
+                        "\022\014\n\004rssi\030\003 \001(\r\022\031\n\021sys_timestamp_sec\030\004 \001(",
+                "\004\022\032\n\022disp_timestamp_sec\030\005 \001(\004\"d\n\016Inserti" +
+                        "onEntry\022\033\n\005state\030\001 \002(\0162\014.G4Insertion\022\031\n\021" +
+                        "sys_timestamp_sec\030\002 \001(\004\022\032\n\022disp_timestam" +
+                        "p_sec\030\003 \001(\004\"\211\001\n\020CalibrationEntry\022\r\n\005slop" +
+                        "e\030\001 \002(\001\022\021\n\tintercept\030\002 \001(\001\022\r\n\005scale\030\003 \001(" +
+                        "\001\022\r\n\005decay\030\004 \001(\001\022\031\n\021sys_timestamp_sec\030\005 " +
+                        "\001(\004\022\032\n\022disp_timestamp_sec\030\006 \001(\004\"E\n\rRecei" +
+                        "verState\022\024\n\014timestamp_ms\030\001 \002(\004\022\036\n\005event\030" +
+                        "\002 \003(\0162\017.ReceiverStatus*!\n\013GlucoseUnit\022\010\n" +
+                        "\004MGDL\020\000\022\010\n\004MMOL\020\001*\206\001\n\016DownloadStatus\022\013\n\007",
+                "SUCCESS\020\000\022\013\n\007NO_DATA\020\001\022\024\n\020DEVICE_NOT_FOU" +
+                        "ND\020\002\022\014\n\010IO_ERROR\020\003\022\025\n\021APPLICATION_ERROR\020" +
+                        "\004\022\013\n\007UNKNOWN\020\005\022\022\n\016NOT_APPLICABLE\020\006*\266\001\n\007G" +
+                        "4Trend\022\016\n\nTREND_NONE\020\000\022\r\n\tDOUBLE_UP\020\001\022\r\n" +
+                        "\tSINGLE_UP\020\002\022\021\n\rFORTY_FIVE_UP\020\003\022\010\n\004FLAT\020" +
+                        "\004\022\023\n\017FORTY_FIVE_DOWN\020\005\022\017\n\013SINGLE_DOWN\020\006\022" +
+                        "\017\n\013DOUBLE_DOWN\020\007\022\022\n\016NOT_COMPUTABLE\020\010\022\025\n\021" +
+                        "RATE_OUT_OF_RANGE\020\t*a\n\007G4Noise\022\016\n\nNOISE_" +
+                        "NONE\020\000\022\t\n\005CLEAN\020\001\022\t\n\005LIGHT\020\002\022\n\n\006MEDIUM\020\003" +
+                        "\022\t\n\005HEAVY\020\004\022\020\n\014NOT_COMPUTED\020\005\022\007\n\003MAX\020\006*\331",
+                "\001\n\013G4Insertion\022\022\n\016INSERTION_NONE\020\000\022\013\n\007RE" +
+                        "MOVED\020\001\022\013\n\007EXPIRED\020\002\022\026\n\022RESIDUAL_DEVIATI" +
+                        "ON\020\003\022\024\n\020COUNTS_DEVIATION\020\004\022\022\n\016SECOND_SES" +
+                        "SION\020\005\022\021\n\rOFF_TIME_LOSS\020\006\022\013\n\007STARTED\020\007\022\023" +
+                        "\n\017BAD_TRANSMITTER\020\010\022\026\n\022MANUFACTURING_MOD" +
+                        "E\020\t\022\r\n\tMAX_VALUE\020\n*C\n\016ReceiverStatus\022\026\n\022" +
+                        "RECEIVER_CONNECTED\020\000\022\031\n\025RECEIVER_DISCONN" +
+                        "ECTED\020\001"
+        };
+        com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
+                new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
+                    public com.google.protobuf.ExtensionRegistry assignDescriptors(
+                            com.google.protobuf.Descriptors.FileDescriptor root) {
+                        descriptor = root;
+                        internal_static_G4Download_descriptor =
+                                getDescriptor().getMessageTypes().get(0);
+                        internal_static_G4Download_fieldAccessorTable = new
+                                com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+                                internal_static_G4Download_descriptor,
+                                new java.lang.String[]{"Sgv", "Units", "DownloadTimestamp", "ReceiverSystemTimeSec", "DownloadStatus", "ReceiverBattery", "UploaderBattery", "Meter", "Sensor", "Cal", "Insert", "ReceiverId", "TransmitterId",});
+                        internal_static_SensorGlucoseValueEntry_descriptor =
+                                getDescriptor().getMessageTypes().get(1);
+                        internal_static_SensorGlucoseValueEntry_fieldAccessorTable = new
+                                com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+                                internal_static_SensorGlucoseValueEntry_descriptor,
+                                new java.lang.String[]{"SgvMgdl", "SysTimestampSec", "DispTimestampSec", "Trend", "Noise",});
+                        internal_static_MeterEntry_descriptor =
+                                getDescriptor().getMessageTypes().get(2);
+                        internal_static_MeterEntry_fieldAccessorTable = new
+                                com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+                                internal_static_MeterEntry_descriptor,
+                                new java.lang.String[]{"MeterBgMgdl", "MeterTime", "SysTimestampSec", "DispTimestampSec",});
+                        internal_static_SensorEntry_descriptor =
+                                getDescriptor().getMessageTypes().get(3);
+                        internal_static_SensorEntry_fieldAccessorTable = new
+                                com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+                                internal_static_SensorEntry_descriptor,
+                                new java.lang.String[]{"Filtered", "Unfiltered", "Rssi", "SysTimestampSec", "DispTimestampSec",});
+                        internal_static_InsertionEntry_descriptor =
+                                getDescriptor().getMessageTypes().get(4);
+                        internal_static_InsertionEntry_fieldAccessorTable = new
+                                com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+                                internal_static_InsertionEntry_descriptor,
+                                new java.lang.String[]{"State", "SysTimestampSec", "DispTimestampSec",});
+                        internal_static_CalibrationEntry_descriptor =
+                                getDescriptor().getMessageTypes().get(5);
+                        internal_static_CalibrationEntry_fieldAccessorTable = new
+                                com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+                                internal_static_CalibrationEntry_descriptor,
+                                new java.lang.String[]{"Slope", "Intercept", "Scale", "Decay", "SysTimestampSec", "DispTimestampSec",});
+                        internal_static_ReceiverState_descriptor =
+                                getDescriptor().getMessageTypes().get(6);
+                        internal_static_ReceiverState_fieldAccessorTable = new
+                                com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+                                internal_static_ReceiverState_descriptor,
+                                new java.lang.String[]{"TimestampMs", "Event",});
+                        return null;
+                    }
+                };
+        com.google.protobuf.Descriptors.FileDescriptor
+                .internalBuildGeneratedFileFrom(descriptorData,
+                        new com.google.protobuf.Descriptors.FileDescriptor[]{
+                        }, assigner);
+    }
+
     private DataDefinition() {
     }
 
     public static void registerAllExtensions(
             com.google.protobuf.ExtensionRegistry registry) {
+    }
+
+    public static com.google.protobuf.Descriptors.FileDescriptor
+    getDescriptor() {
+        return descriptor;
     }
 
     /**
@@ -33,10 +183,20 @@ public final class DataDefinition {
          * <code>MMOL = 1;</code>
          */
         public static final int MMOL_VALUE = 1;
+        private static final GlucoseUnit[] VALUES = values();
+        private static com.google.protobuf.Internal.EnumLiteMap<GlucoseUnit>
+                internalValueMap =
+                new com.google.protobuf.Internal.EnumLiteMap<GlucoseUnit>() {
+                    public GlucoseUnit findValueByNumber(int number) {
+                        return GlucoseUnit.valueOf(number);
+                    }
+                };
+        private final int index;
+        private final int value;
 
-
-        public final int getNumber() {
-            return value;
+        private GlucoseUnit(int index, int value) {
+            this.index = index;
+            this.value = value;
         }
 
         public static GlucoseUnit valueOf(int value) {
@@ -55,30 +215,10 @@ public final class DataDefinition {
             return internalValueMap;
         }
 
-        private static com.google.protobuf.Internal.EnumLiteMap<GlucoseUnit>
-                internalValueMap =
-                new com.google.protobuf.Internal.EnumLiteMap<GlucoseUnit>() {
-                    public GlucoseUnit findValueByNumber(int number) {
-                        return GlucoseUnit.valueOf(number);
-                    }
-                };
-
-        public final com.google.protobuf.Descriptors.EnumValueDescriptor
-        getValueDescriptor() {
-            return getDescriptor().getValues().get(index);
-        }
-
-        public final com.google.protobuf.Descriptors.EnumDescriptor
-        getDescriptorForType() {
-            return getDescriptor();
-        }
-
         public static final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptor() {
             return DataDefinition.getDescriptor().getEnumTypes().get(0);
         }
-
-        private static final GlucoseUnit[] VALUES = values();
 
         public static GlucoseUnit valueOf(
                 com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
@@ -89,12 +229,18 @@ public final class DataDefinition {
             return VALUES[desc.getIndex()];
         }
 
-        private final int index;
-        private final int value;
+        public final int getNumber() {
+            return value;
+        }
 
-        private GlucoseUnit(int index, int value) {
-            this.index = index;
-            this.value = value;
+        public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+            return getDescriptor().getValues().get(index);
+        }
+
+        public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+            return getDescriptor();
         }
 
         // @@protoc_insertion_point(enum_scope:GlucoseUnit)
@@ -162,10 +308,20 @@ public final class DataDefinition {
          * <code>NOT_APPLICABLE = 6;</code>
          */
         public static final int NOT_APPLICABLE_VALUE = 6;
+        private static final DownloadStatus[] VALUES = values();
+        private static com.google.protobuf.Internal.EnumLiteMap<DownloadStatus>
+                internalValueMap =
+                new com.google.protobuf.Internal.EnumLiteMap<DownloadStatus>() {
+                    public DownloadStatus findValueByNumber(int number) {
+                        return DownloadStatus.valueOf(number);
+                    }
+                };
+        private final int index;
+        private final int value;
 
-
-        public final int getNumber() {
-            return value;
+        private DownloadStatus(int index, int value) {
+            this.index = index;
+            this.value = value;
         }
 
         public static DownloadStatus valueOf(int value) {
@@ -194,30 +350,10 @@ public final class DataDefinition {
             return internalValueMap;
         }
 
-        private static com.google.protobuf.Internal.EnumLiteMap<DownloadStatus>
-                internalValueMap =
-                new com.google.protobuf.Internal.EnumLiteMap<DownloadStatus>() {
-                    public DownloadStatus findValueByNumber(int number) {
-                        return DownloadStatus.valueOf(number);
-                    }
-                };
-
-        public final com.google.protobuf.Descriptors.EnumValueDescriptor
-        getValueDescriptor() {
-            return getDescriptor().getValues().get(index);
-        }
-
-        public final com.google.protobuf.Descriptors.EnumDescriptor
-        getDescriptorForType() {
-            return getDescriptor();
-        }
-
         public static final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptor() {
             return DataDefinition.getDescriptor().getEnumTypes().get(1);
         }
-
-        private static final DownloadStatus[] VALUES = values();
 
         public static DownloadStatus valueOf(
                 com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
@@ -228,12 +364,18 @@ public final class DataDefinition {
             return VALUES[desc.getIndex()];
         }
 
-        private final int index;
-        private final int value;
+        public final int getNumber() {
+            return value;
+        }
 
-        private DownloadStatus(int index, int value) {
-            this.index = index;
-            this.value = value;
+        public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+            return getDescriptor().getValues().get(index);
+        }
+
+        public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+            return getDescriptor();
         }
 
         // @@protoc_insertion_point(enum_scope:DownloadStatus)
@@ -381,10 +523,20 @@ public final class DataDefinition {
          * <code>RATE_OUT_OF_RANGE = 9;</code>
          */
         public static final int RATE_OUT_OF_RANGE_VALUE = 9;
+        private static final G4Trend[] VALUES = values();
+        private static com.google.protobuf.Internal.EnumLiteMap<G4Trend>
+                internalValueMap =
+                new com.google.protobuf.Internal.EnumLiteMap<G4Trend>() {
+                    public G4Trend findValueByNumber(int number) {
+                        return G4Trend.valueOf(number);
+                    }
+                };
+        private final int index;
+        private final int value;
 
-
-        public final int getNumber() {
-            return value;
+        private G4Trend(int index, int value) {
+            this.index = index;
+            this.value = value;
         }
 
         public static G4Trend valueOf(int value) {
@@ -419,30 +571,10 @@ public final class DataDefinition {
             return internalValueMap;
         }
 
-        private static com.google.protobuf.Internal.EnumLiteMap<G4Trend>
-                internalValueMap =
-                new com.google.protobuf.Internal.EnumLiteMap<G4Trend>() {
-                    public G4Trend findValueByNumber(int number) {
-                        return G4Trend.valueOf(number);
-                    }
-                };
-
-        public final com.google.protobuf.Descriptors.EnumValueDescriptor
-        getValueDescriptor() {
-            return getDescriptor().getValues().get(index);
-        }
-
-        public final com.google.protobuf.Descriptors.EnumDescriptor
-        getDescriptorForType() {
-            return getDescriptor();
-        }
-
         public static final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptor() {
             return DataDefinition.getDescriptor().getEnumTypes().get(2);
         }
-
-        private static final G4Trend[] VALUES = values();
 
         public static G4Trend valueOf(
                 com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
@@ -453,12 +585,18 @@ public final class DataDefinition {
             return VALUES[desc.getIndex()];
         }
 
-        private final int index;
-        private final int value;
+        public final int getNumber() {
+            return value;
+        }
 
-        private G4Trend(int index, int value) {
-            this.index = index;
-            this.value = value;
+        public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+            return getDescriptor().getValues().get(index);
+        }
+
+        public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+            return getDescriptor();
         }
 
         // @@protoc_insertion_point(enum_scope:G4Trend)
@@ -526,10 +664,20 @@ public final class DataDefinition {
          * <code>MAX = 6;</code>
          */
         public static final int MAX_VALUE = 6;
+        private static final G4Noise[] VALUES = values();
+        private static com.google.protobuf.Internal.EnumLiteMap<G4Noise>
+                internalValueMap =
+                new com.google.protobuf.Internal.EnumLiteMap<G4Noise>() {
+                    public G4Noise findValueByNumber(int number) {
+                        return G4Noise.valueOf(number);
+                    }
+                };
+        private final int index;
+        private final int value;
 
-
-        public final int getNumber() {
-            return value;
+        private G4Noise(int index, int value) {
+            this.index = index;
+            this.value = value;
         }
 
         public static G4Noise valueOf(int value) {
@@ -558,30 +706,10 @@ public final class DataDefinition {
             return internalValueMap;
         }
 
-        private static com.google.protobuf.Internal.EnumLiteMap<G4Noise>
-                internalValueMap =
-                new com.google.protobuf.Internal.EnumLiteMap<G4Noise>() {
-                    public G4Noise findValueByNumber(int number) {
-                        return G4Noise.valueOf(number);
-                    }
-                };
-
-        public final com.google.protobuf.Descriptors.EnumValueDescriptor
-        getValueDescriptor() {
-            return getDescriptor().getValues().get(index);
-        }
-
-        public final com.google.protobuf.Descriptors.EnumDescriptor
-        getDescriptorForType() {
-            return getDescriptor();
-        }
-
         public static final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptor() {
             return DataDefinition.getDescriptor().getEnumTypes().get(3);
         }
-
-        private static final G4Noise[] VALUES = values();
 
         public static G4Noise valueOf(
                 com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
@@ -592,12 +720,18 @@ public final class DataDefinition {
             return VALUES[desc.getIndex()];
         }
 
-        private final int index;
-        private final int value;
+        public final int getNumber() {
+            return value;
+        }
 
-        private G4Noise(int index, int value) {
-            this.index = index;
-            this.value = value;
+        public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+            return getDescriptor().getValues().get(index);
+        }
+
+        public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+            return getDescriptor();
         }
 
         // @@protoc_insertion_point(enum_scope:G4Noise)
@@ -697,10 +831,20 @@ public final class DataDefinition {
          * <code>MAX_VALUE = 10;</code>
          */
         public static final int MAX_VALUE_VALUE = 10;
+        private static final G4Insertion[] VALUES = values();
+        private static com.google.protobuf.Internal.EnumLiteMap<G4Insertion>
+                internalValueMap =
+                new com.google.protobuf.Internal.EnumLiteMap<G4Insertion>() {
+                    public G4Insertion findValueByNumber(int number) {
+                        return G4Insertion.valueOf(number);
+                    }
+                };
+        private final int index;
+        private final int value;
 
-
-        public final int getNumber() {
-            return value;
+        private G4Insertion(int index, int value) {
+            this.index = index;
+            this.value = value;
         }
 
         public static G4Insertion valueOf(int value) {
@@ -737,30 +881,10 @@ public final class DataDefinition {
             return internalValueMap;
         }
 
-        private static com.google.protobuf.Internal.EnumLiteMap<G4Insertion>
-                internalValueMap =
-                new com.google.protobuf.Internal.EnumLiteMap<G4Insertion>() {
-                    public G4Insertion findValueByNumber(int number) {
-                        return G4Insertion.valueOf(number);
-                    }
-                };
-
-        public final com.google.protobuf.Descriptors.EnumValueDescriptor
-        getValueDescriptor() {
-            return getDescriptor().getValues().get(index);
-        }
-
-        public final com.google.protobuf.Descriptors.EnumDescriptor
-        getDescriptorForType() {
-            return getDescriptor();
-        }
-
         public static final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptor() {
             return DataDefinition.getDescriptor().getEnumTypes().get(4);
         }
-
-        private static final G4Insertion[] VALUES = values();
 
         public static G4Insertion valueOf(
                 com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
@@ -771,12 +895,18 @@ public final class DataDefinition {
             return VALUES[desc.getIndex()];
         }
 
-        private final int index;
-        private final int value;
+        public final int getNumber() {
+            return value;
+        }
 
-        private G4Insertion(int index, int value) {
-            this.index = index;
-            this.value = value;
+        public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+            return getDescriptor().getValues().get(index);
+        }
+
+        public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+            return getDescriptor();
         }
 
         // @@protoc_insertion_point(enum_scope:G4Insertion)
@@ -820,10 +950,20 @@ public final class DataDefinition {
          * </pre>
          */
         public static final int RECEIVER_DISCONNECTED_VALUE = 1;
+        private static final ReceiverStatus[] VALUES = values();
+        private static com.google.protobuf.Internal.EnumLiteMap<ReceiverStatus>
+                internalValueMap =
+                new com.google.protobuf.Internal.EnumLiteMap<ReceiverStatus>() {
+                    public ReceiverStatus findValueByNumber(int number) {
+                        return ReceiverStatus.valueOf(number);
+                    }
+                };
+        private final int index;
+        private final int value;
 
-
-        public final int getNumber() {
-            return value;
+        private ReceiverStatus(int index, int value) {
+            this.index = index;
+            this.value = value;
         }
 
         public static ReceiverStatus valueOf(int value) {
@@ -842,30 +982,10 @@ public final class DataDefinition {
             return internalValueMap;
         }
 
-        private static com.google.protobuf.Internal.EnumLiteMap<ReceiverStatus>
-                internalValueMap =
-                new com.google.protobuf.Internal.EnumLiteMap<ReceiverStatus>() {
-                    public ReceiverStatus findValueByNumber(int number) {
-                        return ReceiverStatus.valueOf(number);
-                    }
-                };
-
-        public final com.google.protobuf.Descriptors.EnumValueDescriptor
-        getValueDescriptor() {
-            return getDescriptor().getValues().get(index);
-        }
-
-        public final com.google.protobuf.Descriptors.EnumDescriptor
-        getDescriptorForType() {
-            return getDescriptor();
-        }
-
         public static final com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptor() {
             return DataDefinition.getDescriptor().getEnumTypes().get(5);
         }
-
-        private static final ReceiverStatus[] VALUES = values();
 
         public static ReceiverStatus valueOf(
                 com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
@@ -876,12 +996,18 @@ public final class DataDefinition {
             return VALUES[desc.getIndex()];
         }
 
-        private final int index;
-        private final int value;
+        public final int getNumber() {
+            return value;
+        }
 
-        private ReceiverStatus(int index, int value) {
-            this.index = index;
-            this.value = value;
+        public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+            return getDescriptor().getValues().get(index);
+        }
+
+        public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+            return getDescriptor();
         }
 
         // @@protoc_insertion_point(enum_scope:ReceiverStatus)
@@ -1227,12 +1353,506 @@ public final class DataDefinition {
         getTransmitterIdBytes();
     }
 
+    public interface SensorGlucoseValueEntryOrBuilder
+            extends com.google.protobuf.MessageOrBuilder {
+
+        // required uint32 sgv_mgdl = 1;
+
+        /**
+         * <code>required uint32 sgv_mgdl = 1;</code>
+         * <p/>
+         * <pre>
+         * Sensor Glucose Value
+         * </pre>
+         */
+        boolean hasSgvMgdl();
+
+        /**
+         * <code>required uint32 sgv_mgdl = 1;</code>
+         * <p/>
+         * <pre>
+         * Sensor Glucose Value
+         * </pre>
+         */
+        int getSgvMgdl();
+
+        // optional uint64 sys_timestamp_sec = 2;
+
+        /**
+         * <code>optional uint64 sys_timestamp_sec = 2;</code>
+         * <p/>
+         * <pre>
+         * System timestamp - Timestamp representing the internal clock of the receiver
+         * </pre>
+         */
+        boolean hasSysTimestampSec();
+
+        /**
+         * <code>optional uint64 sys_timestamp_sec = 2;</code>
+         * <p/>
+         * <pre>
+         * System timestamp - Timestamp representing the internal clock of the receiver
+         * </pre>
+         */
+        long getSysTimestampSec();
+
+        // optional uint64 disp_timestamp_sec = 3;
+
+        /**
+         * <code>optional uint64 disp_timestamp_sec = 3;</code>
+         * <p/>
+         * <pre>
+         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
+         * </pre>
+         */
+        boolean hasDispTimestampSec();
+
+        /**
+         * <code>optional uint64 disp_timestamp_sec = 3;</code>
+         * <p/>
+         * <pre>
+         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
+         * </pre>
+         */
+        long getDispTimestampSec();
+
+        // optional .G4Trend trend = 4;
+
+        /**
+         * <code>optional .G4Trend trend = 4;</code>
+         * <p/>
+         * <pre>
+         * G4 Glucose trend arrow
+         * </pre>
+         */
+        boolean hasTrend();
+
+        /**
+         * <code>optional .G4Trend trend = 4;</code>
+         * <p/>
+         * <pre>
+         * G4 Glucose trend arrow
+         * </pre>
+         */
+        DataDefinition.G4Trend getTrend();
+
+        // optional .G4Noise noise = 5;
+
+        /**
+         * <code>optional .G4Noise noise = 5;</code>
+         * <p/>
+         * <pre>
+         * Noise level that potentially affects the G4 sensor readings
+         * </pre>
+         */
+        boolean hasNoise();
+
+        /**
+         * <code>optional .G4Noise noise = 5;</code>
+         * <p/>
+         * <pre>
+         * Noise level that potentially affects the G4 sensor readings
+         * </pre>
+         */
+        DataDefinition.G4Noise getNoise();
+    }
+
+    public interface MeterEntryOrBuilder
+            extends com.google.protobuf.MessageOrBuilder {
+
+        // required uint32 meter_bg_mgdl = 1;
+
+        /**
+         * <code>required uint32 meter_bg_mgdl = 1;</code>
+         */
+        boolean hasMeterBgMgdl();
+
+        /**
+         * <code>required uint32 meter_bg_mgdl = 1;</code>
+         */
+        int getMeterBgMgdl();
+
+        // optional uint32 meter_time = 2;
+
+        /**
+         * <code>optional uint32 meter_time = 2;</code>
+         */
+        boolean hasMeterTime();
+
+        /**
+         * <code>optional uint32 meter_time = 2;</code>
+         */
+        int getMeterTime();
+
+        // optional uint64 sys_timestamp_sec = 3;
+
+        /**
+         * <code>optional uint64 sys_timestamp_sec = 3;</code>
+         * <p/>
+         * <pre>
+         * System timestamp - Timestamp representing the internal clock of the receiver
+         * </pre>
+         */
+        boolean hasSysTimestampSec();
+
+        /**
+         * <code>optional uint64 sys_timestamp_sec = 3;</code>
+         * <p/>
+         * <pre>
+         * System timestamp - Timestamp representing the internal clock of the receiver
+         * </pre>
+         */
+        long getSysTimestampSec();
+
+        // optional uint64 disp_timestamp_sec = 4;
+
+        /**
+         * <code>optional uint64 disp_timestamp_sec = 4;</code>
+         * <p/>
+         * <pre>
+         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
+         * </pre>
+         */
+        boolean hasDispTimestampSec();
+
+        /**
+         * <code>optional uint64 disp_timestamp_sec = 4;</code>
+         * <p/>
+         * <pre>
+         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
+         * </pre>
+         */
+        long getDispTimestampSec();
+    }
+
+    public interface SensorEntryOrBuilder
+            extends com.google.protobuf.MessageOrBuilder {
+
+        // required uint64 filtered = 1;
+
+        /**
+         * <code>required uint64 filtered = 1;</code>
+         */
+        boolean hasFiltered();
+
+        /**
+         * <code>required uint64 filtered = 1;</code>
+         */
+        long getFiltered();
+
+        // optional uint64 unfiltered = 2;
+
+        /**
+         * <code>optional uint64 unfiltered = 2;</code>
+         */
+        boolean hasUnfiltered();
+
+        /**
+         * <code>optional uint64 unfiltered = 2;</code>
+         */
+        long getUnfiltered();
+
+        // optional uint32 rssi = 3;
+
+        /**
+         * <code>optional uint32 rssi = 3;</code>
+         */
+        boolean hasRssi();
+
+        /**
+         * <code>optional uint32 rssi = 3;</code>
+         */
+        int getRssi();
+
+        // optional uint64 sys_timestamp_sec = 4;
+
+        /**
+         * <code>optional uint64 sys_timestamp_sec = 4;</code>
+         * <p/>
+         * <pre>
+         * System timestamp - Timestamp representing the internal clock of the receiver
+         * </pre>
+         */
+        boolean hasSysTimestampSec();
+
+        /**
+         * <code>optional uint64 sys_timestamp_sec = 4;</code>
+         * <p/>
+         * <pre>
+         * System timestamp - Timestamp representing the internal clock of the receiver
+         * </pre>
+         */
+        long getSysTimestampSec();
+
+        // optional uint64 disp_timestamp_sec = 5;
+
+        /**
+         * <code>optional uint64 disp_timestamp_sec = 5;</code>
+         * <p/>
+         * <pre>
+         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
+         * </pre>
+         */
+        boolean hasDispTimestampSec();
+
+        /**
+         * <code>optional uint64 disp_timestamp_sec = 5;</code>
+         * <p/>
+         * <pre>
+         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
+         * </pre>
+         */
+        long getDispTimestampSec();
+    }
+
+    public interface InsertionEntryOrBuilder
+            extends com.google.protobuf.MessageOrBuilder {
+
+        // required .G4Insertion state = 1;
+
+        /**
+         * <code>required .G4Insertion state = 1;</code>
+         */
+        boolean hasState();
+
+        /**
+         * <code>required .G4Insertion state = 1;</code>
+         */
+        DataDefinition.G4Insertion getState();
+
+        // optional uint64 sys_timestamp_sec = 2;
+
+        /**
+         * <code>optional uint64 sys_timestamp_sec = 2;</code>
+         * <p/>
+         * <pre>
+         * System timestamp - Timestamp representing the internal clock of the receiver
+         * </pre>
+         */
+        boolean hasSysTimestampSec();
+
+        /**
+         * <code>optional uint64 sys_timestamp_sec = 2;</code>
+         * <p/>
+         * <pre>
+         * System timestamp - Timestamp representing the internal clock of the receiver
+         * </pre>
+         */
+        long getSysTimestampSec();
+
+        // optional uint64 disp_timestamp_sec = 3;
+
+        /**
+         * <code>optional uint64 disp_timestamp_sec = 3;</code>
+         * <p/>
+         * <pre>
+         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
+         * </pre>
+         */
+        boolean hasDispTimestampSec();
+
+        /**
+         * <code>optional uint64 disp_timestamp_sec = 3;</code>
+         * <p/>
+         * <pre>
+         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
+         * </pre>
+         */
+        long getDispTimestampSec();
+    }
+
+    public interface CalibrationEntryOrBuilder
+            extends com.google.protobuf.MessageOrBuilder {
+
+        // required double slope = 1;
+
+        /**
+         * <code>required double slope = 1;</code>
+         */
+        boolean hasSlope();
+
+        /**
+         * <code>required double slope = 1;</code>
+         */
+        double getSlope();
+
+        // optional double intercept = 2;
+
+        /**
+         * <code>optional double intercept = 2;</code>
+         */
+        boolean hasIntercept();
+
+        /**
+         * <code>optional double intercept = 2;</code>
+         */
+        double getIntercept();
+
+        // optional double scale = 3;
+
+        /**
+         * <code>optional double scale = 3;</code>
+         */
+        boolean hasScale();
+
+        /**
+         * <code>optional double scale = 3;</code>
+         */
+        double getScale();
+
+        // optional double decay = 4;
+
+        /**
+         * <code>optional double decay = 4;</code>
+         */
+        boolean hasDecay();
+
+        /**
+         * <code>optional double decay = 4;</code>
+         */
+        double getDecay();
+
+        // optional uint64 sys_timestamp_sec = 5;
+
+        /**
+         * <code>optional uint64 sys_timestamp_sec = 5;</code>
+         * <p/>
+         * <pre>
+         * System timestamp - Timestamp representing the internal clock of the receiver
+         * </pre>
+         */
+        boolean hasSysTimestampSec();
+
+        /**
+         * <code>optional uint64 sys_timestamp_sec = 5;</code>
+         * <p/>
+         * <pre>
+         * System timestamp - Timestamp representing the internal clock of the receiver
+         * </pre>
+         */
+        long getSysTimestampSec();
+
+        // optional uint64 disp_timestamp_sec = 6;
+
+        /**
+         * <code>optional uint64 disp_timestamp_sec = 6;</code>
+         * <p/>
+         * <pre>
+         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
+         * </pre>
+         */
+        boolean hasDispTimestampSec();
+
+        /**
+         * <code>optional uint64 disp_timestamp_sec = 6;</code>
+         * <p/>
+         * <pre>
+         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
+         * </pre>
+         */
+        long getDispTimestampSec();
+    }
+
+    public interface ReceiverStateOrBuilder
+            extends com.google.protobuf.MessageOrBuilder {
+
+        // required uint64 timestamp_ms = 1;
+
+        /**
+         * <code>required uint64 timestamp_ms = 1;</code>
+         */
+        boolean hasTimestampMs();
+
+        /**
+         * <code>required uint64 timestamp_ms = 1;</code>
+         */
+        long getTimestampMs();
+
+        // repeated .ReceiverStatus event = 2;
+
+        /**
+         * <code>repeated .ReceiverStatus event = 2;</code>
+         */
+        java.util.List<DataDefinition.ReceiverStatus> getEventList();
+
+        /**
+         * <code>repeated .ReceiverStatus event = 2;</code>
+         */
+        int getEventCount();
+
+        /**
+         * <code>repeated .ReceiverStatus event = 2;</code>
+         */
+        DataDefinition.ReceiverStatus getEvent(int index);
+    }
+
     /**
      * Protobuf type {@code G4Download}
      */
     public static final class G4Download extends
             com.google.protobuf.GeneratedMessage
             implements G4DownloadOrBuilder {
+        // repeated .SensorGlucoseValueEntry sgv = 1;
+        public static final int SGV_FIELD_NUMBER = 1;
+        // optional .GlucoseUnit units = 2;
+        public static final int UNITS_FIELD_NUMBER = 2;
+        // required string download_timestamp = 3;
+        public static final int DOWNLOAD_TIMESTAMP_FIELD_NUMBER = 3;
+        // optional uint64 receiver_system_time_sec = 4;
+        public static final int RECEIVER_SYSTEM_TIME_SEC_FIELD_NUMBER = 4;
+        // optional .DownloadStatus download_status = 5 [default = NOT_APPLICABLE];
+        public static final int DOWNLOAD_STATUS_FIELD_NUMBER = 5;
+        // optional uint32 receiver_battery = 6;
+        public static final int RECEIVER_BATTERY_FIELD_NUMBER = 6;
+        // optional uint32 uploader_battery = 7;
+        public static final int UPLOADER_BATTERY_FIELD_NUMBER = 7;
+        // repeated .MeterEntry meter = 8;
+        public static final int METER_FIELD_NUMBER = 8;
+        // repeated .SensorEntry sensor = 9;
+        public static final int SENSOR_FIELD_NUMBER = 9;
+        // repeated .CalibrationEntry cal = 10;
+        public static final int CAL_FIELD_NUMBER = 10;
+        // repeated .InsertionEntry insert = 11;
+        public static final int INSERT_FIELD_NUMBER = 11;
+        // optional string receiver_id = 12;
+        public static final int RECEIVER_ID_FIELD_NUMBER = 12;
+        // optional string transmitter_id = 13;
+        public static final int TRANSMITTER_ID_FIELD_NUMBER = 13;
+        private static final G4Download defaultInstance;
+        private static final long serialVersionUID = 0L;
+        public static com.google.protobuf.Parser<G4Download> PARSER =
+                new com.google.protobuf.AbstractParser<G4Download>() {
+                    public G4Download parsePartialFrom(
+                            com.google.protobuf.CodedInputStream input,
+                            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                            throws com.google.protobuf.InvalidProtocolBufferException {
+                        return new G4Download(input, extensionRegistry);
+                    }
+                };
+
+        static {
+            defaultInstance = new G4Download(true);
+            defaultInstance.initFields();
+        }
+
+        private final com.google.protobuf.UnknownFieldSet unknownFields;
+        private int bitField0_;
+        private java.util.List<DataDefinition.SensorGlucoseValueEntry> sgv_;
+        private DataDefinition.GlucoseUnit units_;
+        private java.lang.Object downloadTimestamp_;
+        private long receiverSystemTimeSec_;
+        private DataDefinition.DownloadStatus downloadStatus_;
+        private int receiverBattery_;
+        private int uploaderBattery_;
+        private java.util.List<DataDefinition.MeterEntry> meter_;
+        private java.util.List<DataDefinition.SensorEntry> sensor_;
+        private java.util.List<DataDefinition.CalibrationEntry> cal_;
+        private java.util.List<DataDefinition.InsertionEntry> insert_;
+        private java.lang.Object receiverId_;
+        private java.lang.Object transmitterId_;
+        private byte memoizedIsInitialized = -1;
+        private int memoizedSerializedSize = -1;
+
         // Use G4Download.newBuilder() to construct.
         private G4Download(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
             super(builder);
@@ -1241,24 +1861,6 @@ public final class DataDefinition {
 
         private G4Download(boolean noInit) {
             this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance();
-        }
-
-        private static final G4Download defaultInstance;
-
-        public static G4Download getDefaultInstance() {
-            return defaultInstance;
-        }
-
-        public G4Download getDefaultInstanceForType() {
-            return defaultInstance;
-        }
-
-        private final com.google.protobuf.UnknownFieldSet unknownFields;
-
-        @java.lang.Override
-        public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
-            return this.unknownFields;
         }
 
         private G4Download(
@@ -1404,9 +2006,93 @@ public final class DataDefinition {
             }
         }
 
+        public static G4Download getDefaultInstance() {
+            return defaultInstance;
+        }
+
         public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
             return DataDefinition.internal_static_G4Download_descriptor;
+        }
+
+        public static DataDefinition.G4Download parseFrom(
+                com.google.protobuf.ByteString data)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data);
+        }
+
+        public static DataDefinition.G4Download parseFrom(
+                com.google.protobuf.ByteString data,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data, extensionRegistry);
+        }
+
+        public static DataDefinition.G4Download parseFrom(byte[] data)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data);
+        }
+
+        public static DataDefinition.G4Download parseFrom(
+                byte[] data,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return PARSER.parseFrom(data, extensionRegistry);
+        }
+
+        public static DataDefinition.G4Download parseFrom(java.io.InputStream input)
+                throws java.io.IOException {
+            return PARSER.parseFrom(input);
+        }
+
+        public static DataDefinition.G4Download parseFrom(
+                java.io.InputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws java.io.IOException {
+            return PARSER.parseFrom(input, extensionRegistry);
+        }
+
+        public static DataDefinition.G4Download parseDelimitedFrom(java.io.InputStream input)
+                throws java.io.IOException {
+            return PARSER.parseDelimitedFrom(input);
+        }
+
+        public static DataDefinition.G4Download parseDelimitedFrom(
+                java.io.InputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws java.io.IOException {
+            return PARSER.parseDelimitedFrom(input, extensionRegistry);
+        }
+
+        public static DataDefinition.G4Download parseFrom(
+                com.google.protobuf.CodedInputStream input)
+                throws java.io.IOException {
+            return PARSER.parseFrom(input);
+        }
+
+        public static DataDefinition.G4Download parseFrom(
+                com.google.protobuf.CodedInputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws java.io.IOException {
+            return PARSER.parseFrom(input, extensionRegistry);
+        }
+
+        public static Builder newBuilder() {
+            return Builder.create();
+        }
+
+        public static Builder newBuilder(DataDefinition.G4Download prototype) {
+            return newBuilder().mergeFrom(prototype);
+        }
+
+        public G4Download getDefaultInstanceForType() {
+            return defaultInstance;
+        }
+
+        @java.lang.Override
+        public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+            return this.unknownFields;
         }
 
         protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -1416,25 +2102,10 @@ public final class DataDefinition {
                             DataDefinition.G4Download.class, DataDefinition.G4Download.Builder.class);
         }
 
-        public static com.google.protobuf.Parser<G4Download> PARSER =
-                new com.google.protobuf.AbstractParser<G4Download>() {
-                    public G4Download parsePartialFrom(
-                            com.google.protobuf.CodedInputStream input,
-                            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                            throws com.google.protobuf.InvalidProtocolBufferException {
-                        return new G4Download(input, extensionRegistry);
-                    }
-                };
-
         @java.lang.Override
         public com.google.protobuf.Parser<G4Download> getParserForType() {
             return PARSER;
         }
-
-        private int bitField0_;
-        // repeated .SensorGlucoseValueEntry sgv = 1;
-        public static final int SGV_FIELD_NUMBER = 1;
-        private java.util.List<DataDefinition.SensorGlucoseValueEntry> sgv_;
 
         /**
          * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
@@ -1493,10 +2164,6 @@ public final class DataDefinition {
             return sgv_.get(index);
         }
 
-        // optional .GlucoseUnit units = 2;
-        public static final int UNITS_FIELD_NUMBER = 2;
-        private DataDefinition.GlucoseUnit units_;
-
         /**
          * <code>optional .GlucoseUnit units = 2;</code>
          * <p/>
@@ -1518,10 +2185,6 @@ public final class DataDefinition {
         public DataDefinition.GlucoseUnit getUnits() {
             return units_;
         }
-
-        // required string download_timestamp = 3;
-        public static final int DOWNLOAD_TIMESTAMP_FIELD_NUMBER = 3;
-        private java.lang.Object downloadTimestamp_;
 
         /**
          * <code>required string download_timestamp = 3;</code>
@@ -1577,10 +2240,6 @@ public final class DataDefinition {
             }
         }
 
-        // optional uint64 receiver_system_time_sec = 4;
-        public static final int RECEIVER_SYSTEM_TIME_SEC_FIELD_NUMBER = 4;
-        private long receiverSystemTimeSec_;
-
         /**
          * <code>optional uint64 receiver_system_time_sec = 4;</code>
          * <p/>
@@ -1602,10 +2261,6 @@ public final class DataDefinition {
         public long getReceiverSystemTimeSec() {
             return receiverSystemTimeSec_;
         }
-
-        // optional .DownloadStatus download_status = 5 [default = NOT_APPLICABLE];
-        public static final int DOWNLOAD_STATUS_FIELD_NUMBER = 5;
-        private DataDefinition.DownloadStatus downloadStatus_;
 
         /**
          * <code>optional .DownloadStatus download_status = 5 [default = NOT_APPLICABLE];</code>
@@ -1629,10 +2284,6 @@ public final class DataDefinition {
             return downloadStatus_;
         }
 
-        // optional uint32 receiver_battery = 6;
-        public static final int RECEIVER_BATTERY_FIELD_NUMBER = 6;
-        private int receiverBattery_;
-
         /**
          * <code>optional uint32 receiver_battery = 6;</code>
          * <p/>
@@ -1655,10 +2306,6 @@ public final class DataDefinition {
             return receiverBattery_;
         }
 
-        // optional uint32 uploader_battery = 7;
-        public static final int UPLOADER_BATTERY_FIELD_NUMBER = 7;
-        private int uploaderBattery_;
-
         /**
          * <code>optional uint32 uploader_battery = 7;</code>
          * <p/>
@@ -1680,10 +2327,6 @@ public final class DataDefinition {
         public int getUploaderBattery() {
             return uploaderBattery_;
         }
-
-        // repeated .MeterEntry meter = 8;
-        public static final int METER_FIELD_NUMBER = 8;
-        private java.util.List<DataDefinition.MeterEntry> meter_;
 
         /**
          * <code>repeated .MeterEntry meter = 8;</code>
@@ -1722,10 +2365,6 @@ public final class DataDefinition {
             return meter_.get(index);
         }
 
-        // repeated .SensorEntry sensor = 9;
-        public static final int SENSOR_FIELD_NUMBER = 9;
-        private java.util.List<DataDefinition.SensorEntry> sensor_;
-
         /**
          * <code>repeated .SensorEntry sensor = 9;</code>
          */
@@ -1762,10 +2401,6 @@ public final class DataDefinition {
                 int index) {
             return sensor_.get(index);
         }
-
-        // repeated .CalibrationEntry cal = 10;
-        public static final int CAL_FIELD_NUMBER = 10;
-        private java.util.List<DataDefinition.CalibrationEntry> cal_;
 
         /**
          * <code>repeated .CalibrationEntry cal = 10;</code>
@@ -1804,10 +2439,6 @@ public final class DataDefinition {
             return cal_.get(index);
         }
 
-        // repeated .InsertionEntry insert = 11;
-        public static final int INSERT_FIELD_NUMBER = 11;
-        private java.util.List<DataDefinition.InsertionEntry> insert_;
-
         /**
          * <code>repeated .InsertionEntry insert = 11;</code>
          */
@@ -1844,10 +2475,6 @@ public final class DataDefinition {
                 int index) {
             return insert_.get(index);
         }
-
-        // optional string receiver_id = 12;
-        public static final int RECEIVER_ID_FIELD_NUMBER = 12;
-        private java.lang.Object receiverId_;
 
         /**
          * <code>optional string receiver_id = 12;</code>
@@ -1890,10 +2517,6 @@ public final class DataDefinition {
                 return (com.google.protobuf.ByteString) ref;
             }
         }
-
-        // optional string transmitter_id = 13;
-        public static final int TRANSMITTER_ID_FIELD_NUMBER = 13;
-        private java.lang.Object transmitterId_;
 
         /**
          * <code>optional string transmitter_id = 13;</code>
@@ -1952,8 +2575,6 @@ public final class DataDefinition {
             receiverId_ = "";
             transmitterId_ = "";
         }
-
-        private byte memoizedIsInitialized = -1;
 
         public final boolean isInitialized() {
             byte isInitialized = memoizedIsInitialized;
@@ -2042,8 +2663,6 @@ public final class DataDefinition {
             getUnknownFields().writeTo(output);
         }
 
-        private int memoizedSerializedSize = -1;
-
         public int getSerializedSize() {
             int size = memoizedSerializedSize;
             if (size != -1) return size;
@@ -2106,86 +2725,14 @@ public final class DataDefinition {
             return size;
         }
 
-        private static final long serialVersionUID = 0L;
-
         @java.lang.Override
         protected java.lang.Object writeReplace()
                 throws java.io.ObjectStreamException {
             return super.writeReplace();
         }
 
-        public static DataDefinition.G4Download parseFrom(
-                com.google.protobuf.ByteString data)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data);
-        }
-
-        public static DataDefinition.G4Download parseFrom(
-                com.google.protobuf.ByteString data,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data, extensionRegistry);
-        }
-
-        public static DataDefinition.G4Download parseFrom(byte[] data)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data);
-        }
-
-        public static DataDefinition.G4Download parseFrom(
-                byte[] data,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data, extensionRegistry);
-        }
-
-        public static DataDefinition.G4Download parseFrom(java.io.InputStream input)
-                throws java.io.IOException {
-            return PARSER.parseFrom(input);
-        }
-
-        public static DataDefinition.G4Download parseFrom(
-                java.io.InputStream input,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws java.io.IOException {
-            return PARSER.parseFrom(input, extensionRegistry);
-        }
-
-        public static DataDefinition.G4Download parseDelimitedFrom(java.io.InputStream input)
-                throws java.io.IOException {
-            return PARSER.parseDelimitedFrom(input);
-        }
-
-        public static DataDefinition.G4Download parseDelimitedFrom(
-                java.io.InputStream input,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws java.io.IOException {
-            return PARSER.parseDelimitedFrom(input, extensionRegistry);
-        }
-
-        public static DataDefinition.G4Download parseFrom(
-                com.google.protobuf.CodedInputStream input)
-                throws java.io.IOException {
-            return PARSER.parseFrom(input);
-        }
-
-        public static DataDefinition.G4Download parseFrom(
-                com.google.protobuf.CodedInputStream input,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws java.io.IOException {
-            return PARSER.parseFrom(input, extensionRegistry);
-        }
-
-        public static Builder newBuilder() {
-            return Builder.create();
-        }
-
         public Builder newBuilderForType() {
             return newBuilder();
-        }
-
-        public static Builder newBuilder(DataDefinition.G4Download prototype) {
-            return newBuilder().mergeFrom(prototype);
         }
 
         public Builder toBuilder() {
@@ -2205,17 +2752,48 @@ public final class DataDefinition {
         public static final class Builder extends
                 com.google.protobuf.GeneratedMessage.Builder<Builder>
                 implements DataDefinition.G4DownloadOrBuilder {
-            public static final com.google.protobuf.Descriptors.Descriptor
-            getDescriptor() {
-                return DataDefinition.internal_static_G4Download_descriptor;
-            }
-
-            protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-            internalGetFieldAccessorTable() {
-                return DataDefinition.internal_static_G4Download_fieldAccessorTable
-                        .ensureFieldAccessorsInitialized(
-                                DataDefinition.G4Download.class, DataDefinition.G4Download.Builder.class);
-            }
+            private int bitField0_;
+            // repeated .SensorGlucoseValueEntry sgv = 1;
+            private java.util.List<DataDefinition.SensorGlucoseValueEntry> sgv_ =
+                    java.util.Collections.emptyList();
+            private com.google.protobuf.RepeatedFieldBuilder<
+                    DataDefinition.SensorGlucoseValueEntry, DataDefinition.SensorGlucoseValueEntry.Builder, DataDefinition.SensorGlucoseValueEntryOrBuilder> sgvBuilder_;
+            // optional .GlucoseUnit units = 2;
+            private DataDefinition.GlucoseUnit units_ = DataDefinition.GlucoseUnit.MGDL;
+            // required string download_timestamp = 3;
+            private java.lang.Object downloadTimestamp_ = "";
+            // optional uint64 receiver_system_time_sec = 4;
+            private long receiverSystemTimeSec_;
+            // optional .DownloadStatus download_status = 5 [default = NOT_APPLICABLE];
+            private DataDefinition.DownloadStatus downloadStatus_ = DataDefinition.DownloadStatus.NOT_APPLICABLE;
+            // optional uint32 receiver_battery = 6;
+            private int receiverBattery_;
+            // optional uint32 uploader_battery = 7;
+            private int uploaderBattery_;
+            // repeated .MeterEntry meter = 8;
+            private java.util.List<DataDefinition.MeterEntry> meter_ =
+                    java.util.Collections.emptyList();
+            private com.google.protobuf.RepeatedFieldBuilder<
+                    DataDefinition.MeterEntry, DataDefinition.MeterEntry.Builder, DataDefinition.MeterEntryOrBuilder> meterBuilder_;
+            // repeated .SensorEntry sensor = 9;
+            private java.util.List<DataDefinition.SensorEntry> sensor_ =
+                    java.util.Collections.emptyList();
+            private com.google.protobuf.RepeatedFieldBuilder<
+                    DataDefinition.SensorEntry, DataDefinition.SensorEntry.Builder, DataDefinition.SensorEntryOrBuilder> sensorBuilder_;
+            // repeated .CalibrationEntry cal = 10;
+            private java.util.List<DataDefinition.CalibrationEntry> cal_ =
+                    java.util.Collections.emptyList();
+            private com.google.protobuf.RepeatedFieldBuilder<
+                    DataDefinition.CalibrationEntry, DataDefinition.CalibrationEntry.Builder, DataDefinition.CalibrationEntryOrBuilder> calBuilder_;
+            // repeated .InsertionEntry insert = 11;
+            private java.util.List<DataDefinition.InsertionEntry> insert_ =
+                    java.util.Collections.emptyList();
+            private com.google.protobuf.RepeatedFieldBuilder<
+                    DataDefinition.InsertionEntry, DataDefinition.InsertionEntry.Builder, DataDefinition.InsertionEntryOrBuilder> insertBuilder_;
+            // optional string receiver_id = 12;
+            private java.lang.Object receiverId_ = "";
+            // optional string transmitter_id = 13;
+            private java.lang.Object transmitterId_ = "";
 
             // Construct using DataDefinition.G4Download.newBuilder()
             private Builder() {
@@ -2228,6 +2806,22 @@ public final class DataDefinition {
                 maybeForceBuilderInitialization();
             }
 
+            public static final com.google.protobuf.Descriptors.Descriptor
+            getDescriptor() {
+                return DataDefinition.internal_static_G4Download_descriptor;
+            }
+
+            private static Builder create() {
+                return new Builder();
+            }
+
+            protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+            internalGetFieldAccessorTable() {
+                return DataDefinition.internal_static_G4Download_fieldAccessorTable
+                        .ensureFieldAccessorsInitialized(
+                                DataDefinition.G4Download.class, DataDefinition.G4Download.Builder.class);
+            }
+
             private void maybeForceBuilderInitialization() {
                 if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
                     getSgvFieldBuilder();
@@ -2236,10 +2830,6 @@ public final class DataDefinition {
                     getCalFieldBuilder();
                     getInsertFieldBuilder();
                 }
-            }
-
-            private static Builder create() {
-                return new Builder();
             }
 
             public Builder clear() {
@@ -2631,21 +3221,12 @@ public final class DataDefinition {
                 return this;
             }
 
-            private int bitField0_;
-
-            // repeated .SensorGlucoseValueEntry sgv = 1;
-            private java.util.List<DataDefinition.SensorGlucoseValueEntry> sgv_ =
-                    java.util.Collections.emptyList();
-
             private void ensureSgvIsMutable() {
                 if (!((bitField0_ & 0x00000001) == 0x00000001)) {
                     sgv_ = new java.util.ArrayList<DataDefinition.SensorGlucoseValueEntry>(sgv_);
                     bitField0_ |= 0x00000001;
                 }
             }
-
-            private com.google.protobuf.RepeatedFieldBuilder<
-                    DataDefinition.SensorGlucoseValueEntry, DataDefinition.SensorGlucoseValueEntry.Builder, DataDefinition.SensorGlucoseValueEntryOrBuilder> sgvBuilder_;
 
             /**
              * <code>repeated .SensorGlucoseValueEntry sgv = 1;</code>
@@ -2965,9 +3546,6 @@ public final class DataDefinition {
                 return sgvBuilder_;
             }
 
-            // optional .GlucoseUnit units = 2;
-            private DataDefinition.GlucoseUnit units_ = DataDefinition.GlucoseUnit.MGDL;
-
             /**
              * <code>optional .GlucoseUnit units = 2;</code>
              * <p/>
@@ -3021,9 +3599,6 @@ public final class DataDefinition {
                 return this;
             }
 
-            // required string download_timestamp = 3;
-            private java.lang.Object downloadTimestamp_ = "";
-
             /**
              * <code>required string download_timestamp = 3;</code>
              * <p/>
@@ -3061,6 +3636,24 @@ public final class DataDefinition {
              * ISO8601 timestamp reported by uploader
              * </pre>
              */
+            public Builder setDownloadTimestamp(
+                    java.lang.String value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                bitField0_ |= 0x00000004;
+                downloadTimestamp_ = value;
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <code>required string download_timestamp = 3;</code>
+             * <p/>
+             * <pre>
+             * ISO8601 timestamp reported by uploader
+             * </pre>
+             */
             public com.google.protobuf.ByteString
             getDownloadTimestampBytes() {
                 java.lang.Object ref = downloadTimestamp_;
@@ -3082,8 +3675,8 @@ public final class DataDefinition {
              * ISO8601 timestamp reported by uploader
              * </pre>
              */
-            public Builder setDownloadTimestamp(
-                    java.lang.String value) {
+            public Builder setDownloadTimestampBytes(
+                    com.google.protobuf.ByteString value) {
                 if (value == null) {
                     throw new NullPointerException();
                 }
@@ -3106,27 +3699,6 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
-
-            /**
-             * <code>required string download_timestamp = 3;</code>
-             * <p/>
-             * <pre>
-             * ISO8601 timestamp reported by uploader
-             * </pre>
-             */
-            public Builder setDownloadTimestampBytes(
-                    com.google.protobuf.ByteString value) {
-                if (value == null) {
-                    throw new NullPointerException();
-                }
-                bitField0_ |= 0x00000004;
-                downloadTimestamp_ = value;
-                onChanged();
-                return this;
-            }
-
-            // optional uint64 receiver_system_time_sec = 4;
-            private long receiverSystemTimeSec_;
 
             /**
              * <code>optional uint64 receiver_system_time_sec = 4;</code>
@@ -3177,9 +3749,6 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
-
-            // optional .DownloadStatus download_status = 5 [default = NOT_APPLICABLE];
-            private DataDefinition.DownloadStatus downloadStatus_ = DataDefinition.DownloadStatus.NOT_APPLICABLE;
 
             /**
              * <code>optional .DownloadStatus download_status = 5 [default = NOT_APPLICABLE];</code>
@@ -3234,9 +3803,6 @@ public final class DataDefinition {
                 return this;
             }
 
-            // optional uint32 receiver_battery = 6;
-            private int receiverBattery_;
-
             /**
              * <code>optional uint32 receiver_battery = 6;</code>
              * <p/>
@@ -3286,9 +3852,6 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
-
-            // optional uint32 uploader_battery = 7;
-            private int uploaderBattery_;
 
             /**
              * <code>optional uint32 uploader_battery = 7;</code>
@@ -3340,19 +3903,12 @@ public final class DataDefinition {
                 return this;
             }
 
-            // repeated .MeterEntry meter = 8;
-            private java.util.List<DataDefinition.MeterEntry> meter_ =
-                    java.util.Collections.emptyList();
-
             private void ensureMeterIsMutable() {
                 if (!((bitField0_ & 0x00000080) == 0x00000080)) {
                     meter_ = new java.util.ArrayList<DataDefinition.MeterEntry>(meter_);
                     bitField0_ |= 0x00000080;
                 }
             }
-
-            private com.google.protobuf.RepeatedFieldBuilder<
-                    DataDefinition.MeterEntry, DataDefinition.MeterEntry.Builder, DataDefinition.MeterEntryOrBuilder> meterBuilder_;
 
             /**
              * <code>repeated .MeterEntry meter = 8;</code>
@@ -3600,19 +4156,12 @@ public final class DataDefinition {
                 return meterBuilder_;
             }
 
-            // repeated .SensorEntry sensor = 9;
-            private java.util.List<DataDefinition.SensorEntry> sensor_ =
-                    java.util.Collections.emptyList();
-
             private void ensureSensorIsMutable() {
                 if (!((bitField0_ & 0x00000100) == 0x00000100)) {
                     sensor_ = new java.util.ArrayList<DataDefinition.SensorEntry>(sensor_);
                     bitField0_ |= 0x00000100;
                 }
             }
-
-            private com.google.protobuf.RepeatedFieldBuilder<
-                    DataDefinition.SensorEntry, DataDefinition.SensorEntry.Builder, DataDefinition.SensorEntryOrBuilder> sensorBuilder_;
 
             /**
              * <code>repeated .SensorEntry sensor = 9;</code>
@@ -3860,19 +4409,12 @@ public final class DataDefinition {
                 return sensorBuilder_;
             }
 
-            // repeated .CalibrationEntry cal = 10;
-            private java.util.List<DataDefinition.CalibrationEntry> cal_ =
-                    java.util.Collections.emptyList();
-
             private void ensureCalIsMutable() {
                 if (!((bitField0_ & 0x00000200) == 0x00000200)) {
                     cal_ = new java.util.ArrayList<DataDefinition.CalibrationEntry>(cal_);
                     bitField0_ |= 0x00000200;
                 }
             }
-
-            private com.google.protobuf.RepeatedFieldBuilder<
-                    DataDefinition.CalibrationEntry, DataDefinition.CalibrationEntry.Builder, DataDefinition.CalibrationEntryOrBuilder> calBuilder_;
 
             /**
              * <code>repeated .CalibrationEntry cal = 10;</code>
@@ -4120,19 +4662,12 @@ public final class DataDefinition {
                 return calBuilder_;
             }
 
-            // repeated .InsertionEntry insert = 11;
-            private java.util.List<DataDefinition.InsertionEntry> insert_ =
-                    java.util.Collections.emptyList();
-
             private void ensureInsertIsMutable() {
                 if (!((bitField0_ & 0x00000400) == 0x00000400)) {
                     insert_ = new java.util.ArrayList<DataDefinition.InsertionEntry>(insert_);
                     bitField0_ |= 0x00000400;
                 }
             }
-
-            private com.google.protobuf.RepeatedFieldBuilder<
-                    DataDefinition.InsertionEntry, DataDefinition.InsertionEntry.Builder, DataDefinition.InsertionEntryOrBuilder> insertBuilder_;
 
             /**
              * <code>repeated .InsertionEntry insert = 11;</code>
@@ -4380,9 +4915,6 @@ public final class DataDefinition {
                 return insertBuilder_;
             }
 
-            // optional string receiver_id = 12;
-            private java.lang.Object receiverId_ = "";
-
             /**
              * <code>optional string receiver_id = 12;</code>
              */
@@ -4408,6 +4940,20 @@ public final class DataDefinition {
             /**
              * <code>optional string receiver_id = 12;</code>
              */
+            public Builder setReceiverId(
+                    java.lang.String value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                bitField0_ |= 0x00000800;
+                receiverId_ = value;
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <code>optional string receiver_id = 12;</code>
+             */
             public com.google.protobuf.ByteString
             getReceiverIdBytes() {
                 java.lang.Object ref = receiverId_;
@@ -4425,8 +4971,8 @@ public final class DataDefinition {
             /**
              * <code>optional string receiver_id = 12;</code>
              */
-            public Builder setReceiverId(
-                    java.lang.String value) {
+            public Builder setReceiverIdBytes(
+                    com.google.protobuf.ByteString value) {
                 if (value == null) {
                     throw new NullPointerException();
                 }
@@ -4445,23 +4991,6 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
-
-            /**
-             * <code>optional string receiver_id = 12;</code>
-             */
-            public Builder setReceiverIdBytes(
-                    com.google.protobuf.ByteString value) {
-                if (value == null) {
-                    throw new NullPointerException();
-                }
-                bitField0_ |= 0x00000800;
-                receiverId_ = value;
-                onChanged();
-                return this;
-            }
-
-            // optional string transmitter_id = 13;
-            private java.lang.Object transmitterId_ = "";
 
             /**
              * <code>optional string transmitter_id = 13;</code>
@@ -4488,6 +5017,20 @@ public final class DataDefinition {
             /**
              * <code>optional string transmitter_id = 13;</code>
              */
+            public Builder setTransmitterId(
+                    java.lang.String value) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                bitField0_ |= 0x00001000;
+                transmitterId_ = value;
+                onChanged();
+                return this;
+            }
+
+            /**
+             * <code>optional string transmitter_id = 13;</code>
+             */
             public com.google.protobuf.ByteString
             getTransmitterIdBytes() {
                 java.lang.Object ref = transmitterId_;
@@ -4505,8 +5048,8 @@ public final class DataDefinition {
             /**
              * <code>optional string transmitter_id = 13;</code>
              */
-            public Builder setTransmitterId(
-                    java.lang.String value) {
+            public Builder setTransmitterIdBytes(
+                    com.google.protobuf.ByteString value) {
                 if (value == null) {
                     throw new NullPointerException();
                 }
@@ -4526,133 +5069,10 @@ public final class DataDefinition {
                 return this;
             }
 
-            /**
-             * <code>optional string transmitter_id = 13;</code>
-             */
-            public Builder setTransmitterIdBytes(
-                    com.google.protobuf.ByteString value) {
-                if (value == null) {
-                    throw new NullPointerException();
-                }
-                bitField0_ |= 0x00001000;
-                transmitterId_ = value;
-                onChanged();
-                return this;
-            }
-
             // @@protoc_insertion_point(builder_scope:G4Download)
         }
 
-        static {
-            defaultInstance = new G4Download(true);
-            defaultInstance.initFields();
-        }
-
         // @@protoc_insertion_point(class_scope:G4Download)
-    }
-
-    public interface SensorGlucoseValueEntryOrBuilder
-            extends com.google.protobuf.MessageOrBuilder {
-
-        // required uint32 sgv_mgdl = 1;
-
-        /**
-         * <code>required uint32 sgv_mgdl = 1;</code>
-         * <p/>
-         * <pre>
-         * Sensor Glucose Value
-         * </pre>
-         */
-        boolean hasSgvMgdl();
-
-        /**
-         * <code>required uint32 sgv_mgdl = 1;</code>
-         * <p/>
-         * <pre>
-         * Sensor Glucose Value
-         * </pre>
-         */
-        int getSgvMgdl();
-
-        // optional uint64 sys_timestamp_sec = 2;
-
-        /**
-         * <code>optional uint64 sys_timestamp_sec = 2;</code>
-         * <p/>
-         * <pre>
-         * System timestamp - Timestamp representing the internal clock of the receiver
-         * </pre>
-         */
-        boolean hasSysTimestampSec();
-
-        /**
-         * <code>optional uint64 sys_timestamp_sec = 2;</code>
-         * <p/>
-         * <pre>
-         * System timestamp - Timestamp representing the internal clock of the receiver
-         * </pre>
-         */
-        long getSysTimestampSec();
-
-        // optional uint64 disp_timestamp_sec = 3;
-
-        /**
-         * <code>optional uint64 disp_timestamp_sec = 3;</code>
-         * <p/>
-         * <pre>
-         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
-         * </pre>
-         */
-        boolean hasDispTimestampSec();
-
-        /**
-         * <code>optional uint64 disp_timestamp_sec = 3;</code>
-         * <p/>
-         * <pre>
-         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
-         * </pre>
-         */
-        long getDispTimestampSec();
-
-        // optional .G4Trend trend = 4;
-
-        /**
-         * <code>optional .G4Trend trend = 4;</code>
-         * <p/>
-         * <pre>
-         * G4 Glucose trend arrow
-         * </pre>
-         */
-        boolean hasTrend();
-
-        /**
-         * <code>optional .G4Trend trend = 4;</code>
-         * <p/>
-         * <pre>
-         * G4 Glucose trend arrow
-         * </pre>
-         */
-        DataDefinition.G4Trend getTrend();
-
-        // optional .G4Noise noise = 5;
-
-        /**
-         * <code>optional .G4Noise noise = 5;</code>
-         * <p/>
-         * <pre>
-         * Noise level that potentially affects the G4 sensor readings
-         * </pre>
-         */
-        boolean hasNoise();
-
-        /**
-         * <code>optional .G4Noise noise = 5;</code>
-         * <p/>
-         * <pre>
-         * Noise level that potentially affects the G4 sensor readings
-         * </pre>
-         */
-        DataDefinition.G4Noise getNoise();
     }
 
     /**
@@ -4661,6 +5081,43 @@ public final class DataDefinition {
     public static final class SensorGlucoseValueEntry extends
             com.google.protobuf.GeneratedMessage
             implements SensorGlucoseValueEntryOrBuilder {
+        // required uint32 sgv_mgdl = 1;
+        public static final int SGV_MGDL_FIELD_NUMBER = 1;
+        // optional uint64 sys_timestamp_sec = 2;
+        public static final int SYS_TIMESTAMP_SEC_FIELD_NUMBER = 2;
+        // optional uint64 disp_timestamp_sec = 3;
+        public static final int DISP_TIMESTAMP_SEC_FIELD_NUMBER = 3;
+        // optional .G4Trend trend = 4;
+        public static final int TREND_FIELD_NUMBER = 4;
+        // optional .G4Noise noise = 5;
+        public static final int NOISE_FIELD_NUMBER = 5;
+        private static final SensorGlucoseValueEntry defaultInstance;
+        private static final long serialVersionUID = 0L;
+        public static com.google.protobuf.Parser<SensorGlucoseValueEntry> PARSER =
+                new com.google.protobuf.AbstractParser<SensorGlucoseValueEntry>() {
+                    public SensorGlucoseValueEntry parsePartialFrom(
+                            com.google.protobuf.CodedInputStream input,
+                            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                            throws com.google.protobuf.InvalidProtocolBufferException {
+                        return new SensorGlucoseValueEntry(input, extensionRegistry);
+                    }
+                };
+
+        static {
+            defaultInstance = new SensorGlucoseValueEntry(true);
+            defaultInstance.initFields();
+        }
+
+        private final com.google.protobuf.UnknownFieldSet unknownFields;
+        private int bitField0_;
+        private int sgvMgdl_;
+        private long sysTimestampSec_;
+        private long dispTimestampSec_;
+        private DataDefinition.G4Trend trend_;
+        private DataDefinition.G4Noise noise_;
+        private byte memoizedIsInitialized = -1;
+        private int memoizedSerializedSize = -1;
+
         // Use SensorGlucoseValueEntry.newBuilder() to construct.
         private SensorGlucoseValueEntry(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
             super(builder);
@@ -4669,24 +5126,6 @@ public final class DataDefinition {
 
         private SensorGlucoseValueEntry(boolean noInit) {
             this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance();
-        }
-
-        private static final SensorGlucoseValueEntry defaultInstance;
-
-        public static SensorGlucoseValueEntry getDefaultInstance() {
-            return defaultInstance;
-        }
-
-        public SensorGlucoseValueEntry getDefaultInstanceForType() {
-            return defaultInstance;
-        }
-
-        private final com.google.protobuf.UnknownFieldSet unknownFields;
-
-        @java.lang.Override
-        public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
-            return this.unknownFields;
         }
 
         private SensorGlucoseValueEntry(
@@ -4762,245 +5201,13 @@ public final class DataDefinition {
             }
         }
 
+        public static SensorGlucoseValueEntry getDefaultInstance() {
+            return defaultInstance;
+        }
+
         public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
             return DataDefinition.internal_static_SensorGlucoseValueEntry_descriptor;
-        }
-
-        protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-            return DataDefinition.internal_static_SensorGlucoseValueEntry_fieldAccessorTable
-                    .ensureFieldAccessorsInitialized(
-                            DataDefinition.SensorGlucoseValueEntry.class, DataDefinition.SensorGlucoseValueEntry.Builder.class);
-        }
-
-        public static com.google.protobuf.Parser<SensorGlucoseValueEntry> PARSER =
-                new com.google.protobuf.AbstractParser<SensorGlucoseValueEntry>() {
-                    public SensorGlucoseValueEntry parsePartialFrom(
-                            com.google.protobuf.CodedInputStream input,
-                            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                            throws com.google.protobuf.InvalidProtocolBufferException {
-                        return new SensorGlucoseValueEntry(input, extensionRegistry);
-                    }
-                };
-
-        @java.lang.Override
-        public com.google.protobuf.Parser<SensorGlucoseValueEntry> getParserForType() {
-            return PARSER;
-        }
-
-        private int bitField0_;
-        // required uint32 sgv_mgdl = 1;
-        public static final int SGV_MGDL_FIELD_NUMBER = 1;
-        private int sgvMgdl_;
-
-        /**
-         * <code>required uint32 sgv_mgdl = 1;</code>
-         * <p/>
-         * <pre>
-         * Sensor Glucose Value
-         * </pre>
-         */
-        public boolean hasSgvMgdl() {
-            return ((bitField0_ & 0x00000001) == 0x00000001);
-        }
-
-        /**
-         * <code>required uint32 sgv_mgdl = 1;</code>
-         * <p/>
-         * <pre>
-         * Sensor Glucose Value
-         * </pre>
-         */
-        public int getSgvMgdl() {
-            return sgvMgdl_;
-        }
-
-        // optional uint64 sys_timestamp_sec = 2;
-        public static final int SYS_TIMESTAMP_SEC_FIELD_NUMBER = 2;
-        private long sysTimestampSec_;
-
-        /**
-         * <code>optional uint64 sys_timestamp_sec = 2;</code>
-         * <p/>
-         * <pre>
-         * System timestamp - Timestamp representing the internal clock of the receiver
-         * </pre>
-         */
-        public boolean hasSysTimestampSec() {
-            return ((bitField0_ & 0x00000002) == 0x00000002);
-        }
-
-        /**
-         * <code>optional uint64 sys_timestamp_sec = 2;</code>
-         * <p/>
-         * <pre>
-         * System timestamp - Timestamp representing the internal clock of the receiver
-         * </pre>
-         */
-        public long getSysTimestampSec() {
-            return sysTimestampSec_;
-        }
-
-        // optional uint64 disp_timestamp_sec = 3;
-        public static final int DISP_TIMESTAMP_SEC_FIELD_NUMBER = 3;
-        private long dispTimestampSec_;
-
-        /**
-         * <code>optional uint64 disp_timestamp_sec = 3;</code>
-         * <p/>
-         * <pre>
-         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
-         * </pre>
-         */
-        public boolean hasDispTimestampSec() {
-            return ((bitField0_ & 0x00000004) == 0x00000004);
-        }
-
-        /**
-         * <code>optional uint64 disp_timestamp_sec = 3;</code>
-         * <p/>
-         * <pre>
-         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
-         * </pre>
-         */
-        public long getDispTimestampSec() {
-            return dispTimestampSec_;
-        }
-
-        // optional .G4Trend trend = 4;
-        public static final int TREND_FIELD_NUMBER = 4;
-        private DataDefinition.G4Trend trend_;
-
-        /**
-         * <code>optional .G4Trend trend = 4;</code>
-         * <p/>
-         * <pre>
-         * G4 Glucose trend arrow
-         * </pre>
-         */
-        public boolean hasTrend() {
-            return ((bitField0_ & 0x00000008) == 0x00000008);
-        }
-
-        /**
-         * <code>optional .G4Trend trend = 4;</code>
-         * <p/>
-         * <pre>
-         * G4 Glucose trend arrow
-         * </pre>
-         */
-        public DataDefinition.G4Trend getTrend() {
-            return trend_;
-        }
-
-        // optional .G4Noise noise = 5;
-        public static final int NOISE_FIELD_NUMBER = 5;
-        private DataDefinition.G4Noise noise_;
-
-        /**
-         * <code>optional .G4Noise noise = 5;</code>
-         * <p/>
-         * <pre>
-         * Noise level that potentially affects the G4 sensor readings
-         * </pre>
-         */
-        public boolean hasNoise() {
-            return ((bitField0_ & 0x00000010) == 0x00000010);
-        }
-
-        /**
-         * <code>optional .G4Noise noise = 5;</code>
-         * <p/>
-         * <pre>
-         * Noise level that potentially affects the G4 sensor readings
-         * </pre>
-         */
-        public DataDefinition.G4Noise getNoise() {
-            return noise_;
-        }
-
-        private void initFields() {
-            sgvMgdl_ = 0;
-            sysTimestampSec_ = 0L;
-            dispTimestampSec_ = 0L;
-            trend_ = DataDefinition.G4Trend.TREND_NONE;
-            noise_ = DataDefinition.G4Noise.NOISE_NONE;
-        }
-
-        private byte memoizedIsInitialized = -1;
-
-        public final boolean isInitialized() {
-            byte isInitialized = memoizedIsInitialized;
-            if (isInitialized != -1) return isInitialized == 1;
-
-            if (!hasSgvMgdl()) {
-                memoizedIsInitialized = 0;
-                return false;
-            }
-            memoizedIsInitialized = 1;
-            return true;
-        }
-
-        public void writeTo(com.google.protobuf.CodedOutputStream output)
-                throws java.io.IOException {
-            getSerializedSize();
-            if (((bitField0_ & 0x00000001) == 0x00000001)) {
-                output.writeUInt32(1, sgvMgdl_);
-            }
-            if (((bitField0_ & 0x00000002) == 0x00000002)) {
-                output.writeUInt64(2, sysTimestampSec_);
-            }
-            if (((bitField0_ & 0x00000004) == 0x00000004)) {
-                output.writeUInt64(3, dispTimestampSec_);
-            }
-            if (((bitField0_ & 0x00000008) == 0x00000008)) {
-                output.writeEnum(4, trend_.getNumber());
-            }
-            if (((bitField0_ & 0x00000010) == 0x00000010)) {
-                output.writeEnum(5, noise_.getNumber());
-            }
-            getUnknownFields().writeTo(output);
-        }
-
-        private int memoizedSerializedSize = -1;
-
-        public int getSerializedSize() {
-            int size = memoizedSerializedSize;
-            if (size != -1) return size;
-
-            size = 0;
-            if (((bitField0_ & 0x00000001) == 0x00000001)) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeUInt32Size(1, sgvMgdl_);
-            }
-            if (((bitField0_ & 0x00000002) == 0x00000002)) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeUInt64Size(2, sysTimestampSec_);
-            }
-            if (((bitField0_ & 0x00000004) == 0x00000004)) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeUInt64Size(3, dispTimestampSec_);
-            }
-            if (((bitField0_ & 0x00000008) == 0x00000008)) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeEnumSize(4, trend_.getNumber());
-            }
-            if (((bitField0_ & 0x00000010) == 0x00000010)) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeEnumSize(5, noise_.getNumber());
-            }
-            size += getUnknownFields().getSerializedSize();
-            memoizedSerializedSize = size;
-            return size;
-        }
-
-        private static final long serialVersionUID = 0L;
-
-        @java.lang.Override
-        protected java.lang.Object writeReplace()
-                throws java.io.ObjectStreamException {
-            return super.writeReplace();
         }
 
         public static DataDefinition.SensorGlucoseValueEntry parseFrom(
@@ -5069,12 +5276,221 @@ public final class DataDefinition {
             return Builder.create();
         }
 
-        public Builder newBuilderForType() {
-            return newBuilder();
-        }
-
         public static Builder newBuilder(DataDefinition.SensorGlucoseValueEntry prototype) {
             return newBuilder().mergeFrom(prototype);
+        }
+
+        public SensorGlucoseValueEntry getDefaultInstanceForType() {
+            return defaultInstance;
+        }
+
+        @java.lang.Override
+        public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+            return this.unknownFields;
+        }
+
+        protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+            return DataDefinition.internal_static_SensorGlucoseValueEntry_fieldAccessorTable
+                    .ensureFieldAccessorsInitialized(
+                            DataDefinition.SensorGlucoseValueEntry.class, DataDefinition.SensorGlucoseValueEntry.Builder.class);
+        }
+
+        @java.lang.Override
+        public com.google.protobuf.Parser<SensorGlucoseValueEntry> getParserForType() {
+            return PARSER;
+        }
+
+        /**
+         * <code>required uint32 sgv_mgdl = 1;</code>
+         * <p/>
+         * <pre>
+         * Sensor Glucose Value
+         * </pre>
+         */
+        public boolean hasSgvMgdl() {
+            return ((bitField0_ & 0x00000001) == 0x00000001);
+        }
+
+        /**
+         * <code>required uint32 sgv_mgdl = 1;</code>
+         * <p/>
+         * <pre>
+         * Sensor Glucose Value
+         * </pre>
+         */
+        public int getSgvMgdl() {
+            return sgvMgdl_;
+        }
+
+        /**
+         * <code>optional uint64 sys_timestamp_sec = 2;</code>
+         * <p/>
+         * <pre>
+         * System timestamp - Timestamp representing the internal clock of the receiver
+         * </pre>
+         */
+        public boolean hasSysTimestampSec() {
+            return ((bitField0_ & 0x00000002) == 0x00000002);
+        }
+
+        /**
+         * <code>optional uint64 sys_timestamp_sec = 2;</code>
+         * <p/>
+         * <pre>
+         * System timestamp - Timestamp representing the internal clock of the receiver
+         * </pre>
+         */
+        public long getSysTimestampSec() {
+            return sysTimestampSec_;
+        }
+
+        /**
+         * <code>optional uint64 disp_timestamp_sec = 3;</code>
+         * <p/>
+         * <pre>
+         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
+         * </pre>
+         */
+        public boolean hasDispTimestampSec() {
+            return ((bitField0_ & 0x00000004) == 0x00000004);
+        }
+
+        /**
+         * <code>optional uint64 disp_timestamp_sec = 3;</code>
+         * <p/>
+         * <pre>
+         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
+         * </pre>
+         */
+        public long getDispTimestampSec() {
+            return dispTimestampSec_;
+        }
+
+        /**
+         * <code>optional .G4Trend trend = 4;</code>
+         * <p/>
+         * <pre>
+         * G4 Glucose trend arrow
+         * </pre>
+         */
+        public boolean hasTrend() {
+            return ((bitField0_ & 0x00000008) == 0x00000008);
+        }
+
+        /**
+         * <code>optional .G4Trend trend = 4;</code>
+         * <p/>
+         * <pre>
+         * G4 Glucose trend arrow
+         * </pre>
+         */
+        public DataDefinition.G4Trend getTrend() {
+            return trend_;
+        }
+
+        /**
+         * <code>optional .G4Noise noise = 5;</code>
+         * <p/>
+         * <pre>
+         * Noise level that potentially affects the G4 sensor readings
+         * </pre>
+         */
+        public boolean hasNoise() {
+            return ((bitField0_ & 0x00000010) == 0x00000010);
+        }
+
+        /**
+         * <code>optional .G4Noise noise = 5;</code>
+         * <p/>
+         * <pre>
+         * Noise level that potentially affects the G4 sensor readings
+         * </pre>
+         */
+        public DataDefinition.G4Noise getNoise() {
+            return noise_;
+        }
+
+        private void initFields() {
+            sgvMgdl_ = 0;
+            sysTimestampSec_ = 0L;
+            dispTimestampSec_ = 0L;
+            trend_ = DataDefinition.G4Trend.TREND_NONE;
+            noise_ = DataDefinition.G4Noise.NOISE_NONE;
+        }
+
+        public final boolean isInitialized() {
+            byte isInitialized = memoizedIsInitialized;
+            if (isInitialized != -1) return isInitialized == 1;
+
+            if (!hasSgvMgdl()) {
+                memoizedIsInitialized = 0;
+                return false;
+            }
+            memoizedIsInitialized = 1;
+            return true;
+        }
+
+        public void writeTo(com.google.protobuf.CodedOutputStream output)
+                throws java.io.IOException {
+            getSerializedSize();
+            if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                output.writeUInt32(1, sgvMgdl_);
+            }
+            if (((bitField0_ & 0x00000002) == 0x00000002)) {
+                output.writeUInt64(2, sysTimestampSec_);
+            }
+            if (((bitField0_ & 0x00000004) == 0x00000004)) {
+                output.writeUInt64(3, dispTimestampSec_);
+            }
+            if (((bitField0_ & 0x00000008) == 0x00000008)) {
+                output.writeEnum(4, trend_.getNumber());
+            }
+            if (((bitField0_ & 0x00000010) == 0x00000010)) {
+                output.writeEnum(5, noise_.getNumber());
+            }
+            getUnknownFields().writeTo(output);
+        }
+
+        public int getSerializedSize() {
+            int size = memoizedSerializedSize;
+            if (size != -1) return size;
+
+            size = 0;
+            if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeUInt32Size(1, sgvMgdl_);
+            }
+            if (((bitField0_ & 0x00000002) == 0x00000002)) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeUInt64Size(2, sysTimestampSec_);
+            }
+            if (((bitField0_ & 0x00000004) == 0x00000004)) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeUInt64Size(3, dispTimestampSec_);
+            }
+            if (((bitField0_ & 0x00000008) == 0x00000008)) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeEnumSize(4, trend_.getNumber());
+            }
+            if (((bitField0_ & 0x00000010) == 0x00000010)) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeEnumSize(5, noise_.getNumber());
+            }
+            size += getUnknownFields().getSerializedSize();
+            memoizedSerializedSize = size;
+            return size;
+        }
+
+        @java.lang.Override
+        protected java.lang.Object writeReplace()
+                throws java.io.ObjectStreamException {
+            return super.writeReplace();
+        }
+
+        public Builder newBuilderForType() {
+            return newBuilder();
         }
 
         public Builder toBuilder() {
@@ -5094,17 +5510,17 @@ public final class DataDefinition {
         public static final class Builder extends
                 com.google.protobuf.GeneratedMessage.Builder<Builder>
                 implements DataDefinition.SensorGlucoseValueEntryOrBuilder {
-            public static final com.google.protobuf.Descriptors.Descriptor
-            getDescriptor() {
-                return DataDefinition.internal_static_SensorGlucoseValueEntry_descriptor;
-            }
-
-            protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-            internalGetFieldAccessorTable() {
-                return DataDefinition.internal_static_SensorGlucoseValueEntry_fieldAccessorTable
-                        .ensureFieldAccessorsInitialized(
-                                DataDefinition.SensorGlucoseValueEntry.class, DataDefinition.SensorGlucoseValueEntry.Builder.class);
-            }
+            private int bitField0_;
+            // required uint32 sgv_mgdl = 1;
+            private int sgvMgdl_;
+            // optional uint64 sys_timestamp_sec = 2;
+            private long sysTimestampSec_;
+            // optional uint64 disp_timestamp_sec = 3;
+            private long dispTimestampSec_;
+            // optional .G4Trend trend = 4;
+            private DataDefinition.G4Trend trend_ = DataDefinition.G4Trend.TREND_NONE;
+            // optional .G4Noise noise = 5;
+            private DataDefinition.G4Noise noise_ = DataDefinition.G4Noise.NOISE_NONE;
 
             // Construct using DataDefinition.SensorGlucoseValueEntry.newBuilder()
             private Builder() {
@@ -5117,13 +5533,25 @@ public final class DataDefinition {
                 maybeForceBuilderInitialization();
             }
 
-            private void maybeForceBuilderInitialization() {
-                if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-                }
+            public static final com.google.protobuf.Descriptors.Descriptor
+            getDescriptor() {
+                return DataDefinition.internal_static_SensorGlucoseValueEntry_descriptor;
             }
 
             private static Builder create() {
                 return new Builder();
+            }
+
+            protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+            internalGetFieldAccessorTable() {
+                return DataDefinition.internal_static_SensorGlucoseValueEntry_fieldAccessorTable
+                        .ensureFieldAccessorsInitialized(
+                                DataDefinition.SensorGlucoseValueEntry.class, DataDefinition.SensorGlucoseValueEntry.Builder.class);
+            }
+
+            private void maybeForceBuilderInitialization() {
+                if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+                }
             }
 
             public Builder clear() {
@@ -5248,11 +5676,6 @@ public final class DataDefinition {
                 return this;
             }
 
-            private int bitField0_;
-
-            // required uint32 sgv_mgdl = 1;
-            private int sgvMgdl_;
-
             /**
              * <code>required uint32 sgv_mgdl = 1;</code>
              * <p/>
@@ -5302,9 +5725,6 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
-
-            // optional uint64 sys_timestamp_sec = 2;
-            private long sysTimestampSec_;
 
             /**
              * <code>optional uint64 sys_timestamp_sec = 2;</code>
@@ -5356,9 +5776,6 @@ public final class DataDefinition {
                 return this;
             }
 
-            // optional uint64 disp_timestamp_sec = 3;
-            private long dispTimestampSec_;
-
             /**
              * <code>optional uint64 disp_timestamp_sec = 3;</code>
              * <p/>
@@ -5408,9 +5825,6 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
-
-            // optional .G4Trend trend = 4;
-            private DataDefinition.G4Trend trend_ = DataDefinition.G4Trend.TREND_NONE;
 
             /**
              * <code>optional .G4Trend trend = 4;</code>
@@ -5464,9 +5878,6 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
-
-            // optional .G4Noise noise = 5;
-            private DataDefinition.G4Noise noise_ = DataDefinition.G4Noise.NOISE_NONE;
 
             /**
              * <code>optional .G4Noise noise = 5;</code>
@@ -5524,80 +5935,7 @@ public final class DataDefinition {
             // @@protoc_insertion_point(builder_scope:SensorGlucoseValueEntry)
         }
 
-        static {
-            defaultInstance = new SensorGlucoseValueEntry(true);
-            defaultInstance.initFields();
-        }
-
         // @@protoc_insertion_point(class_scope:SensorGlucoseValueEntry)
-    }
-
-    public interface MeterEntryOrBuilder
-            extends com.google.protobuf.MessageOrBuilder {
-
-        // required uint32 meter_bg_mgdl = 1;
-
-        /**
-         * <code>required uint32 meter_bg_mgdl = 1;</code>
-         */
-        boolean hasMeterBgMgdl();
-
-        /**
-         * <code>required uint32 meter_bg_mgdl = 1;</code>
-         */
-        int getMeterBgMgdl();
-
-        // optional uint32 meter_time = 2;
-
-        /**
-         * <code>optional uint32 meter_time = 2;</code>
-         */
-        boolean hasMeterTime();
-
-        /**
-         * <code>optional uint32 meter_time = 2;</code>
-         */
-        int getMeterTime();
-
-        // optional uint64 sys_timestamp_sec = 3;
-
-        /**
-         * <code>optional uint64 sys_timestamp_sec = 3;</code>
-         * <p/>
-         * <pre>
-         * System timestamp - Timestamp representing the internal clock of the receiver
-         * </pre>
-         */
-        boolean hasSysTimestampSec();
-
-        /**
-         * <code>optional uint64 sys_timestamp_sec = 3;</code>
-         * <p/>
-         * <pre>
-         * System timestamp - Timestamp representing the internal clock of the receiver
-         * </pre>
-         */
-        long getSysTimestampSec();
-
-        // optional uint64 disp_timestamp_sec = 4;
-
-        /**
-         * <code>optional uint64 disp_timestamp_sec = 4;</code>
-         * <p/>
-         * <pre>
-         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
-         * </pre>
-         */
-        boolean hasDispTimestampSec();
-
-        /**
-         * <code>optional uint64 disp_timestamp_sec = 4;</code>
-         * <p/>
-         * <pre>
-         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
-         * </pre>
-         */
-        long getDispTimestampSec();
     }
 
     /**
@@ -5606,6 +5944,40 @@ public final class DataDefinition {
     public static final class MeterEntry extends
             com.google.protobuf.GeneratedMessage
             implements MeterEntryOrBuilder {
+        // required uint32 meter_bg_mgdl = 1;
+        public static final int METER_BG_MGDL_FIELD_NUMBER = 1;
+        // optional uint32 meter_time = 2;
+        public static final int METER_TIME_FIELD_NUMBER = 2;
+        // optional uint64 sys_timestamp_sec = 3;
+        public static final int SYS_TIMESTAMP_SEC_FIELD_NUMBER = 3;
+        // optional uint64 disp_timestamp_sec = 4;
+        public static final int DISP_TIMESTAMP_SEC_FIELD_NUMBER = 4;
+        private static final MeterEntry defaultInstance;
+        private static final long serialVersionUID = 0L;
+        public static com.google.protobuf.Parser<MeterEntry> PARSER =
+                new com.google.protobuf.AbstractParser<MeterEntry>() {
+                    public MeterEntry parsePartialFrom(
+                            com.google.protobuf.CodedInputStream input,
+                            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                            throws com.google.protobuf.InvalidProtocolBufferException {
+                        return new MeterEntry(input, extensionRegistry);
+                    }
+                };
+
+        static {
+            defaultInstance = new MeterEntry(true);
+            defaultInstance.initFields();
+        }
+
+        private final com.google.protobuf.UnknownFieldSet unknownFields;
+        private int bitField0_;
+        private int meterBgMgdl_;
+        private int meterTime_;
+        private long sysTimestampSec_;
+        private long dispTimestampSec_;
+        private byte memoizedIsInitialized = -1;
+        private int memoizedSerializedSize = -1;
+
         // Use MeterEntry.newBuilder() to construct.
         private MeterEntry(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
             super(builder);
@@ -5614,24 +5986,6 @@ public final class DataDefinition {
 
         private MeterEntry(boolean noInit) {
             this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance();
-        }
-
-        private static final MeterEntry defaultInstance;
-
-        public static MeterEntry getDefaultInstance() {
-            return defaultInstance;
-        }
-
-        public MeterEntry getDefaultInstanceForType() {
-            return defaultInstance;
-        }
-
-        private final com.google.protobuf.UnknownFieldSet unknownFields;
-
-        @java.lang.Override
-        public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
-            return this.unknownFields;
         }
 
         private MeterEntry(
@@ -5690,195 +6044,13 @@ public final class DataDefinition {
             }
         }
 
+        public static MeterEntry getDefaultInstance() {
+            return defaultInstance;
+        }
+
         public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
             return DataDefinition.internal_static_MeterEntry_descriptor;
-        }
-
-        protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-            return DataDefinition.internal_static_MeterEntry_fieldAccessorTable
-                    .ensureFieldAccessorsInitialized(
-                            DataDefinition.MeterEntry.class, DataDefinition.MeterEntry.Builder.class);
-        }
-
-        public static com.google.protobuf.Parser<MeterEntry> PARSER =
-                new com.google.protobuf.AbstractParser<MeterEntry>() {
-                    public MeterEntry parsePartialFrom(
-                            com.google.protobuf.CodedInputStream input,
-                            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                            throws com.google.protobuf.InvalidProtocolBufferException {
-                        return new MeterEntry(input, extensionRegistry);
-                    }
-                };
-
-        @java.lang.Override
-        public com.google.protobuf.Parser<MeterEntry> getParserForType() {
-            return PARSER;
-        }
-
-        private int bitField0_;
-        // required uint32 meter_bg_mgdl = 1;
-        public static final int METER_BG_MGDL_FIELD_NUMBER = 1;
-        private int meterBgMgdl_;
-
-        /**
-         * <code>required uint32 meter_bg_mgdl = 1;</code>
-         */
-        public boolean hasMeterBgMgdl() {
-            return ((bitField0_ & 0x00000001) == 0x00000001);
-        }
-
-        /**
-         * <code>required uint32 meter_bg_mgdl = 1;</code>
-         */
-        public int getMeterBgMgdl() {
-            return meterBgMgdl_;
-        }
-
-        // optional uint32 meter_time = 2;
-        public static final int METER_TIME_FIELD_NUMBER = 2;
-        private int meterTime_;
-
-        /**
-         * <code>optional uint32 meter_time = 2;</code>
-         */
-        public boolean hasMeterTime() {
-            return ((bitField0_ & 0x00000002) == 0x00000002);
-        }
-
-        /**
-         * <code>optional uint32 meter_time = 2;</code>
-         */
-        public int getMeterTime() {
-            return meterTime_;
-        }
-
-        // optional uint64 sys_timestamp_sec = 3;
-        public static final int SYS_TIMESTAMP_SEC_FIELD_NUMBER = 3;
-        private long sysTimestampSec_;
-
-        /**
-         * <code>optional uint64 sys_timestamp_sec = 3;</code>
-         * <p/>
-         * <pre>
-         * System timestamp - Timestamp representing the internal clock of the receiver
-         * </pre>
-         */
-        public boolean hasSysTimestampSec() {
-            return ((bitField0_ & 0x00000004) == 0x00000004);
-        }
-
-        /**
-         * <code>optional uint64 sys_timestamp_sec = 3;</code>
-         * <p/>
-         * <pre>
-         * System timestamp - Timestamp representing the internal clock of the receiver
-         * </pre>
-         */
-        public long getSysTimestampSec() {
-            return sysTimestampSec_;
-        }
-
-        // optional uint64 disp_timestamp_sec = 4;
-        public static final int DISP_TIMESTAMP_SEC_FIELD_NUMBER = 4;
-        private long dispTimestampSec_;
-
-        /**
-         * <code>optional uint64 disp_timestamp_sec = 4;</code>
-         * <p/>
-         * <pre>
-         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
-         * </pre>
-         */
-        public boolean hasDispTimestampSec() {
-            return ((bitField0_ & 0x00000008) == 0x00000008);
-        }
-
-        /**
-         * <code>optional uint64 disp_timestamp_sec = 4;</code>
-         * <p/>
-         * <pre>
-         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
-         * </pre>
-         */
-        public long getDispTimestampSec() {
-            return dispTimestampSec_;
-        }
-
-        private void initFields() {
-            meterBgMgdl_ = 0;
-            meterTime_ = 0;
-            sysTimestampSec_ = 0L;
-            dispTimestampSec_ = 0L;
-        }
-
-        private byte memoizedIsInitialized = -1;
-
-        public final boolean isInitialized() {
-            byte isInitialized = memoizedIsInitialized;
-            if (isInitialized != -1) return isInitialized == 1;
-
-            if (!hasMeterBgMgdl()) {
-                memoizedIsInitialized = 0;
-                return false;
-            }
-            memoizedIsInitialized = 1;
-            return true;
-        }
-
-        public void writeTo(com.google.protobuf.CodedOutputStream output)
-                throws java.io.IOException {
-            getSerializedSize();
-            if (((bitField0_ & 0x00000001) == 0x00000001)) {
-                output.writeUInt32(1, meterBgMgdl_);
-            }
-            if (((bitField0_ & 0x00000002) == 0x00000002)) {
-                output.writeUInt32(2, meterTime_);
-            }
-            if (((bitField0_ & 0x00000004) == 0x00000004)) {
-                output.writeUInt64(3, sysTimestampSec_);
-            }
-            if (((bitField0_ & 0x00000008) == 0x00000008)) {
-                output.writeUInt64(4, dispTimestampSec_);
-            }
-            getUnknownFields().writeTo(output);
-        }
-
-        private int memoizedSerializedSize = -1;
-
-        public int getSerializedSize() {
-            int size = memoizedSerializedSize;
-            if (size != -1) return size;
-
-            size = 0;
-            if (((bitField0_ & 0x00000001) == 0x00000001)) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeUInt32Size(1, meterBgMgdl_);
-            }
-            if (((bitField0_ & 0x00000002) == 0x00000002)) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeUInt32Size(2, meterTime_);
-            }
-            if (((bitField0_ & 0x00000004) == 0x00000004)) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeUInt64Size(3, sysTimestampSec_);
-            }
-            if (((bitField0_ & 0x00000008) == 0x00000008)) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeUInt64Size(4, dispTimestampSec_);
-            }
-            size += getUnknownFields().getSerializedSize();
-            memoizedSerializedSize = size;
-            return size;
-        }
-
-        private static final long serialVersionUID = 0L;
-
-        @java.lang.Override
-        protected java.lang.Object writeReplace()
-                throws java.io.ObjectStreamException {
-            return super.writeReplace();
         }
 
         public static DataDefinition.MeterEntry parseFrom(
@@ -5947,12 +6119,175 @@ public final class DataDefinition {
             return Builder.create();
         }
 
-        public Builder newBuilderForType() {
-            return newBuilder();
-        }
-
         public static Builder newBuilder(DataDefinition.MeterEntry prototype) {
             return newBuilder().mergeFrom(prototype);
+        }
+
+        public MeterEntry getDefaultInstanceForType() {
+            return defaultInstance;
+        }
+
+        @java.lang.Override
+        public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+            return this.unknownFields;
+        }
+
+        protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+            return DataDefinition.internal_static_MeterEntry_fieldAccessorTable
+                    .ensureFieldAccessorsInitialized(
+                            DataDefinition.MeterEntry.class, DataDefinition.MeterEntry.Builder.class);
+        }
+
+        @java.lang.Override
+        public com.google.protobuf.Parser<MeterEntry> getParserForType() {
+            return PARSER;
+        }
+
+        /**
+         * <code>required uint32 meter_bg_mgdl = 1;</code>
+         */
+        public boolean hasMeterBgMgdl() {
+            return ((bitField0_ & 0x00000001) == 0x00000001);
+        }
+
+        /**
+         * <code>required uint32 meter_bg_mgdl = 1;</code>
+         */
+        public int getMeterBgMgdl() {
+            return meterBgMgdl_;
+        }
+
+        /**
+         * <code>optional uint32 meter_time = 2;</code>
+         */
+        public boolean hasMeterTime() {
+            return ((bitField0_ & 0x00000002) == 0x00000002);
+        }
+
+        /**
+         * <code>optional uint32 meter_time = 2;</code>
+         */
+        public int getMeterTime() {
+            return meterTime_;
+        }
+
+        /**
+         * <code>optional uint64 sys_timestamp_sec = 3;</code>
+         * <p/>
+         * <pre>
+         * System timestamp - Timestamp representing the internal clock of the receiver
+         * </pre>
+         */
+        public boolean hasSysTimestampSec() {
+            return ((bitField0_ & 0x00000004) == 0x00000004);
+        }
+
+        /**
+         * <code>optional uint64 sys_timestamp_sec = 3;</code>
+         * <p/>
+         * <pre>
+         * System timestamp - Timestamp representing the internal clock of the receiver
+         * </pre>
+         */
+        public long getSysTimestampSec() {
+            return sysTimestampSec_;
+        }
+
+        /**
+         * <code>optional uint64 disp_timestamp_sec = 4;</code>
+         * <p/>
+         * <pre>
+         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
+         * </pre>
+         */
+        public boolean hasDispTimestampSec() {
+            return ((bitField0_ & 0x00000008) == 0x00000008);
+        }
+
+        /**
+         * <code>optional uint64 disp_timestamp_sec = 4;</code>
+         * <p/>
+         * <pre>
+         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
+         * </pre>
+         */
+        public long getDispTimestampSec() {
+            return dispTimestampSec_;
+        }
+
+        private void initFields() {
+            meterBgMgdl_ = 0;
+            meterTime_ = 0;
+            sysTimestampSec_ = 0L;
+            dispTimestampSec_ = 0L;
+        }
+
+        public final boolean isInitialized() {
+            byte isInitialized = memoizedIsInitialized;
+            if (isInitialized != -1) return isInitialized == 1;
+
+            if (!hasMeterBgMgdl()) {
+                memoizedIsInitialized = 0;
+                return false;
+            }
+            memoizedIsInitialized = 1;
+            return true;
+        }
+
+        public void writeTo(com.google.protobuf.CodedOutputStream output)
+                throws java.io.IOException {
+            getSerializedSize();
+            if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                output.writeUInt32(1, meterBgMgdl_);
+            }
+            if (((bitField0_ & 0x00000002) == 0x00000002)) {
+                output.writeUInt32(2, meterTime_);
+            }
+            if (((bitField0_ & 0x00000004) == 0x00000004)) {
+                output.writeUInt64(3, sysTimestampSec_);
+            }
+            if (((bitField0_ & 0x00000008) == 0x00000008)) {
+                output.writeUInt64(4, dispTimestampSec_);
+            }
+            getUnknownFields().writeTo(output);
+        }
+
+        public int getSerializedSize() {
+            int size = memoizedSerializedSize;
+            if (size != -1) return size;
+
+            size = 0;
+            if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeUInt32Size(1, meterBgMgdl_);
+            }
+            if (((bitField0_ & 0x00000002) == 0x00000002)) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeUInt32Size(2, meterTime_);
+            }
+            if (((bitField0_ & 0x00000004) == 0x00000004)) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeUInt64Size(3, sysTimestampSec_);
+            }
+            if (((bitField0_ & 0x00000008) == 0x00000008)) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeUInt64Size(4, dispTimestampSec_);
+            }
+            size += getUnknownFields().getSerializedSize();
+            memoizedSerializedSize = size;
+            return size;
+        }
+
+        @java.lang.Override
+        protected java.lang.Object writeReplace()
+                throws java.io.ObjectStreamException {
+            return super.writeReplace();
+        }
+
+        public Builder newBuilderForType() {
+            return newBuilder();
         }
 
         public Builder toBuilder() {
@@ -5972,17 +6307,15 @@ public final class DataDefinition {
         public static final class Builder extends
                 com.google.protobuf.GeneratedMessage.Builder<Builder>
                 implements DataDefinition.MeterEntryOrBuilder {
-            public static final com.google.protobuf.Descriptors.Descriptor
-            getDescriptor() {
-                return DataDefinition.internal_static_MeterEntry_descriptor;
-            }
-
-            protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-            internalGetFieldAccessorTable() {
-                return DataDefinition.internal_static_MeterEntry_fieldAccessorTable
-                        .ensureFieldAccessorsInitialized(
-                                DataDefinition.MeterEntry.class, DataDefinition.MeterEntry.Builder.class);
-            }
+            private int bitField0_;
+            // required uint32 meter_bg_mgdl = 1;
+            private int meterBgMgdl_;
+            // optional uint32 meter_time = 2;
+            private int meterTime_;
+            // optional uint64 sys_timestamp_sec = 3;
+            private long sysTimestampSec_;
+            // optional uint64 disp_timestamp_sec = 4;
+            private long dispTimestampSec_;
 
             // Construct using DataDefinition.MeterEntry.newBuilder()
             private Builder() {
@@ -5995,13 +6328,25 @@ public final class DataDefinition {
                 maybeForceBuilderInitialization();
             }
 
-            private void maybeForceBuilderInitialization() {
-                if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-                }
+            public static final com.google.protobuf.Descriptors.Descriptor
+            getDescriptor() {
+                return DataDefinition.internal_static_MeterEntry_descriptor;
             }
 
             private static Builder create() {
                 return new Builder();
+            }
+
+            protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+            internalGetFieldAccessorTable() {
+                return DataDefinition.internal_static_MeterEntry_fieldAccessorTable
+                        .ensureFieldAccessorsInitialized(
+                                DataDefinition.MeterEntry.class, DataDefinition.MeterEntry.Builder.class);
+            }
+
+            private void maybeForceBuilderInitialization() {
+                if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+                }
             }
 
             public Builder clear() {
@@ -6116,11 +6461,6 @@ public final class DataDefinition {
                 return this;
             }
 
-            private int bitField0_;
-
-            // required uint32 meter_bg_mgdl = 1;
-            private int meterBgMgdl_;
-
             /**
              * <code>required uint32 meter_bg_mgdl = 1;</code>
              */
@@ -6155,9 +6495,6 @@ public final class DataDefinition {
                 return this;
             }
 
-            // optional uint32 meter_time = 2;
-            private int meterTime_;
-
             /**
              * <code>optional uint32 meter_time = 2;</code>
              */
@@ -6191,9 +6528,6 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
-
-            // optional uint64 sys_timestamp_sec = 3;
-            private long sysTimestampSec_;
 
             /**
              * <code>optional uint64 sys_timestamp_sec = 3;</code>
@@ -6244,9 +6578,6 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
-
-            // optional uint64 disp_timestamp_sec = 4;
-            private long dispTimestampSec_;
 
             /**
              * <code>optional uint64 disp_timestamp_sec = 4;</code>
@@ -6301,92 +6632,7 @@ public final class DataDefinition {
             // @@protoc_insertion_point(builder_scope:MeterEntry)
         }
 
-        static {
-            defaultInstance = new MeterEntry(true);
-            defaultInstance.initFields();
-        }
-
         // @@protoc_insertion_point(class_scope:MeterEntry)
-    }
-
-    public interface SensorEntryOrBuilder
-            extends com.google.protobuf.MessageOrBuilder {
-
-        // required uint64 filtered = 1;
-
-        /**
-         * <code>required uint64 filtered = 1;</code>
-         */
-        boolean hasFiltered();
-
-        /**
-         * <code>required uint64 filtered = 1;</code>
-         */
-        long getFiltered();
-
-        // optional uint64 unfiltered = 2;
-
-        /**
-         * <code>optional uint64 unfiltered = 2;</code>
-         */
-        boolean hasUnfiltered();
-
-        /**
-         * <code>optional uint64 unfiltered = 2;</code>
-         */
-        long getUnfiltered();
-
-        // optional uint32 rssi = 3;
-
-        /**
-         * <code>optional uint32 rssi = 3;</code>
-         */
-        boolean hasRssi();
-
-        /**
-         * <code>optional uint32 rssi = 3;</code>
-         */
-        int getRssi();
-
-        // optional uint64 sys_timestamp_sec = 4;
-
-        /**
-         * <code>optional uint64 sys_timestamp_sec = 4;</code>
-         * <p/>
-         * <pre>
-         * System timestamp - Timestamp representing the internal clock of the receiver
-         * </pre>
-         */
-        boolean hasSysTimestampSec();
-
-        /**
-         * <code>optional uint64 sys_timestamp_sec = 4;</code>
-         * <p/>
-         * <pre>
-         * System timestamp - Timestamp representing the internal clock of the receiver
-         * </pre>
-         */
-        long getSysTimestampSec();
-
-        // optional uint64 disp_timestamp_sec = 5;
-
-        /**
-         * <code>optional uint64 disp_timestamp_sec = 5;</code>
-         * <p/>
-         * <pre>
-         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
-         * </pre>
-         */
-        boolean hasDispTimestampSec();
-
-        /**
-         * <code>optional uint64 disp_timestamp_sec = 5;</code>
-         * <p/>
-         * <pre>
-         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
-         * </pre>
-         */
-        long getDispTimestampSec();
     }
 
     /**
@@ -6395,6 +6641,43 @@ public final class DataDefinition {
     public static final class SensorEntry extends
             com.google.protobuf.GeneratedMessage
             implements SensorEntryOrBuilder {
+        // required uint64 filtered = 1;
+        public static final int FILTERED_FIELD_NUMBER = 1;
+        // optional uint64 unfiltered = 2;
+        public static final int UNFILTERED_FIELD_NUMBER = 2;
+        // optional uint32 rssi = 3;
+        public static final int RSSI_FIELD_NUMBER = 3;
+        // optional uint64 sys_timestamp_sec = 4;
+        public static final int SYS_TIMESTAMP_SEC_FIELD_NUMBER = 4;
+        // optional uint64 disp_timestamp_sec = 5;
+        public static final int DISP_TIMESTAMP_SEC_FIELD_NUMBER = 5;
+        private static final SensorEntry defaultInstance;
+        private static final long serialVersionUID = 0L;
+        public static com.google.protobuf.Parser<SensorEntry> PARSER =
+                new com.google.protobuf.AbstractParser<SensorEntry>() {
+                    public SensorEntry parsePartialFrom(
+                            com.google.protobuf.CodedInputStream input,
+                            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                            throws com.google.protobuf.InvalidProtocolBufferException {
+                        return new SensorEntry(input, extensionRegistry);
+                    }
+                };
+
+        static {
+            defaultInstance = new SensorEntry(true);
+            defaultInstance.initFields();
+        }
+
+        private final com.google.protobuf.UnknownFieldSet unknownFields;
+        private int bitField0_;
+        private long filtered_;
+        private long unfiltered_;
+        private int rssi_;
+        private long sysTimestampSec_;
+        private long dispTimestampSec_;
+        private byte memoizedIsInitialized = -1;
+        private int memoizedSerializedSize = -1;
+
         // Use SensorEntry.newBuilder() to construct.
         private SensorEntry(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
             super(builder);
@@ -6403,24 +6686,6 @@ public final class DataDefinition {
 
         private SensorEntry(boolean noInit) {
             this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance();
-        }
-
-        private static final SensorEntry defaultInstance;
-
-        public static SensorEntry getDefaultInstance() {
-            return defaultInstance;
-        }
-
-        public SensorEntry getDefaultInstanceForType() {
-            return defaultInstance;
-        }
-
-        private final com.google.protobuf.UnknownFieldSet unknownFields;
-
-        @java.lang.Override
-        public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
-            return this.unknownFields;
         }
 
         private SensorEntry(
@@ -6484,221 +6749,13 @@ public final class DataDefinition {
             }
         }
 
+        public static SensorEntry getDefaultInstance() {
+            return defaultInstance;
+        }
+
         public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
             return DataDefinition.internal_static_SensorEntry_descriptor;
-        }
-
-        protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-            return DataDefinition.internal_static_SensorEntry_fieldAccessorTable
-                    .ensureFieldAccessorsInitialized(
-                            DataDefinition.SensorEntry.class, DataDefinition.SensorEntry.Builder.class);
-        }
-
-        public static com.google.protobuf.Parser<SensorEntry> PARSER =
-                new com.google.protobuf.AbstractParser<SensorEntry>() {
-                    public SensorEntry parsePartialFrom(
-                            com.google.protobuf.CodedInputStream input,
-                            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                            throws com.google.protobuf.InvalidProtocolBufferException {
-                        return new SensorEntry(input, extensionRegistry);
-                    }
-                };
-
-        @java.lang.Override
-        public com.google.protobuf.Parser<SensorEntry> getParserForType() {
-            return PARSER;
-        }
-
-        private int bitField0_;
-        // required uint64 filtered = 1;
-        public static final int FILTERED_FIELD_NUMBER = 1;
-        private long filtered_;
-
-        /**
-         * <code>required uint64 filtered = 1;</code>
-         */
-        public boolean hasFiltered() {
-            return ((bitField0_ & 0x00000001) == 0x00000001);
-        }
-
-        /**
-         * <code>required uint64 filtered = 1;</code>
-         */
-        public long getFiltered() {
-            return filtered_;
-        }
-
-        // optional uint64 unfiltered = 2;
-        public static final int UNFILTERED_FIELD_NUMBER = 2;
-        private long unfiltered_;
-
-        /**
-         * <code>optional uint64 unfiltered = 2;</code>
-         */
-        public boolean hasUnfiltered() {
-            return ((bitField0_ & 0x00000002) == 0x00000002);
-        }
-
-        /**
-         * <code>optional uint64 unfiltered = 2;</code>
-         */
-        public long getUnfiltered() {
-            return unfiltered_;
-        }
-
-        // optional uint32 rssi = 3;
-        public static final int RSSI_FIELD_NUMBER = 3;
-        private int rssi_;
-
-        /**
-         * <code>optional uint32 rssi = 3;</code>
-         */
-        public boolean hasRssi() {
-            return ((bitField0_ & 0x00000004) == 0x00000004);
-        }
-
-        /**
-         * <code>optional uint32 rssi = 3;</code>
-         */
-        public int getRssi() {
-            return rssi_;
-        }
-
-        // optional uint64 sys_timestamp_sec = 4;
-        public static final int SYS_TIMESTAMP_SEC_FIELD_NUMBER = 4;
-        private long sysTimestampSec_;
-
-        /**
-         * <code>optional uint64 sys_timestamp_sec = 4;</code>
-         * <p/>
-         * <pre>
-         * System timestamp - Timestamp representing the internal clock of the receiver
-         * </pre>
-         */
-        public boolean hasSysTimestampSec() {
-            return ((bitField0_ & 0x00000008) == 0x00000008);
-        }
-
-        /**
-         * <code>optional uint64 sys_timestamp_sec = 4;</code>
-         * <p/>
-         * <pre>
-         * System timestamp - Timestamp representing the internal clock of the receiver
-         * </pre>
-         */
-        public long getSysTimestampSec() {
-            return sysTimestampSec_;
-        }
-
-        // optional uint64 disp_timestamp_sec = 5;
-        public static final int DISP_TIMESTAMP_SEC_FIELD_NUMBER = 5;
-        private long dispTimestampSec_;
-
-        /**
-         * <code>optional uint64 disp_timestamp_sec = 5;</code>
-         * <p/>
-         * <pre>
-         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
-         * </pre>
-         */
-        public boolean hasDispTimestampSec() {
-            return ((bitField0_ & 0x00000010) == 0x00000010);
-        }
-
-        /**
-         * <code>optional uint64 disp_timestamp_sec = 5;</code>
-         * <p/>
-         * <pre>
-         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
-         * </pre>
-         */
-        public long getDispTimestampSec() {
-            return dispTimestampSec_;
-        }
-
-        private void initFields() {
-            filtered_ = 0L;
-            unfiltered_ = 0L;
-            rssi_ = 0;
-            sysTimestampSec_ = 0L;
-            dispTimestampSec_ = 0L;
-        }
-
-        private byte memoizedIsInitialized = -1;
-
-        public final boolean isInitialized() {
-            byte isInitialized = memoizedIsInitialized;
-            if (isInitialized != -1) return isInitialized == 1;
-
-            if (!hasFiltered()) {
-                memoizedIsInitialized = 0;
-                return false;
-            }
-            memoizedIsInitialized = 1;
-            return true;
-        }
-
-        public void writeTo(com.google.protobuf.CodedOutputStream output)
-                throws java.io.IOException {
-            getSerializedSize();
-            if (((bitField0_ & 0x00000001) == 0x00000001)) {
-                output.writeUInt64(1, filtered_);
-            }
-            if (((bitField0_ & 0x00000002) == 0x00000002)) {
-                output.writeUInt64(2, unfiltered_);
-            }
-            if (((bitField0_ & 0x00000004) == 0x00000004)) {
-                output.writeUInt32(3, rssi_);
-            }
-            if (((bitField0_ & 0x00000008) == 0x00000008)) {
-                output.writeUInt64(4, sysTimestampSec_);
-            }
-            if (((bitField0_ & 0x00000010) == 0x00000010)) {
-                output.writeUInt64(5, dispTimestampSec_);
-            }
-            getUnknownFields().writeTo(output);
-        }
-
-        private int memoizedSerializedSize = -1;
-
-        public int getSerializedSize() {
-            int size = memoizedSerializedSize;
-            if (size != -1) return size;
-
-            size = 0;
-            if (((bitField0_ & 0x00000001) == 0x00000001)) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeUInt64Size(1, filtered_);
-            }
-            if (((bitField0_ & 0x00000002) == 0x00000002)) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeUInt64Size(2, unfiltered_);
-            }
-            if (((bitField0_ & 0x00000004) == 0x00000004)) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeUInt32Size(3, rssi_);
-            }
-            if (((bitField0_ & 0x00000008) == 0x00000008)) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeUInt64Size(4, sysTimestampSec_);
-            }
-            if (((bitField0_ & 0x00000010) == 0x00000010)) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeUInt64Size(5, dispTimestampSec_);
-            }
-            size += getUnknownFields().getSerializedSize();
-            memoizedSerializedSize = size;
-            return size;
-        }
-
-        private static final long serialVersionUID = 0L;
-
-        @java.lang.Override
-        protected java.lang.Object writeReplace()
-                throws java.io.ObjectStreamException {
-            return super.writeReplace();
         }
 
         public static DataDefinition.SensorEntry parseFrom(
@@ -6767,12 +6824,197 @@ public final class DataDefinition {
             return Builder.create();
         }
 
-        public Builder newBuilderForType() {
-            return newBuilder();
-        }
-
         public static Builder newBuilder(DataDefinition.SensorEntry prototype) {
             return newBuilder().mergeFrom(prototype);
+        }
+
+        public SensorEntry getDefaultInstanceForType() {
+            return defaultInstance;
+        }
+
+        @java.lang.Override
+        public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+            return this.unknownFields;
+        }
+
+        protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+            return DataDefinition.internal_static_SensorEntry_fieldAccessorTable
+                    .ensureFieldAccessorsInitialized(
+                            DataDefinition.SensorEntry.class, DataDefinition.SensorEntry.Builder.class);
+        }
+
+        @java.lang.Override
+        public com.google.protobuf.Parser<SensorEntry> getParserForType() {
+            return PARSER;
+        }
+
+        /**
+         * <code>required uint64 filtered = 1;</code>
+         */
+        public boolean hasFiltered() {
+            return ((bitField0_ & 0x00000001) == 0x00000001);
+        }
+
+        /**
+         * <code>required uint64 filtered = 1;</code>
+         */
+        public long getFiltered() {
+            return filtered_;
+        }
+
+        /**
+         * <code>optional uint64 unfiltered = 2;</code>
+         */
+        public boolean hasUnfiltered() {
+            return ((bitField0_ & 0x00000002) == 0x00000002);
+        }
+
+        /**
+         * <code>optional uint64 unfiltered = 2;</code>
+         */
+        public long getUnfiltered() {
+            return unfiltered_;
+        }
+
+        /**
+         * <code>optional uint32 rssi = 3;</code>
+         */
+        public boolean hasRssi() {
+            return ((bitField0_ & 0x00000004) == 0x00000004);
+        }
+
+        /**
+         * <code>optional uint32 rssi = 3;</code>
+         */
+        public int getRssi() {
+            return rssi_;
+        }
+
+        /**
+         * <code>optional uint64 sys_timestamp_sec = 4;</code>
+         * <p/>
+         * <pre>
+         * System timestamp - Timestamp representing the internal clock of the receiver
+         * </pre>
+         */
+        public boolean hasSysTimestampSec() {
+            return ((bitField0_ & 0x00000008) == 0x00000008);
+        }
+
+        /**
+         * <code>optional uint64 sys_timestamp_sec = 4;</code>
+         * <p/>
+         * <pre>
+         * System timestamp - Timestamp representing the internal clock of the receiver
+         * </pre>
+         */
+        public long getSysTimestampSec() {
+            return sysTimestampSec_;
+        }
+
+        /**
+         * <code>optional uint64 disp_timestamp_sec = 5;</code>
+         * <p/>
+         * <pre>
+         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
+         * </pre>
+         */
+        public boolean hasDispTimestampSec() {
+            return ((bitField0_ & 0x00000010) == 0x00000010);
+        }
+
+        /**
+         * <code>optional uint64 disp_timestamp_sec = 5;</code>
+         * <p/>
+         * <pre>
+         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
+         * </pre>
+         */
+        public long getDispTimestampSec() {
+            return dispTimestampSec_;
+        }
+
+        private void initFields() {
+            filtered_ = 0L;
+            unfiltered_ = 0L;
+            rssi_ = 0;
+            sysTimestampSec_ = 0L;
+            dispTimestampSec_ = 0L;
+        }
+
+        public final boolean isInitialized() {
+            byte isInitialized = memoizedIsInitialized;
+            if (isInitialized != -1) return isInitialized == 1;
+
+            if (!hasFiltered()) {
+                memoizedIsInitialized = 0;
+                return false;
+            }
+            memoizedIsInitialized = 1;
+            return true;
+        }
+
+        public void writeTo(com.google.protobuf.CodedOutputStream output)
+                throws java.io.IOException {
+            getSerializedSize();
+            if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                output.writeUInt64(1, filtered_);
+            }
+            if (((bitField0_ & 0x00000002) == 0x00000002)) {
+                output.writeUInt64(2, unfiltered_);
+            }
+            if (((bitField0_ & 0x00000004) == 0x00000004)) {
+                output.writeUInt32(3, rssi_);
+            }
+            if (((bitField0_ & 0x00000008) == 0x00000008)) {
+                output.writeUInt64(4, sysTimestampSec_);
+            }
+            if (((bitField0_ & 0x00000010) == 0x00000010)) {
+                output.writeUInt64(5, dispTimestampSec_);
+            }
+            getUnknownFields().writeTo(output);
+        }
+
+        public int getSerializedSize() {
+            int size = memoizedSerializedSize;
+            if (size != -1) return size;
+
+            size = 0;
+            if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeUInt64Size(1, filtered_);
+            }
+            if (((bitField0_ & 0x00000002) == 0x00000002)) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeUInt64Size(2, unfiltered_);
+            }
+            if (((bitField0_ & 0x00000004) == 0x00000004)) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeUInt32Size(3, rssi_);
+            }
+            if (((bitField0_ & 0x00000008) == 0x00000008)) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeUInt64Size(4, sysTimestampSec_);
+            }
+            if (((bitField0_ & 0x00000010) == 0x00000010)) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeUInt64Size(5, dispTimestampSec_);
+            }
+            size += getUnknownFields().getSerializedSize();
+            memoizedSerializedSize = size;
+            return size;
+        }
+
+        @java.lang.Override
+        protected java.lang.Object writeReplace()
+                throws java.io.ObjectStreamException {
+            return super.writeReplace();
+        }
+
+        public Builder newBuilderForType() {
+            return newBuilder();
         }
 
         public Builder toBuilder() {
@@ -6792,17 +7034,17 @@ public final class DataDefinition {
         public static final class Builder extends
                 com.google.protobuf.GeneratedMessage.Builder<Builder>
                 implements DataDefinition.SensorEntryOrBuilder {
-            public static final com.google.protobuf.Descriptors.Descriptor
-            getDescriptor() {
-                return DataDefinition.internal_static_SensorEntry_descriptor;
-            }
-
-            protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-            internalGetFieldAccessorTable() {
-                return DataDefinition.internal_static_SensorEntry_fieldAccessorTable
-                        .ensureFieldAccessorsInitialized(
-                                DataDefinition.SensorEntry.class, DataDefinition.SensorEntry.Builder.class);
-            }
+            private int bitField0_;
+            // required uint64 filtered = 1;
+            private long filtered_;
+            // optional uint64 unfiltered = 2;
+            private long unfiltered_;
+            // optional uint32 rssi = 3;
+            private int rssi_;
+            // optional uint64 sys_timestamp_sec = 4;
+            private long sysTimestampSec_;
+            // optional uint64 disp_timestamp_sec = 5;
+            private long dispTimestampSec_;
 
             // Construct using DataDefinition.SensorEntry.newBuilder()
             private Builder() {
@@ -6815,13 +7057,25 @@ public final class DataDefinition {
                 maybeForceBuilderInitialization();
             }
 
-            private void maybeForceBuilderInitialization() {
-                if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-                }
+            public static final com.google.protobuf.Descriptors.Descriptor
+            getDescriptor() {
+                return DataDefinition.internal_static_SensorEntry_descriptor;
             }
 
             private static Builder create() {
                 return new Builder();
+            }
+
+            protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+            internalGetFieldAccessorTable() {
+                return DataDefinition.internal_static_SensorEntry_fieldAccessorTable
+                        .ensureFieldAccessorsInitialized(
+                                DataDefinition.SensorEntry.class, DataDefinition.SensorEntry.Builder.class);
+            }
+
+            private void maybeForceBuilderInitialization() {
+                if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+                }
             }
 
             public Builder clear() {
@@ -6945,11 +7199,6 @@ public final class DataDefinition {
                 return this;
             }
 
-            private int bitField0_;
-
-            // required uint64 filtered = 1;
-            private long filtered_;
-
             /**
              * <code>required uint64 filtered = 1;</code>
              */
@@ -6983,9 +7232,6 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
-
-            // optional uint64 unfiltered = 2;
-            private long unfiltered_;
 
             /**
              * <code>optional uint64 unfiltered = 2;</code>
@@ -7021,9 +7267,6 @@ public final class DataDefinition {
                 return this;
             }
 
-            // optional uint32 rssi = 3;
-            private int rssi_;
-
             /**
              * <code>optional uint32 rssi = 3;</code>
              */
@@ -7057,9 +7300,6 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
-
-            // optional uint64 sys_timestamp_sec = 4;
-            private long sysTimestampSec_;
 
             /**
              * <code>optional uint64 sys_timestamp_sec = 4;</code>
@@ -7110,9 +7350,6 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
-
-            // optional uint64 disp_timestamp_sec = 5;
-            private long dispTimestampSec_;
 
             /**
              * <code>optional uint64 disp_timestamp_sec = 5;</code>
@@ -7167,68 +7404,7 @@ public final class DataDefinition {
             // @@protoc_insertion_point(builder_scope:SensorEntry)
         }
 
-        static {
-            defaultInstance = new SensorEntry(true);
-            defaultInstance.initFields();
-        }
-
         // @@protoc_insertion_point(class_scope:SensorEntry)
-    }
-
-    public interface InsertionEntryOrBuilder
-            extends com.google.protobuf.MessageOrBuilder {
-
-        // required .G4Insertion state = 1;
-
-        /**
-         * <code>required .G4Insertion state = 1;</code>
-         */
-        boolean hasState();
-
-        /**
-         * <code>required .G4Insertion state = 1;</code>
-         */
-        DataDefinition.G4Insertion getState();
-
-        // optional uint64 sys_timestamp_sec = 2;
-
-        /**
-         * <code>optional uint64 sys_timestamp_sec = 2;</code>
-         * <p/>
-         * <pre>
-         * System timestamp - Timestamp representing the internal clock of the receiver
-         * </pre>
-         */
-        boolean hasSysTimestampSec();
-
-        /**
-         * <code>optional uint64 sys_timestamp_sec = 2;</code>
-         * <p/>
-         * <pre>
-         * System timestamp - Timestamp representing the internal clock of the receiver
-         * </pre>
-         */
-        long getSysTimestampSec();
-
-        // optional uint64 disp_timestamp_sec = 3;
-
-        /**
-         * <code>optional uint64 disp_timestamp_sec = 3;</code>
-         * <p/>
-         * <pre>
-         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
-         * </pre>
-         */
-        boolean hasDispTimestampSec();
-
-        /**
-         * <code>optional uint64 disp_timestamp_sec = 3;</code>
-         * <p/>
-         * <pre>
-         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
-         * </pre>
-         */
-        long getDispTimestampSec();
     }
 
     /**
@@ -7237,6 +7413,37 @@ public final class DataDefinition {
     public static final class InsertionEntry extends
             com.google.protobuf.GeneratedMessage
             implements InsertionEntryOrBuilder {
+        // required .G4Insertion state = 1;
+        public static final int STATE_FIELD_NUMBER = 1;
+        // optional uint64 sys_timestamp_sec = 2;
+        public static final int SYS_TIMESTAMP_SEC_FIELD_NUMBER = 2;
+        // optional uint64 disp_timestamp_sec = 3;
+        public static final int DISP_TIMESTAMP_SEC_FIELD_NUMBER = 3;
+        private static final InsertionEntry defaultInstance;
+        private static final long serialVersionUID = 0L;
+        public static com.google.protobuf.Parser<InsertionEntry> PARSER =
+                new com.google.protobuf.AbstractParser<InsertionEntry>() {
+                    public InsertionEntry parsePartialFrom(
+                            com.google.protobuf.CodedInputStream input,
+                            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                            throws com.google.protobuf.InvalidProtocolBufferException {
+                        return new InsertionEntry(input, extensionRegistry);
+                    }
+                };
+
+        static {
+            defaultInstance = new InsertionEntry(true);
+            defaultInstance.initFields();
+        }
+
+        private final com.google.protobuf.UnknownFieldSet unknownFields;
+        private int bitField0_;
+        private DataDefinition.G4Insertion state_;
+        private long sysTimestampSec_;
+        private long dispTimestampSec_;
+        private byte memoizedIsInitialized = -1;
+        private int memoizedSerializedSize = -1;
+
         // Use InsertionEntry.newBuilder() to construct.
         private InsertionEntry(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
             super(builder);
@@ -7245,24 +7452,6 @@ public final class DataDefinition {
 
         private InsertionEntry(boolean noInit) {
             this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance();
-        }
-
-        private static final InsertionEntry defaultInstance;
-
-        public static InsertionEntry getDefaultInstance() {
-            return defaultInstance;
-        }
-
-        public InsertionEntry getDefaultInstanceForType() {
-            return defaultInstance;
-        }
-
-        private final com.google.protobuf.UnknownFieldSet unknownFields;
-
-        @java.lang.Override
-        public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
-            return this.unknownFields;
         }
 
         private InsertionEntry(
@@ -7322,169 +7511,13 @@ public final class DataDefinition {
             }
         }
 
+        public static InsertionEntry getDefaultInstance() {
+            return defaultInstance;
+        }
+
         public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
             return DataDefinition.internal_static_InsertionEntry_descriptor;
-        }
-
-        protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-            return DataDefinition.internal_static_InsertionEntry_fieldAccessorTable
-                    .ensureFieldAccessorsInitialized(
-                            DataDefinition.InsertionEntry.class, DataDefinition.InsertionEntry.Builder.class);
-        }
-
-        public static com.google.protobuf.Parser<InsertionEntry> PARSER =
-                new com.google.protobuf.AbstractParser<InsertionEntry>() {
-                    public InsertionEntry parsePartialFrom(
-                            com.google.protobuf.CodedInputStream input,
-                            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                            throws com.google.protobuf.InvalidProtocolBufferException {
-                        return new InsertionEntry(input, extensionRegistry);
-                    }
-                };
-
-        @java.lang.Override
-        public com.google.protobuf.Parser<InsertionEntry> getParserForType() {
-            return PARSER;
-        }
-
-        private int bitField0_;
-        // required .G4Insertion state = 1;
-        public static final int STATE_FIELD_NUMBER = 1;
-        private DataDefinition.G4Insertion state_;
-
-        /**
-         * <code>required .G4Insertion state = 1;</code>
-         */
-        public boolean hasState() {
-            return ((bitField0_ & 0x00000001) == 0x00000001);
-        }
-
-        /**
-         * <code>required .G4Insertion state = 1;</code>
-         */
-        public DataDefinition.G4Insertion getState() {
-            return state_;
-        }
-
-        // optional uint64 sys_timestamp_sec = 2;
-        public static final int SYS_TIMESTAMP_SEC_FIELD_NUMBER = 2;
-        private long sysTimestampSec_;
-
-        /**
-         * <code>optional uint64 sys_timestamp_sec = 2;</code>
-         * <p/>
-         * <pre>
-         * System timestamp - Timestamp representing the internal clock of the receiver
-         * </pre>
-         */
-        public boolean hasSysTimestampSec() {
-            return ((bitField0_ & 0x00000002) == 0x00000002);
-        }
-
-        /**
-         * <code>optional uint64 sys_timestamp_sec = 2;</code>
-         * <p/>
-         * <pre>
-         * System timestamp - Timestamp representing the internal clock of the receiver
-         * </pre>
-         */
-        public long getSysTimestampSec() {
-            return sysTimestampSec_;
-        }
-
-        // optional uint64 disp_timestamp_sec = 3;
-        public static final int DISP_TIMESTAMP_SEC_FIELD_NUMBER = 3;
-        private long dispTimestampSec_;
-
-        /**
-         * <code>optional uint64 disp_timestamp_sec = 3;</code>
-         * <p/>
-         * <pre>
-         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
-         * </pre>
-         */
-        public boolean hasDispTimestampSec() {
-            return ((bitField0_ & 0x00000004) == 0x00000004);
-        }
-
-        /**
-         * <code>optional uint64 disp_timestamp_sec = 3;</code>
-         * <p/>
-         * <pre>
-         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
-         * </pre>
-         */
-        public long getDispTimestampSec() {
-            return dispTimestampSec_;
-        }
-
-        private void initFields() {
-            state_ = DataDefinition.G4Insertion.INSERTION_NONE;
-            sysTimestampSec_ = 0L;
-            dispTimestampSec_ = 0L;
-        }
-
-        private byte memoizedIsInitialized = -1;
-
-        public final boolean isInitialized() {
-            byte isInitialized = memoizedIsInitialized;
-            if (isInitialized != -1) return isInitialized == 1;
-
-            if (!hasState()) {
-                memoizedIsInitialized = 0;
-                return false;
-            }
-            memoizedIsInitialized = 1;
-            return true;
-        }
-
-        public void writeTo(com.google.protobuf.CodedOutputStream output)
-                throws java.io.IOException {
-            getSerializedSize();
-            if (((bitField0_ & 0x00000001) == 0x00000001)) {
-                output.writeEnum(1, state_.getNumber());
-            }
-            if (((bitField0_ & 0x00000002) == 0x00000002)) {
-                output.writeUInt64(2, sysTimestampSec_);
-            }
-            if (((bitField0_ & 0x00000004) == 0x00000004)) {
-                output.writeUInt64(3, dispTimestampSec_);
-            }
-            getUnknownFields().writeTo(output);
-        }
-
-        private int memoizedSerializedSize = -1;
-
-        public int getSerializedSize() {
-            int size = memoizedSerializedSize;
-            if (size != -1) return size;
-
-            size = 0;
-            if (((bitField0_ & 0x00000001) == 0x00000001)) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeEnumSize(1, state_.getNumber());
-            }
-            if (((bitField0_ & 0x00000002) == 0x00000002)) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeUInt64Size(2, sysTimestampSec_);
-            }
-            if (((bitField0_ & 0x00000004) == 0x00000004)) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeUInt64Size(3, dispTimestampSec_);
-            }
-            size += getUnknownFields().getSerializedSize();
-            memoizedSerializedSize = size;
-            return size;
-        }
-
-        private static final long serialVersionUID = 0L;
-
-        @java.lang.Override
-        protected java.lang.Object writeReplace()
-                throws java.io.ObjectStreamException {
-            return super.writeReplace();
         }
 
         public static DataDefinition.InsertionEntry parseFrom(
@@ -7553,12 +7586,153 @@ public final class DataDefinition {
             return Builder.create();
         }
 
-        public Builder newBuilderForType() {
-            return newBuilder();
-        }
-
         public static Builder newBuilder(DataDefinition.InsertionEntry prototype) {
             return newBuilder().mergeFrom(prototype);
+        }
+
+        public InsertionEntry getDefaultInstanceForType() {
+            return defaultInstance;
+        }
+
+        @java.lang.Override
+        public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+            return this.unknownFields;
+        }
+
+        protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+            return DataDefinition.internal_static_InsertionEntry_fieldAccessorTable
+                    .ensureFieldAccessorsInitialized(
+                            DataDefinition.InsertionEntry.class, DataDefinition.InsertionEntry.Builder.class);
+        }
+
+        @java.lang.Override
+        public com.google.protobuf.Parser<InsertionEntry> getParserForType() {
+            return PARSER;
+        }
+
+        /**
+         * <code>required .G4Insertion state = 1;</code>
+         */
+        public boolean hasState() {
+            return ((bitField0_ & 0x00000001) == 0x00000001);
+        }
+
+        /**
+         * <code>required .G4Insertion state = 1;</code>
+         */
+        public DataDefinition.G4Insertion getState() {
+            return state_;
+        }
+
+        /**
+         * <code>optional uint64 sys_timestamp_sec = 2;</code>
+         * <p/>
+         * <pre>
+         * System timestamp - Timestamp representing the internal clock of the receiver
+         * </pre>
+         */
+        public boolean hasSysTimestampSec() {
+            return ((bitField0_ & 0x00000002) == 0x00000002);
+        }
+
+        /**
+         * <code>optional uint64 sys_timestamp_sec = 2;</code>
+         * <p/>
+         * <pre>
+         * System timestamp - Timestamp representing the internal clock of the receiver
+         * </pre>
+         */
+        public long getSysTimestampSec() {
+            return sysTimestampSec_;
+        }
+
+        /**
+         * <code>optional uint64 disp_timestamp_sec = 3;</code>
+         * <p/>
+         * <pre>
+         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
+         * </pre>
+         */
+        public boolean hasDispTimestampSec() {
+            return ((bitField0_ & 0x00000004) == 0x00000004);
+        }
+
+        /**
+         * <code>optional uint64 disp_timestamp_sec = 3;</code>
+         * <p/>
+         * <pre>
+         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
+         * </pre>
+         */
+        public long getDispTimestampSec() {
+            return dispTimestampSec_;
+        }
+
+        private void initFields() {
+            state_ = DataDefinition.G4Insertion.INSERTION_NONE;
+            sysTimestampSec_ = 0L;
+            dispTimestampSec_ = 0L;
+        }
+
+        public final boolean isInitialized() {
+            byte isInitialized = memoizedIsInitialized;
+            if (isInitialized != -1) return isInitialized == 1;
+
+            if (!hasState()) {
+                memoizedIsInitialized = 0;
+                return false;
+            }
+            memoizedIsInitialized = 1;
+            return true;
+        }
+
+        public void writeTo(com.google.protobuf.CodedOutputStream output)
+                throws java.io.IOException {
+            getSerializedSize();
+            if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                output.writeEnum(1, state_.getNumber());
+            }
+            if (((bitField0_ & 0x00000002) == 0x00000002)) {
+                output.writeUInt64(2, sysTimestampSec_);
+            }
+            if (((bitField0_ & 0x00000004) == 0x00000004)) {
+                output.writeUInt64(3, dispTimestampSec_);
+            }
+            getUnknownFields().writeTo(output);
+        }
+
+        public int getSerializedSize() {
+            int size = memoizedSerializedSize;
+            if (size != -1) return size;
+
+            size = 0;
+            if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeEnumSize(1, state_.getNumber());
+            }
+            if (((bitField0_ & 0x00000002) == 0x00000002)) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeUInt64Size(2, sysTimestampSec_);
+            }
+            if (((bitField0_ & 0x00000004) == 0x00000004)) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeUInt64Size(3, dispTimestampSec_);
+            }
+            size += getUnknownFields().getSerializedSize();
+            memoizedSerializedSize = size;
+            return size;
+        }
+
+        @java.lang.Override
+        protected java.lang.Object writeReplace()
+                throws java.io.ObjectStreamException {
+            return super.writeReplace();
+        }
+
+        public Builder newBuilderForType() {
+            return newBuilder();
         }
 
         public Builder toBuilder() {
@@ -7578,17 +7752,13 @@ public final class DataDefinition {
         public static final class Builder extends
                 com.google.protobuf.GeneratedMessage.Builder<Builder>
                 implements DataDefinition.InsertionEntryOrBuilder {
-            public static final com.google.protobuf.Descriptors.Descriptor
-            getDescriptor() {
-                return DataDefinition.internal_static_InsertionEntry_descriptor;
-            }
-
-            protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-            internalGetFieldAccessorTable() {
-                return DataDefinition.internal_static_InsertionEntry_fieldAccessorTable
-                        .ensureFieldAccessorsInitialized(
-                                DataDefinition.InsertionEntry.class, DataDefinition.InsertionEntry.Builder.class);
-            }
+            private int bitField0_;
+            // required .G4Insertion state = 1;
+            private DataDefinition.G4Insertion state_ = DataDefinition.G4Insertion.INSERTION_NONE;
+            // optional uint64 sys_timestamp_sec = 2;
+            private long sysTimestampSec_;
+            // optional uint64 disp_timestamp_sec = 3;
+            private long dispTimestampSec_;
 
             // Construct using DataDefinition.InsertionEntry.newBuilder()
             private Builder() {
@@ -7601,13 +7771,25 @@ public final class DataDefinition {
                 maybeForceBuilderInitialization();
             }
 
-            private void maybeForceBuilderInitialization() {
-                if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-                }
+            public static final com.google.protobuf.Descriptors.Descriptor
+            getDescriptor() {
+                return DataDefinition.internal_static_InsertionEntry_descriptor;
             }
 
             private static Builder create() {
                 return new Builder();
+            }
+
+            protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+            internalGetFieldAccessorTable() {
+                return DataDefinition.internal_static_InsertionEntry_fieldAccessorTable
+                        .ensureFieldAccessorsInitialized(
+                                DataDefinition.InsertionEntry.class, DataDefinition.InsertionEntry.Builder.class);
+            }
+
+            private void maybeForceBuilderInitialization() {
+                if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+                }
             }
 
             public Builder clear() {
@@ -7713,11 +7895,6 @@ public final class DataDefinition {
                 return this;
             }
 
-            private int bitField0_;
-
-            // required .G4Insertion state = 1;
-            private DataDefinition.G4Insertion state_ = DataDefinition.G4Insertion.INSERTION_NONE;
-
             /**
              * <code>required .G4Insertion state = 1;</code>
              */
@@ -7754,9 +7931,6 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
-
-            // optional uint64 sys_timestamp_sec = 2;
-            private long sysTimestampSec_;
 
             /**
              * <code>optional uint64 sys_timestamp_sec = 2;</code>
@@ -7807,9 +7981,6 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
-
-            // optional uint64 disp_timestamp_sec = 3;
-            private long dispTimestampSec_;
 
             /**
              * <code>optional uint64 disp_timestamp_sec = 3;</code>
@@ -7864,104 +8035,7 @@ public final class DataDefinition {
             // @@protoc_insertion_point(builder_scope:InsertionEntry)
         }
 
-        static {
-            defaultInstance = new InsertionEntry(true);
-            defaultInstance.initFields();
-        }
-
         // @@protoc_insertion_point(class_scope:InsertionEntry)
-    }
-
-    public interface CalibrationEntryOrBuilder
-            extends com.google.protobuf.MessageOrBuilder {
-
-        // required double slope = 1;
-
-        /**
-         * <code>required double slope = 1;</code>
-         */
-        boolean hasSlope();
-
-        /**
-         * <code>required double slope = 1;</code>
-         */
-        double getSlope();
-
-        // optional double intercept = 2;
-
-        /**
-         * <code>optional double intercept = 2;</code>
-         */
-        boolean hasIntercept();
-
-        /**
-         * <code>optional double intercept = 2;</code>
-         */
-        double getIntercept();
-
-        // optional double scale = 3;
-
-        /**
-         * <code>optional double scale = 3;</code>
-         */
-        boolean hasScale();
-
-        /**
-         * <code>optional double scale = 3;</code>
-         */
-        double getScale();
-
-        // optional double decay = 4;
-
-        /**
-         * <code>optional double decay = 4;</code>
-         */
-        boolean hasDecay();
-
-        /**
-         * <code>optional double decay = 4;</code>
-         */
-        double getDecay();
-
-        // optional uint64 sys_timestamp_sec = 5;
-
-        /**
-         * <code>optional uint64 sys_timestamp_sec = 5;</code>
-         * <p/>
-         * <pre>
-         * System timestamp - Timestamp representing the internal clock of the receiver
-         * </pre>
-         */
-        boolean hasSysTimestampSec();
-
-        /**
-         * <code>optional uint64 sys_timestamp_sec = 5;</code>
-         * <p/>
-         * <pre>
-         * System timestamp - Timestamp representing the internal clock of the receiver
-         * </pre>
-         */
-        long getSysTimestampSec();
-
-        // optional uint64 disp_timestamp_sec = 6;
-
-        /**
-         * <code>optional uint64 disp_timestamp_sec = 6;</code>
-         * <p/>
-         * <pre>
-         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
-         * </pre>
-         */
-        boolean hasDispTimestampSec();
-
-        /**
-         * <code>optional uint64 disp_timestamp_sec = 6;</code>
-         * <p/>
-         * <pre>
-         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
-         * </pre>
-         */
-        long getDispTimestampSec();
     }
 
     /**
@@ -7970,6 +8044,46 @@ public final class DataDefinition {
     public static final class CalibrationEntry extends
             com.google.protobuf.GeneratedMessage
             implements CalibrationEntryOrBuilder {
+        // required double slope = 1;
+        public static final int SLOPE_FIELD_NUMBER = 1;
+        // optional double intercept = 2;
+        public static final int INTERCEPT_FIELD_NUMBER = 2;
+        // optional double scale = 3;
+        public static final int SCALE_FIELD_NUMBER = 3;
+        // optional double decay = 4;
+        public static final int DECAY_FIELD_NUMBER = 4;
+        // optional uint64 sys_timestamp_sec = 5;
+        public static final int SYS_TIMESTAMP_SEC_FIELD_NUMBER = 5;
+        // optional uint64 disp_timestamp_sec = 6;
+        public static final int DISP_TIMESTAMP_SEC_FIELD_NUMBER = 6;
+        private static final CalibrationEntry defaultInstance;
+        private static final long serialVersionUID = 0L;
+        public static com.google.protobuf.Parser<CalibrationEntry> PARSER =
+                new com.google.protobuf.AbstractParser<CalibrationEntry>() {
+                    public CalibrationEntry parsePartialFrom(
+                            com.google.protobuf.CodedInputStream input,
+                            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                            throws com.google.protobuf.InvalidProtocolBufferException {
+                        return new CalibrationEntry(input, extensionRegistry);
+                    }
+                };
+
+        static {
+            defaultInstance = new CalibrationEntry(true);
+            defaultInstance.initFields();
+        }
+
+        private final com.google.protobuf.UnknownFieldSet unknownFields;
+        private int bitField0_;
+        private double slope_;
+        private double intercept_;
+        private double scale_;
+        private double decay_;
+        private long sysTimestampSec_;
+        private long dispTimestampSec_;
+        private byte memoizedIsInitialized = -1;
+        private int memoizedSerializedSize = -1;
+
         // Use CalibrationEntry.newBuilder() to construct.
         private CalibrationEntry(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
             super(builder);
@@ -7978,24 +8092,6 @@ public final class DataDefinition {
 
         private CalibrationEntry(boolean noInit) {
             this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance();
-        }
-
-        private static final CalibrationEntry defaultInstance;
-
-        public static CalibrationEntry getDefaultInstance() {
-            return defaultInstance;
-        }
-
-        public CalibrationEntry getDefaultInstanceForType() {
-            return defaultInstance;
-        }
-
-        private final com.google.protobuf.UnknownFieldSet unknownFields;
-
-        @java.lang.Override
-        public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
-            return this.unknownFields;
         }
 
         private CalibrationEntry(
@@ -8064,247 +8160,13 @@ public final class DataDefinition {
             }
         }
 
+        public static CalibrationEntry getDefaultInstance() {
+            return defaultInstance;
+        }
+
         public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
             return DataDefinition.internal_static_CalibrationEntry_descriptor;
-        }
-
-        protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-            return DataDefinition.internal_static_CalibrationEntry_fieldAccessorTable
-                    .ensureFieldAccessorsInitialized(
-                            DataDefinition.CalibrationEntry.class, DataDefinition.CalibrationEntry.Builder.class);
-        }
-
-        public static com.google.protobuf.Parser<CalibrationEntry> PARSER =
-                new com.google.protobuf.AbstractParser<CalibrationEntry>() {
-                    public CalibrationEntry parsePartialFrom(
-                            com.google.protobuf.CodedInputStream input,
-                            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                            throws com.google.protobuf.InvalidProtocolBufferException {
-                        return new CalibrationEntry(input, extensionRegistry);
-                    }
-                };
-
-        @java.lang.Override
-        public com.google.protobuf.Parser<CalibrationEntry> getParserForType() {
-            return PARSER;
-        }
-
-        private int bitField0_;
-        // required double slope = 1;
-        public static final int SLOPE_FIELD_NUMBER = 1;
-        private double slope_;
-
-        /**
-         * <code>required double slope = 1;</code>
-         */
-        public boolean hasSlope() {
-            return ((bitField0_ & 0x00000001) == 0x00000001);
-        }
-
-        /**
-         * <code>required double slope = 1;</code>
-         */
-        public double getSlope() {
-            return slope_;
-        }
-
-        // optional double intercept = 2;
-        public static final int INTERCEPT_FIELD_NUMBER = 2;
-        private double intercept_;
-
-        /**
-         * <code>optional double intercept = 2;</code>
-         */
-        public boolean hasIntercept() {
-            return ((bitField0_ & 0x00000002) == 0x00000002);
-        }
-
-        /**
-         * <code>optional double intercept = 2;</code>
-         */
-        public double getIntercept() {
-            return intercept_;
-        }
-
-        // optional double scale = 3;
-        public static final int SCALE_FIELD_NUMBER = 3;
-        private double scale_;
-
-        /**
-         * <code>optional double scale = 3;</code>
-         */
-        public boolean hasScale() {
-            return ((bitField0_ & 0x00000004) == 0x00000004);
-        }
-
-        /**
-         * <code>optional double scale = 3;</code>
-         */
-        public double getScale() {
-            return scale_;
-        }
-
-        // optional double decay = 4;
-        public static final int DECAY_FIELD_NUMBER = 4;
-        private double decay_;
-
-        /**
-         * <code>optional double decay = 4;</code>
-         */
-        public boolean hasDecay() {
-            return ((bitField0_ & 0x00000008) == 0x00000008);
-        }
-
-        /**
-         * <code>optional double decay = 4;</code>
-         */
-        public double getDecay() {
-            return decay_;
-        }
-
-        // optional uint64 sys_timestamp_sec = 5;
-        public static final int SYS_TIMESTAMP_SEC_FIELD_NUMBER = 5;
-        private long sysTimestampSec_;
-
-        /**
-         * <code>optional uint64 sys_timestamp_sec = 5;</code>
-         * <p/>
-         * <pre>
-         * System timestamp - Timestamp representing the internal clock of the receiver
-         * </pre>
-         */
-        public boolean hasSysTimestampSec() {
-            return ((bitField0_ & 0x00000010) == 0x00000010);
-        }
-
-        /**
-         * <code>optional uint64 sys_timestamp_sec = 5;</code>
-         * <p/>
-         * <pre>
-         * System timestamp - Timestamp representing the internal clock of the receiver
-         * </pre>
-         */
-        public long getSysTimestampSec() {
-            return sysTimestampSec_;
-        }
-
-        // optional uint64 disp_timestamp_sec = 6;
-        public static final int DISP_TIMESTAMP_SEC_FIELD_NUMBER = 6;
-        private long dispTimestampSec_;
-
-        /**
-         * <code>optional uint64 disp_timestamp_sec = 6;</code>
-         * <p/>
-         * <pre>
-         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
-         * </pre>
-         */
-        public boolean hasDispTimestampSec() {
-            return ((bitField0_ & 0x00000020) == 0x00000020);
-        }
-
-        /**
-         * <code>optional uint64 disp_timestamp_sec = 6;</code>
-         * <p/>
-         * <pre>
-         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
-         * </pre>
-         */
-        public long getDispTimestampSec() {
-            return dispTimestampSec_;
-        }
-
-        private void initFields() {
-            slope_ = 0D;
-            intercept_ = 0D;
-            scale_ = 0D;
-            decay_ = 0D;
-            sysTimestampSec_ = 0L;
-            dispTimestampSec_ = 0L;
-        }
-
-        private byte memoizedIsInitialized = -1;
-
-        public final boolean isInitialized() {
-            byte isInitialized = memoizedIsInitialized;
-            if (isInitialized != -1) return isInitialized == 1;
-
-            if (!hasSlope()) {
-                memoizedIsInitialized = 0;
-                return false;
-            }
-            memoizedIsInitialized = 1;
-            return true;
-        }
-
-        public void writeTo(com.google.protobuf.CodedOutputStream output)
-                throws java.io.IOException {
-            getSerializedSize();
-            if (((bitField0_ & 0x00000001) == 0x00000001)) {
-                output.writeDouble(1, slope_);
-            }
-            if (((bitField0_ & 0x00000002) == 0x00000002)) {
-                output.writeDouble(2, intercept_);
-            }
-            if (((bitField0_ & 0x00000004) == 0x00000004)) {
-                output.writeDouble(3, scale_);
-            }
-            if (((bitField0_ & 0x00000008) == 0x00000008)) {
-                output.writeDouble(4, decay_);
-            }
-            if (((bitField0_ & 0x00000010) == 0x00000010)) {
-                output.writeUInt64(5, sysTimestampSec_);
-            }
-            if (((bitField0_ & 0x00000020) == 0x00000020)) {
-                output.writeUInt64(6, dispTimestampSec_);
-            }
-            getUnknownFields().writeTo(output);
-        }
-
-        private int memoizedSerializedSize = -1;
-
-        public int getSerializedSize() {
-            int size = memoizedSerializedSize;
-            if (size != -1) return size;
-
-            size = 0;
-            if (((bitField0_ & 0x00000001) == 0x00000001)) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeDoubleSize(1, slope_);
-            }
-            if (((bitField0_ & 0x00000002) == 0x00000002)) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeDoubleSize(2, intercept_);
-            }
-            if (((bitField0_ & 0x00000004) == 0x00000004)) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeDoubleSize(3, scale_);
-            }
-            if (((bitField0_ & 0x00000008) == 0x00000008)) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeDoubleSize(4, decay_);
-            }
-            if (((bitField0_ & 0x00000010) == 0x00000010)) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeUInt64Size(5, sysTimestampSec_);
-            }
-            if (((bitField0_ & 0x00000020) == 0x00000020)) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeUInt64Size(6, dispTimestampSec_);
-            }
-            size += getUnknownFields().getSerializedSize();
-            memoizedSerializedSize = size;
-            return size;
-        }
-
-        private static final long serialVersionUID = 0L;
-
-        @java.lang.Override
-        protected java.lang.Object writeReplace()
-                throws java.io.ObjectStreamException {
-            return super.writeReplace();
         }
 
         public static DataDefinition.CalibrationEntry parseFrom(
@@ -8373,12 +8235,219 @@ public final class DataDefinition {
             return Builder.create();
         }
 
-        public Builder newBuilderForType() {
-            return newBuilder();
-        }
-
         public static Builder newBuilder(DataDefinition.CalibrationEntry prototype) {
             return newBuilder().mergeFrom(prototype);
+        }
+
+        public CalibrationEntry getDefaultInstanceForType() {
+            return defaultInstance;
+        }
+
+        @java.lang.Override
+        public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+            return this.unknownFields;
+        }
+
+        protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+            return DataDefinition.internal_static_CalibrationEntry_fieldAccessorTable
+                    .ensureFieldAccessorsInitialized(
+                            DataDefinition.CalibrationEntry.class, DataDefinition.CalibrationEntry.Builder.class);
+        }
+
+        @java.lang.Override
+        public com.google.protobuf.Parser<CalibrationEntry> getParserForType() {
+            return PARSER;
+        }
+
+        /**
+         * <code>required double slope = 1;</code>
+         */
+        public boolean hasSlope() {
+            return ((bitField0_ & 0x00000001) == 0x00000001);
+        }
+
+        /**
+         * <code>required double slope = 1;</code>
+         */
+        public double getSlope() {
+            return slope_;
+        }
+
+        /**
+         * <code>optional double intercept = 2;</code>
+         */
+        public boolean hasIntercept() {
+            return ((bitField0_ & 0x00000002) == 0x00000002);
+        }
+
+        /**
+         * <code>optional double intercept = 2;</code>
+         */
+        public double getIntercept() {
+            return intercept_;
+        }
+
+        /**
+         * <code>optional double scale = 3;</code>
+         */
+        public boolean hasScale() {
+            return ((bitField0_ & 0x00000004) == 0x00000004);
+        }
+
+        /**
+         * <code>optional double scale = 3;</code>
+         */
+        public double getScale() {
+            return scale_;
+        }
+
+        /**
+         * <code>optional double decay = 4;</code>
+         */
+        public boolean hasDecay() {
+            return ((bitField0_ & 0x00000008) == 0x00000008);
+        }
+
+        /**
+         * <code>optional double decay = 4;</code>
+         */
+        public double getDecay() {
+            return decay_;
+        }
+
+        /**
+         * <code>optional uint64 sys_timestamp_sec = 5;</code>
+         * <p/>
+         * <pre>
+         * System timestamp - Timestamp representing the internal clock of the receiver
+         * </pre>
+         */
+        public boolean hasSysTimestampSec() {
+            return ((bitField0_ & 0x00000010) == 0x00000010);
+        }
+
+        /**
+         * <code>optional uint64 sys_timestamp_sec = 5;</code>
+         * <p/>
+         * <pre>
+         * System timestamp - Timestamp representing the internal clock of the receiver
+         * </pre>
+         */
+        public long getSysTimestampSec() {
+            return sysTimestampSec_;
+        }
+
+        /**
+         * <code>optional uint64 disp_timestamp_sec = 6;</code>
+         * <p/>
+         * <pre>
+         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
+         * </pre>
+         */
+        public boolean hasDispTimestampSec() {
+            return ((bitField0_ & 0x00000020) == 0x00000020);
+        }
+
+        /**
+         * <code>optional uint64 disp_timestamp_sec = 6;</code>
+         * <p/>
+         * <pre>
+         * Display timestamp - Timestamp representing the user configured time displayed on the receiver
+         * </pre>
+         */
+        public long getDispTimestampSec() {
+            return dispTimestampSec_;
+        }
+
+        private void initFields() {
+            slope_ = 0D;
+            intercept_ = 0D;
+            scale_ = 0D;
+            decay_ = 0D;
+            sysTimestampSec_ = 0L;
+            dispTimestampSec_ = 0L;
+        }
+
+        public final boolean isInitialized() {
+            byte isInitialized = memoizedIsInitialized;
+            if (isInitialized != -1) return isInitialized == 1;
+
+            if (!hasSlope()) {
+                memoizedIsInitialized = 0;
+                return false;
+            }
+            memoizedIsInitialized = 1;
+            return true;
+        }
+
+        public void writeTo(com.google.protobuf.CodedOutputStream output)
+                throws java.io.IOException {
+            getSerializedSize();
+            if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                output.writeDouble(1, slope_);
+            }
+            if (((bitField0_ & 0x00000002) == 0x00000002)) {
+                output.writeDouble(2, intercept_);
+            }
+            if (((bitField0_ & 0x00000004) == 0x00000004)) {
+                output.writeDouble(3, scale_);
+            }
+            if (((bitField0_ & 0x00000008) == 0x00000008)) {
+                output.writeDouble(4, decay_);
+            }
+            if (((bitField0_ & 0x00000010) == 0x00000010)) {
+                output.writeUInt64(5, sysTimestampSec_);
+            }
+            if (((bitField0_ & 0x00000020) == 0x00000020)) {
+                output.writeUInt64(6, dispTimestampSec_);
+            }
+            getUnknownFields().writeTo(output);
+        }
+
+        public int getSerializedSize() {
+            int size = memoizedSerializedSize;
+            if (size != -1) return size;
+
+            size = 0;
+            if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeDoubleSize(1, slope_);
+            }
+            if (((bitField0_ & 0x00000002) == 0x00000002)) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeDoubleSize(2, intercept_);
+            }
+            if (((bitField0_ & 0x00000004) == 0x00000004)) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeDoubleSize(3, scale_);
+            }
+            if (((bitField0_ & 0x00000008) == 0x00000008)) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeDoubleSize(4, decay_);
+            }
+            if (((bitField0_ & 0x00000010) == 0x00000010)) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeUInt64Size(5, sysTimestampSec_);
+            }
+            if (((bitField0_ & 0x00000020) == 0x00000020)) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeUInt64Size(6, dispTimestampSec_);
+            }
+            size += getUnknownFields().getSerializedSize();
+            memoizedSerializedSize = size;
+            return size;
+        }
+
+        @java.lang.Override
+        protected java.lang.Object writeReplace()
+                throws java.io.ObjectStreamException {
+            return super.writeReplace();
+        }
+
+        public Builder newBuilderForType() {
+            return newBuilder();
         }
 
         public Builder toBuilder() {
@@ -8398,17 +8467,19 @@ public final class DataDefinition {
         public static final class Builder extends
                 com.google.protobuf.GeneratedMessage.Builder<Builder>
                 implements DataDefinition.CalibrationEntryOrBuilder {
-            public static final com.google.protobuf.Descriptors.Descriptor
-            getDescriptor() {
-                return DataDefinition.internal_static_CalibrationEntry_descriptor;
-            }
-
-            protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-            internalGetFieldAccessorTable() {
-                return DataDefinition.internal_static_CalibrationEntry_fieldAccessorTable
-                        .ensureFieldAccessorsInitialized(
-                                DataDefinition.CalibrationEntry.class, DataDefinition.CalibrationEntry.Builder.class);
-            }
+            private int bitField0_;
+            // required double slope = 1;
+            private double slope_;
+            // optional double intercept = 2;
+            private double intercept_;
+            // optional double scale = 3;
+            private double scale_;
+            // optional double decay = 4;
+            private double decay_;
+            // optional uint64 sys_timestamp_sec = 5;
+            private long sysTimestampSec_;
+            // optional uint64 disp_timestamp_sec = 6;
+            private long dispTimestampSec_;
 
             // Construct using DataDefinition.CalibrationEntry.newBuilder()
             private Builder() {
@@ -8421,13 +8492,25 @@ public final class DataDefinition {
                 maybeForceBuilderInitialization();
             }
 
-            private void maybeForceBuilderInitialization() {
-                if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-                }
+            public static final com.google.protobuf.Descriptors.Descriptor
+            getDescriptor() {
+                return DataDefinition.internal_static_CalibrationEntry_descriptor;
             }
 
             private static Builder create() {
                 return new Builder();
+            }
+
+            protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+            internalGetFieldAccessorTable() {
+                return DataDefinition.internal_static_CalibrationEntry_fieldAccessorTable
+                        .ensureFieldAccessorsInitialized(
+                                DataDefinition.CalibrationEntry.class, DataDefinition.CalibrationEntry.Builder.class);
+            }
+
+            private void maybeForceBuilderInitialization() {
+                if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+                }
             }
 
             public Builder clear() {
@@ -8560,11 +8643,6 @@ public final class DataDefinition {
                 return this;
             }
 
-            private int bitField0_;
-
-            // required double slope = 1;
-            private double slope_;
-
             /**
              * <code>required double slope = 1;</code>
              */
@@ -8598,9 +8676,6 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
-
-            // optional double intercept = 2;
-            private double intercept_;
 
             /**
              * <code>optional double intercept = 2;</code>
@@ -8636,9 +8711,6 @@ public final class DataDefinition {
                 return this;
             }
 
-            // optional double scale = 3;
-            private double scale_;
-
             /**
              * <code>optional double scale = 3;</code>
              */
@@ -8673,9 +8745,6 @@ public final class DataDefinition {
                 return this;
             }
 
-            // optional double decay = 4;
-            private double decay_;
-
             /**
              * <code>optional double decay = 4;</code>
              */
@@ -8709,9 +8778,6 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
-
-            // optional uint64 sys_timestamp_sec = 5;
-            private long sysTimestampSec_;
 
             /**
              * <code>optional uint64 sys_timestamp_sec = 5;</code>
@@ -8762,9 +8828,6 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
-
-            // optional uint64 disp_timestamp_sec = 6;
-            private long dispTimestampSec_;
 
             /**
              * <code>optional uint64 disp_timestamp_sec = 6;</code>
@@ -8819,45 +8882,7 @@ public final class DataDefinition {
             // @@protoc_insertion_point(builder_scope:CalibrationEntry)
         }
 
-        static {
-            defaultInstance = new CalibrationEntry(true);
-            defaultInstance.initFields();
-        }
-
         // @@protoc_insertion_point(class_scope:CalibrationEntry)
-    }
-
-    public interface ReceiverStateOrBuilder
-            extends com.google.protobuf.MessageOrBuilder {
-
-        // required uint64 timestamp_ms = 1;
-
-        /**
-         * <code>required uint64 timestamp_ms = 1;</code>
-         */
-        boolean hasTimestampMs();
-
-        /**
-         * <code>required uint64 timestamp_ms = 1;</code>
-         */
-        long getTimestampMs();
-
-        // repeated .ReceiverStatus event = 2;
-
-        /**
-         * <code>repeated .ReceiverStatus event = 2;</code>
-         */
-        java.util.List<DataDefinition.ReceiverStatus> getEventList();
-
-        /**
-         * <code>repeated .ReceiverStatus event = 2;</code>
-         */
-        int getEventCount();
-
-        /**
-         * <code>repeated .ReceiverStatus event = 2;</code>
-         */
-        DataDefinition.ReceiverStatus getEvent(int index);
     }
 
     /**
@@ -8866,6 +8891,34 @@ public final class DataDefinition {
     public static final class ReceiverState extends
             com.google.protobuf.GeneratedMessage
             implements ReceiverStateOrBuilder {
+        // required uint64 timestamp_ms = 1;
+        public static final int TIMESTAMP_MS_FIELD_NUMBER = 1;
+        // repeated .ReceiverStatus event = 2;
+        public static final int EVENT_FIELD_NUMBER = 2;
+        private static final ReceiverState defaultInstance;
+        private static final long serialVersionUID = 0L;
+        public static com.google.protobuf.Parser<ReceiverState> PARSER =
+                new com.google.protobuf.AbstractParser<ReceiverState>() {
+                    public ReceiverState parsePartialFrom(
+                            com.google.protobuf.CodedInputStream input,
+                            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                            throws com.google.protobuf.InvalidProtocolBufferException {
+                        return new ReceiverState(input, extensionRegistry);
+                    }
+                };
+
+        static {
+            defaultInstance = new ReceiverState(true);
+            defaultInstance.initFields();
+        }
+
+        private final com.google.protobuf.UnknownFieldSet unknownFields;
+        private int bitField0_;
+        private long timestampMs_;
+        private java.util.List<DataDefinition.ReceiverStatus> event_;
+        private byte memoizedIsInitialized = -1;
+        private int memoizedSerializedSize = -1;
+
         // Use ReceiverState.newBuilder() to construct.
         private ReceiverState(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
             super(builder);
@@ -8874,24 +8927,6 @@ public final class DataDefinition {
 
         private ReceiverState(boolean noInit) {
             this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance();
-        }
-
-        private static final ReceiverState defaultInstance;
-
-        public static ReceiverState getDefaultInstance() {
-            return defaultInstance;
-        }
-
-        public ReceiverState getDefaultInstanceForType() {
-            return defaultInstance;
-        }
-
-        private final com.google.protobuf.UnknownFieldSet unknownFields;
-
-        @java.lang.Override
-        public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
-            return this.unknownFields;
         }
 
         private ReceiverState(
@@ -8971,139 +9006,13 @@ public final class DataDefinition {
             }
         }
 
+        public static ReceiverState getDefaultInstance() {
+            return defaultInstance;
+        }
+
         public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
             return DataDefinition.internal_static_ReceiverState_descriptor;
-        }
-
-        protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-            return DataDefinition.internal_static_ReceiverState_fieldAccessorTable
-                    .ensureFieldAccessorsInitialized(
-                            DataDefinition.ReceiverState.class, DataDefinition.ReceiverState.Builder.class);
-        }
-
-        public static com.google.protobuf.Parser<ReceiverState> PARSER =
-                new com.google.protobuf.AbstractParser<ReceiverState>() {
-                    public ReceiverState parsePartialFrom(
-                            com.google.protobuf.CodedInputStream input,
-                            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                            throws com.google.protobuf.InvalidProtocolBufferException {
-                        return new ReceiverState(input, extensionRegistry);
-                    }
-                };
-
-        @java.lang.Override
-        public com.google.protobuf.Parser<ReceiverState> getParserForType() {
-            return PARSER;
-        }
-
-        private int bitField0_;
-        // required uint64 timestamp_ms = 1;
-        public static final int TIMESTAMP_MS_FIELD_NUMBER = 1;
-        private long timestampMs_;
-
-        /**
-         * <code>required uint64 timestamp_ms = 1;</code>
-         */
-        public boolean hasTimestampMs() {
-            return ((bitField0_ & 0x00000001) == 0x00000001);
-        }
-
-        /**
-         * <code>required uint64 timestamp_ms = 1;</code>
-         */
-        public long getTimestampMs() {
-            return timestampMs_;
-        }
-
-        // repeated .ReceiverStatus event = 2;
-        public static final int EVENT_FIELD_NUMBER = 2;
-        private java.util.List<DataDefinition.ReceiverStatus> event_;
-
-        /**
-         * <code>repeated .ReceiverStatus event = 2;</code>
-         */
-        public java.util.List<DataDefinition.ReceiverStatus> getEventList() {
-            return event_;
-        }
-
-        /**
-         * <code>repeated .ReceiverStatus event = 2;</code>
-         */
-        public int getEventCount() {
-            return event_.size();
-        }
-
-        /**
-         * <code>repeated .ReceiverStatus event = 2;</code>
-         */
-        public DataDefinition.ReceiverStatus getEvent(int index) {
-            return event_.get(index);
-        }
-
-        private void initFields() {
-            timestampMs_ = 0L;
-            event_ = java.util.Collections.emptyList();
-        }
-
-        private byte memoizedIsInitialized = -1;
-
-        public final boolean isInitialized() {
-            byte isInitialized = memoizedIsInitialized;
-            if (isInitialized != -1) return isInitialized == 1;
-
-            if (!hasTimestampMs()) {
-                memoizedIsInitialized = 0;
-                return false;
-            }
-            memoizedIsInitialized = 1;
-            return true;
-        }
-
-        public void writeTo(com.google.protobuf.CodedOutputStream output)
-                throws java.io.IOException {
-            getSerializedSize();
-            if (((bitField0_ & 0x00000001) == 0x00000001)) {
-                output.writeUInt64(1, timestampMs_);
-            }
-            for (int i = 0; i < event_.size(); i++) {
-                output.writeEnum(2, event_.get(i).getNumber());
-            }
-            getUnknownFields().writeTo(output);
-        }
-
-        private int memoizedSerializedSize = -1;
-
-        public int getSerializedSize() {
-            int size = memoizedSerializedSize;
-            if (size != -1) return size;
-
-            size = 0;
-            if (((bitField0_ & 0x00000001) == 0x00000001)) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeUInt64Size(1, timestampMs_);
-            }
-            {
-                int dataSize = 0;
-                for (int i = 0; i < event_.size(); i++) {
-                    dataSize += com.google.protobuf.CodedOutputStream
-                            .computeEnumSizeNoTag(event_.get(i).getNumber());
-                }
-                size += dataSize;
-                size += 1 * event_.size();
-            }
-            size += getUnknownFields().getSerializedSize();
-            memoizedSerializedSize = size;
-            return size;
-        }
-
-        private static final long serialVersionUID = 0L;
-
-        @java.lang.Override
-        protected java.lang.Object writeReplace()
-                throws java.io.ObjectStreamException {
-            return super.writeReplace();
         }
 
         public static DataDefinition.ReceiverState parseFrom(
@@ -9172,12 +9081,127 @@ public final class DataDefinition {
             return Builder.create();
         }
 
-        public Builder newBuilderForType() {
-            return newBuilder();
-        }
-
         public static Builder newBuilder(DataDefinition.ReceiverState prototype) {
             return newBuilder().mergeFrom(prototype);
+        }
+
+        public ReceiverState getDefaultInstanceForType() {
+            return defaultInstance;
+        }
+
+        @java.lang.Override
+        public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+            return this.unknownFields;
+        }
+
+        protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+            return DataDefinition.internal_static_ReceiverState_fieldAccessorTable
+                    .ensureFieldAccessorsInitialized(
+                            DataDefinition.ReceiverState.class, DataDefinition.ReceiverState.Builder.class);
+        }
+
+        @java.lang.Override
+        public com.google.protobuf.Parser<ReceiverState> getParserForType() {
+            return PARSER;
+        }
+
+        /**
+         * <code>required uint64 timestamp_ms = 1;</code>
+         */
+        public boolean hasTimestampMs() {
+            return ((bitField0_ & 0x00000001) == 0x00000001);
+        }
+
+        /**
+         * <code>required uint64 timestamp_ms = 1;</code>
+         */
+        public long getTimestampMs() {
+            return timestampMs_;
+        }
+
+        /**
+         * <code>repeated .ReceiverStatus event = 2;</code>
+         */
+        public java.util.List<DataDefinition.ReceiverStatus> getEventList() {
+            return event_;
+        }
+
+        /**
+         * <code>repeated .ReceiverStatus event = 2;</code>
+         */
+        public int getEventCount() {
+            return event_.size();
+        }
+
+        /**
+         * <code>repeated .ReceiverStatus event = 2;</code>
+         */
+        public DataDefinition.ReceiverStatus getEvent(int index) {
+            return event_.get(index);
+        }
+
+        private void initFields() {
+            timestampMs_ = 0L;
+            event_ = java.util.Collections.emptyList();
+        }
+
+        public final boolean isInitialized() {
+            byte isInitialized = memoizedIsInitialized;
+            if (isInitialized != -1) return isInitialized == 1;
+
+            if (!hasTimestampMs()) {
+                memoizedIsInitialized = 0;
+                return false;
+            }
+            memoizedIsInitialized = 1;
+            return true;
+        }
+
+        public void writeTo(com.google.protobuf.CodedOutputStream output)
+                throws java.io.IOException {
+            getSerializedSize();
+            if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                output.writeUInt64(1, timestampMs_);
+            }
+            for (int i = 0; i < event_.size(); i++) {
+                output.writeEnum(2, event_.get(i).getNumber());
+            }
+            getUnknownFields().writeTo(output);
+        }
+
+        public int getSerializedSize() {
+            int size = memoizedSerializedSize;
+            if (size != -1) return size;
+
+            size = 0;
+            if (((bitField0_ & 0x00000001) == 0x00000001)) {
+                size += com.google.protobuf.CodedOutputStream
+                        .computeUInt64Size(1, timestampMs_);
+            }
+            {
+                int dataSize = 0;
+                for (int i = 0; i < event_.size(); i++) {
+                    dataSize += com.google.protobuf.CodedOutputStream
+                            .computeEnumSizeNoTag(event_.get(i).getNumber());
+                }
+                size += dataSize;
+                size += 1 * event_.size();
+            }
+            size += getUnknownFields().getSerializedSize();
+            memoizedSerializedSize = size;
+            return size;
+        }
+
+        @java.lang.Override
+        protected java.lang.Object writeReplace()
+                throws java.io.ObjectStreamException {
+            return super.writeReplace();
+        }
+
+        public Builder newBuilderForType() {
+            return newBuilder();
         }
 
         public Builder toBuilder() {
@@ -9197,17 +9221,12 @@ public final class DataDefinition {
         public static final class Builder extends
                 com.google.protobuf.GeneratedMessage.Builder<Builder>
                 implements DataDefinition.ReceiverStateOrBuilder {
-            public static final com.google.protobuf.Descriptors.Descriptor
-            getDescriptor() {
-                return DataDefinition.internal_static_ReceiverState_descriptor;
-            }
-
-            protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-            internalGetFieldAccessorTable() {
-                return DataDefinition.internal_static_ReceiverState_fieldAccessorTable
-                        .ensureFieldAccessorsInitialized(
-                                DataDefinition.ReceiverState.class, DataDefinition.ReceiverState.Builder.class);
-            }
+            private int bitField0_;
+            // required uint64 timestamp_ms = 1;
+            private long timestampMs_;
+            // repeated .ReceiverStatus event = 2;
+            private java.util.List<DataDefinition.ReceiverStatus> event_ =
+                    java.util.Collections.emptyList();
 
             // Construct using DataDefinition.ReceiverState.newBuilder()
             private Builder() {
@@ -9220,13 +9239,25 @@ public final class DataDefinition {
                 maybeForceBuilderInitialization();
             }
 
-            private void maybeForceBuilderInitialization() {
-                if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-                }
+            public static final com.google.protobuf.Descriptors.Descriptor
+            getDescriptor() {
+                return DataDefinition.internal_static_ReceiverState_descriptor;
             }
 
             private static Builder create() {
                 return new Builder();
+            }
+
+            protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+            internalGetFieldAccessorTable() {
+                return DataDefinition.internal_static_ReceiverState_fieldAccessorTable
+                        .ensureFieldAccessorsInitialized(
+                                DataDefinition.ReceiverState.class, DataDefinition.ReceiverState.Builder.class);
+            }
+
+            private void maybeForceBuilderInitialization() {
+                if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+                }
             }
 
             public Builder clear() {
@@ -9331,11 +9362,6 @@ public final class DataDefinition {
                 return this;
             }
 
-            private int bitField0_;
-
-            // required uint64 timestamp_ms = 1;
-            private long timestampMs_;
-
             /**
              * <code>required uint64 timestamp_ms = 1;</code>
              */
@@ -9369,10 +9395,6 @@ public final class DataDefinition {
                 onChanged();
                 return this;
             }
-
-            // repeated .ReceiverStatus event = 2;
-            private java.util.List<DataDefinition.ReceiverStatus> event_ =
-                    java.util.Collections.emptyList();
 
             private void ensureEventIsMutable() {
                 if (!((bitField0_ & 0x00000002) == 0x00000002)) {
@@ -9453,163 +9475,7 @@ public final class DataDefinition {
             // @@protoc_insertion_point(builder_scope:ReceiverState)
         }
 
-        static {
-            defaultInstance = new ReceiverState(true);
-            defaultInstance.initFields();
-        }
-
         // @@protoc_insertion_point(class_scope:ReceiverState)
-    }
-
-    private static com.google.protobuf.Descriptors.Descriptor
-            internal_static_G4Download_descriptor;
-    private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
-            internal_static_G4Download_fieldAccessorTable;
-    private static com.google.protobuf.Descriptors.Descriptor
-            internal_static_SensorGlucoseValueEntry_descriptor;
-    private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
-            internal_static_SensorGlucoseValueEntry_fieldAccessorTable;
-    private static com.google.protobuf.Descriptors.Descriptor
-            internal_static_MeterEntry_descriptor;
-    private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
-            internal_static_MeterEntry_fieldAccessorTable;
-    private static com.google.protobuf.Descriptors.Descriptor
-            internal_static_SensorEntry_descriptor;
-    private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
-            internal_static_SensorEntry_fieldAccessorTable;
-    private static com.google.protobuf.Descriptors.Descriptor
-            internal_static_InsertionEntry_descriptor;
-    private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
-            internal_static_InsertionEntry_fieldAccessorTable;
-    private static com.google.protobuf.Descriptors.Descriptor
-            internal_static_CalibrationEntry_descriptor;
-    private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
-            internal_static_CalibrationEntry_fieldAccessorTable;
-    private static com.google.protobuf.Descriptors.Descriptor
-            internal_static_ReceiverState_descriptor;
-    private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
-            internal_static_ReceiverState_fieldAccessorTable;
-
-    public static com.google.protobuf.Descriptors.FileDescriptor
-    getDescriptor() {
-        return descriptor;
-    }
-
-    private static com.google.protobuf.Descriptors.FileDescriptor
-            descriptor;
-
-    static {
-        java.lang.String[] descriptorData = {
-                "\n\023DataDefinition.proto\"\244\003\n\nG4Download\022%\n\003" +
-                        "sgv\030\001 \003(\0132\030.SensorGlucoseValueEntry\022\033\n\005u" +
-                        "nits\030\002 \001(\0162\014.GlucoseUnit\022\032\n\022download_tim" +
-                        "estamp\030\003 \002(\t\022 \n\030receiver_system_time_sec" +
-                        "\030\004 \001(\004\0228\n\017download_status\030\005 \001(\0162\017.Downlo" +
-                        "adStatus:\016NOT_APPLICABLE\022\030\n\020receiver_bat" +
-                        "tery\030\006 \001(\r\022\030\n\020uploader_battery\030\007 \001(\r\022\032\n\005" +
-                        "meter\030\010 \003(\0132\013.MeterEntry\022\034\n\006sensor\030\t \003(\013" +
-                        "2\014.SensorEntry\022\036\n\003cal\030\n \003(\0132\021.Calibratio" +
-                        "nEntry\022\037\n\006insert\030\013 \003(\0132\017.InsertionEntry\022",
-                "\023\n\013receiver_id\030\014 \001(\t\022\026\n\016transmitter_id\030\r" +
-                        " \001(\t\"\224\001\n\027SensorGlucoseValueEntry\022\020\n\010sgv_" +
-                        "mgdl\030\001 \002(\r\022\031\n\021sys_timestamp_sec\030\002 \001(\004\022\032\n" +
-                        "\022disp_timestamp_sec\030\003 \001(\004\022\027\n\005trend\030\004 \001(\016" +
-                        "2\010.G4Trend\022\027\n\005noise\030\005 \001(\0162\010.G4Noise\"n\n\nM" +
-                        "eterEntry\022\025\n\rmeter_bg_mgdl\030\001 \002(\r\022\022\n\nmete" +
-                        "r_time\030\002 \001(\r\022\031\n\021sys_timestamp_sec\030\003 \001(\004\022" +
-                        "\032\n\022disp_timestamp_sec\030\004 \001(\004\"x\n\013SensorEnt" +
-                        "ry\022\020\n\010filtered\030\001 \002(\004\022\022\n\nunfiltered\030\002 \001(\004" +
-                        "\022\014\n\004rssi\030\003 \001(\r\022\031\n\021sys_timestamp_sec\030\004 \001(",
-                "\004\022\032\n\022disp_timestamp_sec\030\005 \001(\004\"d\n\016Inserti" +
-                        "onEntry\022\033\n\005state\030\001 \002(\0162\014.G4Insertion\022\031\n\021" +
-                        "sys_timestamp_sec\030\002 \001(\004\022\032\n\022disp_timestam" +
-                        "p_sec\030\003 \001(\004\"\211\001\n\020CalibrationEntry\022\r\n\005slop" +
-                        "e\030\001 \002(\001\022\021\n\tintercept\030\002 \001(\001\022\r\n\005scale\030\003 \001(" +
-                        "\001\022\r\n\005decay\030\004 \001(\001\022\031\n\021sys_timestamp_sec\030\005 " +
-                        "\001(\004\022\032\n\022disp_timestamp_sec\030\006 \001(\004\"E\n\rRecei" +
-                        "verState\022\024\n\014timestamp_ms\030\001 \002(\004\022\036\n\005event\030" +
-                        "\002 \003(\0162\017.ReceiverStatus*!\n\013GlucoseUnit\022\010\n" +
-                        "\004MGDL\020\000\022\010\n\004MMOL\020\001*\206\001\n\016DownloadStatus\022\013\n\007",
-                "SUCCESS\020\000\022\013\n\007NO_DATA\020\001\022\024\n\020DEVICE_NOT_FOU" +
-                        "ND\020\002\022\014\n\010IO_ERROR\020\003\022\025\n\021APPLICATION_ERROR\020" +
-                        "\004\022\013\n\007UNKNOWN\020\005\022\022\n\016NOT_APPLICABLE\020\006*\266\001\n\007G" +
-                        "4Trend\022\016\n\nTREND_NONE\020\000\022\r\n\tDOUBLE_UP\020\001\022\r\n" +
-                        "\tSINGLE_UP\020\002\022\021\n\rFORTY_FIVE_UP\020\003\022\010\n\004FLAT\020" +
-                        "\004\022\023\n\017FORTY_FIVE_DOWN\020\005\022\017\n\013SINGLE_DOWN\020\006\022" +
-                        "\017\n\013DOUBLE_DOWN\020\007\022\022\n\016NOT_COMPUTABLE\020\010\022\025\n\021" +
-                        "RATE_OUT_OF_RANGE\020\t*a\n\007G4Noise\022\016\n\nNOISE_" +
-                        "NONE\020\000\022\t\n\005CLEAN\020\001\022\t\n\005LIGHT\020\002\022\n\n\006MEDIUM\020\003" +
-                        "\022\t\n\005HEAVY\020\004\022\020\n\014NOT_COMPUTED\020\005\022\007\n\003MAX\020\006*\331",
-                "\001\n\013G4Insertion\022\022\n\016INSERTION_NONE\020\000\022\013\n\007RE" +
-                        "MOVED\020\001\022\013\n\007EXPIRED\020\002\022\026\n\022RESIDUAL_DEVIATI" +
-                        "ON\020\003\022\024\n\020COUNTS_DEVIATION\020\004\022\022\n\016SECOND_SES" +
-                        "SION\020\005\022\021\n\rOFF_TIME_LOSS\020\006\022\013\n\007STARTED\020\007\022\023" +
-                        "\n\017BAD_TRANSMITTER\020\010\022\026\n\022MANUFACTURING_MOD" +
-                        "E\020\t\022\r\n\tMAX_VALUE\020\n*C\n\016ReceiverStatus\022\026\n\022" +
-                        "RECEIVER_CONNECTED\020\000\022\031\n\025RECEIVER_DISCONN" +
-                        "ECTED\020\001"
-        };
-        com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-                new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
-                    public com.google.protobuf.ExtensionRegistry assignDescriptors(
-                            com.google.protobuf.Descriptors.FileDescriptor root) {
-                        descriptor = root;
-                        internal_static_G4Download_descriptor =
-                                getDescriptor().getMessageTypes().get(0);
-                        internal_static_G4Download_fieldAccessorTable = new
-                                com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-                                internal_static_G4Download_descriptor,
-                                new java.lang.String[]{"Sgv", "Units", "DownloadTimestamp", "ReceiverSystemTimeSec", "DownloadStatus", "ReceiverBattery", "UploaderBattery", "Meter", "Sensor", "Cal", "Insert", "ReceiverId", "TransmitterId",});
-                        internal_static_SensorGlucoseValueEntry_descriptor =
-                                getDescriptor().getMessageTypes().get(1);
-                        internal_static_SensorGlucoseValueEntry_fieldAccessorTable = new
-                                com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-                                internal_static_SensorGlucoseValueEntry_descriptor,
-                                new java.lang.String[]{"SgvMgdl", "SysTimestampSec", "DispTimestampSec", "Trend", "Noise",});
-                        internal_static_MeterEntry_descriptor =
-                                getDescriptor().getMessageTypes().get(2);
-                        internal_static_MeterEntry_fieldAccessorTable = new
-                                com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-                                internal_static_MeterEntry_descriptor,
-                                new java.lang.String[]{"MeterBgMgdl", "MeterTime", "SysTimestampSec", "DispTimestampSec",});
-                        internal_static_SensorEntry_descriptor =
-                                getDescriptor().getMessageTypes().get(3);
-                        internal_static_SensorEntry_fieldAccessorTable = new
-                                com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-                                internal_static_SensorEntry_descriptor,
-                                new java.lang.String[]{"Filtered", "Unfiltered", "Rssi", "SysTimestampSec", "DispTimestampSec",});
-                        internal_static_InsertionEntry_descriptor =
-                                getDescriptor().getMessageTypes().get(4);
-                        internal_static_InsertionEntry_fieldAccessorTable = new
-                                com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-                                internal_static_InsertionEntry_descriptor,
-                                new java.lang.String[]{"State", "SysTimestampSec", "DispTimestampSec",});
-                        internal_static_CalibrationEntry_descriptor =
-                                getDescriptor().getMessageTypes().get(5);
-                        internal_static_CalibrationEntry_fieldAccessorTable = new
-                                com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-                                internal_static_CalibrationEntry_descriptor,
-                                new java.lang.String[]{"Slope", "Intercept", "Scale", "Decay", "SysTimestampSec", "DispTimestampSec",});
-                        internal_static_ReceiverState_descriptor =
-                                getDescriptor().getMessageTypes().get(6);
-                        internal_static_ReceiverState_fieldAccessorTable = new
-                                com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-                                internal_static_ReceiverState_descriptor,
-                                new java.lang.String[]{"TimestampMs", "Event",});
-                        return null;
-                    }
-                };
-        com.google.protobuf.Descriptors.FileDescriptor
-                .internalBuildGeneratedFileFrom(descriptorData,
-                        new com.google.protobuf.Descriptors.FileDescriptor[]{
-                        }, assigner);
     }
 
     // @@protoc_insertion_point(outer_class_scope)

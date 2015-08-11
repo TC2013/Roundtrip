@@ -1,110 +1,120 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity"
-    android:id="@+id/relativeLayout_Main">
+<RelativeLayout android:id="@+id/relativeLayout_Main"
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                tools:context=".MainActivity">
 
     <FrameLayout
+        android:id="@+id/frameLayout"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/frameLayout"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true">
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
+            android:layout_height="fill_parent"
+            android:orientation="vertical">
 
             <LinearLayout
-                android:orientation="horizontal"
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent">
+                android:layout_height="fill_parent"
+                android:orientation="horizontal">
 
                 <LinearLayout
-                    android:orientation="vertical"
                     android:layout_width="fill_parent"
-                    android:layout_height="fill_parent">
+                    android:layout_height="79dp"
+                    android:orientation="vertical">
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textAppearance="?android:attr/textAppearanceLarge"
-                        android:text="Roundtrip Status: OK"
                         android:id="@+id/textView_StatusTitle"
-                        android:layout_gravity="left|top" />
-
-                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:text="Starting..."
+                        android:layout_gravity="left|top"
+                        android:text="Roundtrip Status: OK"
+                        android:textAppearance="?android:attr/textAppearanceLarge"/>
+
+                    <TextView
                         android:id="@+id/textView_StatusNote"
-                        android:layout_gravity="left|bottom" />
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="left|bottom"
+                        android:text="Starting..."
+                        android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+                    <TextView
+                        android:id="@+id/textView_StatusBattery"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceMedium"/>
 
                 </LinearLayout>
 
                 <ProgressBar
+                    android:id="@+id/progressBar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/progressBar"
+                    android:layout_alignParentRight="true"
                     android:layout_gravity="right|bottom"
                     android:indeterminate="false"
-                    android:visibility="invisible"
                     android:longClickable="false"
-                    android:layout_alignParentRight="true" />
+                    android:visibility="invisible"/>
             </LinearLayout>
 
             <LinearLayout
-                android:orientation="horizontal"
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent">
+                android:layout_height="fill_parent"
+                android:orientation="horizontal">
 
                 <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="APS Monitor"
                     android:id="@+id/button_Monitor"
-                    android:onClick="launchMonitorActivity" />
-                <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="RT Settings"
+                    android:onClick="launchMonitorActivity"
+                    android:text="APS Monitor"/>
+
+                <Button
                     android:id="@+id/button_RTSettings"
-                    android:onClick="launchRTDemoSettingsActivity" />
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="launchRTDemoSettingsActivity"
+                    android:text="RT Settings"/>
 
             </LinearLayout>
 
             <LinearLayout
-                android:orientation="horizontal"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
 
                 <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Write"
                     android:id="@+id/button_verifyBluetoothPumpCommunications"
-                    android:onClick="bluetoothWrite" />
-
-                <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Read"
+                    android:onClick="bluetoothWrite"
+                    android:text="Write"/>
+
+                <Button
                     android:id="@+id/button_bluetoothSendCommand"
-                    android:onClick="bluetoothRead"/>
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="bluetoothRead"
+                    android:text="Read"/>
 
             </LinearLayout>
 
             <ListView
+                android:id="@+id/listView_Log"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/listView_Log"
-                android:nestedScrollingEnabled="false"
                 android:layout_alignParentBottom="true"
-                android:layout_alignParentStart="true" />
+                android:layout_alignParentStart="true"
+                android:nestedScrollingEnabled="false"/>
 
         </LinearLayout>
 

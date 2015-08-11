@@ -40,16 +40,9 @@ public enum RecordTypeEnum {
     RECORD_TYPE_CHANGETIMEDISPLAY((byte) 0x64, ChangeTimeDisplay.class),
     RECORD_TYPE_BASALPROFILESTART((byte) 0x7B, BasalProfileStart.class);
 
+    private static final String TAG = "RecordTypeEnum";
     private byte opcode;
     private Class mRecordClass;
-
-    public byte opcode() {
-        return opcode;
-    }
-
-    public Class recordClass() {
-        return mRecordClass;
-    }
 
     RecordTypeEnum(byte b, Class c) {
         opcode = b;
@@ -65,7 +58,13 @@ public enum RecordTypeEnum {
         return RECORD_TYPE_NULL;
     }
 
-    private static final String TAG = "RecordTypeEnum";
+    public byte opcode() {
+        return opcode;
+    }
+
+    public Class recordClass() {
+        return mRecordClass;
+    }
 
     public <T extends Record> T getRecordClass() {
         Constructor<T> ctor;

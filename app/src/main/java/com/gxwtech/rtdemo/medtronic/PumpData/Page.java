@@ -29,15 +29,100 @@ import java.util.List;
 public class Page {
     private final static String TAG = "Page";
     private static final boolean DEBUG_PAGE = false;
-
+    public List<Record> mRecordList;
+    protected PumpModel model;
     private byte[] crc;
     private byte[] data;
-    protected PumpModel model;
-    public List<Record> mRecordList;
 
     public Page() {
         this.model = PumpModel.UNSET;
         mRecordList = new ArrayList<>();
+    }
+
+    /* attemptParseRecord will attempt to create a subclass of Record from the given
+     * data and offset.  It will return NULL if it fails.  If it succeeds, the returned
+     * subclass of Record can be examined for its length, so that the next attempt can be made.
+     */
+    public static <T extends Record> T attemptParseRecord(byte[] data, int offsetStart) {
+        // no data?
+        if (data == null) {
+            return null;
+        }
+        // invalid offset?
+        if (data.length < offsetStart) {
+            return null;
+        }
+        //Log.d(TAG,String.format("checking for handler for record type 0x%02X at index %d",data[offsetStart],offsetStart));
+        RecordTypeEnum en = RecordTypeEnum.fromByte(data[offsetStart]);
+        T record = en.getRecordClass();
+        if (record != null) {
+            // sigh... trying to avoid array copying...
+            // have to do this to set the record's opCode
+            byte[] tmpData = new byte[data.length];
+            System.arraycopy(data, offsetStart, tmpData, 0, data.length - offsetStart);
+            record.collectRawData(tmpData, PumpModel.MM522);
+        }
+        return record;
+    }
+
+    public static DateTime parseSimpleDate(byte[] data, int offset) {
+        DateTime timeStamp = null;
+        int seconds = 0;
+        int minutes = 0;
+        int hour = 0;
+        //int high = data[0] >> 4;
+        int low = data[0 + offset] & 0x1F;
+        //int year_high = data[1] >> 4;
+        int mhigh = (data[0 + offset] & 0xE0) >> 4;
+        int mlow = (data[1 + offset] & 0x80) >> 7;
+        int month = mhigh + mlow;
+        int dayOfMonth = low + 1;
+        // python code says year is data[1] & 0x0F, but that will cause problem in 2016.
+        // Hopefully, the remaining bits are part of the year...
+        int year = data[1 + offset] & 0x3F;
+        /*
+        Log.w(TAG, String.format("Attempting to create DateTime from: %04d-%02d-%02d %02d:%02d:%02d",
+                year + 2000, month, dayOfMonth, hour, minutes, seconds));
+         */
+        try {
+            timeStamp = new DateTime(year + 2000, month, dayOfMonth, hour, minutes, seconds);
+        } catch (org.joda.time.IllegalFieldValueException e) {
+            //Log.e(TAG,"Illegal DateTime field");
+            //e.printStackTrace();
+            return null;
+        }
+        return timeStamp;
+    }
+
+    public static void discoverRecords(byte[] data) {
+        int i = 0;
+        boolean done = false;
+
+        ArrayList<Integer> keyLocations = new ArrayList();
+        while (!done) {
+            RecordTypeEnum en = RecordTypeEnum.fromByte(data[i]);
+            if (en != RecordTypeEnum.RECORD_TYPE_NULL) {
+                keyLocations.add(i);
+                Log.v(TAG, String.format("Possible record of type %s found at index %d", en, i));
+            }
+            /*
+            DateTime ts = parseSimpleDate(data,i);
+            if (ts != null) {
+                if (ts.year().get() == 2015) {
+                    Log.w(TAG, String.format("Possible simple date at index %d", i));
+                }
+            }
+            */
+            i = i + 1;
+            done = (i >= data.length - 2);
+        }
+        // for each of the discovered key locations, attempt to parse a sequence of records
+        for (RecordTypeEnum en : RecordTypeEnum.values()) {
+
+        }
+        for (int ix = 0; ix < keyLocations.size(); ix++) {
+
+        }
     }
 
     public boolean parseFrom(byte[] rawPage, PumpModel model) {
@@ -170,92 +255,6 @@ public class Page {
             }
         }
         return true;
-    }
-
-    /* attemptParseRecord will attempt to create a subclass of Record from the given
-     * data and offset.  It will return NULL if it fails.  If it succeeds, the returned
-     * subclass of Record can be examined for its length, so that the next attempt can be made.
-     */
-    public static <T extends Record> T attemptParseRecord(byte[] data, int offsetStart) {
-        // no data?
-        if (data == null) {
-            return null;
-        }
-        // invalid offset?
-        if (data.length < offsetStart) {
-            return null;
-        }
-        //Log.d(TAG,String.format("checking for handler for record type 0x%02X at index %d",data[offsetStart],offsetStart));
-        RecordTypeEnum en = RecordTypeEnum.fromByte(data[offsetStart]);
-        T record = en.getRecordClass();
-        if (record != null) {
-            // sigh... trying to avoid array copying...
-            // have to do this to set the record's opCode
-            byte[] tmpData = new byte[data.length];
-            System.arraycopy(data, offsetStart, tmpData, 0, data.length - offsetStart);
-            record.collectRawData(tmpData, PumpModel.MM522);
-        }
-        return record;
-    }
-
-    public static DateTime parseSimpleDate(byte[] data, int offset) {
-        DateTime timeStamp = null;
-        int seconds = 0;
-        int minutes = 0;
-        int hour = 0;
-        //int high = data[0] >> 4;
-        int low = data[0 + offset] & 0x1F;
-        //int year_high = data[1] >> 4;
-        int mhigh = (data[0 + offset] & 0xE0) >> 4;
-        int mlow = (data[1 + offset] & 0x80) >> 7;
-        int month = mhigh + mlow;
-        int dayOfMonth = low + 1;
-        // python code says year is data[1] & 0x0F, but that will cause problem in 2016.
-        // Hopefully, the remaining bits are part of the year...
-        int year = data[1 + offset] & 0x3F;
-        /*
-        Log.w(TAG, String.format("Attempting to create DateTime from: %04d-%02d-%02d %02d:%02d:%02d",
-                year + 2000, month, dayOfMonth, hour, minutes, seconds));
-         */
-        try {
-            timeStamp = new DateTime(year + 2000, month, dayOfMonth, hour, minutes, seconds);
-        } catch (org.joda.time.IllegalFieldValueException e) {
-            //Log.e(TAG,"Illegal DateTime field");
-            //e.printStackTrace();
-            return null;
-        }
-        return timeStamp;
-    }
-
-    public static void discoverRecords(byte[] data) {
-        int i = 0;
-        boolean done = false;
-
-        ArrayList<Integer> keyLocations = new ArrayList();
-        while (!done) {
-            RecordTypeEnum en = RecordTypeEnum.fromByte(data[i]);
-            if (en != RecordTypeEnum.RECORD_TYPE_NULL) {
-                keyLocations.add(i);
-                Log.v(TAG, String.format("Possible record of type %s found at index %d", en, i));
-            }
-            /*
-            DateTime ts = parseSimpleDate(data,i);
-            if (ts != null) {
-                if (ts.year().get() == 2015) {
-                    Log.w(TAG, String.format("Possible simple date at index %d", i));
-                }
-            }
-            */
-            i = i + 1;
-            done = (i >= data.length - 2);
-        }
-        // for each of the discovered key locations, attempt to parse a sequence of records
-        for (RecordTypeEnum en : RecordTypeEnum.values()) {
-
-        }
-        for (int ix = 0; ix < keyLocations.size(); ix++) {
-
-        }
     }
 
 }

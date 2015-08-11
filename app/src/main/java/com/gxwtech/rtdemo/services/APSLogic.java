@@ -87,29 +87,55 @@ import java.util.List;
 public class APSLogic {
     /* BEGIN settable defaults */
     private static final String TAG = "APSLogic";
-    private Context mContext;
-    private PumpManager mPumpManager;
-    private MongoWrapper mMongoWrapper;
-    private String mLogfileName;
-    private PreferenceBackedStorage mStorage;
-
-    // our cache of the profile settings
-    // Updated (at the minimum) at the start of each MakeADecision() run
-    // PersonalProfile mPersonalProfile = new PersonalProfile();
-
     // pump_high_temp_max is maximum units that the pump will produce for a temp basal (2 U/h for MM722)
     // +++ fixme: read this value from the pump
     // The pump may be able to do a higher high_temp_max, but is the highest 8 bit value we can send.
     // Need to check if we can send a 16 bit value. (units of 0.025 U/h)
     private static final double pump_high_temp_max = 6.35;
-
     // don't high-temp if IOB > max_IOB
     private static final double max_IOB = 15;
-
     // don't use CGM reading, if it is below this number:
     private static final double min_useable_bg_reading = 40.0;
+    private Context mContext;
+    private PumpManager mPumpManager;
+
+    // our cache of the profile settings
+    // Updated (at the minimum) at the start of each MakeADecision() run
+    // PersonalProfile mPersonalProfile = new PersonalProfile();
+    private MongoWrapper mMongoWrapper;
+    private String mLogfileName;
+    private PreferenceBackedStorage mStorage;
 
     /* END settable defaults */
+    private BasalProfile basalProfileSTD, basalProfileA, basalProfileB, mCurrentBasalProfile;
+    private boolean gotBasalProfiles = false;
+    private TempBasalPair mCurrentTempBasal = new TempBasalPair();
+    private PumpSettings mPumpSettings = new PumpSettings();
+
+    /**
+     * ****************************************************
+     * <p/>
+     * Past here is the infrastructure for this class.
+     * Shouldn't have to modify anything past here.
+     * <p/>
+     * I'm trying to keep all the java-overhead gunk out of the way.
+     * Anything that isn't directly related to making decisions.
+     * <p/>
+     * *****************************************************
+     */
+    public APSLogic(Context context, PumpManager pumpManager, MongoWrapper mongoWrapper) {
+        mContext = context;
+        mStorage = new PreferenceBackedStorage(context);
+        mPumpManager = pumpManager;
+        mMongoWrapper = mongoWrapper;
+        mLogfileName = "RTLog_" + DateTime.now().toString();
+    }
+
+    // This is same as above, but doesn't log to the window
+    // That makes it easy to change what appears on the window and what goes to the Android log.
+    private static void dlog(String message) {
+        Log.d(TAG, message);
+    }
 
     private double iobValueAtAbsTime(Instant startTime, double insulinUnits,
                                      Instant valueTime,
@@ -795,34 +821,9 @@ public class APSLogic {
         log("<Run complete>");
     }
 
-    /**
-     * ****************************************************
-     * <p/>
-     * Past here is the infrastructure for this class.
-     * Shouldn't have to modify anything past here.
-     * <p/>
-     * I'm trying to keep all the java-overhead gunk out of the way.
-     * Anything that isn't directly related to making decisions.
-     * <p/>
-     * *****************************************************
-     */
-    public APSLogic(Context context, PumpManager pumpManager, MongoWrapper mongoWrapper) {
-        mContext = context;
-        mStorage = new PreferenceBackedStorage(context);
-        mPumpManager = pumpManager;
-        mMongoWrapper = mongoWrapper;
-        mLogfileName = "RTLog_" + DateTime.now().toString();
-    }
-
     public void runAPSLogicOnce() {
         MakeADecision();
     }
-
-    private BasalProfile basalProfileSTD, basalProfileA, basalProfileB, mCurrentBasalProfile;
-
-    private boolean gotBasalProfiles = false;
-    private TempBasalPair mCurrentTempBasal = new TempBasalPair();
-    private PumpSettings mPumpSettings = new PumpSettings();
 
     private boolean getBasalProfiles() {
         basalProfileSTD = getPumpManager().getProfile(BasalProfileTypeEnum.STD);
@@ -914,12 +915,6 @@ public class APSLogic {
         if (mStorage.loggingEnabled.get() == true) {
             writeMessageToLogfile(message);
         }
-    }
-
-    // This is same as above, but doesn't log to the window
-    // That makes it easy to change what appears on the window and what goes to the Android log.
-    private static void dlog(String message) {
-        Log.d(TAG, message);
     }
 
     private void writeMessageToLogfile(String message) {

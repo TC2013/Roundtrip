@@ -26,17 +26,34 @@ import java.util.ArrayList;
  */
 public class PumpSettingsParcel extends PumpSettings implements Parcelable {
 
-    public PumpSettingsParcel() {
-    }
+    public static final Parcelable.Creator<PumpSettingsParcel> CREATOR
+            = new Parcelable.Creator<PumpSettingsParcel>() {
+        public PumpSettingsParcel createFromParcel(Parcel in) {
+            return new PumpSettingsParcel(in);
+        }
 
-    public boolean initFromPumpSettings(PumpSettings p) {
-        return parseFrom(p.getRawData());
+        public PumpSettingsParcel[] newArray(int size) {
+            return new PumpSettingsParcel[size];
+        }
+    };
+
+    public PumpSettingsParcel() {
     }
 
     // copy constructor
     public PumpSettingsParcel(PumpSettingsParcel p) {
         //lazy...
         initFromPumpSettings(p);
+    }
+
+    private PumpSettingsParcel(Parcel in) {
+        byte[] data = new byte[MAXIMUM_DATA_LENGTH];
+        in.readByteArray(data);
+        parseFrom(data);
+    }
+
+    public boolean initFromPumpSettings(PumpSettings p) {
+        return parseFrom(p.getRawData());
     }
 
     @Override
@@ -93,22 +110,5 @@ public class PumpSettingsParcel extends PumpSettings implements Parcelable {
     @Override
     public void writeToParcel(Parcel out, int flags) {
         out.writeByteArray(mRawData);
-    }
-
-    public static final Parcelable.Creator<PumpSettingsParcel> CREATOR
-            = new Parcelable.Creator<PumpSettingsParcel>() {
-        public PumpSettingsParcel createFromParcel(Parcel in) {
-            return new PumpSettingsParcel(in);
-        }
-
-        public PumpSettingsParcel[] newArray(int size) {
-            return new PumpSettingsParcel[size];
-        }
-    };
-
-    private PumpSettingsParcel(Parcel in) {
-        byte[] data = new byte[MAXIMUM_DATA_LENGTH];
-        in.readByteArray(data);
-        parseFrom(data);
     }
 }

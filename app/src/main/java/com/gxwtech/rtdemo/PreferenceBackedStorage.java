@@ -23,8 +23,6 @@ import org.joda.time.DateTime;
  * along with default values and key names
  */
 public class PreferenceBackedStorage {
-    Context mContext; // be careful, can leak contexts
-    SharedPreferences p;
     public PersistentDouble monitorTempBasalRate;
     public PersistentInt monitorTempBasalDuration;
     public PersistentDouble monitorCurrBasalRate;
@@ -42,6 +40,8 @@ public class PreferenceBackedStorage {
     public PersistentInt negativeInsulinDIATable;
     public PersistentBoolean loggingEnabled;
     public PersistentInt keepLogsForHours;
+    Context mContext; // be careful, can leak contexts
+    SharedPreferences p;
 
     public PreferenceBackedStorage(Context ctx) {
         mContext = ctx;

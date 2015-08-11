@@ -7,10 +7,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbManager;
 import android.os.Binder;
 import android.os.Environment;
 import android.os.IBinder;
@@ -34,6 +31,7 @@ import com.gxwtech.rtdemo.bluetooth.Commands;
 import com.gxwtech.rtdemo.bluetooth.GattAttributes;
 import com.gxwtech.rtdemo.bluetooth.operations.GattCharacteristicReadOperation;
 import com.gxwtech.rtdemo.bluetooth.operations.GattCharacteristicWriteOperation;
+import com.gxwtech.rtdemo.bluetooth.operations.GattInitializeBluetooth;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfile;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileEntry;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileTypeEnum;
@@ -41,15 +39,12 @@ import com.gxwtech.rtdemo.medtronic.PumpData.HistoryReport;
 import com.gxwtech.rtdemo.services.pumpmanager.PumpManager;
 import com.gxwtech.rtdemo.services.pumpmanager.PumpSettingsParcel;
 import com.gxwtech.rtdemo.services.pumpmanager.TempBasalPairParcel;
-import com.gxwtech.rtdemo.usb.CareLinkUsb;
 
 import org.joda.time.DateTime;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -84,41 +79,32 @@ public class RTDemoService extends IntentService {
     private static final String TAG = "RTDemoService";
 
     // @TODO Move this to constants?
-    private static final String MEDTRONIC_DEFAULT_SERIAL = "000000";
-
     private static final String MONGO_DEFAULT_SERVER = "localhost";
     private static final String MONGO_DEFAULT_PORT = "27015";
     private static final String MONGO_DEFAULT_DATABASE = "nightscout";
     private static final String MONGO_DEFAULT_USERNAME = "username";
     private static final String MONGO_DEFAULT_PASSWORD = "password";
     private static final String MONGO_DEFAULT_COLLECTION = "entries";
-
     private static final String WAKELOCKNAME = "com.gxwtech.RTDemo.RTDemoServiceWakeLock";
-    private static volatile PowerManager.WakeLock lockStatic = null;
-    PendingIntent mRepeatingAlarmPendingIntent;
-    public static final String REQUEST_STRING_EXTRANAME = "com.gxwtech.wltest2.requeststring";
 
+    private static volatile PowerManager.WakeLock lockStatic = null;
+    protected final int secondsBetweenRuns = 5 * 60; // five minutes
+
+    // This is the object that receives interactions from clients.  See
+    // RemoteService for a more complete example.
+    private final IBinder mBinder = new RTDemoBinder();
+    protected ArrayList<String> msgQ = new ArrayList<>();
+    PendingIntent mRepeatingAlarmPendingIntent;
 
     // GGW: I think APSLogic should be its own service, but for now, it's a member of RTDemoService.
     // It has significant connections with PumpManager which will have to be ironed out.
     APSLogic mAPSLogic;
     MongoWrapper mMongoWrapper;
     PreferenceBackedStorage mStorage;
-
-    //protected static RTDemoService mInstance = null;
     NotificationManager mNM;
 
-    private int NOTIFICATION = R.string.local_service_started;
-
-    protected final int secondsBetweenRuns = 5 * 60; // five minutes
-    protected int maxQueueLength = 100;
-    protected ArrayList<String> msgQ = new ArrayList<>();
-
-    // Intent for use in asking permission to use Carelink stick
-    private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
-    PendingIntent mPermissionIntent;
-
     PumpManager mPumpManager;
+    private int NOTIFICATION = R.string.local_service_started;
 
     public RTDemoService() {
         super(TAG);
@@ -126,14 +112,21 @@ public class RTDemoService extends IntentService {
 
     }
 
-    public PumpManager getPumpManager() {
-        return mPumpManager;
+
+    synchronized private static PowerManager.WakeLock getLock(Context context) {
+        if (lockStatic == null) {
+            PowerManager mgr =
+                    (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+
+            lockStatic = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCKNAME);
+            lockStatic.setReferenceCounted(true);
+        }
+
+        return lockStatic;
     }
 
-    boolean deviceIsCarelink(UsbDevice device) {
-        if (device == null) return false;
-        // magic numbers for Carelink stick.
-        return ((device.getVendorId() == CareLinkUsb.CARELINK_VENDOR_ID) && (device.getProductId() == CareLinkUsb.CARELINK_PRODUCT_ID));
+    public PumpManager getPumpManager() {
+        return mPumpManager;
     }
 
     @Override
@@ -148,91 +141,102 @@ public class RTDemoService extends IntentService {
             Log.w(TAG, String.format("onHandleIntent: received request srq=%s", srq));
 
 
-             if (srq.equals(Constants.SRQ.BLUETOOTH_WRITE)) {
+            switch (srq) {
+                case Constants.SRQ.BLUETOOTH_WRITE: {
 
+                    BluetoothConnection conn = BluetoothConnection.getInstance(this);
+                    byte[] command = Commands.getReadPumpCommand(new byte[]{0x41, 0x75, 0x40});
 
-                BluetoothConnection conn = BluetoothConnection.getInstance(this);
+                    conn.queue(new GattCharacteristicWriteOperation(
+                            UUID.fromString(GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE),
+                            UUID.fromString(GattAttributes.GLUCOSELINK_TX_PACKET_UUID),
+                            command,
+                            true,
+                            true
+                    ));
 
-                byte[] command = Commands.getReadPumpCommand(new byte[]{0x41, 0x75, 0x40});
+                    conn.queue(new GattCharacteristicWriteOperation(
+                            UUID.fromString(GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE),
+                            UUID.fromString(GattAttributes.GLUCOSELINK_TX_TRIGGER_UUID),
+                            new byte[]{0x01},
+                            false,
+                            false
+                    ));
 
-
-                conn.queue(new GattCharacteristicWriteOperation(
-                        UUID.fromString(GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE),
-                        UUID.fromString(GattAttributes.GLUCOSELINK_TX_PACKET_UUID),
-                        command,
-                        true,
-                        true
-                ));
-
-                 conn.queue(new GattCharacteristicWriteOperation(
-                         UUID.fromString(GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE),
-                         UUID.fromString(GattAttributes.GLUCOSELINK_TX_TRIGGER_UUID),
-                         new byte[]{0x01},
-                         false,
-                         false
-                ));
-
-            } else if (srq.equals(Constants.SRQ.BLUETOOTH_READ)) {
-
-
-                BluetoothConnection conn = BluetoothConnection.getInstance(this);
-
-                conn.queue(new GattCharacteristicReadOperation(
-                        UUID.fromString(GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE),
-                        UUID.fromString(GattAttributes.GLUCOSELINK_PACKET_COUNT),
-                        null
-                ));
-
-            } else if (srq.equals(Constants.SRQ.REPORT_PUMP_SETTINGS)) {
-                PumpSettingsParcel parcel = new PumpSettingsParcel();
-                parcel.initFromPumpSettings(mPumpManager.getPumpSettings());
-                 sendTaskResponseParcel(parcel, "PumpSettingsParcel");
-            } else if (srq.equals(Constants.SRQ.REPORT_PUMP_HISTORY)) {
-
-                // this was just used for debugging the getting of history reports.
-                // TODO: Remove this and the pump history GUI, or fix them both to work properly
-                 Log.d(TAG, "Received request for pump history");
-                HistoryReport report = mPumpManager.getPumpHistory(0);
-
-            } else if (srq.equals(Constants.SRQ.SET_TEMP_BASAL)) {
-                TempBasalPairParcel pair = (TempBasalPairParcel) intent.getParcelableExtra(Constants.ParcelName.TempBasalPairParcelName);
-                Log.d(TAG, String.format("Request to Set Temp Basal(Rate %.2fU, duration %d minutes",
-                        pair.mInsulinRate, pair.mDurationMinutes));
-                 mPumpManager.setTempBasal(pair);
-            } else if (srq.equals(Constants.SRQ.MONGO_SETTINGS_CHANGED)) {
-                // there are new settings in the preferences.
-                // Get them and give them to MongoWrapper
-                 updateMongoWrapperFromPrefs();
-            } else if (srq.equals(Constants.SRQ.START_REPEAT_ALARM)) {
-                // MonitorActivity start button runs this.
-                Log.w(TAG, "onHandleIntent: starting repeating alarm");
-                //startRepeatingAlarm(3 * 1000); // first run begins in 3 seconds
-                startRepeatingAlarm(secondsBetweenRuns * 1000); // first run begins 5 minutes from now
-                // and run it once right now.
-                serviceMain();
-            } else if (srq.equals(Constants.SRQ.STOP_REPEAT_ALARM)) {
-                // MonitorActivity stop button runs this.
-                Log.w(TAG, "onHandleIntent: stopping repeating alarm");
-                 stopRepeatingAlarm();
-            } else if (srq.equals(Constants.SRQ.DO_SUSPEND_MINUTES)) {
-                Log.w(TAG, "onHandleIntent: suspending repeating alarm");
-                // MonitorActivity Suspend button runs this.
-                // Get saved suspend duration from preferences.
-                // (Most likely, it was just saved by SuspendAPSActivity)
-                SharedPreferences settings = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
-                int minutes = settings.getInt(Constants.PrefName.SuspendMinutesPrefName, 0);
-                if (minutes <= 0) {
-                    Log.e(TAG, String.format("Cannot suspend for %d minutes.", minutes));
-                } else {
-                    suspendRepeatingAlarm(minutes * 60 * 1000); // five minutes, should be.
+                    break;
                 }
+                case Constants.SRQ.BLUETOOTH_READ: {
 
-            } else if (srq.equals(Constants.SRQ.VERIFY_DB_ACCESS)) {
-                // code removed.  todo: remove VERIFY_DB_ACCESS enum, too.
-                // This should be sent from the timer, so that it happens in the right thread/right queue
-            } else if (srq.equals(Constants.SRQ.APSLOGIC_STARTUP)) {
-                serviceMain();
-                // note: START_REPEAT_ALARM also calls serviceMain()
+                    BluetoothConnection conn = BluetoothConnection.getInstance(this);
+
+                    conn.queue(new GattCharacteristicReadOperation(
+                            UUID.fromString(GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE),
+                            UUID.fromString(GattAttributes.GLUCOSELINK_PACKET_COUNT),
+                            null
+                    ));
+
+                    break;
+                }
+                case Constants.SRQ.REPORT_PUMP_SETTINGS:
+                    PumpSettingsParcel parcel = new PumpSettingsParcel();
+                    parcel.initFromPumpSettings(mPumpManager.getPumpSettings());
+                    sendTaskResponseParcel(parcel, "PumpSettingsParcel");
+                    break;
+                case Constants.SRQ.REPORT_PUMP_HISTORY:
+
+                    // this was just used for debugging the getting of history reports.
+                    // TODO: Remove this and the pump history GUI, or fix them both to work properly
+                    Log.d(TAG, "Received request for pump history");
+                    HistoryReport report = mPumpManager.getPumpHistory(0);
+
+                    break;
+                case Constants.SRQ.SET_TEMP_BASAL:
+                    TempBasalPairParcel pair = (TempBasalPairParcel) intent.getParcelableExtra(Constants.ParcelName.TempBasalPairParcelName);
+                    Log.d(TAG, String.format("Request to Set Temp Basal(Rate %.2fU, duration %d minutes",
+                            pair.mInsulinRate, pair.mDurationMinutes));
+                    mPumpManager.setTempBasal(pair);
+                    break;
+                case Constants.SRQ.MONGO_SETTINGS_CHANGED:
+                    // there are new settings in the preferences.
+                    // Get them and give them to MongoWrapper
+                    updateMongoWrapperFromPrefs();
+                    break;
+                case Constants.SRQ.START_REPEAT_ALARM:
+                    // MonitorActivity start button runs this.
+                    Log.w(TAG, "onHandleIntent: starting repeating alarm");
+                    //startRepeatingAlarm(3 * 1000); // first run begins in 3 seconds
+                    startRepeatingAlarm(secondsBetweenRuns * 1000); // first run begins 5 minutes from now
+
+                    // and run it once right now.
+                    serviceMain();
+                    break;
+                case Constants.SRQ.STOP_REPEAT_ALARM:
+                    // MonitorActivity stop button runs this.
+                    Log.w(TAG, "onHandleIntent: stopping repeating alarm");
+                    stopRepeatingAlarm();
+                    break;
+                case Constants.SRQ.DO_SUSPEND_MINUTES:
+                    Log.w(TAG, "onHandleIntent: suspending repeating alarm");
+                    // MonitorActivity Suspend button runs this.
+                    // Get saved suspend duration from preferences.
+                    // (Most likely, it was just saved by SuspendAPSActivity)
+                    SharedPreferences settings = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
+                    int minutes = settings.getInt(Constants.PrefName.SuspendMinutesPrefName, 0);
+                    if (minutes <= 0) {
+                        Log.e(TAG, String.format("Cannot suspend for %d minutes.", minutes));
+                    } else {
+                        suspendRepeatingAlarm(minutes * 60 * 1000); // five minutes, should be.
+                    }
+
+                    break;
+                case Constants.SRQ.VERIFY_DB_ACCESS:
+                    // code removed.  todo: remove VERIFY_DB_ACCESS enum, too.
+                    // This should be sent from the timer, so that it happens in the right thread/right queue
+                    break;
+                case Constants.SRQ.APSLOGIC_STARTUP:
+                    serviceMain();
+                    // note: START_REPEAT_ALARM also calls serviceMain()
+                    break;
             }
 
         } finally {
@@ -291,18 +295,6 @@ public class RTDemoService extends IntentService {
 
     public void suspendRepeatingAlarm(int suspendMillis) {
         startRepeatingAlarm(suspendMillis);
-    }
-
-    synchronized private static PowerManager.WakeLock getLock(Context context) {
-        if (lockStatic == null) {
-            PowerManager mgr =
-                    (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-
-            lockStatic = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCKNAME);
-            lockStatic.setReferenceCounted(true);
-        }
-
-        return (lockStatic);
     }
 
     private void testGetProfile() {
@@ -422,16 +414,10 @@ public class RTDemoService extends IntentService {
         startForeground(Constants.NOTIFICATION_ID.RT_NOTIFICATION,
                 notification);
 
-        // create a PendingIntent to give to the USB Manager, to call us back with the result.
-        mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
+        BluetoothConnection conn = BluetoothConnection.getInstance(this);
 
-        // set up a filter for what broadcasts we wish to catch with mUsbReceiver
-        IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
-        // see EXTRA_DEVICE too
-        filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
-        filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
-
-        BluetoothConnection.getInstance(this).drive();
+        // Init connection :)
+        conn.queue(new GattInitializeBluetooth());
 
         //llog("End of onCreate()");
         llog("Roundtrip ready.");
@@ -528,7 +514,6 @@ public class RTDemoService extends IntentService {
         }
     }
 
-
     protected void serviceMain() {
         checkAndUpdateBGReading();
         mAPSLogic.runAPSLogicOnce();
@@ -551,28 +536,15 @@ public class RTDemoService extends IntentService {
         mNM.notify(NOTIFICATION, notification);
     }
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        return mBinder;
-    }
-
-    // This is the object that receives interactions from clients.  See
-    // RemoteService for a more complete example.
-    private final IBinder mBinder = new RTDemoBinder();
-
     /**
      * Class for clients to access.  Because we know this service always
      * runs in the same process as its clients, we don't need to deal with
      * IPC.
      */
 
-    /**
-     * In this case, our "client" is our UI thread/main activity
-     */
-    public class RTDemoBinder extends Binder {
-        RTDemoService getService() {
-            return RTDemoService.this;
-        }
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mBinder;
     }
 
     @Override
@@ -582,42 +554,13 @@ public class RTDemoService extends IntentService {
         super.onDestroy();
     }
 
-    private UsbManager getUsbManager() {
-        return (UsbManager) getSystemService(Context.USB_SERVICE);
-    }
-
-    private UsbDevice mCarelinkDevice; // use getCarelinkDevice to get access
-
-    private UsbDevice getCarelinkDevice() {
-        // if we already have one, return it
-        if (mCarelinkDevice != null) {
-            Log.e(TAG, "Re-using existing carelink device");
-            return mCarelinkDevice;
+    /**
+     * In this case, our "client" is our UI thread/main activity
+     */
+    public class RTDemoBinder extends Binder {
+        RTDemoService getService() {
+            return RTDemoService.this;
         }
-
-        // else, try to go get it.
-        HashMap<String, UsbDevice> deviceList = getUsbManager().getDeviceList();
-        Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
-
-        UsbDevice device = null;
-        while (deviceIterator.hasNext()) {
-            device = deviceIterator.next();
-            if (deviceIsCarelink(device)) {
-                break;
-            } else {
-                //Log.e(TAG, "Found a device, but it is not a CareLink:" + device.getDeviceName() + ", " + device.getProductName() + " (ProductID: " + device.getProductId() + ", VendorID: " + device.getVendorId() + ")");
-                Log.e(TAG, "Found a device, but it is not a CareLink");
-                device = null;
-            }
-        }
-        mCarelinkDevice = device;
-        if (mCarelinkDevice == null) {
-            Log.e(TAG, "Failed to find suitable CareLink device");
-        } else {
-            Log.e(TAG, "Found new CareLink device");
-        }
-
-        return mCarelinkDevice; // NOTE: may still be null, if we couldn't find it!
     }
 
 }

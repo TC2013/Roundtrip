@@ -6,6 +6,9 @@ package com.gxwtech.rtdemo.medtronic.PumpData;
  * Just need a class to keep the pair together, for parcel transport.
  */
 public class TempBasalPair {
+    public double mInsulinRate;
+    public int mDurationMinutes;
+
     public TempBasalPair() {
         mInsulinRate = 0.0;
         mDurationMinutes = 0;
@@ -15,7 +18,4 @@ public class TempBasalPair {
         mInsulinRate = insulinRate;
         mDurationMinutes = durationMinutes;
     }
-
-    public double mInsulinRate;
-    public int mDurationMinutes;
 }

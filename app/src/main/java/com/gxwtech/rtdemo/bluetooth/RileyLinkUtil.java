@@ -4,8 +4,6 @@ package com.gxwtech.rtdemo.bluetooth;
  * Created by Geoff on 2-8-15.
  */
 public class RileyLinkUtil {
-    private static final String TAG = "RileyLinkUtil";
-
     /*
      CodeSymbols is an ordered list of translations 6bits -> 4 bits, in order from 0x0 to 0xF
      The 6 bit codes are what is used on the RF side of the RileyLink to communicate with a Medtronic pump.
@@ -29,6 +27,7 @@ public class RileyLinkUtil {
             0b001110, // 14
             0b011100 // 28
     };
+    private static final String TAG = "RileyLinkUtil";
 
     public static int computeNewSize(final int inputSize) {
         return (int) Math.ceil((inputSize * 3.0) / 2.0);

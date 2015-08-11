@@ -30,17 +30,21 @@ import java.util.List;
  */
 public class MongoWrapper {
     private static final String TAG = "MongoWrapper";
+    public static MongoClient mongoClientInstance = null;
     public PersistentBoolean allowWritingToDB;
     protected String mURIString = "<MongoDB URI string - uninitialized>";
     protected String mDBName = "<MongoDB database name - uninitialized>";
     protected String mCollection = "entries"; // cgm readings
     protected String mTreatmentsCollectionName = "treatments"; // treatments (Temp Basals/carb corrections)
-
-
     protected boolean setupCompleted = false;
     MongoClientURI mUri = null;
-    public static MongoClient mongoClientInstance = null;
     DB mDB = null;
+
+    public MongoWrapper(Context ctx) {
+        allowWritingToDB = new PersistentBoolean(ctx.getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0),
+                Constants.PrefName.MongoDBAllowWritingToDBPrefName, true);
+
+    }
 
     public static synchronized MongoClient getMongoClientInstance(MongoClientURI uri) {
         if (mongoClientInstance == null) {
@@ -51,30 +55,6 @@ public class MongoWrapper {
             }
         }
         return mongoClientInstance;
-    }
-
-    // todo: I don't like inner classes.  Move to a new class
-    public class BGReadingResponse {
-        public BGReading reading = new BGReading();
-        public boolean error = false;
-        public String errorMessage = "";
-
-        public BGReadingResponse() {
-            reading = new BGReading();
-            error = false;
-            errorMessage = "";
-        }
-
-        public void setError(String message) {
-            error = true;
-            errorMessage = message;
-        }
-    }
-
-    public MongoWrapper(Context ctx) {
-        allowWritingToDB = new PersistentBoolean(ctx.getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0),
-                Constants.PrefName.MongoDBAllowWritingToDBPrefName, true);
-
     }
 
     public void checkSetup() throws java.net.UnknownHostException {
@@ -250,5 +230,23 @@ public class MongoWrapper {
         }
 
         return response;
+    }
+
+    // todo: I don't like inner classes.  Move to a new class
+    public class BGReadingResponse {
+        public BGReading reading = new BGReading();
+        public boolean error = false;
+        public String errorMessage = "";
+
+        public BGReadingResponse() {
+            reading = new BGReading();
+            error = false;
+            errorMessage = "";
+        }
+
+        public void setError(String message) {
+            error = true;
+            errorMessage = message;
+        }
     }
 }

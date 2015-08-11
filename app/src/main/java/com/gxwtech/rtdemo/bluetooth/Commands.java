@@ -8,7 +8,7 @@ public class Commands {
     /*
      Based on: https://github.com/bewest/decoding-carelink/blob/master/decocare/commands.py#L1441-L1461
      */
-    public static byte[] getReadPumpCommand(byte[] serial) {
+    public static byte[] getReadPumpCommand(final byte[] serial) {
         byte[] data = new byte[]{
                 0x01, // head
                 0x00, // head
@@ -32,6 +32,23 @@ public class Commands {
         data[4] = serial[0];
         data[5] = serial[1];
         data[6] = serial[2];
+
+        data[14] = CRC.computeCRC(data, 14);
+
+        return data;
+    }
+
+    public static byte[] setSuspendCommand(final byte[] serial) {
+        byte[] data = new byte[]{
+                0x00, // Serial
+                0x00, // Serial
+                0x00, // Serial
+        };
+
+        // Serial
+        data[0] = serial[0];
+        data[1] = serial[1];
+        data[2] = serial[2];
 
         data[14] = CRC.computeCRC(data, 14);
 

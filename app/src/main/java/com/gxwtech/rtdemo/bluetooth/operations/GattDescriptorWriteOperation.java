@@ -4,6 +4,8 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.util.Log;
 
+import com.gxwtech.rtdemo.bluetooth.GattAttributes;
+
 import java.util.UUID;
 
 public class GattDescriptorWriteOperation extends GattOperation {
@@ -32,5 +34,10 @@ public class GattDescriptorWriteOperation extends GattOperation {
     @Override
     public boolean hasAvailableCompletionCallback() {
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "GattDescriptorWriteOperation on service: " + GattAttributes.lookup(mService) + ", Char: " + GattAttributes.lookup(mCharacteristic);
     }
 }

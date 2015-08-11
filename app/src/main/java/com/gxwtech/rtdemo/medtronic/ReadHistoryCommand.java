@@ -34,10 +34,6 @@ public class ReadHistoryCommand extends MedtronicCommand {
 
     }
 
-    public void setPageNumber(int pageNumber) {
-        mParams[0] = (byte) pageNumber;
-    }
-
     private static void checkForRecordSequence(byte[] data, int index) {
         Record r;
         int seq = 0;
@@ -86,6 +82,25 @@ public class ReadHistoryCommand extends MedtronicCommand {
 
         }
         return record;
+    }
+
+    public static void discoverRecords(byte[] data) {
+        int i = 0;
+        boolean done = false;
+
+        while (!done) {
+            RecordTypeEnum en = RecordTypeEnum.fromByte(data[i]);
+            if (en != RecordTypeEnum.RECORD_TYPE_NULL) {
+                Log.v(TAG, String.format("Possible record of type %s found at index %d", en, i));
+                checkForRecordSequence(data, i);
+            }
+            i = i + 1;
+            done = (i >= data.length - 2);
+        }
+    }
+
+    public void setPageNumber(int pageNumber) {
+        mParams[0] = (byte) pageNumber;
     }
 
     public void parse(byte[] receivedData) {
@@ -161,23 +176,6 @@ public class ReadHistoryCommand extends MedtronicCommand {
             }
         }
     }
-
-
-    public static void discoverRecords(byte[] data) {
-        int i = 0;
-        boolean done = false;
-
-        while (!done) {
-            RecordTypeEnum en = RecordTypeEnum.fromByte(data[i]);
-            if (en != RecordTypeEnum.RECORD_TYPE_NULL) {
-                Log.v(TAG, String.format("Possible record of type %s found at index %d", en, i));
-                checkForRecordSequence(data, i);
-            }
-            i = i + 1;
-            done = (i >= data.length - 2);
-        }
-    }
-
 
     public void testParser() {
         byte[] sampleHistory = new byte[]{

@@ -17,4 +17,9 @@ public class GattDisconnectOperation extends GattOperation {
     public boolean hasAvailableCompletionCallback() {
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "GattDisconnectOperation";
+    }
 }

@@ -7,7 +7,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertArrayEquals;
 
 /**
- * Created by fokko on 5-8-15.
+ * Created by Fokko on 5-8-15.
  */
 public class CommandsTest extends TestCase {
 

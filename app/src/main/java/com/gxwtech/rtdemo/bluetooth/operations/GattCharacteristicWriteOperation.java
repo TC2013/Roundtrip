@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.gxwtech.rtdemo.bluetooth.BluetoothConnection;
 import com.gxwtech.rtdemo.bluetooth.CRC;
+import com.gxwtech.rtdemo.bluetooth.GattAttributes;
 import com.gxwtech.rtdemo.bluetooth.RileyLinkUtil;
 
 import java.util.UUID;
@@ -45,5 +46,10 @@ public class GattCharacteristicWriteOperation extends GattOperation {
     @Override
     public boolean hasAvailableCompletionCallback() {
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "GattCharacteristicWriteOperation on service: " + GattAttributes.lookup(mService) + ", Char: " + GattAttributes.lookup(mCharacteristic);
     }
 }

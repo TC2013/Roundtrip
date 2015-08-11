@@ -1,295 +1,303 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="com.gxwtech.rtdemo.PersonalProfileActivity">
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                tools:context="com.gxwtech.rtdemo.PersonalProfileActivity">
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
             <TextView
+                android:id="@+id/textView_CAR"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="Absorption (CAR)"
-                android:id="@+id/textView_CAR" />
+                android:textAppearance="?android:attr/textAppearanceSmall"/>
 
             <EditText
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
-                android:ems="10"
                 android:id="@+id/editText_CAR"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:ems="10"
+                android:gravity="right"
                 android:hint="30.0"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:gravity="right"
-                android:singleLine="true" />
+                android:inputType="numberDecimal"
+                android:singleLine="true"
+                android:textAppearance="?android:attr/textAppearanceSmall"/>
 
             <Button
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Set"
                 android:id="@+id/button_SetCAR"
-                android:onClick="editCARChanged" />
-        </LinearLayout>
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
+                style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:onClick="editCARChanged"
+                android:text="Set"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textView_ISFLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="Sensitivity (ISF)"
-                android:id="@+id/textView_ISFLabel" />
+                android:textAppearance="?android:attr/textAppearanceSmall"/>
 
             <EditText
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
-                android:ems="10"
                 android:id="@+id/editText_ISF"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:ems="10"
+                android:gravity="right"
                 android:hint="40.0"
-                android:gravity="right"
-                android:singleLine="true" />
+                android:inputType="numberDecimal"
+                android:singleLine="true"
+                android:textAppearance="?android:attr/textAppearanceSmall"/>
 
             <Button
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Set"
                 android:id="@+id/button_SetISF"
-                android:onClick="editISFClicked" />
-        </LinearLayout>
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
+                style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:onClick="editISFClicked"
+                android:text="Set"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textView_Label_BGMax"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="BG Target max:"
-                android:id="@+id/textView_Label_BGMax" />
+                android:textAppearance="?android:attr/textAppearanceSmall"/>
 
             <EditText
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
-                android:ems="10"
                 android:id="@+id/editText_BGMax"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:ems="10"
+                android:gravity="right"
                 android:hint="125"
-                android:gravity="right"
-                android:singleLine="true" />
+                android:inputType="numberDecimal"
+                android:singleLine="true"
+                android:textAppearance="?android:attr/textAppearanceSmall"/>
 
             <Button
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Set"
                 android:id="@+id/button_SetBGMax"
-                android:onClick="setBGMaxClicked" />
-        </LinearLayout>
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
+                style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:onClick="setBGMaxClicked"
+                android:text="Set"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textView_Label_TargetBG"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="BG Target (mg/dL):"
-                android:id="@+id/textView_Label_TargetBG" />
+                android:textAppearance="?android:attr/textAppearanceSmall"/>
 
             <EditText
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
-                android:ems="10"
                 android:id="@+id/editText_TargetBG"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:ems="10"
+                android:gravity="right"
                 android:hint="115"
-                android:gravity="right"
-                android:singleLine="true" />
+                android:inputType="numberDecimal"
+                android:singleLine="true"
+                android:textAppearance="?android:attr/textAppearanceSmall"/>
 
             <Button
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Set"
                 android:id="@+id/button_SetTargetBG"
-                android:onClick="setTargetBGClicked" />
-        </LinearLayout>
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
+                style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:onClick="setTargetBGClicked"
+                android:text="Set"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textView_Label_BGMin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="BG Target min:"
-                android:id="@+id/textView_Label_BGMin" />
+                android:textAppearance="?android:attr/textAppearanceSmall"/>
 
             <EditText
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
-                android:ems="10"
                 android:id="@+id/editText_BGMin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:ems="10"
+                android:gravity="right"
                 android:hint="95"
-                android:gravity="right"
-                android:singleLine="true" />
+                android:inputType="numberDecimal"
+                android:singleLine="true"
+                android:textAppearance="?android:attr/textAppearanceSmall"/>
 
             <Button
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Set"
                 android:id="@+id/button_SetBGMin"
-                android:onClick="setBGMinClicked" />
-        </LinearLayout>
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
+                style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:onClick="setBGMinClicked"
+                android:text="Set"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textView_Label_MaxTmpBasalRate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="Max Tmp Basal Rate:"
-                android:id="@+id/textView_Label_MaxTmpBasalRate" />
+                android:textAppearance="?android:attr/textAppearanceSmall"/>
 
             <EditText
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
-                android:ems="10"
                 android:id="@+id/editText_MaxTmpBasalRate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:hint="6.1"
+                android:ems="10"
                 android:gravity="right"
-                android:singleLine="true" />
+                android:hint="6.1"
+                android:inputType="numberDecimal"
+                android:singleLine="true"
+                android:textAppearance="?android:attr/textAppearanceSmall"/>
 
             <Button
+                android:id="@+id/button_SetMaxTmpBasalRate"
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Set"
-                android:id="@+id/button_SetMaxTmpBasalRate"
-                android:onClick="setMaxTmpBasalRateClicked" />
+                android:onClick="setMaxTmpBasalRateClicked"
+                android:text="Set"/>
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
             <TextView
+                android:id="@+id/textView_LowBGSuspend"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:singleLine="true"
                 android:text="Low BG Suspend:"
-                android:id="@+id/textView_LowBGSuspend"
-                android:singleLine="true" />
+                android:textAppearance="?android:attr/textAppearanceSmall"/>
 
             <EditText
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
-                android:ems="10"
                 android:id="@+id/editText_LowBGSuspend"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:hint="85.0"
+                android:ems="10"
                 android:gravity="right"
-                android:singleLine="true" />
+                android:hint="85.0"
+                android:inputType="numberDecimal"
+                android:singleLine="true"
+                android:textAppearance="?android:attr/textAppearanceSmall"/>
 
             <Button
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Set"
                 android:id="@+id/button_SetLowBGSuspend"
-                android:onClick="editLowBGSuspendClicked" />
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="editLowBGSuspendClicked"
+                android:text="Set"/>
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="Normal DIA table:"
                 android:id="@+id/textView_NormalDIATable"
-                android:singleLine="true"
-                android:layout_gravity="center_vertical" />
-
-            <Spinner
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/spinner_NormalDIATable" />
+                android:layout_gravity="center_vertical"
+                android:singleLine="true"
+                android:text="Normal DIA table:"
+                android:textAppearance="?android:attr/textAppearanceSmall"/>
+
+            <Spinner
+                android:id="@+id/spinner_NormalDIATable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
 
             <Button
+                android:id="@+id/button_SetNormalDIATable"
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Set"
-                android:id="@+id/button_SetNormalDIATable" />
+                android:text="Set"/>
 
         </LinearLayout>
+
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
             <TextView
+                android:id="@+id/textView_NegativeDIATable"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="Negative DIA table:"
-                android:id="@+id/textView_NegativeDIATable"
+                android:layout_gravity="center_vertical"
                 android:singleLine="true"
-                android:layout_gravity="center_vertical" />
+                android:text="Negative DIA table:"
+                android:textAppearance="?android:attr/textAppearanceSmall"/>
 
             <Spinner
+                android:id="@+id/spinner_NegativeDIATable"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/spinner_NegativeDIATable" />
+                android:layout_height="wrap_content"/>
 
             <Button
+                android:id="@+id/button_SetNegativeDIATable"
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Set"
-                android:id="@+id/button_SetNegativeDIATable" />
+                android:text="Set"/>
 
         </LinearLayout>
     </LinearLayout>

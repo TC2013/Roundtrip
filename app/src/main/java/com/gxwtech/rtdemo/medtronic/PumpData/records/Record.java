@@ -19,6 +19,10 @@ abstract public class Record {
     public Record() {
     }
 
+    protected static int readUnsignedByte(byte b) {
+        return (b < 0) ? b + 256 : b;
+    }
+
     public boolean collectRawData(byte[] data, PumpModel model) {
         recordOp = data[0];
         this.model = model;
@@ -49,9 +53,5 @@ abstract public class Record {
 
     protected boolean decode(byte[] data) {
         return true;
-    }
-
-    protected static int readUnsignedByte(byte b) {
-        return (b < 0) ? b + 256 : b;
     }
 }

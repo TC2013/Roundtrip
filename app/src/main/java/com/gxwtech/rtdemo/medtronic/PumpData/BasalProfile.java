@@ -26,9 +26,9 @@ import java.util.ArrayList;
  * m is the start time-of-day for the basal rate period (in 30 minute increments?)
  */
 public class BasalProfile {
+    protected static final int MAX_RAW_DATA_SIZE = (21 * 3) + 1;
     private static final String TAG = "BasalProfile";
     private static final boolean DEBUG_BASALPROFILE = false;
-    protected static final int MAX_RAW_DATA_SIZE = (21 * 3) + 1;
     protected byte[] mRawData; // store as byte array to make transport (via parcel) easier
 
     public BasalProfile() {
@@ -41,6 +41,39 @@ public class BasalProfile {
     // this readUnsignedByte should be combined with Record.readUnsignedByte, and placed in a new util class.
     protected static int readUnsignedByte(byte b) {
         return (b < 0) ? b + 256 : b;
+    }
+
+    public static void testParser() {
+        byte[] testData = new byte[]{
+                32, 0, 0,
+                38, 0, 13,
+                44, 0, 19,
+                38, 0, 28,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0};
+  /* from decocare:
+  _test_schedule = {'total': 22.50, 'schedule': [
+    { 'start': '12:00A', 'rate': 0.80 },
+    { 'start': '6:30A', 'rate': 0.95 },
+    { 'start': '9:30A', 'rate': 1.10 },
+    { 'start': '2:00P', 'rate': 0.95 },
+  ]}
+  */
+        BasalProfile profile = new BasalProfile();
+        profile.setRawData(testData);
+        ArrayList<BasalProfileEntry> entries = profile.getEntries();
+        if (entries.isEmpty()) {
+            Log.e(TAG, "testParser: failed");
+        } else {
+            for (int i = 0; i < entries.size(); i++) {
+                BasalProfileEntry e = entries.get(i);
+                Log.d(TAG, String.format("testParser entry #%d: rate: %.2f, start %d:%d",
+                        i, e.rate, e.startTime.getHourOfDay(),
+                        e.startTime.getMinuteOfHour()));
+            }
+        }
+
     }
 
     public boolean setRawData(byte[] data) {
@@ -140,38 +173,5 @@ public class BasalProfile {
             }
         }
         return entries;
-    }
-
-    public static void testParser() {
-        byte[] testData = new byte[]{
-                32, 0, 0,
-                38, 0, 13,
-                44, 0, 19,
-                38, 0, 28,
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0};
-  /* from decocare:
-  _test_schedule = {'total': 22.50, 'schedule': [
-    { 'start': '12:00A', 'rate': 0.80 },
-    { 'start': '6:30A', 'rate': 0.95 },
-    { 'start': '9:30A', 'rate': 1.10 },
-    { 'start': '2:00P', 'rate': 0.95 },
-  ]}
-  */
-        BasalProfile profile = new BasalProfile();
-        profile.setRawData(testData);
-        ArrayList<BasalProfileEntry> entries = profile.getEntries();
-        if (entries.isEmpty()) {
-            Log.e(TAG, "testParser: failed");
-        } else {
-            for (int i = 0; i < entries.size(); i++) {
-                BasalProfileEntry e = entries.get(i);
-                Log.d(TAG, String.format("testParser entry #%d: rate: %.2f, start %d:%d",
-                        i, e.rate, e.startTime.getHourOfDay(),
-                        e.startTime.getMinuteOfHour()));
-            }
-        }
-
     }
 }

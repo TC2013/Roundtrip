@@ -51,14 +51,14 @@ public class Bolus extends TimeStampedRecord {
         return true;
     }
 
-    public enum BolusType {
-        SQUARE,
-        NORMAL
-    }
-
     @Override
     public void logRecord() {
         Log.i(TAG, String.format("%s %s Programmed amount: %.2f Delivered: %.2f Duration: %.2f Type: %s Unabsorbed: %.2f",
                 timeStamp, recordTypeName, programmedAmount, deliveredAmount, duration, bolusType.name(), unabsorbed));
+    }
+
+    public enum BolusType {
+        SQUARE,
+        NORMAL
     }
 }
