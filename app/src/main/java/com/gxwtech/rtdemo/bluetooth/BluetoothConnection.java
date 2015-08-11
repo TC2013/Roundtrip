@@ -16,6 +16,7 @@ import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -42,12 +43,37 @@ public class BluetoothConnection {
     private final static char[] HEX_DIGITS = {
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
     };
+    // http://www.mopri.de/2010/timertask-bad-do-it-the-android-way-use-a-handler/
+    private static final int BATTERY_UPDATE = 60 * 1000; // Every minute
     private static BluetoothConnection instance = null;
     private final Context context;
     private GattOperation mCurrentOperation;
     private AsyncTask<Void, Void, Void> mCurrentOperationTimeout;
     private BluetoothGatt bluetoothConnectionGatt = null;
     private ConcurrentLinkedQueue<GattOperation> mQueue = new ConcurrentLinkedQueue<>();
+    private Handler batteryHandler = new Handler();
+    private Runnable batteryTask = new Runnable() {
+        @Override
+        public void run() {
+            /* do what you need to do */
+            instance.queue(new GattCharacteristicReadOperation(
+                    UUID.fromString(GattAttributes.GLUCOSELINK_BATTERY_SERVICE),
+                    UUID.fromString(GattAttributes.GLUCOSELINK_BATTERY_UUID),
+                    new GattCharacteristicReadCallback() {
+                        @Override
+                        public void call(byte[] characteristic) {
+                            Intent batteryUpdate = new Intent(Intents.BLUETOOTH_BATTERY);
+                            batteryUpdate.putExtra("battery", characteristic[0]);
+
+                            LocalBroadcastManager.getInstance(context).sendBroadcast(batteryUpdate);
+                        }
+                    }
+            ));
+
+            /* and here comes the "trick" */
+            batteryHandler.postDelayed(this, BATTERY_UPDATE);
+        }
+    };
 
     protected BluetoothConnection(Context context) {
         this.context = context;
@@ -142,7 +168,7 @@ public class BluetoothConnection {
             protected synchronized Void doInBackground(Void... voids) {
                 try {
                     Log.v(TAG, "Setting timeout for: " + operation.toString());
-                    wait(200000);
+                    wait(22 * 1000);
 
                     if (isCancelled()) {
                         Log.v(TAG, "The timeout has already been cancelled.");
@@ -182,6 +208,7 @@ public class BluetoothConnection {
             if (bluetoothConnectionGatt != null) {
                 execute(bluetoothConnectionGatt, operation);
             } else {
+                Log.w(TAG, "Starting scan.");
                 // Start new connection
                 scanner.startScan(filters, settings, new ScanCallback() {
                     @Override
@@ -221,10 +248,7 @@ public class BluetoothConnection {
 
                                     final String statusMessage = getGattStatusMessage(status);
 
-                                    if (characteristic.getUuid().toString().equals(GattAttributes.GLUCOSELINK_BATTERY_UUID)) {
-                                        Log.w(TAG, statusMessage + " Battery level: " + (int) characteristic.getValue()[0]);
-
-                                    } else if (characteristic.getUuid().toString().equals(GattAttributes.GLUCOSELINK_RX_PACKET_UUID)) {
+                                    if (characteristic.getUuid().toString().equals(GattAttributes.GLUCOSELINK_RX_PACKET_UUID)) {
                                         byte[] data = characteristic.getValue();
 
                                         final DataPackage pack = Decoder.DeterminePackage(data);
@@ -298,7 +322,9 @@ public class BluetoothConnection {
                                     if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_CONNECTED) {
                                         if (gatt.discoverServices()) {
                                             Log.w(TAG, "Starting to discover GATT Services.");
+
                                             bluetoothConnectionGatt = gatt;
+                                            batteryHandler.postDelayed(batteryTask, BATTERY_UPDATE);
                                         } else {
                                             Log.w(TAG, "Cannot discover GATT Services.");
                                         }
@@ -426,7 +452,7 @@ public class BluetoothConnection {
         }
     }
 
-    private String getGattStatusMessage(int status) {
+    private String getGattStatusMessage(final int status) {
         final String statusMessage;
         if (status == BluetoothGatt.GATT_SUCCESS) {
             statusMessage = "SUCCESS";
@@ -434,6 +460,8 @@ public class BluetoothConnection {
             statusMessage = "FAILED";
         } else if (status == BluetoothGatt.GATT_WRITE_NOT_PERMITTED) {
             statusMessage = "NOT PERMITTED";
+        } else if (status == 133) {
+            statusMessage = "Found the strange 133 bug";
         } else {
             statusMessage = "UNKNOWN (" + status + ")";
         }

@@ -5,7 +5,7 @@ import junit.framework.TestCase;
 import org.junit.Test;
 
 /**
- * Created by fokko on 7-8-15.
+ * Created by Fokko on 7-8-15.
  */
 public class MedtronicGlucoseTest extends TestCase {
 

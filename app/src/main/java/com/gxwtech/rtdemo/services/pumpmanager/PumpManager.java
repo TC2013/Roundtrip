@@ -13,8 +13,6 @@ import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileTypeEnum;
 import com.gxwtech.rtdemo.medtronic.PumpData.HistoryReport;
 import com.gxwtech.rtdemo.medtronic.PumpData.PumpSettings;
 import com.gxwtech.rtdemo.medtronic.PumpData.TempBasalPair;
-import com.gxwtech.rtdemo.usb.CareLinkUsb;
-import com.gxwtech.rtdemo.usb.UsbException;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
@@ -42,7 +40,6 @@ public class PumpManager {
     //protected Calendar mLastPowerControlRunTime;
     public static int VERIFY_MAX_RETRIES = 5;
     public static int VERIFY_MIN_SIGNAL = 100; // TODO totally arbitrary.
-    CareLinkUsb stick; // The USB connection
     byte[] mSerialNumber; // need a setter for this
     Context mContext;
 
@@ -100,36 +97,6 @@ public class PumpManager {
 
     protected void init() {
         mSerialNumber = new byte[]{0, 0, 0};
-    }
-
-    // Called AFTER USB device has been removed.
-    public void close() {
-        try {
-            stick.close();
-        } catch (UsbException e) {
-            Log.e(TAG, "Error on USB close: " + e.toString());
-        }
-    }
-
-    public boolean wakeUpCarelink() {
-        int wakeupRetries = 0;
-        boolean awake = false;
-
-        // Phase 1: see if the stick will respond with product info
-        while ((!awake) && (++wakeupRetries < WAKE_UP_MAX_RETRIES)) {
-
-        }
-        return awake;
-    }
-
-    public boolean verifyPumpCommunications() {
-
-        return false;
-    }
-
-    public void checkPowerControl() {
-
-
     }
 
     public PumpSettings getPumpSettings() {

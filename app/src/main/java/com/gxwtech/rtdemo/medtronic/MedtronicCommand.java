@@ -2,10 +2,8 @@ package com.gxwtech.rtdemo.medtronic;
 
 import android.util.Log;
 
-import com.gxwtech.rtdemo.usb.UsbException;
-
 /**
- * Created by geoff on 4/27/15.
+ * Created by Geoff on 4/27/15.
  */
 public class MedtronicCommand {
     private static final String TAG = "MedtronicCommand";
@@ -82,18 +80,6 @@ public class MedtronicCommand {
         // Rewrite for bluetooth
 
         return null;
-    }
-
-    protected int checkForData() throws UsbException {
-        // Rewrite for bluetooth
-
-        return -1;
-    }
-
-    public byte[] downloadIdeal() {
-        // Rewrite for bluetooth
-
-        return new byte[]{};
     }
 
 }

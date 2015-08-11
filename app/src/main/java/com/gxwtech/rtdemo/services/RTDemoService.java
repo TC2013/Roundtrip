@@ -8,7 +8,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.hardware.usb.UsbDevice;
 import android.os.Binder;
 import android.os.Environment;
 import android.os.IBinder;
@@ -107,13 +106,13 @@ public class RTDemoService extends IntentService {
 
     PumpManager mPumpManager;
     private int NOTIFICATION = R.string.local_service_started;
-    private UsbDevice mCarelinkDevice; // use getCarelinkDevice to get access
 
     public RTDemoService() {
         super(TAG);
         setIntentRedelivery(true);
 
     }
+
 
     synchronized private static PowerManager.WakeLock getLock(Context context) {
         if (lockStatic == null) {

@@ -81,6 +81,9 @@ public class MainActivity extends ActionBarActivity {
                 t.setTextColor(Color.RED);
 
                 Log.w(TAG, "Disconnected to the Rileylink");
+            } else if (intent.getAction().equals(Intents.BLUETOOTH_BATTERY)) {
+                TextView t = (TextView) findViewById(R.id.textView_StatusBattery);
+                t.setText("Battery: " + intent.getByteExtra("battery", (byte) 0) + "%");
             }
         }
     };
@@ -133,6 +136,7 @@ public class MainActivity extends ActionBarActivity {
         intentFilter.addAction(Intents.BLUETOOTH_CONNECTED);
         intentFilter.addAction(Intents.BLUETOOTH_CONNECTING);
         intentFilter.addAction(Intents.BLUETOOTH_DISCONNECTED);
+        intentFilter.addAction(Intents.BLUETOOTH_BATTERY);
 
         // register our desire to receive broadcasts from RTDemoService
         LocalBroadcastManager.getInstance(getApplicationContext())

@@ -6,7 +6,7 @@ import com.gxwtech.rtdemo.medtronic.MedtronicConstants;
  * Created by fokko on 6-8-15.
  */
 public class Decoder {
-    public static DataPackage DeterminePackage(byte[] data) {
+    public static DataPackage DeterminePackage(final byte[] data) {
         final DataPackage newDataPackage;
         switch (data[2]) {
             case MedtronicConstants.MEDTRONIC_GLUCOSE:
