@@ -1,11 +1,11 @@
-package com.gxwtech.rtdemo.decoding;
+package com.gxwtech.rtdemo.decoding.packages;
 
 import android.util.Log;
 
 /**
  * Created by Fokko on 7-8-15.
  */
-public class MedtronicSensor extends DataPackage {
+public class MedtronicSensor extends MedtronicPackage {
     private static final String TAG = "MedtronicMensor";
 
     @Override

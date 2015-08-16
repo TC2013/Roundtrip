@@ -34,24 +34,36 @@ public class GattSetNotificationOperation extends GattOperation {
 
         gatt.setCharacteristicNotification(characteristic, true);
 
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
         final BluetoothGattDescriptor descriptor = characteristic.getDescriptor(mDescriptorUuid);
-        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-        if (gatt.writeDescriptor(descriptor)) {
-            Log.v(TAG, "Succesfully written descriptor");
-        } else {
-            Log.v(TAG, "Unable to written decriptor");
+
+        if (0 != (characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_INDICATE)) {
+            // It's an indicate characteristic
+            Log.d(TAG, "Characteristic " + GattAttributes.lookup(characteristic.getUuid()) + ", descriptor: " + GattAttributes.lookup(mDescriptorUuid) + " is INDICATE");
+            descriptor.setValue(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+
+            if (gatt.writeDescriptor(descriptor)) {
+                Log.d(TAG, "Succesfully written descriptor");
+            } else {
+                Log.d(TAG, "Unable to written decriptor");
+            }
+        }
+        else if (0 != (characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY)) {
+            // It's a notify characteristic
+            Log.d(TAG,  "Characteristic " + GattAttributes.lookup(characteristic.getUuid()) + ", descriptor: " + GattAttributes.lookup(mDescriptorUuid) + " is NOTIFY");
+            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+
+            if (gatt.writeDescriptor(descriptor)) {
+                Log.d(TAG, "Succesfully written descriptor");
+            } else {
+                Log.d(TAG, "Unable to written decriptor");
+            }
         }
     }
 
+    // Callback in the overridden method
     @Override
     public boolean hasAvailableCompletionCallback() {
-        return false;
+        return true;
     }
 
     @Override

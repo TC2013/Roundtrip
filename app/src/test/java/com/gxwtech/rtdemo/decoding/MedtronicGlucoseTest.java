@@ -1,5 +1,7 @@
 package com.gxwtech.rtdemo.decoding;
 
+import com.gxwtech.rtdemo.decoding.packages.MedtronicGlucose;
+
 import junit.framework.TestCase;
 
 import org.junit.Test;

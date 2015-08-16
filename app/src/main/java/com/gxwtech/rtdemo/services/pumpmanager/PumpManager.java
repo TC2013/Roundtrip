@@ -131,20 +131,4 @@ public class PumpManager {
         return null;
     }
 
-    public void sleep(int millis) {
-        if (millis > 1000) {
-            // If we sleep for more than 1 second, notify the UI
-            // Let the UI know that we're sleeping (for pump communication delays)
-            // send the log message to anyone who cares to listen (e.g. a UI component!)
-            Intent intent = new Intent(Intents.ROUNDTRIP_SLEEP_MESSAGE)
-                    .putExtra(Intents.ROUNDTRIP_SLEEP_MESSAGE_DURATION, millis / 1000);
-            LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
-        }
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            Log.e(TAG, "Sleep interrupted: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
 }

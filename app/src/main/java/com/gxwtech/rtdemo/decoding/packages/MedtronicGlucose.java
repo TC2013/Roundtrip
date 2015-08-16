@@ -1,15 +1,16 @@
-package com.gxwtech.rtdemo.decoding;
+package com.gxwtech.rtdemo.decoding.packages;
 
 import android.util.Log;
 
 import com.gxwtech.rtdemo.bluetooth.CRC;
+import com.gxwtech.rtdemo.decoding.Conversion;
 
 import java.nio.ByteBuffer;
 
 /**
  * Created by Fokko on 6-8-15.
  */
-public class MedtronicGlucose extends DataPackage {
+public class MedtronicGlucose extends MedtronicPackage {
     private static final String TAG = "MedtronicGlucose";
 
     private int mgdl = -1;
