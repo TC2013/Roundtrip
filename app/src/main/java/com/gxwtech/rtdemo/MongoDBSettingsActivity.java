@@ -93,6 +93,7 @@ public class MongoDBSettingsActivity extends ActionBarActivity {
         editText.setText(mongoCollection);
         CheckBox cb = (CheckBox) findViewById(R.id.checkBox_allowWritingToDB);
         cb.setChecked(allowWritingToDB);
+
         // clear "saved" message
         TextView settingsSavedMsg = (TextView) findViewById(R.id.textView_SaveStatusMsg);
         settingsSavedMsg.setVisibility(View.INVISIBLE);

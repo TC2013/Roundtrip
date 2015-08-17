@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.util.Log;
 
+import com.gxwtech.rtdemo.HexDump;
 import com.gxwtech.rtdemo.bluetooth.BluetoothConnection;
 import com.gxwtech.rtdemo.bluetooth.CRC;
 import com.gxwtech.rtdemo.bluetooth.GattAttributes;
@@ -25,12 +26,12 @@ public class GattCharacteristicWriteOperation extends GattOperation {
 
         if (addCRC) {
             value = CRC.appendCRC(value);
-            Log.d(TAG, "CRC: " + BluetoothConnection.toHexString(value));
+            Log.d(TAG, "CRC: " + HexDump.toHexString(value));
         }
 
         if (transform) {
             value = RileyLinkUtil.composeRFStream(value);
-            Log.d(TAG, "Transformed: " + BluetoothConnection.toHexString(value));
+            Log.d(TAG, "Transformed: " + HexDump.toHexString(value));
         }
 
         mValue = value;

@@ -38,13 +38,13 @@ public class PumpSettingsActivity extends ActionBarActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 Log.d(TAG, "Received broadcast: intent action is " + intent.getAction().toString());
-                if (intent.getAction() == Intents.ROUNDTRIP_TASK_RESPONSE) {
+                if (intent.getAction().equals(Intents.ROUNDTRIP_TASK_RESPONSE)) {
                     Log.d(TAG, "Received task response");
                     if (intent.hasExtra("name")) {
                         String name = intent.getStringExtra("name");
                         Log.d(TAG, "Field 'name' is " + name);
                         if (intent.hasExtra(name)) {
-                            if (name == Constants.ParcelName.PumpSettingsParcelName) {
+                            if (name.equals(Constants.ParcelName.PumpSettingsParcelName)) {
                                 Bundle data = intent.getExtras();
                                 PumpSettingsParcel p = data.getParcelable(name);
                                 // do something with it.

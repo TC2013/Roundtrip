@@ -3,9 +3,6 @@ package com.gxwtech.rtdemo.bluetooth.operations;
 import android.bluetooth.BluetoothGatt;
 import android.util.Log;
 
-/**
- * Created by fokko on 16-8-15.
- */
 public class GattDiscoverServices extends GattOperation {
     private static final String TAG = "DiscoverServices";
 

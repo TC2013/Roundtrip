@@ -294,4 +294,28 @@ public class CRC {
         return outputBytes;
     }
 
+
+    public static byte[] calculate16CCITT(final byte[] data) {
+        int crc = 0xFFFF;
+        final int polynomial = 0x1021;
+
+        if (data != null) {
+            if (data.length > 0) {
+                for (int j = 0; j < data.length; j++) {
+                    byte b = data[j];
+                    for (int i = 0; i < 8; i++) {
+                        boolean bit = ((b >> (7 - i) & 1) == 1);
+                        boolean c15 = ((crc >> 15 & 1) == 1);
+                        crc <<= 1;
+                        if (c15 ^ bit) {
+                            crc ^= polynomial;
+                        }
+                    }
+                }
+            }
+        }
+
+        crc &= 0xffff;
+        return new byte[]{(byte) ((crc & 0xFF00) >> 8), (byte) (crc & 0xFF)};
+    }
 }

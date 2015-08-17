@@ -21,10 +21,12 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.gxwtech.rtdemo.Constants;
+import com.gxwtech.rtdemo.HexDump;
 import com.gxwtech.rtdemo.Intents;
 import com.gxwtech.rtdemo.bluetooth.operations.GattCharacteristicReadOperation;
 import com.gxwtech.rtdemo.bluetooth.operations.GattDescriptorReadOperation;
 import com.gxwtech.rtdemo.bluetooth.operations.GattDiscoverServices;
+import com.gxwtech.rtdemo.bluetooth.operations.GattInitializeBluetooth;
 import com.gxwtech.rtdemo.bluetooth.operations.GattOperation;
 import com.gxwtech.rtdemo.bluetooth.operations.GattSetNotificationOperation;
 import com.gxwtech.rtdemo.decoding.packages.MedtronicPackage;
@@ -41,9 +43,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class BluetoothConnection {
     private static final String LS = System.getProperty("line.separator");
     private static final String TAG = "BluetoothConnection";
-    private final static char[] HEX_DIGITS = {
-            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
-    };
+
     // http://www.mopri.de/2010/timertask-bad-do-it-the-android-way-use-a-handler/
     private static final int BATTERY_UPDATE = 60 * 1000; // Every minute
     private static BluetoothConnection instance = null;
@@ -55,6 +55,12 @@ public class BluetoothConnection {
     private BluetoothGatt bluetoothConnectionGatt = null;
     private ConcurrentLinkedQueue<GattOperation> mQueue = new ConcurrentLinkedQueue<>();
     private Handler batteryHandler = new Handler();
+
+
+    final BluetoothManager bluetoothManager;
+    final BluetoothAdapter bluetoothAdapter;
+
+
     private Runnable batteryTask = new Runnable() {
         @Override
         public void run() {
@@ -80,6 +86,8 @@ public class BluetoothConnection {
 
     protected BluetoothConnection(Context context) {
         this.context = context;
+        this.bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+        this.bluetoothAdapter = bluetoothManager.getAdapter();
     }
 
     public static BluetoothConnection getInstance(Context context) {
@@ -94,21 +102,6 @@ public class BluetoothConnection {
         return instance;
     }
 
-    public static String toHexString(byte[] array) {
-        return toHexString(array, 0, array.length);
-    }
-
-    public static String toHexString(byte[] array, int offset, int length) {
-        char[] buf = new char[length * 2];
-        for (int i = offset; i < offset + length; i++) {
-            int b = array[i] & 0xFF;
-            buf[i * 2] = HEX_DIGITS[b >>> 4];
-            buf[i * 2 + 1] = HEX_DIGITS[b & 0x0F];
-        }
-
-        return new String(buf);
-    }
-
     public void disconnect() {
         Log.w(TAG, "Closing GATT connection");
 
@@ -120,7 +113,10 @@ public class BluetoothConnection {
             bluetoothConnectionGatt = null;
         }
 
+        mQueue.clear();
         setCurrentOperation(null);
+
+        queue(new GattInitializeBluetooth());
     }
 
     public final synchronized void queue(GattOperation gattOperation) {
@@ -137,7 +133,7 @@ public class BluetoothConnection {
         if (currentOperation != null) {
             Log.v(TAG, "Current operation: " + mCurrentOperation.toString());
         } else {
-            Log.v(TAG, "Operation has been finished");
+            Log.v(TAG, "Current Operation has been finished");
 
             if (mCurrentOperationTimeout != null) {
                 mCurrentOperationTimeout.cancel(true);
@@ -191,14 +187,11 @@ public class BluetoothConnection {
             }
         }.execute();
 
-        final BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
-        final BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
+        if (this.bluetoothAdapter != null && this.bluetoothAdapter.isEnabled()) {
 
-        if (bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
             if (bluetoothConnectionGatt != null) {
                 execute(bluetoothConnectionGatt, mCurrentOperation);
             } else {
-                //TODO: Look into Scanmode settings
                 final ScanSettings settings = new ScanSettings.Builder().build();
 
                 // This comes in handy when using a BLE smartwatch :)
@@ -219,6 +212,8 @@ public class BluetoothConnection {
                     @Override
                     public void onScanFailed(int errorCode) {
                         Log.w(TAG, "Scan failed: " + errorCode);
+
+                        disconnect();
                     }
 
                     @Override
@@ -239,7 +234,7 @@ public class BluetoothConnection {
                                 public void onCharacteristicChanged(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic) {
                                     super.onCharacteristicChanged(gatt, characteristic);
 
-                                    Log.w(TAG, "onCharacteristicChanged " + GattAttributes.lookup(characteristic.getUuid()) + " " + toHexString(characteristic.getValue()));
+                                    Log.w(TAG, "onCharacteristicChanged " + GattAttributes.lookup(characteristic.getUuid()) + " " + HexDump.toHexString(characteristic.getValue()));
                                     if(characteristic.getUuid().equals(UUID.fromString(GattAttributes.GLUCOSELINK_PACKET_COUNT))) {
                                         // If there are packages waiting, please download them.
                                         if(characteristic.getValue()[0] > 0) {
@@ -264,14 +259,14 @@ public class BluetoothConnection {
                                         final MedtronicPackage pack = Decoder.DeterminePackage(data);
 
                                         if (pack != null) {
-                                            Log.w(TAG, "Got valid package: " + pack.toString() + " raw data: " + toHexString(data));
+                                            Log.w(TAG, "Got valid package: " + pack.toString() + " raw data: " + HexDump.toHexString(data));
                                         } else {
-                                            Log.w(TAG, "Could not determine package from bytes " + toHexString(data));
+                                            Log.w(TAG, "Could not determine package from bytes " + HexDump.toHexString(data));
                                         }
 
                                     } else if (characteristic.getUuid().toString().equals(GattAttributes.GLUCOSELINK_PACKET_COUNT)) {
 
-                                        Log.w(TAG, "Found number of packets: " + toHexString(characteristic.getValue()));
+                                        Log.w(TAG, "Found number of packets: " + HexDump.toHexString(characteristic.getValue()));
 
                                         if (characteristic.getValue()[0] > 0) {
                                             queue(new GattCharacteristicReadOperation(
@@ -282,7 +277,7 @@ public class BluetoothConnection {
                                         }
                                     } else {
                                         Log.w(TAG, "onCharacteristicRead (" + GattAttributes.lookup(characteristic.getUuid()) + ") "
-                                                + statusMessage + ":" + toHexString(characteristic.getValue()));
+                                                + statusMessage + ":" + HexDump.toHexString(characteristic.getValue()));
                                     }
 
                                     ((GattCharacteristicReadOperation) mCurrentOperation).onRead(characteristic);
@@ -296,7 +291,7 @@ public class BluetoothConnection {
                                     super.onCharacteristicWrite(gatt, characteristic, status);
 
                                     final String uuidString = GattAttributes.lookup(characteristic.getUuid());
-                                    Log.w(TAG, "onCharacteristicWrite " + getGattStatusMessage(status) + " " + uuidString + " " + toHexString(characteristic.getValue()));
+                                    Log.w(TAG, "onCharacteristicWrite " + getGattStatusMessage(status) + " " + uuidString + " " + HexDump.toHexString(characteristic.getValue()));
 
                                     setCurrentOperation(null);
                                     drive();
@@ -352,7 +347,7 @@ public class BluetoothConnection {
                                     Log.w(TAG, "onDescriptorWrite "
                                             + GattAttributes.lookup(descriptor.getUuid()) + " "
                                             + getGattStatusMessage(status)
-                                            + " written: " + toHexString(descriptor.getValue()));
+                                            + " written: " + HexDump.toHexString(descriptor.getValue()));
 
                                     setCurrentOperation(null);
                                 }

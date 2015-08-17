@@ -52,14 +52,14 @@ public class MonitorActivity extends ActionBarActivity {
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (intent.getAction() == Intents.ROUNDTRIP_BG_READING) {
+                if (intent.getAction().equals(Intents.ROUNDTRIP_BG_READING)) {
                     // Used to be, this passed the whole thing to the gui.
                     // Now we just get it from shared-prefs
                     UpdateBGReading();
-                } else if (intent.getAction() == Intents.APSLOGIC_LOG_MESSAGE) {
+                } else if (intent.getAction().equals(Intents.APSLOGIC_LOG_MESSAGE)) {
                     String msg = intent.getStringExtra("message");
                     receiveLogMessage(msg);
-                } else if (intent.getAction() == Intents.ROUNDTRIP_SLEEP_MESSAGE) {
+                } else if (intent.getAction().equals(Intents.ROUNDTRIP_SLEEP_MESSAGE)) {
                     int durationSeconds = intent.getIntExtra(Intents.ROUNDTRIP_SLEEP_MESSAGE_DURATION, 0);
                     Log.d(TAG, String.format("Received Sleep Notification: %d seconds", durationSeconds));
                     mSleepNotificationDuration = durationSeconds;

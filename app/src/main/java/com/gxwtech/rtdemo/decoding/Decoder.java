@@ -11,17 +11,25 @@ import com.gxwtech.rtdemo.medtronic.MedtronicConstants;
 public class Decoder {
     public static MedtronicPackage DeterminePackage(final byte[] data) {
         final MedtronicPackage newDataPackage;
-        switch (data[2]) {
-            case MedtronicConstants.MEDTRONIC_GLUCOSE:
-                newDataPackage = new MedtronicGlucose();
-                newDataPackage.decode(data);
-                break;
-            case MedtronicConstants.MEDTRONIC_SENSOR:
-                newDataPackage = new MedtronicSensor();
-                newDataPackage.decode(data);
-                break;
-            default:
-                newDataPackage = null;
+        if(data.length > 2) {
+            switch (data[2]) {
+                case MedtronicConstants.MEDTRONIC_GLUCOSE:
+                    if(data.length == 36) {
+                        newDataPackage = new MedtronicGlucose();
+                        newDataPackage.decode(data);
+                    } else {
+                        newDataPackage = null;
+                    }
+                    break;
+                case MedtronicConstants.MEDTRONIC_SENSOR:
+                    newDataPackage = new MedtronicSensor();
+                    newDataPackage.decode(data);
+                    break;
+                default:
+                    newDataPackage = null;
+            }
+        }else {
+            newDataPackage = null;
         }
         return newDataPackage;
     }

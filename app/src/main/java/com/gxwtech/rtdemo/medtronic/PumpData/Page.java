@@ -11,8 +11,8 @@ package com.gxwtech.rtdemo.medtronic.PumpData;
 
 import android.util.Log;
 
-import com.gxwtech.rtdemo.CRC;
 import com.gxwtech.rtdemo.HexDump;
+import com.gxwtech.rtdemo.bluetooth.CRC;
 import com.gxwtech.rtdemo.medtronic.PumpData.records.BolusWizard;
 import com.gxwtech.rtdemo.medtronic.PumpData.records.Record;
 import com.gxwtech.rtdemo.medtronic.PumpData.records.RecordTypeEnum;

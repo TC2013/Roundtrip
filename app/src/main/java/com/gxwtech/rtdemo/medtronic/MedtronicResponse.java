@@ -1,7 +1,8 @@
 package com.gxwtech.rtdemo.medtronic;
 
-import com.gxwtech.rtdemo.CRC;
+import com.gxwtech.rtdemo.HexDump;
 import com.gxwtech.rtdemo.bluetooth.BluetoothConnection;
+import com.gxwtech.rtdemo.bluetooth.CRC;
 
 /**
  * Created by geoff on 5/5/15.
@@ -69,7 +70,7 @@ public class MedtronicResponse {
     }
 
     public boolean frameChecksumOK() {
-        return (mReceivedChecksum == CRC.crc8(raw, 12));
+        return (mReceivedChecksum == CRC.computeCRC(raw, 12));
     }
 
     public byte[] getPumpData() {
@@ -84,7 +85,7 @@ public class MedtronicResponse {
         if (mPumpData.length == 0) {
             return true;
         }
-        return (mPumpDataChecksum == CRC.crc8(mPumpData));
+        return (mPumpDataChecksum == CRC.computeCRC(mPumpData));
     }
 
     public void parseFrom(byte[] rawRadioBuffer) {
@@ -144,7 +145,7 @@ public class MedtronicResponse {
             mPumpDataChecksum = rawRadioBuffer[13 + pumpDataLength];
         }
         // now do sanity checks on what we've got.
-        byte calculatedChecksum = CRC.crc8(mPumpData);
+        byte calculatedChecksum = CRC.computeCRC(mPumpData);
         if (calculatedChecksum != mPumpDataChecksum) {
             //Log.e(TAG,String.format("Pump Data Checksum mismatch (0x%02X/0x%02X",calculatedChecksum,mPumpDataChecksum));
         }
@@ -163,7 +164,7 @@ public class MedtronicResponse {
                 pumpDataChecksumOK() ? "OK" : "BAD",
                 isEOD() ? "true" : "false",
                 mPumpData == null ? 0 : mPumpData.length,
-                BluetoothConnection.toHexString(mPumpData));
+                HexDump.toHexString(mPumpData));
         return rval;
     }
 
