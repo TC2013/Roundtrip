@@ -1,0 +1,25 @@
+package com.roundtrip.medtronic.PumpData.records;
+
+
+import com.roundtrip.medtronic.PumpModel;
+
+public class BolusWizardChange extends TimeStampedRecord {
+
+    public BolusWizardChange() {
+        super();
+
+    }
+
+    public boolean collectRawData(byte[] data, PumpModel model) {
+        if (!super.collectRawData(data, model)) {
+            return false;
+        }
+        if (model == PumpModel.MM508 || model == PumpModel.MM515) {
+            bodySize = 117;
+        } else {
+            bodySize = 143;
+        }
+        calcSize();
+        return decode(data);
+    }
+}
