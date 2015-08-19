@@ -16,7 +16,6 @@ import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -29,8 +28,8 @@ import com.roundtrip.bluetooth.operations.GattDiscoverServices;
 import com.roundtrip.bluetooth.operations.GattInitializeBluetooth;
 import com.roundtrip.bluetooth.operations.GattOperation;
 import com.roundtrip.bluetooth.operations.GattSetNotificationOperation;
-import com.roundtrip.decoding.packages.MedtronicReading;
 import com.roundtrip.decoding.MedtronicDecoder;
+import com.roundtrip.decoding.packages.MedtronicReading;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,8 +40,6 @@ public class BluetoothConnection {
     private static final String LS = System.getProperty("line.separator");
     private static final String TAG = "BluetoothConnection";
 
-    // http://www.mopri.de/2010/timertask-bad-do-it-the-android-way-use-a-handler/
-    private static final int BATTERY_UPDATE = 60 * 1000; // Every minute
     private static BluetoothConnection instance = null;
     private final Context context;
 
@@ -51,35 +48,10 @@ public class BluetoothConnection {
     private AsyncTask<Void, Void, Void> mCurrentOperationTimeout;
     private BluetoothGatt bluetoothConnectionGatt = null;
     private ConcurrentLinkedQueue<GattOperation> mQueue = new ConcurrentLinkedQueue<>();
-    private Handler batteryHandler = new Handler();
-
 
     final BluetoothManager bluetoothManager;
     final BluetoothAdapter bluetoothAdapter;
 
-
-    private Runnable batteryTask = new Runnable() {
-        @Override
-        public void run() {
-            /* do what you need to do */
-            instance.queue(new GattCharacteristicReadOperation(
-                    UUID.fromString(GattAttributes.GLUCOSELINK_BATTERY_SERVICE),
-                    UUID.fromString(GattAttributes.GLUCOSELINK_BATTERY_UUID),
-                    new GattCharacteristicReadCallback() {
-                        @Override
-                        public void call(byte[] characteristic) {
-                            Intent batteryUpdate = new Intent(Intents.BLUETOOTH_BATTERY);
-                            batteryUpdate.putExtra("battery", characteristic[0]);
-
-                            LocalBroadcastManager.getInstance(context).sendBroadcast(batteryUpdate);
-                        }
-                    }
-            ));
-
-            /* and here comes the "trick" */
-            batteryHandler.postDelayed(this, BATTERY_UPDATE);
-        }
-    };
 
     protected BluetoothConnection(Context context) {
         this.context = context;
@@ -97,6 +69,10 @@ public class BluetoothConnection {
             }
         }
         return instance;
+    }
+
+    public boolean connected() {
+        return bluetoothConnectionGatt != null;
     }
 
     public void disconnect() {
@@ -118,9 +94,9 @@ public class BluetoothConnection {
 
     public final synchronized void queue(GattOperation gattOperation) {
         mQueue.add(gattOperation);
-        if(mCurrentOperation == null) {
+        if (mCurrentOperation == null) {
             drive();
-        }else {
+        } else {
             Log.v(TAG, "Queueing Gatt operation " + gattOperation.toString() + ", size: " + mQueue.size());
         }
     }
@@ -215,7 +191,7 @@ public class BluetoothConnection {
 
                     @Override
                     public void onScanResult(final int callbackType, final ScanResult result) {
-                        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(Intents.BLUETOOTH_CONNECTING));
+                        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(Intents.RILEYLINK_CONNECTING));
 
                         Log.w(TAG, "Found device: " + result.getDevice().getAddress());
 
@@ -232,9 +208,9 @@ public class BluetoothConnection {
                                     super.onCharacteristicChanged(gatt, characteristic);
 
                                     Log.w(TAG, "onCharacteristicChanged " + GattAttributes.lookup(characteristic.getUuid()) + " " + HexDump.toHexString(characteristic.getValue()));
-                                    if(characteristic.getUuid().equals(UUID.fromString(GattAttributes.GLUCOSELINK_PACKET_COUNT))) {
+                                    if (characteristic.getUuid().equals(UUID.fromString(GattAttributes.GLUCOSELINK_PACKET_COUNT))) {
                                         // If there are packages waiting, please download them.
-                                        if(characteristic.getValue()[0] > 0) {
+                                        if (characteristic.getValue()[0] > 0) {
                                             queue(new GattCharacteristicReadOperation(
                                                     UUID.fromString(GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE),
                                                     UUID.fromString(GattAttributes.GLUCOSELINK_RX_PACKET_UUID),
@@ -322,12 +298,10 @@ public class BluetoothConnection {
 
                                     if (status == BluetoothGatt.GATT_SUCCESS && newState == BluetoothProfile.STATE_CONNECTED) {
                                         bluetoothConnectionGatt = gatt;
-                                        //batteryHandler.postDelayed(batteryTask, BATTERY_UPDATE);
                                         queue(new GattDiscoverServices());
 
-                                        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(Intents.BLUETOOTH_CONNECTED));
                                     } else {
-                                        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(Intents.BLUETOOTH_DISCONNECTED));
+                                        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(Intents.RILEYLINK_DISCONNECTED));
                                         disconnect();
 
                                         Log.w(TAG, "Cannot establish Bluetooth connection.");
@@ -399,7 +373,7 @@ public class BluetoothConnection {
                                                 if (service.getUuid().equals(UUID.fromString(GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE)) &&
                                                         character.getUuid().equals(UUID.fromString(GattAttributes.GLUCOSELINK_PACKET_COUNT))) {
 
-                                                    for(BluetoothGattDescriptor descriptor : character.getDescriptors()) {
+                                                    for (BluetoothGattDescriptor descriptor : character.getDescriptors()) {
                                                         queue(new GattSetNotificationOperation(
                                                                 service.getUuid(),
                                                                 character.getUuid(),
@@ -417,6 +391,7 @@ public class BluetoothConnection {
                                     }
 
                                     Log.w(TAG, "onServicesDiscovered " + getGattStatusMessage(status));
+                                    LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(Intents.RILEYLINK_CONNECTED));
 
                                     setCurrentOperation(null);
                                 }

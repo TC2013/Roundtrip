@@ -28,7 +28,7 @@
 
                 <LinearLayout
                     android:layout_width="fill_parent"
-                    android:layout_height="79dp"
+                    android:layout_height="151dp"
                     android:orientation="vertical">
 
                     <TextView
@@ -48,10 +48,32 @@
                         android:textAppearance="?android:attr/textAppearanceMedium"/>
 
                     <TextView
-                        android:id="@+id/textView_StatusBattery"
+                        android:id="@+id/textView_StatusBatteryRileylink"
+                        android:layout_width="157dp"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:text="Battery Rileylink" />
+
+                    <TextView
+                        android:id="@+id/textView_StatusBatterySensor"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textAppearance="?android:attr/textAppearanceMedium"/>
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:text="Battery Sensor" />
+
+                    <TextView
+                        android:id="@+id/textView_StatusISIG"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:text="Current ISIG" />
+
+                    <TextView
+                        android:id="@+id/textView_StatusGlucose"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:text="Current BG" />
 
                 </LinearLayout>
 
@@ -64,27 +86,6 @@
                     android:indeterminate="false"
                     android:longClickable="false"
                     android:visibility="invisible"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/button_Monitor"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="launchMonitorActivity"
-                    android:text="APS Monitor"/>
-
-                <Button
-                    android:id="@+id/button_RTSettings"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="launchRTDemoSettingsActivity"
-                    android:text="RT Settings"/>
-
             </LinearLayout>
 
             <LinearLayout
@@ -108,16 +109,39 @@
 
             </LinearLayout>
 
-            <ListView
-                android:id="@+id/listView_Log"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentStart="true"
-                android:nestedScrollingEnabled="false"/>
-
         </LinearLayout>
 
     </FrameLayout>
+
+    <ListView
+        android:id="@+id/listView_Log"
+        android:layout_width="wrap_content"
+        android:layout_height="189dp"
+        android:nestedScrollingEnabled="false"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="horizontal"
+        android:layout_below="@+id/frameLayout"
+        android:layout_alignParentStart="true">
+
+        <Button
+            android:id="@+id/button_Monitor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="launchMonitorActivity"
+            android:text="APS Monitor"/>
+
+        <Button
+            android:id="@+id/button_RTSettings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="launchRTDemoSettingsActivity"
+            android:text="RT Settings"/>
+
+    </LinearLayout>
 
 </RelativeLayout>

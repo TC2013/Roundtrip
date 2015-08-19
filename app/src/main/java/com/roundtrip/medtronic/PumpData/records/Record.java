@@ -17,7 +17,7 @@ abstract public class Record {
     protected String recordTypeName = this.getClass().getSimpleName();
 
     public Record() {
-        
+
     }
 
     protected static int readUnsignedByte(byte b) {

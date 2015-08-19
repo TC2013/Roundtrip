@@ -46,10 +46,9 @@ public class GattSetNotificationOperation extends GattOperation {
             } else {
                 Log.d(TAG, "Unable to written decriptor");
             }
-        }
-        else if (0 != (characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY)) {
+        } else if (0 != (characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY)) {
             // It's a notify characteristic
-            Log.d(TAG,  "Characteristic " + GattAttributes.lookup(characteristic.getUuid()) + ", descriptor: " + GattAttributes.lookup(mDescriptorUuid) + " is NOTIFY");
+            Log.d(TAG, "Characteristic " + GattAttributes.lookup(characteristic.getUuid()) + ", descriptor: " + GattAttributes.lookup(mDescriptorUuid) + " is NOTIFY");
             descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
 
             if (gatt.writeDescriptor(descriptor)) {

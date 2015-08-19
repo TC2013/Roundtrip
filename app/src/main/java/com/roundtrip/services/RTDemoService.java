@@ -5,11 +5,13 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Parcelable;
 import android.os.PowerManager;
@@ -25,10 +27,10 @@ import com.roundtrip.Intents;
 import com.roundtrip.MainActivity;
 import com.roundtrip.MongoWrapper;
 import com.roundtrip.PreferenceBackedStorage;
-import com.roundtrip.roundtrip.R;
 import com.roundtrip.bluetooth.BluetoothConnection;
 import com.roundtrip.bluetooth.Commands;
 import com.roundtrip.bluetooth.GattAttributes;
+import com.roundtrip.bluetooth.GattCharacteristicReadCallback;
 import com.roundtrip.bluetooth.operations.GattCharacteristicReadOperation;
 import com.roundtrip.bluetooth.operations.GattCharacteristicWriteOperation;
 import com.roundtrip.bluetooth.operations.GattInitializeBluetooth;
@@ -36,6 +38,7 @@ import com.roundtrip.medtronic.PumpData.BasalProfile;
 import com.roundtrip.medtronic.PumpData.BasalProfileEntry;
 import com.roundtrip.medtronic.PumpData.BasalProfileTypeEnum;
 import com.roundtrip.medtronic.PumpData.HistoryReport;
+import com.roundtrip.roundtrip.R;
 import com.roundtrip.services.pumpmanager.PumpManager;
 import com.roundtrip.services.pumpmanager.PumpSettingsParcel;
 import com.roundtrip.services.pumpmanager.TempBasalPairParcel;
@@ -74,6 +77,7 @@ import java.util.regex.Pattern;
  */
 public class RTDemoService extends IntentService {
     private static final String TAG = "RTDemoService";
+    private static Context context;
 
     // @TODO Move this to constants?
     private static final String MONGO_DEFAULT_SERVER = "localhost";
@@ -107,8 +111,50 @@ public class RTDemoService extends IntentService {
         super(TAG);
         setIntentRedelivery(true);
 
+        context = this;
     }
 
+    // For receiving and displaying log messages from the Service thread
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(Intents.RILEYLINK_CONNECTED)) {
+                batteryHandler.post(batteryTask);
+            } else if (intent.getAction().equals(Intents.RILEYLINK_DISCONNECTED)) {
+
+
+            }
+        }
+    };
+
+
+    private Handler batteryHandler = new Handler();
+    private static final int RILEYLINK_BATTERY_UPDATE = 60 * 1000 * 15;
+    private Runnable batteryTask = new Runnable() {
+        @Override
+        public void run() {
+            /* do what you need to do */
+            BluetoothConnection conn = BluetoothConnection.getInstance(context);
+
+            conn.queue(new GattCharacteristicReadOperation(
+                    UUID.fromString(GattAttributes.GLUCOSELINK_BATTERY_SERVICE),
+                    UUID.fromString(GattAttributes.GLUCOSELINK_BATTERY_UUID),
+                    new GattCharacteristicReadCallback() {
+                        @Override
+                        public void call(byte[] characteristic) {
+                            Intent batteryUpdate = new Intent(Intents.RILEYLINK_BATTERY_UPDATE);
+                            batteryUpdate.putExtra("battery", characteristic[0]);
+
+                            LocalBroadcastManager.getInstance(context).sendBroadcast(batteryUpdate);
+                        }
+                    }
+            ));
+
+            if(conn.connected()) {
+                batteryHandler.postDelayed(this, RILEYLINK_BATTERY_UPDATE);
+            }
+        }
+    };
 
     synchronized private static PowerManager.WakeLock getLock(Context context) {
         if (lockStatic == null) {

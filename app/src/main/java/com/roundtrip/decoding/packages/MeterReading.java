@@ -30,7 +30,7 @@ public class MeterReading extends MedtronicReading implements Comparator<MeterRe
 
         mgdl = ByteBuffer.wrap(new byte[]{0x00, 0x00, readData[6], readData[7]}).getInt();
 
-        if(mgdl > 1000) {
+        if (mgdl > 1000) {
             throw new InvalidDataException("Invalid message CRC");
         }
     }
@@ -60,7 +60,7 @@ public class MeterReading extends MedtronicReading implements Comparator<MeterRe
         Long t2 = glucoseTwo.getCreated().getTime();
 
         // If they are within four minutes, and the same value, they must be the same :)
-        if(Math.abs(t1 - t2) < EXPIRATION_FOUR_MINUTES && glucoseOne.getMgdl() == glucoseTwo.getMgdl()) {
+        if (Math.abs(t1 - t2) < EXPIRATION_FOUR_MINUTES && glucoseOne.getMgdl() == glucoseTwo.getMgdl()) {
             return 0;
         }
 
@@ -72,6 +72,6 @@ public class MeterReading extends MedtronicReading implements Comparator<MeterRe
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
         df.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-        return "Glucose reading " + mgdl + "mg/dl " + GlucosUnitConversion.mgdlToMmol(mgdl) + " mmol, at " + df.format(this.created);
+        return "Glucose reading " + mgdl + "mg/dl " + GlucosUnitConversion.mgdlToMmol(mgdl) + " mmol, at " + df.format(this.getCreated());
     }
 }

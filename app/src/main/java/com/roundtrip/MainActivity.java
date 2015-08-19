@@ -64,26 +64,26 @@ public class MainActivity extends ActionBarActivity {
                         }
                     }
                     */
-            } else if (intent.getAction().equals(Intents.BLUETOOTH_CONNECTED)) {
+            } else if (intent.getAction().equals(Intents.RILEYLINK_CONNECTED)) {
                 TextView t = (TextView) findViewById(R.id.textView_StatusNote);
                 t.setText("Connected to the Rileylink");
                 t.setTextColor(Color.GREEN);
 
                 Log.w(TAG, "Connected to the Rileylink");
-            } else if (intent.getAction().equals(Intents.BLUETOOTH_CONNECTING)) {
+            } else if (intent.getAction().equals(Intents.RILEYLINK_CONNECTING)) {
                 TextView t = (TextView) findViewById(R.id.textView_StatusNote);
                 t.setText("Connecting to the Rileylink");
                 t.setTextColor(Color.YELLOW);
 
                 Log.w(TAG, "Connecting to the Rileylink");
-            } else if (intent.getAction().equals(Intents.BLUETOOTH_DISCONNECTED)) {
+            } else if (intent.getAction().equals(Intents.RILEYLINK_DISCONNECTED)) {
                 TextView t = (TextView) findViewById(R.id.textView_StatusNote);
                 t.setText("Disconnected to the Rileylink");
                 t.setTextColor(Color.RED);
 
                 Log.w(TAG, "Disconnected to the Rileylink");
-            } else if (intent.getAction().equals(Intents.BLUETOOTH_BATTERY)) {
-                TextView t = (TextView) findViewById(R.id.textView_StatusBattery);
+            } else if (intent.getAction().equals(Intents.RILEYLINK_BATTERY_UPDATE)) {
+                TextView t = (TextView) findViewById(R.id.textView_StatusBatteryRileylink);
                 t.setText("Battery: " + intent.getByteExtra("battery", (byte) 0) + "%");
             }
         }
@@ -134,10 +134,10 @@ public class MainActivity extends ActionBarActivity {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intents.ROUNDTRIP_STATUS_MESSAGE);
         intentFilter.addAction(Intents.ROUNDTRIP_TASK_RESPONSE);
-        intentFilter.addAction(Intents.BLUETOOTH_CONNECTED);
-        intentFilter.addAction(Intents.BLUETOOTH_CONNECTING);
-        intentFilter.addAction(Intents.BLUETOOTH_DISCONNECTED);
-        intentFilter.addAction(Intents.BLUETOOTH_BATTERY);
+        intentFilter.addAction(Intents.RILEYLINK_CONNECTED);
+        intentFilter.addAction(Intents.RILEYLINK_CONNECTING);
+        intentFilter.addAction(Intents.RILEYLINK_DISCONNECTED);
+        intentFilter.addAction(Intents.RILEYLINK_BATTERY_UPDATE);
 
         // register our desire to receive broadcasts from RTDemoService
         LocalBroadcastManager.getInstance(getApplicationContext())

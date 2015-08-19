@@ -33,7 +33,7 @@ android {
     buildToolsVersion "22.0.1"
 
     defaultConfig {
-        applicationId "com.gxwtech.rtdemo"
+        applicationId "com.roundtrip"
         minSdkVersion 21
         targetSdkVersion 21
         versionCode getVersionCode()

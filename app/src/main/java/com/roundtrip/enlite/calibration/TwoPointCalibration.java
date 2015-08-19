@@ -2,21 +2,26 @@ package com.roundtrip.enlite.calibration;
 
 import com.roundtrip.decoding.packages.SensorReading;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 public class TwoPointCalibration implements CalibrationAlgorithm {
     @Override
-    public double approximateGlucoseLevel(SensorReading sensorMeasurement, Set<CalibrationPair> calibrationPoints) {
-        CalibrationPair firstCalibrationPoint = calibrationPoints.iterator().next();
-        CalibrationPair secondCalibrationPoint = calibrationPoints.iterator().next();
+    public double approximateGlucoseLevel(double sensorMeasurement, List<CalibrationPair> calibrationPoints) {
 
-        double m = (firstCalibrationPoint.getSensorReading().getIsig() -
-                secondCalibrationPoint.getSensorReading().getIsig()) /
-                (firstCalibrationPoint.getMeterReading().getMgdl() -
-                        secondCalibrationPoint.getMeterReading().getMgdl());
+        Iterator<CalibrationPair> iter = calibrationPoints.iterator();
 
-        double b = secondCalibrationPoint.getSensorReading().getIsig() - (m * secondCalibrationPoint.getMeterReading().getMgdl());
+        CalibrationPair firstCalibrationPoint = iter.next();
+        CalibrationPair secondCalibrationPoint = iter.next();
 
-        return (sensorMeasurement.getIsig() - b) / m;
+        double m1 = (firstCalibrationPoint.getSensorReading() - secondCalibrationPoint.getSensorReading());
+        double m2 = (firstCalibrationPoint.getMeterReading() - secondCalibrationPoint.getMeterReading());
+
+        double m =  m1 / m2;
+
+        double b = secondCalibrationPoint.getSensorReading() - (m * secondCalibrationPoint.getMeterReading());
+
+        return (sensorMeasurement - b) / m;
     }
 }

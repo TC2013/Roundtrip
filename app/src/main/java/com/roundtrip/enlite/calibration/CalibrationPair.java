@@ -4,19 +4,19 @@ import com.roundtrip.decoding.packages.MeterReading;
 import com.roundtrip.decoding.packages.SensorReading;
 
 public class CalibrationPair {
-    private final SensorReading sensorReading;
-    private final MeterReading meterReading;
+    private final double sensorReading;
+    private final double meterReading;
 
-    public CalibrationPair(SensorReading sensorReading, MeterReading meterReading) {
+    public CalibrationPair(double sensorReading, double meterReading) {
         this.sensorReading = sensorReading;
         this.meterReading = meterReading;
     }
 
-    public SensorReading getSensorReading(){
+    public double getSensorReading() {
         return this.sensorReading;
     }
 
-    public MeterReading getMeterReading() {
+    public double getMeterReading() {
         return this.meterReading;
     }
 }

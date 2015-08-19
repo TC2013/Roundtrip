@@ -2,6 +2,7 @@ package com.roundtrip.processing;
 
 import com.roundtrip.decoding.packages.MedtronicReading;
 import com.roundtrip.decoding.packages.MeterReading;
+import com.roundtrip.decoding.packages.SensorMeasurement;
 import com.roundtrip.decoding.packages.SensorReading;
 import com.roundtrip.decoding.packages.SensorWarmupReading;
 import com.roundtrip.enlite.calibration.CalibrationPair;
@@ -11,6 +12,8 @@ import com.roundtrip.enlite.calibration.TwoPointCalibration;
 
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
@@ -18,8 +21,8 @@ import java.util.TreeSet;
 public class MedtronicProcessor {
     private final int KEEP_READINGS = 10;
 
-    final TreeSet<CalibrationPair> knownCalibrations;
-    final CircularFifoQueue<SensorReading> lastSensorReadings;
+    final List<CalibrationPair> knownCalibrations;
+    final CircularFifoQueue<SensorMeasurement> lastSensorReadings;
     final CircularFifoQueue<MeterReading> lastGlucoseReadings;
 
     private static MedtronicProcessor instance;
@@ -36,7 +39,7 @@ public class MedtronicProcessor {
     }
 
     public MedtronicProcessor() {
-        this.knownCalibrations = new TreeSet<>();
+        this.knownCalibrations = new LinkedList<>();
         this.lastSensorReadings = new CircularFifoQueue<>(KEEP_READINGS);
         this.lastGlucoseReadings = new CircularFifoQueue<>(KEEP_READINGS);
     }
@@ -45,22 +48,25 @@ public class MedtronicProcessor {
         if (packet instanceof SensorReading) {
             SensorReading sensorReading = (SensorReading) packet;
 
-            if (!this.lastSensorReadings.contains(sensorReading)) {
-                this.lastSensorReadings.add(sensorReading);
+            for (SensorMeasurement measurement : sensorReading.getIsigMeasurements()) {
 
-                // Look if it possible to convert the SGV to a Glucose Level based on the calibration scheme
-                int calibrations = this.knownCalibrations.size();
+                if (!this.lastSensorReadings.contains(sensorReading)) {
+                    this.lastSensorReadings.add(measurement);
 
-                final double approximatedGlucoseLevel;
-                if (calibrations == 0) {
-                    // NEED CALIBRATION FIRST
-                    approximatedGlucoseLevel = -1;
-                } else if (calibrations == 1) {
-                    approximatedGlucoseLevel = new OnePointCalibration().approximateGlucoseLevel(sensorReading, this.knownCalibrations);
-                } else if (calibrations == 2) {
-                    approximatedGlucoseLevel = new TwoPointCalibration().approximateGlucoseLevel(sensorReading, this.knownCalibrations);
-                } else if (calibrations >= 3) {
-                    approximatedGlucoseLevel = new LinearRegressionCalibration().approximateGlucoseLevel(sensorReading, this.knownCalibrations);
+                    // Look if it possible to convert the SGV to a Glucose Level based on the calibration scheme
+                    int calibrations = this.knownCalibrations.size();
+
+                    final double approximatedGlucoseLevel;
+                    if (calibrations == 0) {
+                        // NEED CALIBRATION FIRST
+                        approximatedGlucoseLevel = -1;
+                    } else if (calibrations == 1) {
+                        approximatedGlucoseLevel = new OnePointCalibration().approximateGlucoseLevel(measurement.getIsig(), this.knownCalibrations);
+                    } else if (calibrations == 2) {
+                        approximatedGlucoseLevel = new TwoPointCalibration().approximateGlucoseLevel(measurement.getIsig(), this.knownCalibrations);
+                    } else if (calibrations >= 3) {
+                        approximatedGlucoseLevel = new LinearRegressionCalibration().approximateGlucoseLevel(measurement.getIsig(), this.knownCalibrations);
+                    }
                 }
             }
 
@@ -76,23 +82,29 @@ public class MedtronicProcessor {
 
                 // Look if the Meter value can be paired with a sensor value to create a calibration point
                 long secondsDifference = Long.MAX_VALUE;
-                SensorReading nearestSensorReading = null;
-                for (SensorReading sensorReading : this.lastSensorReadings) {
-                    long diff = sensorReading.createdDifference(glucoseReading);
+                double nearestSensorReading = 0;
+
+                for (SensorMeasurement measurement : this.lastSensorReadings) {
+                    long diff = glucoseReading.createdDifference(measurement.getCreated());
                     if (diff < secondsDifference) {
                         secondsDifference = diff;
-                        nearestSensorReading = sensorReading;
+                        nearestSensorReading = measurement.getIsig();
                     }
                 }
 
                 // Check if they are close enough
                 if (secondsDifference < MedtronicReading.EXPIRATION_FOUR_MINUTES) {
-                    this.knownCalibrations.add(new CalibrationPair(nearestSensorReading, glucoseReading));
+                    this.knownCalibrations.add(new CalibrationPair(nearestSensorReading, glucoseReading.getMgdl()));
                 }
-            }
+            } else {
+                // Different packages...
+                /*
+                                            Intent batteryUpdate = new Intent(Intents.RILEYLINK_BATTERY_UPDATE);
+                            batteryUpdate.putExtra("battery", characteristic[0]);
 
-        } else {
-            // Different packages...
+                            LocalBroadcastManager.getInstance(context).sendBroadcast(batteryUpdate);
+                 */
+            }
         }
     }
 
@@ -100,7 +112,7 @@ public class MedtronicProcessor {
         return this.lastGlucoseReadings;
     }
 
-    public Set<CalibrationPair> getCalibrationPairs() {
+    public List<CalibrationPair> getCalibrationPairs() {
         return this.knownCalibrations;
     }
 

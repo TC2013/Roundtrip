@@ -1,9 +1,9 @@
 package com.roundtrip.decoding;
 
-import com.roundtrip.decoding.packages.MeterReading;
 import com.roundtrip.decoding.packages.MedtronicReading;
-import com.roundtrip.decoding.packages.SensorReading;
+import com.roundtrip.decoding.packages.MeterReading;
 import com.roundtrip.decoding.packages.ParseException;
+import com.roundtrip.decoding.packages.SensorReading;
 import com.roundtrip.decoding.packages.SensorWarmupReading;
 import com.roundtrip.medtronic.MedtronicConstants;
 
@@ -28,7 +28,7 @@ public class MedtronicDecoder {
             } else {
                 newDataPackage = null;
             }
-        }catch(ParseException e) {
+        } catch (ParseException e) {
             return null;
         }
 

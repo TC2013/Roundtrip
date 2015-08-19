@@ -3,7 +3,6 @@ package com.roundtrip;
 import android.content.Context;
 import android.util.Log;
 
-import com.roundtrip.persistent.PersistentBoolean;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -13,6 +12,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.MongoCommandException;
 import com.mongodb.MongoTimeoutException;
+import com.roundtrip.persistent.PersistentBoolean;
 
 import org.joda.time.DateTime;
 import org.joda.time.Duration;

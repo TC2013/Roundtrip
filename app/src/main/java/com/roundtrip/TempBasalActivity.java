@@ -8,8 +8,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.roundtrip.roundtrip.R;
 import com.roundtrip.medtronic.PumpData.TempBasalPair;
+import com.roundtrip.roundtrip.R;
 import com.roundtrip.services.RTDemoService;
 import com.roundtrip.services.pumpmanager.TempBasalPairParcel;
 
