@@ -34,7 +34,20 @@ public class MainActivity extends ActionBarActivity {
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(Intents.ROUNDTRIP_STATUS_MESSAGE)) {
+
+            Log.w(TAG, "Got event: " + intent.getAction());
+
+            if (intent.getAction().equals(Intents.ENLITE_SENSOR_UPDATE)) {
+                Log.w(TAG, "Enlite Sensor Update");
+                TextView tGlucose = (TextView) findViewById(R.id.textView_StatusGlucose);
+                tGlucose.setText("BG: " + intent.getDoubleExtra("glucose", (byte) 0x00));
+
+                TextView tISIG = (TextView) findViewById(R.id.textView_StatusGlucose);
+                tISIG.setText("ISIG: " + intent.getDoubleExtra("isig", (byte) 0x00));
+
+                TextView tBattery = (TextView) findViewById(R.id.textView_StatusBatteryRileylink);
+                tBattery.setText("Enlite Battery: " + intent.getByteExtra("battery", (byte) 0) + "%");
+            } else if (intent.getAction().equals(Intents.ROUNDTRIP_STATUS_MESSAGE)) {
                 Log.d(TAG, "Received Roundtrip_Status_message");
                 if (intent.hasExtra("messages")) {
                     ArrayList<String> newMsgList = intent.getStringArrayListExtra("messages");
@@ -84,15 +97,19 @@ public class MainActivity extends ActionBarActivity {
                 Log.w(TAG, "Disconnected to the Rileylink");
             } else if (intent.getAction().equals(Intents.RILEYLINK_BATTERY_UPDATE)) {
                 TextView t = (TextView) findViewById(R.id.textView_StatusBatteryRileylink);
-                t.setText("Battery: " + intent.getByteExtra("battery", (byte) 0) + "%");
+                t.setText("RileyLink battery: " + intent.getByteExtra("battery", (byte) 0) + "%");
             }
         }
     };
 
+    private static Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        MainActivity.context = getApplicationContext();
+
         setContentView(R.layout.activity_main);
 
         int versionCode = BuildConfig.VERSION_CODE;
@@ -105,6 +122,10 @@ public class MainActivity extends ActionBarActivity {
 
         // FIXME the source of our null intents?
         this.startService(new Intent(this, RTDemoService.class).putExtra("srq", Constants.SRQ.START_SERVICE));
+    }
+
+    public static Context getAppContext() {
+        return MainActivity.context;
     }
 
     public void bluetoothWrite(View view) {

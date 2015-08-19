@@ -1,9 +1,6 @@
 package com.roundtrip.enlite.calibration;
 
-import com.roundtrip.decoding.packages.SensorReading;
-
 import java.util.List;
-import java.util.Set;
 
 public class OnePointCalibration implements CalibrationAlgorithm {
     @Override

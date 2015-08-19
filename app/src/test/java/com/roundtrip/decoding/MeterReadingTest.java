@@ -201,16 +201,16 @@ public class MeterReadingTest {
 
     @Test(expected = InvalidDataException.class)
     public void testInvalidData() {
-        new MeterReading(new byte[] {
-                (byte)0x07,
-                (byte)0x82,
-                (byte)0xA5,
-                (byte)0xC0,
-                (byte)0xB1,
-                (byte)0xFA,
-                (byte)0x06,
-                (byte)0x00,
-                (byte)0x90
+        new MeterReading(new byte[]{
+                (byte) 0x07,
+                (byte) 0x82,
+                (byte) 0xA5,
+                (byte) 0xC0,
+                (byte) 0xB1,
+                (byte) 0xFA,
+                (byte) 0x06,
+                (byte) 0x00,
+                (byte) 0x90
         });
     }
 

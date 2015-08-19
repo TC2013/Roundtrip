@@ -2,15 +2,13 @@ package com.roundtrip.decoding.packages;
 
 import android.support.annotation.NonNull;
 
-import com.roundtrip.decoding.GlucosUnitConversion;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.TimeZone;
 
-public class SensorMeasurement implements Comparator<SensorMeasurement>, Comparable<SensorMeasurement>  {
+public class SensorMeasurement implements Comparator<SensorMeasurement>, Comparable<SensorMeasurement> {
     private final Date created;
     private final double isig;
 
@@ -23,7 +21,7 @@ public class SensorMeasurement implements Comparator<SensorMeasurement>, Compara
         return this.created;
     }
 
-    public double getIsig(){
+    public double getIsig() {
         return isig;
     }
 

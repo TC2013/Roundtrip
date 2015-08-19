@@ -1,13 +1,14 @@
-<RelativeLayout android:id="@+id/relativeLayout_Main"
-                xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingBottom="@dimen/activity_vertical_margin"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
-                android:paddingTop="@dimen/activity_vertical_margin"
-                tools:context=".MainActivity">
+<RelativeLayout
+    android:id="@+id/relativeLayout_Main"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".MainActivity">
 
     <FrameLayout
         android:id="@+id/frameLayout"
@@ -37,7 +38,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="left|top"
                         android:text="Roundtrip Status: OK"
-                        android:textAppearance="?android:attr/textAppearanceLarge"/>
+                        android:textAppearance="?android:attr/textAppearanceLarge" />
 
                     <TextView
                         android:id="@+id/textView_StatusNote"
@@ -45,7 +46,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="left|bottom"
                         android:text="Starting..."
-                        android:textAppearance="?android:attr/textAppearanceMedium"/>
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
 
                     <TextView
                         android:id="@+id/textView_StatusBatteryRileylink"
@@ -85,7 +86,7 @@
                     android:layout_gravity="right|bottom"
                     android:indeterminate="false"
                     android:longClickable="false"
-                    android:visibility="invisible"/>
+                    android:visibility="invisible" />
             </LinearLayout>
 
             <LinearLayout
@@ -98,14 +99,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:onClick="bluetoothWrite"
-                    android:text="Write"/>
+                    android:text="Write" />
 
                 <Button
                     android:id="@+id/button_bluetoothSendCommand"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:onClick="bluetoothRead"
-                    android:text="Read"/>
+                    android:text="Read" />
 
             </LinearLayout>
 
@@ -133,14 +134,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="launchMonitorActivity"
-            android:text="APS Monitor"/>
+            android:text="APS Monitor" />
 
         <Button
             android:id="@+id/button_RTSettings"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="launchRTDemoSettingsActivity"
-            android:text="RT Settings"/>
+            android:text="RT Settings" />
 
     </LinearLayout>
 

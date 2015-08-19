@@ -1,7 +1,5 @@
 package com.roundtrip.decoding;
 
-import android.hardware.Sensor;
-
 import com.roundtrip.decoding.packages.InvalidCRCException;
 import com.roundtrip.decoding.packages.InvalidLengthException;
 import com.roundtrip.decoding.packages.SensorMeasurement;
@@ -11,7 +9,6 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import java.util.Date;
 import java.util.Iterator;
 
 public class SensorReadingTest {
@@ -94,15 +91,15 @@ public class SensorReadingTest {
 
         int pos = 0;
         for (byte[] sequence : uniqueSequences) {
-             readings[pos++] = new SensorReading(sequence);
+            readings[pos++] = new SensorReading(sequence);
         }
 
         Iterator<SensorMeasurement> measurementsNewest = readings[0].getIsigMeasurements().iterator();
         measurementsNewest.next();
 
         Iterator<SensorMeasurement> measurementOneBefore = readings[1].getIsigMeasurements().iterator();
-        if(measurementOneBefore.hasNext() && measurementsNewest.hasNext()) {
-            Assert.assertEquals(measurementsNewest.next().getIsig(),measurementOneBefore.next().getIsig());
+        if (measurementOneBefore.hasNext() && measurementsNewest.hasNext()) {
+            Assert.assertEquals(measurementsNewest.next().getIsig(), measurementOneBefore.next().getIsig());
         }
 
         measurementsNewest = readings[0].getIsigMeasurements().iterator();
@@ -110,7 +107,7 @@ public class SensorReadingTest {
         measurementsNewest.next();
 
         Iterator<SensorMeasurement> measurementTwoBefore = readings[2].getIsigMeasurements().iterator();
-        if(measurementTwoBefore.hasNext() && measurementsNewest.hasNext()) {
+        if (measurementTwoBefore.hasNext() && measurementsNewest.hasNext()) {
             Assert.assertEquals(measurementsNewest.next().getIsig(), measurementTwoBefore.next().getIsig());
         }
 

@@ -1,5 +1,10 @@
 package com.roundtrip.processing;
 
+import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
+
+import com.roundtrip.Intents;
 import com.roundtrip.decoding.packages.MedtronicReading;
 import com.roundtrip.decoding.packages.MeterReading;
 import com.roundtrip.decoding.packages.SensorMeasurement;
@@ -9,16 +14,16 @@ import com.roundtrip.enlite.calibration.CalibrationPair;
 import com.roundtrip.enlite.calibration.LinearRegressionCalibration;
 import com.roundtrip.enlite.calibration.OnePointCalibration;
 import com.roundtrip.enlite.calibration.TwoPointCalibration;
+import com.roundtrip.services.RTDemoService;
 
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.Set;
-import java.util.TreeSet;
 
 public class MedtronicProcessor {
+    private static final String TAG = "MedtronicProcessor";
     private final int KEEP_READINGS = 10;
 
     final List<CalibrationPair> knownCalibrations;
@@ -47,25 +52,38 @@ public class MedtronicProcessor {
     public void process(final MedtronicReading packet) {
         if (packet instanceof SensorReading) {
             SensorReading sensorReading = (SensorReading) packet;
+            Log.d(TAG, "Found an Enlite package");
 
+            boolean send = false;
             for (SensorMeasurement measurement : sensorReading.getIsigMeasurements()) {
-
                 if (!this.lastSensorReadings.contains(sensorReading)) {
+                    Log.d(TAG, "Found a new measurements");
                     this.lastSensorReadings.add(measurement);
 
                     // Look if it possible to convert the SGV to a Glucose Level based on the calibration scheme
                     int calibrations = this.knownCalibrations.size();
 
-                    final double approximatedGlucoseLevel;
-                    if (calibrations == 0) {
-                        // NEED CALIBRATION FIRST
-                        approximatedGlucoseLevel = -1;
-                    } else if (calibrations == 1) {
+                    double approximatedGlucoseLevel = -1;
+                    if (calibrations == 1) {
                         approximatedGlucoseLevel = new OnePointCalibration().approximateGlucoseLevel(measurement.getIsig(), this.knownCalibrations);
                     } else if (calibrations == 2) {
                         approximatedGlucoseLevel = new TwoPointCalibration().approximateGlucoseLevel(measurement.getIsig(), this.knownCalibrations);
                     } else if (calibrations >= 3) {
                         approximatedGlucoseLevel = new LinearRegressionCalibration().approximateGlucoseLevel(measurement.getIsig(), this.knownCalibrations);
+                    }
+
+                    if (!send) {
+                        send = true;
+                        Intent batteryUpdate = new Intent(Intents.ENLITE_SENSOR_UPDATE);
+                        batteryUpdate.putExtra("glucose", approximatedGlucoseLevel);
+                        batteryUpdate.putExtra("isig", measurement.getIsig());
+                        batteryUpdate.putExtra("battery", sensorReading.getBatteryLevel());
+
+                        if (LocalBroadcastManager.getInstance(RTDemoService.getContext()).sendBroadcast(batteryUpdate)) {
+                            Log.d(TAG, "Send EnliteSensor broadcast to update the UI");
+                        } else {
+                            Log.d(TAG, "Unable to send EnliteSensor broadcast to UI");
+                        }
                     }
                 }
             }

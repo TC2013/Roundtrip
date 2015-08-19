@@ -114,6 +114,10 @@ public class RTDemoService extends IntentService {
         context = this;
     }
 
+    public static Context getContext() {
+        return context;
+    }
+
     // For receiving and displaying log messages from the Service thread
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -134,7 +138,7 @@ public class RTDemoService extends IntentService {
         @Override
         public void run() {
             /* do what you need to do */
-            BluetoothConnection conn = BluetoothConnection.getInstance(context);
+            BluetoothConnection conn = BluetoothConnection.getInstance();
 
             conn.queue(new GattCharacteristicReadOperation(
                     UUID.fromString(GattAttributes.GLUCOSELINK_BATTERY_SERVICE),
@@ -150,7 +154,7 @@ public class RTDemoService extends IntentService {
                     }
             ));
 
-            if(conn.connected()) {
+            if (conn.connected()) {
                 batteryHandler.postDelayed(this, RILEYLINK_BATTERY_UPDATE);
             }
         }
@@ -187,7 +191,7 @@ public class RTDemoService extends IntentService {
             switch (srq) {
                 case Constants.SRQ.BLUETOOTH_WRITE: {
 
-                    BluetoothConnection conn = BluetoothConnection.getInstance(this);
+                    BluetoothConnection conn = BluetoothConnection.getInstance();
                     byte[] command = Commands.getReadPumpCommand(new byte[]{0x41, 0x75, 0x40});
 
                     conn.queue(new GattCharacteristicWriteOperation(
@@ -210,7 +214,7 @@ public class RTDemoService extends IntentService {
                 }
                 case Constants.SRQ.BLUETOOTH_READ: {
 
-                    BluetoothConnection conn = BluetoothConnection.getInstance(this);
+                    BluetoothConnection conn = BluetoothConnection.getInstance();
 
                     conn.queue(new GattCharacteristicReadOperation(
                             UUID.fromString(GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE),
@@ -457,7 +461,7 @@ public class RTDemoService extends IntentService {
         startForeground(Constants.NOTIFICATION_ID.RT_NOTIFICATION,
                 notification);
 
-        BluetoothConnection conn = BluetoothConnection.getInstance(this);
+        BluetoothConnection conn = BluetoothConnection.getInstance();
 
         // Init connection :)
         conn.queue(new GattInitializeBluetooth());

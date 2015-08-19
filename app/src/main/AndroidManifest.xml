@@ -1,23 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.roundtrip.roundtrip"
-          xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest
+    package="com.roundtrip.roundtrip"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!--
         Enable BLE and set it as mandatory
     -->
     <uses-feature
         android:name="android.hardware.bluetooth_le"
-        android:required="true"/>
+        android:required="true" />
 
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
-    <uses-permission android:name="android.permission.BLUETOOTH"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
     <application
         android:allowBackup="true"
@@ -29,9 +30,9 @@
             android:name="com.roundtrip.MainActivity"
             android:label="@string/app_name">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
@@ -40,8 +41,8 @@
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.eveningoutpost.dexdrip.BgEstimate"/>
-                <action android:name="com.gxwtech.rtdemo.Services.RTDemoService"/>
+                <action android:name="com.eveningoutpost.dexdrip.BgEstimate" />
+                <action android:name="com.gxwtech.rtdemo.Services.RTDemoService" />
             </intent-filter>
         </service>
 
@@ -51,7 +52,7 @@
             android:parentActivityName="com.roundtrip.RTDemoSettingsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.roundtrip.RTDemoSettingsActivity"/>
+                android:value="com.roundtrip.RTDemoSettingsActivity" />
         </activity>
         <activity
             android:name="com.roundtrip.TempBasalActivity"
@@ -59,7 +60,7 @@
             android:parentActivityName="com.roundtrip.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.roundtrip.MainActivity"/>
+                android:value="com.roundtrip.MainActivity" />
         </activity>
         <activity
             android:name="com.roundtrip.MonitorActivity"
@@ -67,7 +68,7 @@
             android:parentActivityName="com.roundtrip.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.roundtrip.MainActivity"/>
+                android:value="com.roundtrip.MainActivity" />
         </activity>
         <activity
             android:name="com.roundtrip.MongoDBSettingsActivity"
@@ -75,7 +76,7 @@
             android:parentActivityName="com.roundtrip.RTDemoSettingsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.roundtrip.RTDemoSettingsActivity"/>
+                android:value="com.roundtrip.RTDemoSettingsActivity" />
         </activity>
         <activity
             android:name="com.roundtrip.RTDemoSettingsActivity"
@@ -83,7 +84,7 @@
             android:parentActivityName="com.roundtrip.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.roundtrip.MainActivity"/>
+                android:value="com.roundtrip.MainActivity" />
         </activity>
         <activity
             android:name="com.roundtrip.PersonalProfileActivity"
@@ -91,7 +92,7 @@
             android:parentActivityName="com.roundtrip.RTDemoSettingsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.roundtrip.RTDemoSettingsActivity"/>
+                android:value="com.roundtrip.RTDemoSettingsActivity" />
         </activity>
         <activity
             android:name="com.roundtrip.UtilityActivity"
@@ -99,7 +100,7 @@
             android:parentActivityName="com.roundtrip.RTDemoSettingsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.roundtrip.RTDemoSettingsActivity"/>
+                android:value="com.roundtrip.RTDemoSettingsActivity" />
         </activity>
         <activity
             android:name="com.roundtrip.LoggingSettingsActivity"
@@ -107,7 +108,7 @@
             android:parentActivityName="com.roundtrip.RTDemoSettingsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.roundtrip.RTDemoSettingsActivity"/>
+                android:value="com.roundtrip.RTDemoSettingsActivity" />
         </activity>
         <activity
             android:name="com.roundtrip.SuspendAPSActivity"
@@ -115,7 +116,7 @@
             android:parentActivityName="com.roundtrip.MonitorActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.roundtrip.MonitorActivity"/>
+                android:value="com.roundtrip.MonitorActivity" />
         </activity>
     </application>
 </manifest>

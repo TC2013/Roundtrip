@@ -6,8 +6,6 @@ import org.junit.Test;
 
 import java.util.LinkedList;
 
-import static org.junit.Assert.*;
-
 public class TwoPointCalibrationTest {
 
     @Test
@@ -16,8 +14,8 @@ public class TwoPointCalibrationTest {
         TwoPointCalibration call = new TwoPointCalibration();
 
         LinkedList<CalibrationPair> calList = new LinkedList<>();
-        calList.add(new CalibrationPair(48,8));
-        calList.add(new CalibrationPair(24,4));
+        calList.add(new CalibrationPair(48, 8));
+        calList.add(new CalibrationPair(24, 4));
 
         double res = call.approximateGlucoseLevel(36, calList);
 

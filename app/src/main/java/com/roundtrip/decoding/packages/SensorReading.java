@@ -19,8 +19,8 @@ public class SensorReading extends MedtronicReading {
 
     private static final int NUMBER_OF_MEASUREMENTS = 8;
 
-    private short adjustmentValue = 0;
-    private short batteryLevel = 0;
+    private byte adjustmentValue = 0;
+    private byte batteryLevel = 0;
     private byte sequence = 0;
     private final ArrayList<SensorMeasurement> isigData;
 
@@ -51,22 +51,22 @@ public class SensorReading extends MedtronicReading {
             throw new InvalidCRCException("Invalid message CRC");
         }
 
-        this.adjustmentValue = ByteBuffer.wrap(new byte[]{0x00, readData[9]}).getShort();
+        this.adjustmentValue = readData[9];
         this.sequence = readData[10];
-        this.batteryLevel = ByteBuffer.wrap(new byte[]{0x00, readData[18]}).getShort();
+        this.batteryLevel = readData[18];
 
         int seq = 0;
         // bytes 11 - 14
-        for (int b = 11; b < 11+4; b += 2) {
-            int measurement = ByteBuffer.wrap(new byte[]{0x00,0x00,readData[b], readData[b + 1]}).getInt();
+        for (int b = 11; b < 11 + 4; b += 2) {
+            int measurement = ByteBuffer.wrap(new byte[]{0x00, 0x00, readData[b], readData[b + 1]}).getInt();
             double isig = calculateISIG((double) measurement, (double) this.adjustmentValue);
 
             isigData.add(new SensorMeasurement(getDate(EXPIRATION_FIVE_MINUTES * seq++), isig));
         }
 
         // bytes 19 - 30
-        for (int b = 19; b < 19+12; b += 2) {
-            int measurement = ByteBuffer.wrap(new byte[]{0x00,0x00,readData[b], readData[b + 1]}).getInt();
+        for (int b = 19; b < 19 + 12; b += 2) {
+            int measurement = ByteBuffer.wrap(new byte[]{0x00, 0x00, readData[b], readData[b + 1]}).getInt();
             double isig = calculateISIG((double) measurement, (double) this.adjustmentValue);
 
             isigData.add(new SensorMeasurement(getDate(EXPIRATION_FIVE_MINUTES * seq++), isig));
@@ -80,7 +80,7 @@ public class SensorReading extends MedtronicReading {
         return cal.getTime();
     }
 
-    public short getBatteryLevel() {
+    public byte getBatteryLevel() {
         return this.batteryLevel;
     }
 

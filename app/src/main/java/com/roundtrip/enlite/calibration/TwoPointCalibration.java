@@ -1,10 +1,7 @@
 package com.roundtrip.enlite.calibration;
 
-import com.roundtrip.decoding.packages.SensorReading;
-
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 public class TwoPointCalibration implements CalibrationAlgorithm {
     @Override
@@ -18,7 +15,7 @@ public class TwoPointCalibration implements CalibrationAlgorithm {
         double m1 = (firstCalibrationPoint.getSensorReading() - secondCalibrationPoint.getSensorReading());
         double m2 = (firstCalibrationPoint.getMeterReading() - secondCalibrationPoint.getMeterReading());
 
-        double m =  m1 / m2;
+        double m = m1 / m2;
 
         double b = secondCalibrationPoint.getSensorReading() - (m * secondCalibrationPoint.getMeterReading());
 

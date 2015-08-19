@@ -22,6 +22,7 @@ import android.util.Log;
 import com.roundtrip.Constants;
 import com.roundtrip.HexDump;
 import com.roundtrip.Intents;
+import com.roundtrip.MainActivity;
 import com.roundtrip.bluetooth.operations.GattCharacteristicReadOperation;
 import com.roundtrip.bluetooth.operations.GattDescriptorReadOperation;
 import com.roundtrip.bluetooth.operations.GattDiscoverServices;
@@ -53,17 +54,17 @@ public class BluetoothConnection {
     final BluetoothAdapter bluetoothAdapter;
 
 
-    protected BluetoothConnection(Context context) {
-        this.context = context;
+    protected BluetoothConnection() {
+        this.context = MainActivity.getAppContext();
         this.bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         this.bluetoothAdapter = bluetoothManager.getAdapter();
     }
 
-    public static BluetoothConnection getInstance(Context context) {
+    public static BluetoothConnection getInstance() {
         if (instance == null) {
             synchronized (BluetoothConnection.class) {
                 if (instance == null) {
-                    instance = new BluetoothConnection(context);
+                    instance = new BluetoothConnection();
                 }
 
             }
@@ -79,11 +80,11 @@ public class BluetoothConnection {
         Log.w(TAG, "Closing GATT connection");
 
         // Close old conenction
-        if (bluetoothConnectionGatt != null) {
+        if (this.bluetoothConnectionGatt != null) {
             // Not sure if to disconnect or to close first..
-            bluetoothConnectionGatt.disconnect();
-            bluetoothConnectionGatt.close();
-            bluetoothConnectionGatt = null;
+            this.bluetoothConnectionGatt.disconnect();
+            this.bluetoothConnectionGatt.close();
+            this.bluetoothConnectionGatt = null;
         }
 
         mQueue.clear();
@@ -108,9 +109,9 @@ public class BluetoothConnection {
         } else {
             Log.v(TAG, "Current Operation has been finished");
 
-            if (mCurrentOperationTimeout != null) {
-                mCurrentOperationTimeout.cancel(true);
-                mCurrentOperationTimeout = null;
+            if (this.mCurrentOperationTimeout != null) {
+                this.mCurrentOperationTimeout.cancel(true);
+                this.mCurrentOperationTimeout = null;
             }
 
             drive();
@@ -118,7 +119,7 @@ public class BluetoothConnection {
     }
 
     public synchronized void drive() {
-        if (mCurrentOperation != null) {
+        if (this.mCurrentOperation != null) {
             Log.v(TAG, "Still a query running (" + mCurrentOperation + "), waiting...");
             return;
         }
@@ -130,7 +131,7 @@ public class BluetoothConnection {
 
         setCurrentOperation(mQueue.poll());
 
-        mCurrentOperationTimeout = new AsyncTask<Void, Void, Void>() {
+        this.mCurrentOperationTimeout = new AsyncTask<Void, Void, Void>() {
             @Override
             protected synchronized Void doInBackground(Void... voids) {
                 try {

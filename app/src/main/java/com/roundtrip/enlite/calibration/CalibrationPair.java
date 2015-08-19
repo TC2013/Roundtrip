@@ -1,8 +1,5 @@
 package com.roundtrip.enlite.calibration;
 
-import com.roundtrip.decoding.packages.MeterReading;
-import com.roundtrip.decoding.packages.SensorReading;
-
 public class CalibrationPair {
     private final double sensorReading;
     private final double meterReading;

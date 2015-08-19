@@ -21,5 +21,5 @@ public class Intents {
     public static final String RILEYLINK_DISCONNECTED = basename + ".rileylink_disconnected";
     public static final String RILEYLINK_BATTERY_UPDATE = basename + ".rileylink_battery";
 
-    public static final String ENLITE_BATTERY_UPDATE = basename + ".enlite_battery";
+    public static final String ENLITE_SENSOR_UPDATE = basename + ".enlite_sensor_update";
 }

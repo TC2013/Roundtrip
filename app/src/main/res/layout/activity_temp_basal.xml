@@ -1,12 +1,12 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingBottom="@dimen/activity_vertical_margin"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
-                android:paddingTop="@dimen/activity_vertical_margin"
-                tools:context="com.roundtrip.TempBasalActivity">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.roundtrip.TempBasalActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -26,7 +26,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="tempBasalZero30Clicked"
-                android:text="0 Units for 30min"/>
+                android:text="0 Units for 30min" />
 
         </LinearLayout>
 
@@ -40,7 +40,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="CancelTempBasalClicked"
-                android:text="Cancel Temp Basal"/>
+                android:text="Cancel Temp Basal" />
         </LinearLayout>
 
         <LinearLayout
@@ -52,7 +52,7 @@
                 android:id="@+id/button_otherTempBasal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Other Temp Basal"/>
+                android:text="Other Temp Basal" />
 
         </LinearLayout>
 
@@ -61,7 +61,7 @@
             android:layout_width="match_parent"
             android:layout_height="198dp"
             android:layout_gravity="center_horizontal"
-            android:layout_weight="0.49"/>
+            android:layout_weight="0.49" />
     </LinearLayout>
 
 </RelativeLayout>

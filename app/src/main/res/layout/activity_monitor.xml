@@ -1,12 +1,12 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingBottom="@dimen/activity_vertical_margin"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
-                android:paddingTop="@dimen/activity_vertical_margin"
-                tools:context="com.roundtrip.MonitorActivity">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.roundtrip.MonitorActivity">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -26,7 +26,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Last Read Time:"
-                android:textAppearance="?android:attr/textAppearanceLarge"/>
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <TextView
                 android:id="@+id/textView_LastBGReadTime"
@@ -35,7 +35,7 @@
                 android:layout_gravity="right"
                 android:gravity="right"
                 android:text="-- min ago"
-                android:textAppearance="?android:attr/textAppearanceLarge"/>
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
         </LinearLayout>
 
@@ -49,7 +49,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Latest BG:"
-                android:textAppearance="?android:attr/textAppearanceLarge"/>
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <TextView
                 android:id="@+id/textView_LatestBG"
@@ -58,7 +58,7 @@
                 android:layout_gravity="right"
                 android:gravity="right"
                 android:text="--- mg/dL"
-                android:textAppearance="?android:attr/textAppearanceLarge"/>
+                android:textAppearance="?android:attr/textAppearanceLarge" />
         </LinearLayout>
 
         <LinearLayout
@@ -71,7 +71,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Current IOB:"
-                android:textAppearance="?android:attr/textAppearanceLarge"/>
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <TextView
                 android:id="@+id/textView_IOB"
@@ -80,8 +80,7 @@
                 android:layout_gravity="right"
                 android:gravity="right"
                 android:text="--- U"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                />
+                android:textAppearance="?android:attr/textAppearanceLarge" />
         </LinearLayout>
 
         <LinearLayout
@@ -94,7 +93,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Current COB:"
-                android:textAppearance="?android:attr/textAppearanceLarge"/>
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <TextView
                 android:id="@+id/textView_COB"
@@ -103,8 +102,7 @@
                 android:layout_gravity="right"
                 android:gravity="right"
                 android:text="--- gm"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                />
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
         </LinearLayout>
 
@@ -119,7 +117,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Current Basal Rate:"
-                android:textAppearance="?android:attr/textAppearanceLarge"/>
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <TextView
                 android:id="@+id/textView_CurrentBasal"
@@ -128,8 +126,7 @@
                 android:layout_gravity="right"
                 android:gravity="right"
                 android:text="--- U/hr"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                />
+                android:textAppearance="?android:attr/textAppearanceLarge" />
         </LinearLayout>
 
         <LinearLayout
@@ -144,7 +141,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="left"
                 android:text="Temp Basal:"
-                android:textAppearance="?android:attr/textAppearanceLarge"/>
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -160,7 +157,7 @@
                     android:layout_gravity="right"
                     android:gravity="right"
                     android:text="--- U/hr"
-                    android:textAppearance="?android:attr/textAppearanceLarge"/>
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
 
                 <TextView
                     android:id="@+id/textView_TempBasalMinRemaining"
@@ -169,8 +166,7 @@
                     android:layout_gravity="right"
                     android:gravity="right"
                     android:text="-- min"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    />
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
             </LinearLayout>
 
         </LinearLayout>
@@ -185,7 +181,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Predicted BG:"
-                android:textAppearance="?android:attr/textAppearanceLarge"/>
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <TextView
                 android:id="@+id/textView_PredBG"
@@ -194,8 +190,7 @@
                 android:layout_gravity="right"
                 android:gravity="right"
                 android:text="--- mg/dL"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                />
+                android:textAppearance="?android:attr/textAppearanceLarge" />
         </LinearLayout>
 
         <LinearLayout
@@ -208,14 +203,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="startupButtonClicked"
-                android:text="Run"/>
+                android:text="Run" />
 
             <Button
                 android:id="@+id/button_StopAPS"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="buttonStopClicked"
-                android:text="Stop"/>
+                android:text="Stop" />
 
             <TextView
                 android:id="@+id/textView_SleepNotification"
@@ -225,8 +220,7 @@
                 android:gravity="right"
                 android:text="Sleep"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:visibility="invisible"
-                />
+                android:visibility="invisible" />
 
         </LinearLayout>
 
@@ -240,7 +234,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="buttonSuspendClicked"
-                android:text="Suspend for ..."/>
+                android:text="Suspend for ..." />
         </LinearLayout>
 
         <ListView
@@ -248,7 +242,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:footerDividersEnabled="false"
-            android:headerDividersEnabled="false"/>
+            android:headerDividersEnabled="false" />
 
     </LinearLayout>
 
