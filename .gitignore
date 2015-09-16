@@ -4,6 +4,7 @@
 /local.properties
 
 /app/.idea/
+/app/app.iml
 
 /build/
 /app/build/*
