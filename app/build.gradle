@@ -53,6 +53,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.2.0'
     compile 'com.android.support:support-v4:22.2.0'
     compile 'org.mongodb:mongo-java-driver:2.13.2'
+    compile 'org.droidparts:droidparts:2.0.5'
     compile 'com.google.code.gson:gson:2.3'
     compile 'joda-time:joda-time:2.5'
     compile 'com.google.protobuf:protobuf-java:2.6.1'
