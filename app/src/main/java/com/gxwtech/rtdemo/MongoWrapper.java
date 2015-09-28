@@ -41,11 +41,7 @@ public class MongoWrapper {
     DB mDB = null;
     public static synchronized MongoClient getMongoClientInstance(MongoClientURI uri) {
     if (mongoClientInstance == null) {
-        try {
             mongoClientInstance = new MongoClient(uri);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
     }
     return mongoClientInstance;
 }
@@ -129,8 +125,6 @@ public class MongoWrapper {
                     Log.d(TAG,"Unknown entry in MongoDB collection '" + mTreatmentsCollectionName + "'");
                 }
             }
-        } catch (com.mongodb.CommandFailureException e) {
-            e.printStackTrace();
         } catch (com.mongodb.MongoTimeoutException e) {
             Log.e(TAG, "MongoDB connection timeout");
         } finally {
@@ -227,9 +221,6 @@ public class MongoWrapper {
             response.reading = latestBGReading;
             Log.i(TAG,"Total MongoDB entries read: " + recordCount);
             // android says commandFailureException is deprecated, but it's what's thrown...
-        } catch (com.mongodb.CommandFailureException e) {
-            response.setError(e.toString());
-            e.printStackTrace();
         } catch (com.mongodb.MongoTimeoutException e) {
             response.setError("MongoDB connection timeout");
             Log.e(TAG, "MongoDB connection timeout");
