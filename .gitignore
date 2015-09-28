@@ -6,7 +6,9 @@
 /build/
 /app/build/
 /app/.idea/
-/app/build/generated
+/app/build/generated/
+/app/app.iml
+/app/build/outputs/logs/
 /app/build/outputs/logs/manifest-merger-debug-report.txt
 
 /.idea/*
