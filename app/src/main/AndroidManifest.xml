@@ -70,7 +70,7 @@
                 android:value="com.gxwtech.rtdemo.MainActivity" />
         </activity>
         <activity
-            android:name=".MongoDBSettingsActivity"
+            android:name=".RestV1SettingsActivity"
             android:label="@string/title_activity_mongo_dbsettings"
             android:parentActivityName=".RTDemoSettingsActivity" >
             <meta-data

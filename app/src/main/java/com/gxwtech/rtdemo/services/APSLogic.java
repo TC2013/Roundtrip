@@ -10,9 +10,10 @@ import android.util.Log;
 import com.gxwtech.rtdemo.BGReading;
 import com.gxwtech.rtdemo.Constants;
 import com.gxwtech.rtdemo.DBTempBasalEntry;
+import com.gxwtech.rtdemo.DownloadResponse;
 import com.gxwtech.rtdemo.Intents;
-import com.gxwtech.rtdemo.MongoWrapper;
 import com.gxwtech.rtdemo.PreferenceBackedStorage;
+import com.gxwtech.rtdemo.RestV1Wrapper;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfile;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileEntry;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileTypeEnum;
@@ -22,7 +23,6 @@ import com.gxwtech.rtdemo.medtronic.PumpData.TempBasalPair;
 import com.gxwtech.rtdemo.medtronic.PumpData.records.BolusWizard;
 import com.gxwtech.rtdemo.medtronic.TempBasalEvent;
 import com.gxwtech.rtdemo.services.pumpmanager.PumpManager;
-import com.gxwtech.rtdemo.services.pumpmanager.TempBasalPairParcel;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -34,10 +34,11 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 
@@ -94,7 +95,6 @@ public class APSLogic {
     private static final String TAG = "APSLogic";
     Context mContext;
     PumpManager mPumpManager;
-    MongoWrapper mMongoWrapper;
     String mLogfileName;
     PreferenceBackedStorage mStorage;
 
@@ -549,27 +549,42 @@ public class APSLogic {
         mStorage.monitorCOB.set(cobTotal);
         //notifyMonitorDataChanged();
 
-        // If we're not allowed to write to the MongoDB, skip this section
-        if (mMongoWrapper.allowWritingToDB.get()) {
-            // Get last (insulinImpactMinutesMax) minutes of TempBasal treatment entries from mongodb
-            log("Getting list of previous Temp Basal events from MongoDB");
-            List<DBTempBasalEntry> treatmentListFromDB =
-                    mMongoWrapper.downloadRecentTreatments(DIATable.insulinImpactMinutesMax + 30 /* minutes */);
 
-            // for each entry in our history, check to see if there is a corresponding db entry.
-            // if not, post an entry for the tempbasal event. (only if it has ended)
-            // Approx. max entries would be 36, so for-loop processing is 36x36 or 1296 iterations.
-            // typical should be much less.
+        // Get last (insulinImpactMinutesMax) minutes of TempBasal treatment entries from mongodb
+        log("Getting list of previous Temp Basal events from Nightscout");
+        SharedPreferences prefs = mContext.getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
+        boolean downloadedOK = false;
+        List<DBTempBasalEntry> treatmentListFromDB = null;
+        try {
+            URI uri = new URI(prefs.getString(Constants.PrefName.RestURI, Constants.defaultRestURI));
+            RestV1Wrapper downloader = new RestV1Wrapper(uri);
+            DownloadResponse resp = downloader.downloadRecentTreatments(DIATable.insulinImpactMinutesMax + 30 /* minutes */);
+            if (null!=resp.responseObject) {
+                downloadedOK = true;
+                treatmentListFromDB = (List<DBTempBasalEntry>)(resp.responseObject);
+            }
+
+        } catch (URISyntaxException e) {
+            downloadedOK = false;
+            e.printStackTrace();
+        }
+        // for each entry in our history, check to see if there is a corresponding db entry.
+        // if not, post an entry for the tempbasal event. (only if it has ended)
+        // Approx. max entries would be 36, so for-loop processing is 36x36 or 1296 iterations.
+        // typical should be much less.
+        if (null!=treatmentListFromDB) {
             for (APSTempBasalEvent localTB : simplifiedBasalEvents) {
                 // we only care about events within (DIATables.insulinImpactMinutesMax + 30) minutes
                 if (localTB.mTimestamp.isAfter(DateTime.now().minusMinutes(DIATable.insulinImpactMinutesMax + 30))) {
                     boolean found = false;
-                    for (DBTempBasalEntry remoteTB : treatmentListFromDB) {
-                        int diffSeconds = Seconds.secondsBetween(remoteTB.mTimestamp, localTB.mTimestamp).getSeconds();
-                        if (Math.abs(diffSeconds) < 10) {
-                            // consider it a match
-                            found = true;
-                            break;
+                    if (treatmentListFromDB.size() > 0) {
+                        for (DBTempBasalEntry remoteTB : treatmentListFromDB) {
+                            int diffSeconds = Seconds.secondsBetween(remoteTB.mTimestamp, localTB.mTimestamp).getSeconds();
+                            if (Math.abs(diffSeconds) < 10) {
+                                // consider it a match
+                                found = true;
+                                break;
+                            }
                         }
                     }
                     if (!found) {
@@ -580,7 +595,16 @@ public class APSLogic {
                                 localTB.mTimestamp,
                                 localTB.mTotalRelativeInsulin,
                                 localTB.actualDurationMinutes);
-                        mMongoWrapper.uploadTreatment(dbEntry);
+                        try {
+                            URI uri = new URI(prefs.getString(Constants.PrefName.RestURI, Constants.defaultRestURI));
+                            RestV1Wrapper downloader = new RestV1Wrapper(uri);
+                            downloader.uploadTreatment(dbEntry);
+                            // TODO: and if it fails to upload?
+                        } catch (URISyntaxException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
@@ -811,11 +835,10 @@ public class APSLogic {
      * Anything that isn't directly related to making decisions.
      *
      *******************************************************/
-    public APSLogic(Context context, PumpManager pumpManager, MongoWrapper mongoWrapper) {
+    public APSLogic(Context context, PumpManager pumpManager) {
         mContext = context;
         mStorage = new PreferenceBackedStorage(context);
         mPumpManager = pumpManager;
-        mMongoWrapper = mongoWrapper;
         mLogfileName = "RTLog_" + DateTime.now().toString();
         init();
     }

@@ -34,8 +34,6 @@ public interface Constants {
         // initial data collection, which can take a long time (MongoDB access, pump access)
         // and to run the MakeADecision loop once.
         public static String APSLOGIC_STARTUP = "APSLogicStartup"; //309;
-        // MongoDBSettingsActivity fires this off to announce new settings for the DB URI
-        public static String MONGO_SETTINGS_CHANGED = "MongoSettingsChanged"; //310;
         // PersonalProfileActivity fires this off when the ISF number has been set.
         // public static int SET_ISF = 311;
         // PersonalProfileActivity fires this off when the CAR number has been set.
@@ -60,16 +58,11 @@ public interface Constants {
     class PrefName {
         // Name of an entry in a SharedPreference collection
         public static String SerialNumberPrefName = "PumpSerialNumber";
-        public static String MongoDBServerPrefName = "MongoDBServerAddress";
-        public static String MongoDBServerPortPrefName = "MongoDBServerPort";
-        public static String MongoDBDatabasePrefName = "MongoDBDatabase";
-        public static String MongoDBUsernamePrefName = "MongoDBUsername";
-        public static String MongoDBPasswordPrefName = "MongoDBPassword";
-        public static String MongoDBCollectionPrefName = "MongoDBCollection";
-        public static String MongoDBAllowWritingToDBPrefName = "MongoDBAllowWrites";
         public static String SuspendMinutesPrefName = "SuspendAPSMinutes";
         // and all kinds of other goodies:
         public static String LastPowerControlRunTime = "LastPowerControlRunTime";
+        public static String RestURI = "RestURI";
+        public static String RestAllowWrite = "RestAllowWrite";
 
         // These have been moved to PreferenceBackedStorage.  TODO: move all others there
         public static String LatestBGTimestamp = "LatestBGTimestamp";
@@ -96,4 +89,6 @@ public interface Constants {
         public static String Monitor_COB = "Monitor_COB";
 
     }
+    public static final String defaultRestURI = "https://YOUR_API_SECRET@YOUR_WEBSITE.azurewebsites.net/api/v1";
+
 }

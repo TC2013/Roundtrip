@@ -35,9 +35,9 @@
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="MongoDB Settings"
-                android:id="@+id/button_MongoDBSettings"
-                android:onClick="launchMongoDBSettingsActivity" />
+                android:text="RestV1 Settings"
+                android:id="@+id/button_RestV1Settings"
+                android:onClick="launchRestV1SettingsActivity" />
         </LinearLayout>
 
         <LinearLayout

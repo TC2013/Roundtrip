@@ -32,8 +32,8 @@ public class RTDemoSettingsActivity extends ActionBarActivity {
         startActivity(intent);
     }
 
-    public void launchMongoDBSettingsActivity(View view) {
-        Intent intent = new Intent(this,MongoDBSettingsActivity.class);
+    public void launchRestV1SettingsActivity(View view) {
+        Intent intent = new Intent(this,RestV1SettingsActivity.class);
         startActivity(intent);
     }
 

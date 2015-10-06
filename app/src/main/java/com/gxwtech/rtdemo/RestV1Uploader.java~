@@ -1,0 +1,41 @@
+package com.gxwtech.rtdemo;
+
+import org.apache.http.message.AbstractHttpMessage;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.net.URI;
+import java.util.Date;
+
+
+public class RestV1Uploader /* extends AbstractRestUploader */ {
+
+    public RestV1Uploader(NightscoutPreferences preferences, URI uri) {
+        super(preferences, RestUriUtils.removeToken(uri));
+        checkArgument(RestUriUtils.hasToken(uri), "Rest API v1 requires a token.");
+        secret = RestUriUtils.generateSecret(uri.getUserInfo());
+    }
+
+
+    private JSONObject toJSONObject(MeterEntry record) throws JSONException {
+        JSONObject json = new JSONObject();
+        Date timestamp = Utils.receiverTimeToDate(record.disp_timestamp_sec);
+        json.put("device", "dexcom");
+        json.put("type", "mbg");
+        json.put("date", timestamp.getTime());
+        json.put("dateString", timestamp.toString());
+        json.put("mbg", Integer.parseInt(String.valueOf(record.meter_bg_mgdl)));
+        return json;
+    }
+
+    protected boolean doUpload(MeterEntry meterRecord) throws IOException {
+        try {
+            // TODO(trhodeos): in Uploader.java, this method still used 'entries' as the endpoint,
+            // but this seems like a bug to me.
+            return doPost("entries", toJSONObject(meterRecord));
+        } catch (JSONException e) {
+            log.error("Could not create JSON object for rest v1 meter record.", e);
+            return false;
+        }
+    }

@@ -29,11 +29,11 @@ import com.gxwtech.rtdemo.HexDump;
 import com.gxwtech.rtdemo.Intents;
 import com.gxwtech.rtdemo.MainActivity;
 import com.gxwtech.rtdemo.PreferenceBackedStorage;
+import com.gxwtech.rtdemo.RestV1Wrapper;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfile;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileEntry;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileTypeEnum;
 import com.gxwtech.rtdemo.medtronic.PumpData.HistoryReport;
-import com.gxwtech.rtdemo.MongoWrapper;
 import com.gxwtech.rtdemo.R;
 import com.gxwtech.rtdemo.services.pumpmanager.PumpManager;
 import com.gxwtech.rtdemo.services.pumpmanager.PumpSettingsParcel;
@@ -43,6 +43,8 @@ import com.gxwtech.rtdemo.usb.CareLinkUsb;
 import org.joda.time.DateTime;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -79,26 +81,16 @@ import java.util.regex.Pattern;
 public class RTDemoService extends IntentService {
     private static final String TAG = "RTDemoService";
 
-    // @TODO Move this to constants?
-    private static final String MEDTRONIC_DEFAULT_SERIAL = "000000";
-
-    private static final String MONGO_DEFAULT_SERVER =  "localhost";
-    private static final String MONGO_DEFAULT_PORT =  "27015";
-    private static final String MONGO_DEFAULT_DATABASE =  "nightscout";
-    private static final String MONGO_DEFAULT_USERNAME =  "username";
-    private static final String MONGO_DEFAULT_PASSWORD =  "password";
-    private static final String MONGO_DEFAULT_COLLECTION =  "entries";
-
     private static final String WAKELOCKNAME = "com.gxwtech.RTDemo.RTDemoServiceWakeLock";
     private static volatile PowerManager.WakeLock lockStatic = null;
     PendingIntent mRepeatingAlarmPendingIntent;
     public static final String REQUEST_STRING_EXTRANAME = "com.gxwtech.wltest2.requeststring";
 
+    private static final String MEDTRONIC_DEFAULT_SERIAL = "000000";
 
     // GGW: I think APSLogic should be its own service, but for now, it's a member of RTDemoService.
     // It has significant connections with PumpManager which will have to be ironed out.
     APSLogic mAPSLogic;
-    MongoWrapper mMongoWrapper;
     PreferenceBackedStorage mStorage;
 
     //protected static RTDemoService mInstance = null;
@@ -235,10 +227,6 @@ public class RTDemoService extends IntentService {
                 Log.d(TAG, String.format("Request to Set Temp Basal(Rate %.2fU, duration %d minutes",
                         pair.mInsulinRate, pair.mDurationMinutes));
                 mPumpManager.setTempBasal(pair);
-            } else if (srq.equals(Constants.SRQ.MONGO_SETTINGS_CHANGED)) {
-                // there are new settings in the preferences.
-                // Get them and give them to MongoWrapper
-                updateMongoWrapperFromPrefs();
             } else if (srq.equals(Constants.SRQ.START_REPEAT_ALARM)) {
                 // MonitorActivity start button runs this.
                 Log.w(TAG, "onHandleIntent: starting repeating alarm");
@@ -442,22 +430,6 @@ public class RTDemoService extends IntentService {
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
-    // These need to be moved into PreferenceBackedStorage and loaded directly from MongoWrapper
-    private void updateMongoWrapperFromPrefs() {
-        // open prefs
-        SharedPreferences settings = getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
-
-        // get strings from prefs
-        String server = settings.getString(Constants.PrefName.MongoDBServerPrefName, MONGO_DEFAULT_SERVER);
-        String serverPort = settings.getString(Constants.PrefName.MongoDBServerPortPrefName, MONGO_DEFAULT_PORT);
-        String dbname = settings.getString(Constants.PrefName.MongoDBDatabasePrefName, MONGO_DEFAULT_DATABASE);
-        String mongoUsername = settings.getString(Constants.PrefName.MongoDBUsernamePrefName, MONGO_DEFAULT_USERNAME);
-        String mongoPassword = settings.getString(Constants.PrefName.MongoDBPasswordPrefName, MONGO_DEFAULT_PASSWORD);
-        String mongoCollection = settings.getString(Constants.PrefName.MongoDBCollectionPrefName, MONGO_DEFAULT_COLLECTION);
-
-        mMongoWrapper.updateURI(server, serverPort, dbname, mongoUsername, mongoPassword, mongoCollection);
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -507,10 +479,8 @@ public class RTDemoService extends IntentService {
         byte[] sn_bytes = HexDump.hexStringToByteArray(serialNumber);
         mPumpManager.setSerialNumber(sn_bytes);
         mPumpManager.open();
-        mMongoWrapper = new MongoWrapper(getApplicationContext());
-        updateMongoWrapperFromPrefs();
 
-        mAPSLogic = new APSLogic(this, mPumpManager, mMongoWrapper);
+        mAPSLogic = new APSLogic(this, mPumpManager);
 
         //llog("End of onCreate()");
         llog("Roundtrip ready.");
@@ -536,38 +506,54 @@ public class RTDemoService extends IntentService {
     }
 
     public void checkAndUpdateBGReading() {
-        // get latest BG reading from Mongo.  This can block, during internet access
+
+        //This can block, during internet access
 
         // check to see if our BGReading is old.
         BGReading latestBG = mStorage.getLatestBGReading();
         if ((latestBG.mTimestamp.isBefore(DateTime.now().minusMinutes(10)))
-                || (latestBG.mTimestamp.isAfter(DateTime.now().plusMinutes(5))))
-        {
-            mAPSLogic.broadcastAPSLogicStatusMessage("Accessing MongoDB for latest BG reading");
-            MongoWrapper.BGReadingResponse bgResponse = mMongoWrapper.getBGReading();
-            BGReading reading = bgResponse.reading;
-            if (bgResponse.error) {
-                mAPSLogic.broadcastAPSLogicStatusMessage("Error reading BG from mongo: " + bgResponse.errorMessage);
-                if (reading != null) {
-                    Log.e(TAG,
-                            String.format("Error reading BG from Mongo: %s, and BG reading reports %.2f at %s",
-                                    bgResponse.errorMessage,
-                                    reading.mBg, reading.mTimestamp.toLocalDateTime().toString()));
-                }
-                // Are the contents of BGReading reading "ok to use", even with an error?
-                // how else to handle?
-            } else {
-                // Save the reading
-                mStorage.setLatestBGReading(reading);
+                || (latestBG.mTimestamp.isAfter(DateTime.now().plusMinutes(5)))) {
 
-                // broadcast the reading to the world. (esp. to MonitorActivity)
-                Intent intent = new Intent(Intents.ROUNDTRIP_BG_READING);
-                intent.putExtra("name", Constants.ParcelName.BGReadingParcelName);
-                intent.putExtra(Constants.ParcelName.BGReadingParcelName, new BGReadingParcel(reading));
-                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-                Log.i(TAG, "Sending latest BG reading");
-                mAPSLogic.broadcastAPSLogicStatusMessage(String.format("Latest BG reading reports %.2f at %s",
-                        reading.mBg, reading.mTimestamp.toLocalDateTime().toString()));
+            URI uri = null;
+            SharedPreferences settings = getApplicationContext().getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
+
+            // get strings from prefs
+            String restURI = settings.getString(Constants.PrefName.RestURI, Constants.defaultRestURI);
+
+            try {
+                uri = new URI(restURI);
+            } catch (URISyntaxException e) {
+                uri = null;
+            }
+            if (null != uri) {
+                RestV1Wrapper uploader = new RestV1Wrapper(uri);
+                mAPSLogic.broadcastAPSLogicStatusMessage("Accessing Nightscout for latest BG reading");
+                RestV1Wrapper.BGReadingResponse bgResponse = uploader.doDownloadBGReading();
+
+                BGReading reading = bgResponse.bgReading;
+                if (!bgResponse.isOk) {
+                    mAPSLogic.broadcastAPSLogicStatusMessage("Error reading BG from Nightscout: " + bgResponse.errorMessage);
+                    if (reading != null) {
+                        llog(
+                                String.format("Error reading BG from Nightscout: %s, and BG reading reports %.2f at %s",
+                                        bgResponse.errorMessage,
+                                        reading.mBg, reading.mTimestamp.toLocalDateTime().toString()));
+                    }
+                    // Are the contents of BGReading reading "ok to use", even with an error?
+                    // how else to handle?
+                } else {
+                    // Save the reading
+                    mStorage.setLatestBGReading(reading);
+
+                    // broadcast the reading to the world. (esp. to MonitorActivity)
+                    Intent intent = new Intent(Intents.ROUNDTRIP_BG_READING);
+                    intent.putExtra("name", Constants.ParcelName.BGReadingParcelName);
+                    intent.putExtra(Constants.ParcelName.BGReadingParcelName, new BGReadingParcel(reading));
+                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+                    Log.i(TAG, "Sending latest BG reading");
+                    mAPSLogic.broadcastAPSLogicStatusMessage(String.format("Latest BG reading reports %.2f at %s",
+                            reading.mBg, reading.mTimestamp.toLocalDateTime().toString()));
+                }
             }
         }
     }
