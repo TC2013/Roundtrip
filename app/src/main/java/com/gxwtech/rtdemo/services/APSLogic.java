@@ -527,13 +527,15 @@ public class APSLogic {
                     // The relative rate calculation is wrong because:
                     // A) The actual relative rate is computed on a per minute basis, to account for changes in basal rate
                     // B) It only uses the "current basal profile", not the one that was active at the time
-                    log(String.format("TempBasalEvent rate: %.3f U/hr, relative: %.3f U/hr, start: %s, end %s, remaining IOB %.3f, isf=45.0, impact %.1f, tables used: %s",
+                    // C) the isf number (theoretically) varies with time, so a single number cannot describe it.
+                    log(String.format("TempBasalEvent rate: %.3f U/hr, relative: %.3f U/hr, start: %s, end %s, remaining IOB %.3f, isf at end=%.1f, impact %.1f, tables used: %s",
                             tb.mBasalPair.mInsulinRate,
                             tb.mBasalPair.mInsulinRate - basal_rate_at_abs_time(tb.mTimestamp.toInstant(),
                                     getCurrentBasalProfile()), // <-- fixme: use correct basal profile
                             tb.mTimestamp.toLocalTime().toString("HH:mm"),
                             thisEventEndTime.toDateTime(DateTimeZone.getDefault()).toString("HH:mm"),
                             thisEventIOBRemaining,
+                            isf(thisEventEndTime.toInstant()),
                             thisEventIOBImpact,
                             tableString));
                 }
@@ -553,61 +555,67 @@ public class APSLogic {
         // Get last (insulinImpactMinutesMax) minutes of TempBasal treatment entries from mongodb
         log("Getting list of previous Temp Basal events from Nightscout");
         SharedPreferences prefs = mContext.getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
-        boolean downloadedOK = false;
-        List<DBTempBasalEntry> treatmentListFromDB = null;
-        try {
-            URI uri = new URI(prefs.getString(Constants.PrefName.RestURI, Constants.defaultRestURI));
-            RestV1Wrapper downloader = new RestV1Wrapper(uri);
-            DownloadResponse resp = downloader.downloadRecentTreatments(DIATable.insulinImpactMinutesMax + 30 /* minutes */);
-            if (null!=resp.responseObject) {
-                downloadedOK = true;
-                treatmentListFromDB = (List<DBTempBasalEntry>)(resp.responseObject);
-            }
+        if (prefs.getBoolean(Constants.PrefName.RestAllowWrite,false)) {
+            log("Updating Nightscout treatment database");
 
-        } catch (URISyntaxException e) {
-            downloadedOK = false;
-            e.printStackTrace();
-        }
-        // for each entry in our history, check to see if there is a corresponding db entry.
-        // if not, post an entry for the tempbasal event. (only if it has ended)
-        // Approx. max entries would be 36, so for-loop processing is 36x36 or 1296 iterations.
-        // typical should be much less.
-        if (null!=treatmentListFromDB) {
-            for (APSTempBasalEvent localTB : simplifiedBasalEvents) {
-                // we only care about events within (DIATables.insulinImpactMinutesMax + 30) minutes
-                if (localTB.mTimestamp.isAfter(DateTime.now().minusMinutes(DIATable.insulinImpactMinutesMax + 30))) {
-                    boolean found = false;
-                    if (treatmentListFromDB.size() > 0) {
-                        for (DBTempBasalEntry remoteTB : treatmentListFromDB) {
-                            int diffSeconds = Seconds.secondsBetween(remoteTB.mTimestamp, localTB.mTimestamp).getSeconds();
-                            if (Math.abs(diffSeconds) < 10) {
-                                // consider it a match
-                                found = true;
-                                break;
+            boolean downloadedOK = false;
+            List<DBTempBasalEntry> treatmentListFromDB = null;
+            try {
+                URI uri = new URI(prefs.getString(Constants.PrefName.RestURI, Constants.defaultRestURI));
+                RestV1Wrapper downloader = new RestV1Wrapper(uri);
+                DownloadResponse resp = downloader.downloadRecentTreatments(DIATable.insulinImpactMinutesMax + 30 /* minutes */);
+                if (null != resp.responseObject) {
+                    downloadedOK = true;
+                    treatmentListFromDB = (List<DBTempBasalEntry>) (resp.responseObject);
+                }
+
+            } catch (URISyntaxException e) {
+                downloadedOK = false;
+                e.printStackTrace();
+            }
+            // for each entry in our history, check to see if there is a corresponding db entry.
+            // if not, post an entry for the tempbasal event. (only if it has ended)
+            // Approx. max entries would be 36, so for-loop processing is 36x36 or 1296 iterations.
+            // typical should be much less.
+            if (null != treatmentListFromDB) {
+                for (APSTempBasalEvent localTB : simplifiedBasalEvents) {
+                    // we only care about events within (DIATables.insulinImpactMinutesMax + 30) minutes
+                    if (localTB.mTimestamp.isAfter(DateTime.now().minusMinutes(DIATable.insulinImpactMinutesMax + 30))) {
+                        boolean found = false;
+                        if (treatmentListFromDB.size() > 0) {
+                            for (DBTempBasalEntry remoteTB : treatmentListFromDB) {
+                                int diffSeconds = Seconds.secondsBetween(remoteTB.mTimestamp, localTB.mTimestamp).getSeconds();
+                                if (Math.abs(diffSeconds) < 10) {
+                                    // consider it a match
+                                    found = true;
+                                    break;
+                                }
                             }
                         }
-                    }
-                    if (!found) {
-                        Log.d(TAG, String.format("Adding Temp Basal DB record: Rel. ins. %.3f, Act. dur: %d, start: %s",
-                                localTB.mTotalRelativeInsulin, localTB.actualDurationMinutes,
-                                localTB.mTimestamp.toString("(MM/dd) hh:mmaa")));
-                        DBTempBasalEntry dbEntry = new DBTempBasalEntry(
-                                localTB.mTimestamp,
-                                localTB.mTotalRelativeInsulin,
-                                localTB.actualDurationMinutes);
-                        try {
-                            URI uri = new URI(prefs.getString(Constants.PrefName.RestURI, Constants.defaultRestURI));
-                            RestV1Wrapper downloader = new RestV1Wrapper(uri);
-                            downloader.uploadTreatment(dbEntry);
-                            // TODO: and if it fails to upload?
-                        } catch (URISyntaxException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                        if (!found) {
+                            Log.d(TAG, String.format("Adding Temp Basal DB record: Rel. ins. %.3f, Act. dur: %d, start: %s",
+                                    localTB.mTotalRelativeInsulin, localTB.actualDurationMinutes,
+                                    localTB.mTimestamp.toString("(MM/dd) hh:mmaa")));
+                            DBTempBasalEntry dbEntry = new DBTempBasalEntry(
+                                    localTB.mTimestamp,
+                                    localTB.mTotalRelativeInsulin,
+                                    localTB.actualDurationMinutes);
+                            try {
+                                URI uri = new URI(prefs.getString(Constants.PrefName.RestURI, Constants.defaultRestURI));
+                                RestV1Wrapper downloader = new RestV1Wrapper(uri);
+                                downloader.uploadTreatment(dbEntry);
+                                // TODO: and if it fails to upload?
+                            } catch (URISyntaxException e) {
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 }
             }
+        } else {
+            log("NOT updating Nightscout treatment database.");
         }
 
         // We have collected all the data we need, now use it to make a decision

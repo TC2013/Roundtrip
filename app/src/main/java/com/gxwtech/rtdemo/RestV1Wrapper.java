@@ -16,6 +16,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.Instant;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -88,11 +89,12 @@ public class RestV1Wrapper /* extends AbstractRestUploader */ {
 
     private JSONObject toJSONObject(DBTempBasalEntry record) throws JSONException {
         JSONObject json = new JSONObject();
-        Date timestamp = record.mTimestamp.toDate();
+        DateTime timestamp = new DateTime(record.mTimestamp.toDate());
         json.put("enteredBy", "Roundtrip");
         json.put("eventType", "Temp Basal");
-        json.put("datetime", timestamp.toString());
-        json.put("insulin",String.format("%.3f",record.mRelativeInsulin));
+        //json.put("datetime", timestamp.toString());
+        json.put("datetime", ISODateTimeFormat.dateTime().print(timestamp));
+        json.put("insulin",String.format("%.3f", record.mRelativeInsulin));
         json.put("durationMin",String.format("%d",record.mDurationMinutes));
         json.put("created_at",record.mTimestamp.toDateTime(DateTimeZone.UTC).toString());
         json.put("notes","Start: " + record.startTime + "\nEnd: " + record.endTime+"\n");
