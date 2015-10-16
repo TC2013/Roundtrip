@@ -1,4 +1,4 @@
-package no.nordicsemi.puckcentral.bluetooth.gatt;
+package com.gxwtech.rtdemo.bluetooth;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 

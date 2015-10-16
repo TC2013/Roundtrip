@@ -1,5 +1,7 @@
 package com.gxwtech.RileyLink;
 
+import com.gxwtech.rtdemo.bluetooth.GattAttributes;
+
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -11,7 +13,7 @@ public class RileyLink {
     private String mAddress;
     public RileyLink(String address) {
         mAddress = address;
-        mServiceUUIDs.add(UUID.fromString(GattAttributes.GLUCOSELINK_SERVICE_UUID));
+        mServiceUUIDs.add(UUID.fromString(GattAttributes.GLUCOSELINK_RILEYLINK_SERVICE));
         mServiceUUIDs.add(UUID.fromString(GattAttributes.GLUCOSELINK_BATTERY_SERVICE));
     }
     public void setServiceUUIDs(ArrayList<UUID> serviceUUIDs) {

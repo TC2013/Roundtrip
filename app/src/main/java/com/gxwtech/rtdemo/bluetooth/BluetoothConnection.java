@@ -1,6 +1,7 @@
 package com.gxwtech.rtdemo.bluetooth;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -100,6 +101,13 @@ public class BluetoothConnection {
             }
         }
         return instance;
+    }
+
+    public BluetoothDevice getDevice() {
+        if (bluetoothConnectionGatt!=null) {
+            return bluetoothConnectionGatt.getDevice();
+        }
+        return null;
     }
 
     public void disconnect() {

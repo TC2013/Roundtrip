@@ -2,11 +2,12 @@ package com.gxwtech.RileyLink;
 
 import android.bluetooth.BluetoothDevice;
 
+import com.gxwtech.rtdemo.bluetooth.GattAttributes;
+import com.gxwtech.rtdemo.bluetooth.GattCharacteristicReadCallback;
+import com.gxwtech.rtdemo.bluetooth.operations.GattCharacteristicReadOperation;
+
 import java.util.UUID;
 
-import no.nordicsemi.puckcentral.bluetooth.gatt.GattCharacteristicReadCallback;
-import no.nordicsemi.puckcentral.bluetooth.gatt.GattManager;
-import no.nordicsemi.puckcentral.bluetooth.gatt.operations.GattCharacteristicReadOperation;
 
 /**
  * Created by geoff on 8/13/15.

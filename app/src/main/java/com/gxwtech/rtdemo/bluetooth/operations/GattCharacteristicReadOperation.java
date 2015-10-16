@@ -10,7 +10,7 @@ import com.gxwtech.rtdemo.bluetooth.GattCharacteristicReadCallback;
 import java.util.UUID;
 
 public class GattCharacteristicReadOperation extends GattOperation {
-    private static final String TAG = "GattCharacteristicReadOperation";
+    private static final String TAG = "GattCharReadOp";
 
     private final UUID mService;
     private final UUID mCharacteristic;

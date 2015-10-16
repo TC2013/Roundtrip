@@ -1,8 +1,9 @@
-package no.nordicsemi.puckcentral.bluetooth.gatt;
+package com.gxwtech.rtdemo.bluetooth;
+
+import com.gxwtech.rtdemo.bluetooth.operations.GattOperation;
 
 import java.util.ArrayList;
 
-import no.nordicsemi.puckcentral.bluetooth.gatt.operations.GattOperation;
 
 public class GattOperationBundle {
     final ArrayList<GattOperation> operations;

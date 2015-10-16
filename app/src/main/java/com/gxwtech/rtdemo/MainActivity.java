@@ -94,9 +94,11 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        int versionCode = BuildConfig.VERSION_CODE;
-        String versionName = BuildConfig.VERSION_NAME;
-        setTitle("Roundtrip " + versionName + "-" + versionCode);
+        // changes to git functionality have caused this versioning to fail. FIXME
+        //int versionCode = BuildConfig.VERSION_CODE;
+        //String versionName = BuildConfig.VERSION_NAME;
+        //setTitle("Roundtrip " + versionName + "-" + versionCode);
+        setTitle("RoundtripRL");
 
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, msgList);
         ListView lv = (ListView) findViewById(R.id.listView_Log);
@@ -104,18 +106,6 @@ public class MainActivity extends ActionBarActivity {
 
         // FIXME the source of our null intents?
         this.startService(new Intent(this, RTDemoService.class).putExtra("srq", Constants.SRQ.START_SERVICE));
-    }
-
-    public void bluetoothWrite(View view) {
-        Intent intent = new Intent(this, RTDemoService.class);
-        intent.putExtra("srq", Constants.SRQ.BLUETOOTH_WRITE);
-        this.startService(intent);
-    }
-
-    public void bluetoothRead(View view) {
-        Intent intent = new Intent(this, RTDemoService.class);
-        intent.putExtra("srq", Constants.SRQ.BLUETOOTH_READ);
-        this.startService(intent);
     }
 
     public void launchRTDemoSettingsActivity(View view) {
