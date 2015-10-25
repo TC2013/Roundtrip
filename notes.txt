@@ -1,0 +1,13 @@
+Reading pump settings (as an example)
+
+The ReadPumpSettingsCommand is a MedtronicCommand.  With a bit of initialization, it is a thin layer over the MedtronicCommand.
+
+The base class MedtronicCommand has a run() function that prepares a packet for the Pump (i.e. not for the RileyLink) then creates a packet (called TransmitPacketCommand) for the RileyLink
+
+The TransmitPacketCommand data includes the Medtronic packet as a member.
+
+  [RileyLink packet [Pump packet]]
+
+The TransmitPacketCommand (a RileyLinkCommand) uses a BluetoothConnection (a.k.a GattManager) to write the packet to a bluetooth characteristic.  Currently, BluetoothConnection::queue immediately attempts to "drive" the bluetooth send queue.
+
+Results flow back up to the MedtronicCommand command.

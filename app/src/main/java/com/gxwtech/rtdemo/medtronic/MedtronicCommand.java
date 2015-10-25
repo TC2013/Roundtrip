@@ -1,9 +1,18 @@
 package com.gxwtech.rtdemo.medtronic;
 
+import android.bluetooth.BluetoothDevice;
+import android.content.Context;
+import android.os.SystemClock;
 import android.util.Log;
 
+import com.gxwtech.RileyLink.ReadRadioCommand;
+import com.gxwtech.RileyLink.RileyLink;
+import com.gxwtech.RileyLink.RileyLinkCommandResult;
+import com.gxwtech.RileyLink.TransmitPacketCommand;
 import com.gxwtech.droidbits.util.ByteUtil;
 import com.gxwtech.rtdemo.HexDump;
+import com.gxwtech.rtdemo.bluetooth.BluetoothConnection;
+import com.gxwtech.rtdemo.bluetooth.GattCharacteristicReadCallback;
 
 /**
  * Created by Geoff on 4/27/15.
@@ -11,6 +20,8 @@ import com.gxwtech.rtdemo.HexDump;
 public class MedtronicCommand {
     private static final String TAG = "MedtronicCommand";
     private static final boolean DEBUG_MEDTRONICCOMMAND = false;
+    private static final int default_timeout_millis = 100;
+    private Context mContext;
     protected MedtronicCommandEnum mCode;
     protected MedtronicCommandStatusEnum mStatus;
     protected byte[] mPacket;
@@ -79,212 +90,44 @@ public class MedtronicCommand {
         Log.w(TAG, "Base class parse called on command " + getName());
     }
 
-    public MedtronicCommandStatusEnum run(byte[] serialNumber) {
-        // Rewrite for bluetooth
+    protected byte[] makePacket(MedtronicCommandEnum mCode, byte[] serialNumber, byte[] payload) {
+        byte[] header = new byte[] {(byte)0xa7,serialNumber[0],serialNumber[1],serialNumber[2],mCode.opcode};
+        byte[] rval = ByteUtil.concat(header,payload);
+        return rval;
+    }
+
+    public MedtronicCommandStatusEnum run(RileyLink rileylink, byte[] serialNumber) {
         if (DEBUG_MEDTRONICCOMMAND) {
             Log.v("MEDTRONIC COMMAND", getName() + ": serial number " + ByteUtil.shortHexString(serialNumber));
         }
 
+        //byte[] pkt_att = new byte[]{(byte) 0xa7, 0x46, 0x73, 0x24, (byte)0x8d, 0x00};
+
         // Send a packet to the Medtronic
-        TransmitPacketCommand sender = new TransmitPacketCommand(
+        // TODO: I'm not sure at all if mButton is correct here.  Could just be 0x00?
+        byte[] packetToSend = makePacket(mCode,serialNumber,new byte[] {mButton});
+
+        TransmitPacketCommand sender = new TransmitPacketCommand(rileylink,packetToSend
+                /*
                 mCode.opcode,
                 mParams,
                 serialNumber,
                 mButton,
                 mNRetries,
-                calcRecordsRequired());
-        CarelinkCommandStatusEnum senderStatus = CarelinkCommandStatusEnum.NONE;
-        boolean resendDownloadRequest = true;
-        int resendDownloadRetries = 0;
-        int resendDownloadRetriesMax = 5;
-        byte[] receivedData = new byte[0];
-        while (resendDownloadRequest) {
-            try {
-                senderStatus = sender.run(carelink);
-                // translate between a carelink status and a pump status
-                if (senderStatus == CarelinkCommandStatusEnum.NONE) {
-                    mStatus = MedtronicCommandStatusEnum.NONE;
-                }
-                if (senderStatus == CarelinkCommandStatusEnum.ACK) {
-                    mStatus = MedtronicCommandStatusEnum.ACK;
-                }
-                if (senderStatus == CarelinkCommandStatusEnum.NACK) {
-                    mStatus = MedtronicCommandStatusEnum.NACK;
-                }
-            } catch (UsbException e) {
-                mStatus = MedtronicCommandStatusEnum.ERROR_USB;
-            }
+                calcRecordsRequired()
+                */
+        );
 
-            if (DEBUG_MEDTRONICCOMMAND) {
-                Log.v("MEDTRONIC COMMAND", "Sender status is " + senderStatus.toString());
-            }
-            // we've only just sent the packet, and expected the carelink to say "ok, I sent it."
+        // sending function does not block.
+        RileyLinkCommandResult senderStatus = sender.run(rileylink, default_timeout_millis);
+        // wait for response from pump
+        sleepForPumpResponse(mSleepForPumpResponse);
 
-            if (mSleepForPumpResponse > 0) {
-                if (DEBUG_MEDTRONICCOMMAND) {
-                    Log.v("MEDTRONIC COMMAND", String.format("Sleeping %d milliseconds before checking pump response.", mSleepForPumpResponse));
-                }
-                sleep(mSleepForPumpResponse);
-            }
-            try {
-                receivedData = downloadIdeal(carelink, serialNumber);
-                if (receivedData == null) {
-                    Log.e(TAG, "downloadIdeal returned null buffer");
-                } else {
-                    if (DEBUG_MEDTRONICCOMMAND) {
-                        Log.v(TAG, String.format("downloadIdeal reported %d bytes received", receivedData.length));
-                    }
-                    if (receivedData.length > 0) {
-                        // got something, call it quits
-                        resendDownloadRequest = false;
-                        if (DEBUG_MEDTRONICCOMMAND) {
-                            Log.v(TAG, String.format("Got %d bytes from radio buffer, ending run.", receivedData.length));
-                        }
-                    } else {
-                        // got a zero length buffer from radio.  Try to read radio buffer again?
-                        resendDownloadRetries++;
-                        if (resendDownloadRetries > resendDownloadRetriesMax) {
-                            // failed too many times.  Give up.
-                            Log.e(TAG, String.format("Too many retries in reading radio buffer, giving up."));
-                            resendDownloadRequest = false;
-                        } else {
-                            Log.w(TAG, String.format("Radio buffer gave us zero bytes.  Trying again %d/%d",
-                                    resendDownloadRetries, resendDownloadRetriesMax));
-                        }
-                    }
-                }
-            } catch (UsbException e) {
-                mStatus = MedtronicCommandStatusEnum.ERROR_USB;
-                resendDownloadRequest = false;
-                Log.e(TAG, "USB Exception: " + e.toString());
-            }
-        }
-        mRawReceivedData = receivedData;
-        // this is a hook to allow derived classes to get their data.
-        if (mStatus == MedtronicCommandStatusEnum.ACK) {
-            parse(receivedData);
-        }
-
-        if (DEBUG_MEDTRONICCOMMAND) {
-            Log.v(TAG, "End of Medtronic downloadIdeal");
-        }
         return mStatus;
     }
 
-    protected int checkForData(Carelink carelink) throws UsbException {
-        CarelinkCommandStatusEnum carelinkAck;
-        int size = -1;
-        CheckStatusCommand ck = new CheckStatusCommand();
-        carelinkAck = ck.run(carelink);
-        if (carelinkAck == CarelinkCommandStatusEnum.ACK) {
-            size = ck.getReadSize();
-        }
-        if (DEBUG_MEDTRONICCOMMAND) {
-            Log.v(TAG, "checkForData():CarelinkStatus is " + ck.responseToString());
-        }
-        return size;
-    }
-
-    public byte[] downloadIdeal(Carelink carelink, byte[] serialNumber) throws UsbException {
-        int recordsExpected = calcRecordsRequired();
-        int recordsReceived = 0;
-        if (DEBUG_MEDTRONICCOMMAND) {
-            Log.v(TAG, String.format("DownloadIdeal:recordsRequired=%d", recordsExpected));
-        }
-        boolean moreDataToGet = true;
-        int tries = 0;
-        byte[] mDataReceived = new byte[]{};
-        byte[] rval = new byte[]{};
-        while (moreDataToGet) {
-            int bytesAvailable = 0;
-            boolean keepTrying = true;
-            while ((bytesAvailable == 0) && keepTrying) {
-                bytesAvailable = checkForData(carelink);
-                tries = tries + 1;
-                if (bytesAvailable == -1) {
-                    // error in checking for data
-                    keepTrying = false;
-                    moreDataToGet = false;
-                    Log.e(TAG, "Error in checkForData");
-                } else if ((bytesAvailable == 0) || (bytesAvailable == 14)) {
-                    if (tries > mNRetries) {
-                        moreDataToGet = false;
-                        keepTrying = false;
-                        Log.e(TAG, String.format("Download attempt %d/%d failed, giving up.", tries, mNRetries + 1));
-                    } else {
-                        Log.w(TAG, String.format("Download attempt %d/%d failed, sleeping %d millis to try again.", tries, mNRetries + 1, mSleepForPumpRetry));
-                        if (bytesAvailable == 14) {
-                            // This is the situation where the radio reports data available, but there's zero bytes.
-                            /* This can happen if we take too long between asking the pump for data
-                             * and trying to read the data back!
-                             */
-                            bytesAvailable = 0; // didn't really get anything from pump
-                            // todo: fix hack?
-                            mSleepForPumpResponse /= 2;
-                            mSleepForPumpRetry /= 2;
-                            Log.w(TAG, String.format("Carelink returned zero bytes. Trying shorter wait times: %dms/%dms",
-                                    mSleepForPumpResponse, mSleepForPumpRetry));
-                        } else {
-                            sleep(mSleepForPumpRetry);
-                        }
-
-                    }
-                } else {
-                    // continue
-                }
-            }
-            if (moreDataToGet && (bytesAvailable > 0)) {
-                ReadRadioCommand rrcmd = new ReadRadioCommand(serialNumber, bytesAvailable);
-                CarelinkCommandStatusEnum responseStatus = rrcmd.run(carelink);
-                // check for command sent ok
-                if (responseStatus != CarelinkCommandStatusEnum.ACK) {
-                    Log.e(TAG, "ReadRadio command failed");
-                    moreDataToGet = false;
-                } else if (rrcmd.getResponse().getPumpData().length == 0) {
-                    // sometimes we get an ACK from the stick, but the radio buffer
-                    // has nothing (yet?).
-                    Log.e(TAG, String.format("ReadRadio: zero bytes from radio"));
-                    moreDataToGet = false;
-                } else {
-                    // Add new data to our collection:
-                    // Must prepend data?
-                    mDataReceived = ByteUtil.concat(mDataReceived, rrcmd.getResponse().getPumpData());
-                    //mDataReceived = ByteUtil.concat(rrcmd.getResponse().getPumpData(),mDataReceived);
-                    recordsReceived++;
-                    if (DEBUG_MEDTRONICCOMMAND) {
-                        Log.v(TAG, "Adding newly downloaded data. Now we have:\n"
-                                + HexDump.dumpHexString(mDataReceived));
-                    }
-                    // If we've started to receive something, reset the tries
-                    tries = 1;
-                    boolean endOfData = rrcmd.getResponse().isEOD();
-                    if (endOfData) {
-                        if (DEBUG_MEDTRONICCOMMAND) {
-                            Log.i(TAG, String.format("Found EOD, received %d bytes.", mDataReceived.length));
-                            /* doesn't belong here, but for checking....*/
-                            /*
-                            if (mDataReceived.length >= 1022) {
-                                byte[] first1022 = new byte[1022];
-                                System.arraycopy(mDataReceived, 0, first1022, 0, 1022);
-                                Log.v(TAG, String.format("Checksum of 1022 bytes: %s",
-                                        HexDump.toHexString(CRC.calculate16CCITT(first1022))));
-                            }
-                            if (mDataReceived.length >= 1024) {
-                                Log.v(TAG, String.format("Checksum of 1024 bytes: %s",
-                                        HexDump.toHexString(CRC.calculate16CCITT(mDataReceived))));
-                            }
-                            */
-                        }
-                        rval = mDataReceived;
-                        moreDataToGet = false;
-                    }
-                }
-            }
-        }
-        if (recordsReceived < recordsExpected) {
-            Log.w(TAG, String.format("Expected %d records, received %d.", recordsExpected, recordsReceived));
-        }
-        return rval;
+    void sleepForPumpResponse(int milliseconds) {
+        SystemClock.sleep(milliseconds);
     }
 
 }

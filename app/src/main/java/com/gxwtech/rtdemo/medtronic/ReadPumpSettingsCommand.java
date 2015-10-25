@@ -1,5 +1,7 @@
 package com.gxwtech.rtdemo.medtronic;
 
+import android.content.Context;
+
 import com.gxwtech.rtdemo.medtronic.PumpData.PumpSettings;
 
 /**
