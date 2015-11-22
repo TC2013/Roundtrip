@@ -19,7 +19,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.gxwtech.rtdemo.services.RTDemoService;
+import com.gxwtech.rtdemo.services.RoundtripService;
 import com.gxwtech.rtdemo.services.pumpmanager.PumpSettingsParcel;
 
 
@@ -80,7 +80,7 @@ public class PumpSettingsActivity extends ActionBarActivity {
         // now convert to a 3 byte string
         byte[] sn_bytes = HexDump.hexStringToByteArray(sn);
         //Log.w(TAG,"setSerialNumber bytes:" + HexDump.toHexString(sn_bytes));
-        Intent intent = new Intent(this,RTDemoService.class);
+        Intent intent = new Intent(this,RoundtripService.class);
         intent.putExtra("srq", Constants.SRQ.SET_SERIAL_NUMBER);
         intent.putExtra("serialNumber", sn_bytes);
         startService(intent);
@@ -121,7 +121,7 @@ public class PumpSettingsActivity extends ActionBarActivity {
 
     public void getPumpSettingsClicked(View view) {
         Log.w(TAG, "getPumpSettingsClicked");
-        Intent intent = new Intent(this, RTDemoService.class);
+        Intent intent = new Intent(this, RoundtripService.class);
         intent.putExtra("srq", Constants.SRQ.REPORT_PUMP_SETTINGS);
         startService(intent);
         ProgressBar waiting = (ProgressBar) findViewById(R.id.progressBar_getPumpSettingsWaiting);
@@ -158,7 +158,7 @@ public class PumpSettingsActivity extends ActionBarActivity {
         intentFilter.addAction(Intents.ROUNDTRIP_STATUS_MESSAGE);
         intentFilter.addAction(Intents.ROUNDTRIP_TASK_RESPONSE);
 
-        // register our desire to receive broadcasts from RTDemoService
+        // register our desire to receive broadcasts from RoundtripService
         LocalBroadcastManager.getInstance(getApplicationContext())
                 .registerReceiver(mBroadcastReceiver, intentFilter);
 

@@ -10,7 +10,9 @@ import org.joda.time.DateTimeZone;
  * Created by geoff on 6/30/15.
  */
 public class DBTempBasalEntry {
+    public static String enteredByString = "enteredBy";
     public static String enteredBy = "Roundtrip";
+    public static String eventTypeString = "eventType";
     public static String eventType = "Temp Basal";
     public double mRelativeInsulin = 0.0;  // total insulin delivered, in units
     public int mDurationMinutes = 0; // actual duration of delivery

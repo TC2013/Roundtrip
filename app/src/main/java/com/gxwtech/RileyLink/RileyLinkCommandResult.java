@@ -9,6 +9,7 @@ public class RileyLinkCommandResult {
     public static final int STATUS_NO_RESPONSE = 601;
     public static final int STATUS_ERROR = 602;
     public static final int STATUS_NONE = 603;
+    public static final int STATUS_CRC_ERROR = 604;
 
     public byte mPacket[];
     public int mStatus;

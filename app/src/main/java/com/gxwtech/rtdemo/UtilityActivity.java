@@ -8,7 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.gxwtech.rtdemo.services.RTDemoService;
+import com.gxwtech.rtdemo.services.RoundtripService;
 
 
 public class UtilityActivity extends ActionBarActivity {
@@ -22,7 +22,7 @@ public class UtilityActivity extends ActionBarActivity {
 
     public void getHistoryButtonClicked(View view) {
         Log.d(TAG, "GetHistoryButtonClicked");
-        Intent intent = new Intent(this, RTDemoService.class);
+        Intent intent = new Intent(this, RoundtripService.class);
         intent.putExtra("srq", Constants.SRQ.REPORT_PUMP_HISTORY);
         startService(intent);
     }

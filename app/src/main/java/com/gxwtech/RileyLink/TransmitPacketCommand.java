@@ -10,7 +10,7 @@ public class TransmitPacketCommand implements RileyLinkCommand {
     }
     public RileyLinkCommandResult run(RileyLink rileylink, int timeout_millis) {
         RileyLinkCommandResult rval = null;
-        boolean writeOK = rileylink.write(mPacket);
+        boolean writeOK = rileylink.writeWithChecksum(mPacket);
         if (writeOK) {
             rval = new RileyLinkCommandResult(mPacket, RileyLinkCommandResult.STATUS_OK, "Packet sent");
         } else {

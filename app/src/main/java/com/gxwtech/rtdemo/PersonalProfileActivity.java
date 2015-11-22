@@ -157,7 +157,7 @@ public class PersonalProfileActivity extends ActionBarActivity {
     here's how:
 
     public void announcePreferenceChanges() {
-        Intent intent = new Intent(this,RTDemoService.class);
+        Intent intent = new Intent(this,RoundtripService.class);
         intent.putExtra("srq", Constants.SRQ.PERSONAL_PREFERENCE_CHANGE);
         startService(intent);
     }

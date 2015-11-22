@@ -85,7 +85,7 @@ public class PreferenceBackedStorage {
      *
      * Latest BG Reading
      *
-     * This is updated from RTDemoService at the start of each run of APSLogic.
+     * This is updated from RoundtripService at the start of each run of APSLogic.
      * This needs to be converted to using the Persistent<type> functions.
      *
      */

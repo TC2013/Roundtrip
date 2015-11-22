@@ -2,15 +2,18 @@ package com.gxwtech.rtdemo.services;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Environment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.gxwtech.rtdemo.BGReading;
+import com.gxwtech.rtdemo.Constants;
 import com.gxwtech.rtdemo.DBTempBasalEntry;
+import com.gxwtech.rtdemo.DownloadResponse;
 import com.gxwtech.rtdemo.Intents;
-import com.gxwtech.rtdemo.MongoWrapper;
 import com.gxwtech.rtdemo.PreferenceBackedStorage;
+import com.gxwtech.rtdemo.RestV1Wrapper;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfile;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileEntry;
 import com.gxwtech.rtdemo.medtronic.PumpData.BasalProfileTypeEnum;
@@ -31,6 +34,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -57,7 +62,7 @@ import java.util.List;
     This makes it very tempting to put the PumpManager in here, or a reference to it.
     Most of the calls to PumpManager are blocking and take a long time to complete, don't like that.
     Also, there is the issue of concurrency with other requests to the pump manager,
-    which are currently handled by running all pump manager requests through the RTDemoService message queue.
+    which are currently handled by running all pump manager requests through the RoundtripService message queue.
 
     Thinking out loud:
     Assume APSLogic is separate service thread from RTService.
@@ -66,13 +71,13 @@ import java.util.List;
     This makes the Intent mappings much more complex (2 actors = 2 paths, -> 3 actors = 6 paths)
     that's uuuuugly.
 
-    Assume APSLogic is member of RTDemo service, and runs on the RTDemoService message queue.
+    Assume APSLogic is member of RTDemo service, and runs on the RoundtripService message queue.
     That means it is synchronized with all PumpManager requests and all internet (mongo) requests.
     However, it means that it will block while trying to get pump data.  Ok for now.
     It only has to run once every five minutes.
 
-    So: APSLogic will be a member of RTDemoService, will be able to make direct requests of the
-    PumpManager, and will be synchronized with all pump calls as it is running from the RTDemoService
+    So: APSLogic will be a member of RoundtripService, will be able to make direct requests of the
+    PumpManager, and will be synchronized with all pump calls as it is running from the RoundtripService
     thread.  One downside is that we will get duplicate calls: the GUI will ask the pump for data,
     and APSLogic will ask the pump for data which will be duplicate data, which will take even longer.
     Perhaps some smart pump-response caching is in order.
@@ -102,7 +107,6 @@ public class APSLogic {
     // our cache of the profile settings
     // Updated (at the minimum) at the start of each MakeADecision() run
     // PersonalProfile mPersonalProfile = new PersonalProfile();
-    private MongoWrapper mMongoWrapper;
     private String mLogfileName;
     private PreferenceBackedStorage mStorage;
 
@@ -123,11 +127,10 @@ public class APSLogic {
      * <p/>
      * *****************************************************
      */
-    public APSLogic(Context context, PumpManager pumpManager, MongoWrapper mongoWrapper) {
+    public APSLogic(Context context, PumpManager pumpManager) {
         mContext = context;
         mStorage = new PreferenceBackedStorage(context);
         mPumpManager = pumpManager;
-        mMongoWrapper = mongoWrapper;
         mLogfileName = "RTLog_" + DateTime.now().toString();
     }
 
@@ -263,7 +266,12 @@ public class APSLogic {
                 mCurrentTempBasal.mInsulinRate, mCurrentTempBasal.mDurationMinutes));
         log("Getting RTC clock data from pump");
         DateTime rtcDateTime = getRTCTimestampFromPump();
-        log("Pump RTC: " + rtcDateTime.toDateTimeISO().toString());
+        if (rtcDateTime != null) {
+            log("Pump RTC: " + rtcDateTime.toDateTimeISO().toString());
+        } else {
+            log("rtcDateTime is null -- defaulting to now");
+            rtcDateTime = DateTime.now();
+        }
         //log("Pump RTC in local time: " + rtcDateTime.toLocalDateTime().toString());
         Instant now = new Instant(); // cache local system time
         log("Local System Time is " + now.toDateTime().toLocalDateTime().toString());
@@ -570,12 +578,27 @@ public class APSLogic {
         mStorage.monitorCOB.set(cobTotal);
         //notifyMonitorDataChanged();
 
-        // If we're not allowed to write to the MongoDB, skip this section
-        if (mMongoWrapper.allowWritingToDB.get()) {
-            // Get last (insulinImpactMinutesMax) minutes of TempBasal treatment entries from mongodb
-            log("Getting list of previous Temp Basal events from MongoDB");
-            List<DBTempBasalEntry> treatmentListFromDB =
-                    mMongoWrapper.downloadRecentTreatments(DIATable.insulinImpactMinutesMax + 30 /* minutes */);
+        // Get last (insulinImpactMinutesMax) minutes of TempBasal treatment entries from mongodb
+        log("Getting list of previous Temp Basal events from Nightscout");
+        SharedPreferences prefs = mContext.getSharedPreferences(Constants.PreferenceID.MainActivityPrefName, 0);
+        if (prefs.getBoolean(Constants.PrefName.RestAllowWrite,false)) {
+            log("Updating Nightscout treatment database");
+
+            boolean downloadedOK = false;
+            List<DBTempBasalEntry> treatmentListFromDB = null;
+            try {
+                URI uri = new URI(prefs.getString(Constants.PrefName.RestURI, Constants.defaultRestURI));
+                RestV1Wrapper downloader = new RestV1Wrapper(uri);
+                DownloadResponse resp = downloader.downloadRecentTreatments(DIATable.insulinImpactMinutesMax + 30 /* minutes */);
+                if (null != resp.responseObject) {
+                    downloadedOK = true;
+                    treatmentListFromDB = (List<DBTempBasalEntry>) (resp.responseObject);
+                }
+
+            } catch (URISyntaxException e) {
+                downloadedOK = false;
+                e.printStackTrace();
+            }
 
             // for each entry in our history, check to see if there is a corresponding db entry.
             // if not, post an entry for the tempbasal event. (only if it has ended)
@@ -601,10 +624,21 @@ public class APSLogic {
                                 localTB.mTimestamp,
                                 localTB.mTotalRelativeInsulin,
                                 localTB.actualDurationMinutes);
-                        mMongoWrapper.uploadTreatment(dbEntry);
+                        try {
+                            URI uri = new URI(prefs.getString(Constants.PrefName.RestURI, Constants.defaultRestURI));
+                            RestV1Wrapper downloader = new RestV1Wrapper(uri);
+                            downloader.uploadTreatment(dbEntry);
+                            // TODO: and if it fails to upload?
+                        } catch (URISyntaxException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
+        } else {
+            log("NOT updating Nightscout treatment database.");
         }
 
         // We have collected all the data we need, now use it to make a decision
@@ -828,15 +862,27 @@ public class APSLogic {
     private boolean getBasalProfiles() {
         basalProfileSTD = getPumpManager().getProfile(BasalProfileTypeEnum.STD);
         Log.w(TAG, "Basal Profile STD ----------------");
-        basalProfileSTD.dumpBasalProfile();
+        if (basalProfileSTD != null) {
+            basalProfileSTD.dumpBasalProfile();
+        } else {
+            Log.w(TAG,"BasalProfileSTD is null");
+        }
 
         basalProfileA = getPumpManager().getProfile(BasalProfileTypeEnum.A);
         Log.w(TAG, "Basal Profile A ------------------");
-        basalProfileA.dumpBasalProfile();
+        if (basalProfileA != null) {
+            basalProfileA.dumpBasalProfile();
+        } else {
+            Log.w(TAG,"BasalProfileA is null");
+        }
 
         basalProfileB = getPumpManager().getProfile(BasalProfileTypeEnum.B);
         Log.w(TAG, "Basal Profile B ------------------");
-        basalProfileB.dumpBasalProfile();
+        if (basalProfileB != null) {
+            basalProfileB.dumpBasalProfile();
+        } else {
+            Log.w(TAG,"BasalProfileB is null");
+        }
 
         gotBasalProfiles = (basalProfileSTD != null) && (basalProfileA != null) && (basalProfileB != null);
         mCurrentBasalProfile = basalProfileSTD;
@@ -858,7 +904,7 @@ public class APSLogic {
 
     // use this to get access to the pump manager.
     // Don't cache the pumpManager, as it can be reinstantiated when the USB device is (un)plugged.
-    // todo: this may cause crashes when the carelink is (un)plugged.  fix in RTDemoService? how?
+    // todo: this may cause crashes when the carelink is (un)plugged.  fix in RoundtripService? how?
     private PumpManager getPumpManager() {
         return mPumpManager;
     }
@@ -881,11 +927,15 @@ public class APSLogic {
     private void getCurrentTempBasalFromPump() {
         TempBasalPair rval;
         rval = getPumpManager().getCurrentTempBasal();
-        // store value from pump in persistent storage for gui
-        mStorage.monitorTempBasalRate.set(rval.mInsulinRate);
-        mStorage.monitorTempBasalDuration.set(rval.mDurationMinutes);
-        //notifyMonitorDataChanged();
-        mCurrentTempBasal = rval;
+        if (rval!=null) {
+            // store value from pump in persistent storage for gui
+            mStorage.monitorTempBasalRate.set(rval.mInsulinRate);
+            mStorage.monitorTempBasalDuration.set(rval.mDurationMinutes);
+            //notifyMonitorDataChanged();
+            mCurrentTempBasal = rval;
+        } else {
+            Log.e(TAG, "Null reference from getCurrentTempBasal()");
+        }
     }
 
     private DateTime getRTCTimestampFromPump() {

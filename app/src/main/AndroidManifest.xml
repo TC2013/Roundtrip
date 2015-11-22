@@ -36,7 +36,7 @@
         </activity>
 
         <service
-            android:name="com.gxwtech.rtdemo.services.RTDemoService"
+            android:name=".services.RoundtripService"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -70,8 +70,8 @@
                 android:value="com.gxwtech.rtdemo.MainActivity"/>
         </activity>
         <activity
-            android:name=".MongoDBSettingsActivity"
-            android:label="@string/title_activity_mongo_dbsettings"
+            android:name=".RestV1SettingsActivity"
+            android:label="Rest V1 Settings"
             android:parentActivityName=".RTDemoSettingsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

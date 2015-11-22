@@ -16,7 +16,7 @@ public interface Constants {
 
     // SRQ is service requests
     // these are codes passed from foreground (MainActivity)
-    // to background (RTDemoService)
+    // to background (RoundtripService)
     class SRQ {
         public static final String START_SERVICE = "StartService"; // 301
         public static final String SRQ_UNUSED = "UNUSED-302"; // 302;
@@ -38,8 +38,6 @@ public interface Constants {
         // initial data collection, which can take a long time (MongoDB access, pump access)
         // and to run the MakeADecision loop once.
         public static final String APSLOGIC_STARTUP = "APSLogicStartup"; //309;
-        // MongoDBSettingsActivity fires this off to announce new settings for the DB URI
-        public static final String MONGO_SETTINGS_CHANGED = "MongoSettingsChanged"; //310;
         // PersonalProfileActivity fires this off when the ISF number has been set.
         // public static int SET_ISF = 311;
         // PersonalProfileActivity fires this off when the CAR number has been set.
@@ -50,6 +48,10 @@ public interface Constants {
         public static final String START_REPEAT_ALARM = "StartRepeatingAlarm"; //314;
         // MonitorActivity stop button runs this.
         public static final String STOP_REPEAT_ALARM = "StopRepeatingAlarm"; //315;
+        // This is run periodically (5 seconds?) to verify that the RileyLink is still there.
+        public static final String RILEYLINK_CONN_CHECK = "RileyLinkConnectionCheck"; // 316
+        // This intent is sent by the ReadBatteryLevel command
+        public static final String BATTERY_LEVEL_REPORT = "BatteryLevelReport"; // 317
     }
 
     class ParcelName {
@@ -66,16 +68,11 @@ public interface Constants {
     class PrefName {
         // Name of an entry in a SharedPreference collection
         public static final String SerialNumberPrefName = "PumpSerialNumber";
-        public static final String MongoDBServerPrefName = "MongoDBServerAddress";
-        public static final String MongoDBServerPortPrefName = "MongoDBServerPort";
-        public static final String MongoDBDatabasePrefName = "MongoDBDatabase";
-        public static final String MongoDBUsernamePrefName = "MongoDBUsername";
-        public static final String MongoDBPasswordPrefName = "MongoDBPassword";
-        public static final String MongoDBCollectionPrefName = "MongoDBCollection";
-        public static final String MongoDBAllowWritingToDBPrefName = "MongoDBAllowWrites";
         public static final String SuspendMinutesPrefName = "SuspendAPSMinutes";
         // and all kinds of other goodies:
         public static final String LastPowerControlRunTime = "LastPowerControlRunTime";
+        public static final String RestURI = "RestURI";
+        public static final String RestAllowWrite = "RestAllowWrite";
 
         // These have been moved to PreferenceBackedStorage.  TODO: move all others there
         public static final String LatestBGTimestamp = "LatestBGTimestamp";
@@ -101,6 +98,9 @@ public interface Constants {
         public static final String Monitor_IOB = "Monitor_IOB";
         public static final String Monitor_COB = "Monitor_COB";
 
-        public static final String Bluetooth_RileyLink_Address = "00:07:80:39:4C:B5";
+        // TODO: remove this hardcoded address hack
+        public static final String Bluetooth_RileyLink_Address = "00:07:80:39:4C:34";
     }
+    public static final String defaultRestURI = "https://YOUR_API_SECRET@YOUR_WEBSITE.azurewebsites.net/api/v1";
+
 }

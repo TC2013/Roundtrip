@@ -16,7 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.gxwtech.rtdemo.services.RTDemoService;
+import com.gxwtech.rtdemo.services.RoundtripService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,8 +80,8 @@ public class MainActivity extends ActionBarActivity {
                 t.setText("Disconnected to the Rileylink");
                 t.setTextColor(Color.RED);
 
-                Log.w(TAG, "Disconnected to the Rileylink");
-            } else if (intent.getAction().equals(Intents.BLUETOOTH_BATTERY)) {
+                Log.w(TAG, "Disconnected from the Rileylink");
+            } else if (intent.getAction().equals(Intents.RILEYLINK_BATTERY)) {
                 TextView t = (TextView) findViewById(R.id.textView_StatusBattery);
                 t.setText("Battery: " + intent.getByteExtra("battery", (byte) 0) + "%");
             }
@@ -105,7 +105,7 @@ public class MainActivity extends ActionBarActivity {
         lv.setAdapter(adapter);
 
         // FIXME the source of our null intents?
-        this.startService(new Intent(this, RTDemoService.class).putExtra("srq", Constants.SRQ.START_SERVICE));
+        this.startService(new Intent(this, RoundtripService.class).putExtra("srq", Constants.SRQ.START_SERVICE));
     }
 
     public void launchRTDemoSettingsActivity(View view) {
@@ -126,9 +126,9 @@ public class MainActivity extends ActionBarActivity {
         intentFilter.addAction(Intents.BLUETOOTH_CONNECTED);
         intentFilter.addAction(Intents.BLUETOOTH_CONNECTING);
         intentFilter.addAction(Intents.BLUETOOTH_DISCONNECTED);
-        intentFilter.addAction(Intents.BLUETOOTH_BATTERY);
+        intentFilter.addAction(Intents.RILEYLINK_BATTERY);
 
-        // register our desire to receive broadcasts from RTDemoService
+        // register our desire to receive broadcasts from RoundtripService
         LocalBroadcastManager.getInstance(getApplicationContext())
                 .registerReceiver(broadcastReceiver, intentFilter);
     }

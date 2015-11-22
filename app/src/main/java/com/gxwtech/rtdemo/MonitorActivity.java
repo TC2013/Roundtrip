@@ -17,7 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.gxwtech.rtdemo.services.RTDemoService;
+import com.gxwtech.rtdemo.services.RoundtripService;
 
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
@@ -161,7 +161,7 @@ public class MonitorActivity extends ActionBarActivity {
 
     public void startupButtonClicked(View view) {
         Log.d(TAG, "startupButtonClicked");
-        Intent intent = new Intent(this, RTDemoService.class);
+        Intent intent = new Intent(this, RoundtripService.class);
         intent.putExtra("srq", Constants.SRQ.START_REPEAT_ALARM);
         startService(intent);
     }
@@ -173,7 +173,7 @@ public class MonitorActivity extends ActionBarActivity {
     }
 
     public void buttonStopClicked(View view) {
-        Intent intent = new Intent(this, RTDemoService.class);
+        Intent intent = new Intent(this, RoundtripService.class);
         intent.putExtra("srq", Constants.SRQ.STOP_REPEAT_ALARM);
         startService(intent);
     }
@@ -220,7 +220,7 @@ public class MonitorActivity extends ActionBarActivity {
         intentFilter.addAction(Intents.APSLOGIC_LOG_MESSAGE);
         intentFilter.addAction(Intents.ROUNDTRIP_SLEEP_MESSAGE);
         intentFilter.addAction(Intents.MONITOR_DATA_CHANGED);
-        // register our desire to receive broadcasts from RTDemoService
+        // register our desire to receive broadcasts from RoundtripService
         LocalBroadcastManager.getInstance(getApplicationContext())
                 .registerReceiver(mBroadcastReceiver, intentFilter);
         updateGUIValues();

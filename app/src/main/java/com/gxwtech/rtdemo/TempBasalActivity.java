@@ -9,7 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.gxwtech.rtdemo.medtronic.PumpData.TempBasalPair;
-import com.gxwtech.rtdemo.services.RTDemoService;
+import com.gxwtech.rtdemo.services.RoundtripService;
 import com.gxwtech.rtdemo.services.pumpmanager.TempBasalPairParcel;
 
 
@@ -33,7 +33,7 @@ public class TempBasalActivity extends ActionBarActivity {
     }
 
     protected void SendSetTempBasalRequest(TempBasalPair pair) {
-        Intent intent = new Intent(this, RTDemoService.class);
+        Intent intent = new Intent(this, RoundtripService.class);
         intent.putExtra("srq", Constants.SRQ.SET_TEMP_BASAL);
         intent.putExtra("name", Constants.ParcelName.TempBasalPairParcelName);
         intent.putExtra(Constants.ParcelName.TempBasalPairParcelName, new TempBasalPairParcel(pair));

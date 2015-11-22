@@ -100,12 +100,8 @@ public class MedtronicCommand {
         if (DEBUG_MEDTRONICCOMMAND) {
             Log.v("MEDTRONIC COMMAND", getName() + ": serial number " + ByteUtil.shortHexString(serialNumber));
         }
-
-        //byte[] pkt_att = new byte[]{(byte) 0xa7, 0x46, 0x73, 0x24, (byte)0x8d, 0x00};
-
         // Send a packet to the Medtronic
-        // TODO: I'm not sure at all if mButton is correct here.  Could just be 0x00?
-        byte[] packetToSend = makePacket(mCode,serialNumber,new byte[] {mButton});
+        byte[] packetToSend = makePacket(mCode,serialNumber,new byte[] {0x00});
 
         TransmitPacketCommand sender = new TransmitPacketCommand(rileylink,packetToSend
                 /*
@@ -121,6 +117,7 @@ public class MedtronicCommand {
         // sending function does not block.
         RileyLinkCommandResult senderStatus = sender.run(rileylink, default_timeout_millis);
         // wait for response from pump
+
         sleepForPumpResponse(mSleepForPumpResponse);
 
         return mStatus;

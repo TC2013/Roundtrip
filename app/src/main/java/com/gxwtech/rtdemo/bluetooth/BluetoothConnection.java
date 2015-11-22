@@ -45,8 +45,6 @@ public class BluetoothConnection {
     private static final String LS = System.getProperty("line.separator");
     private static final String TAG = "BluetoothConnection";
 
-    // http://www.mopri.de/2010/timertask-bad-do-it-the-android-way-use-a-handler/
-    private static final int BATTERY_UPDATE = 60 * 1000; // Every minute
     private static BluetoothConnection instance = null;
     private final Context context;
 
@@ -55,35 +53,11 @@ public class BluetoothConnection {
     private AsyncTask<Void, Void, Void> mCurrentOperationTimeout;
     private BluetoothGatt bluetoothConnectionGatt = null;
     private ConcurrentLinkedQueue<GattOperation> mQueue = new ConcurrentLinkedQueue<>();
-    private Handler batteryHandler = new Handler();
 
 
     final BluetoothManager bluetoothManager;
     final BluetoothAdapter bluetoothAdapter;
 
-
-    private Runnable batteryTask = new Runnable() {
-        @Override
-        public void run() {
-            /* do what you need to do */
-            instance.queue(new GattCharacteristicReadOperation(
-                    UUID.fromString(GattAttributes.GLUCOSELINK_BATTERY_SERVICE),
-                    UUID.fromString(GattAttributes.GLUCOSELINK_BATTERY_UUID),
-                    new GattCharacteristicReadCallback() {
-                        @Override
-                        public void call(byte[] characteristic) {
-                            Intent batteryUpdate = new Intent(Intents.BLUETOOTH_BATTERY);
-                            batteryUpdate.putExtra("battery", characteristic[0]);
-
-                            LocalBroadcastManager.getInstance(context).sendBroadcast(batteryUpdate);
-                        }
-                    }
-            ));
-
-            /* and here comes the "trick" */
-            batteryHandler.postDelayed(this, BATTERY_UPDATE);
-        }
-    };
 
     protected BluetoothConnection(Context context) {
         this.context = context;

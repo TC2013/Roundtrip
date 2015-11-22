@@ -9,7 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
-import com.gxwtech.rtdemo.services.RTDemoService;
+import com.gxwtech.rtdemo.services.RoundtripService;
 
 
 public class SuspendAPSActivity extends ActionBarActivity {
@@ -85,7 +85,7 @@ public class SuspendAPSActivity extends ActionBarActivity {
     protected void doSuspend(int minutes) {
         saveSettingsToPreferences();
         // tell the background service to suspend
-        Intent intent = new Intent(this, RTDemoService.class);
+        Intent intent = new Intent(this, RoundtripService.class);
         // background service will pull the delay amount from the saved preferences.
         intent.putExtra("srq", Constants.SRQ.DO_SUSPEND_MINUTES);
         startService(intent);

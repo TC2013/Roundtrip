@@ -21,7 +21,7 @@ import java.util.ArrayList;
  * storage: changes in the underlying implementation of any of the data in
  * the Parcel can render older data unreadable."
  * <p/>
- * This is intended to be passed between the background (RTDemoService) thread
+ * This is intended to be passed between the background (RoundtripService) thread
  * and the foreground UI thread(s).
  */
 public class PumpSettingsParcel extends PumpSettings implements Parcelable {
